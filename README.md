@@ -39,7 +39,7 @@ or use command line
  * `qmake`
  * `make -j<Number of threads>`
 
-Do cross compile for Sailfish OS, do the following:
+## To cross compile for Sailfish OS, do the following:
 
 Get and install Sailfish OS mersdk (tested with version 1608)
 
