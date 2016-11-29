@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+X-Nemo-Application-Type=generic
+Name=Shmoose
+Icon=harbour-shmoose
+Exec=harbour-shmoose
