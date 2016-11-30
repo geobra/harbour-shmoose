@@ -13,7 +13,7 @@
 #include "MessageController.h"
 
 Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
-	QObject(parent), rosterController_(new RosterController())
+	QObject(parent), rosterController_(new RosterController(this)), persistence_(new Persistence(this))
 {
 	netFactories_ = networkFactories;
 	connected = false;
@@ -30,8 +30,6 @@ Shmoose::~Shmoose()
 		delete softwareVersionResponder_;
 		delete client_;
 	}
-
-	delete rosterController_;
 }
 
 void Shmoose::mainConnect(const QString &jid, const QString &pass){
