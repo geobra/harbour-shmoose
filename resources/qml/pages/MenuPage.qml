@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
+
 Page {
     id: page;
 
@@ -14,7 +15,7 @@ Page {
             }
 
             PageHeader {
-                title: "Mitakuuluu";
+                title: "Shmoose";
             }
             Image {
                 id: img;
@@ -31,9 +32,11 @@ Page {
                     margins: Theme.paddingMedium;
                 }
             }
+
             ComboBox {
+		id: onlineStatus
                 label: qsTr ("Status");
-                currentIndex: 0;
+                currentIndex: 2;
                 menu: ContextMenu {
                     MenuItem { text: "Online"; }
                     MenuItem { text: "Away"; }
@@ -43,7 +46,16 @@ Page {
                     left: parent.left;
                     right: parent.right;
                 }
-            }
+		Connections {
+			target: shmoose
+			onConnectionStateConnected: {
+				onlineStatus.currentIndex = 0
+			}
+			onConnectionStateDisconnected: {
+			       onlineStatus.currentIndex = 2
+			}
+		}
+	    }
             Separator {
                 primaryColor: Qt.rgba (1,1,1, 0.5);
                 secondaryColor: Qt.rgba (1,1,1, 0.0);
@@ -122,3 +134,4 @@ Page {
         VerticalScrollDecorator {}
     }
 }
+
