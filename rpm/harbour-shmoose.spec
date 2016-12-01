@@ -40,9 +40,9 @@ install -d %{buildroot}%{_datadir}/harbour-%{name}
 install -d %{buildroot}%{_datadir}/harbour-%{name}/qml
 install -d %{buildroot}%{_datadir}/harbour-%{name}/icons
 cp -Ra ./resources/qml/* %{buildroot}%{_datadir}/harbour-%{name}/qml
-#cp -Ra ./resources/icons/* %{buildroot}%{_datadir}/harbour-%{name}/icons
-#install -d %{buildroot}%{_datadir}/icons/hicolor/86x86/apps
-#install -m 0444 -t %{buildroot}%{_datadir}/icons/hicolor/86x86/apps/ resources/icons/86x86/harbour-%{name}.png
+cp -Ra ./resources/icons/* %{buildroot}%{_datadir}/harbour-%{name}/icons
+install -d %{buildroot}%{_datadir}/icons/hicolor/86x86/apps
+install -m 0444 -t %{buildroot}%{_datadir}/icons/hicolor/86x86/apps/ resources/icons/86x86/harbour-%{name}.png
 install -p %(pwd)/resources/harbour-shmoose.desktop %{buildroot}%{_datadir}/applications/harbour-%{name}.desktop
 #install -p %(pwd)/harbour-shmoose-message.conf %{buildroot}%{_datadir}/lipstick/notificationcategories/%{name}-message.conf
 # >> install post
@@ -62,8 +62,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/applications/harbour-%{name}.desktop
 #%{_datadir}/lipstick/notificationcategories/%{name}-message.conf
 %{_datadir}/harbour-%{name}/qml
-#%{_datadir}/harbour-%{name}/icons
-#%{_datadir}/icons/hicolor/86x86/apps
+%{_datadir}/harbour-%{name}/icons
+%{_datadir}/icons/hicolor/86x86/apps
 %{_bindir}
 # >> files
 # << files
