@@ -21,7 +21,7 @@ public:
 	void addMessage(QString const &jid, QString const &message, unsigned int direction);
 
 signals:
-	void signalMessageReceived(QString);
+	void signalMessageReceived(unsigned int id, QString jid, QString message);
 
 public slots:
 

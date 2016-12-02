@@ -114,12 +114,15 @@ void MessageController::addMessage(const QString &jid, const QString &message, u
 	// update the model with the changes of the database
 	if (select())
 	{
-		emit signalMessageReceived(jid);
+		if (direction == 1)
+		{
+			emit signalMessageReceived(0, jid, message);
+		}
 	}
 	else
 	{
 		qDebug() << "error on select in MessageController::addMessage";
 	}
 
-	database_->dumpDataToStdOut();
+//	database_->dumpDataToStdOut();
 }

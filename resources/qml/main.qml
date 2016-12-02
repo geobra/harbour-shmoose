@@ -53,8 +53,7 @@ ApplicationWindow {
 	Connections {
 		target: shmoose.persistence.messageController
 		onSignalMessageReceived: {
-			console.log("qml: signal message received ###");
-			newMessageNotification(1, "jid@bla.de", "a message");
+			newMessageNotification(id, jid, message);
 		}
 	}
 }
