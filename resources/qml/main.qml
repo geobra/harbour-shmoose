@@ -53,7 +53,9 @@ ApplicationWindow {
 	Connections {
 		target: shmoose.persistence.messageController
 		onSignalMessageReceived: {
-			newMessageNotification(id, jid, message);
+			if (applicationActive == false) {
+				newMessageNotification(id, jid, message);
+			}
 		}
 	}
 }
