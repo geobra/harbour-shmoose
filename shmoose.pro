@@ -24,6 +24,7 @@ SOURCES += source/main.cpp \
 	source/RosterItem.cpp \
 	source/persistence/Database.cpp \
 	source/persistence/MessageController.cpp \
+	source/persistence/SessionController.cpp \
 	source/persistence/Persistence.cpp
 
 HEADERS += source/Shmoose.h \
@@ -34,6 +35,7 @@ HEADERS += source/Shmoose.h \
 	source/RosterItem.h \
 	source/persistence/Database.h \
 	source/persistence/MessageController.h \
+	source/persistence/SessionController.h \
 	source/persistence/Persistence.h
 
 RESOURCES += shmoose.qrc

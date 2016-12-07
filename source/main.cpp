@@ -15,14 +15,17 @@
 #include "RosterItem.h"
 #include "Persistence.h"
 #include "MessageController.h"
+#include "SessionController.h"
+
 
 int main(int argc, char *argv[])
 {
 	qmlRegisterType<RosterController>( "harbour.shmoose", 1, 0, "RosterController");
 	qmlRegisterType<RosterItem>( "harbour.shmoose", 1, 0, "RosterItem");
 
-	qRegisterMetaType<MessageController*>("MessageController*");
 	qRegisterMetaType<Persistence*>("Persistence*");
+	qRegisterMetaType<MessageController*>("MessageController*");
+	qRegisterMetaType<MessageController*>("SessionController*");
 
 #ifdef SFOS
 	QGuiApplication *app = SailfishApp::application(argc, argv);

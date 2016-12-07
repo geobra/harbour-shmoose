@@ -1,6 +1,7 @@
 #include "Persistence.h"
 #include "Database.h"
 #include "MessageController.h"
+#include "SessionController.h"
 
 Persistence::Persistence(QObject *parent) : QObject(parent), persistenceValid_(true)
 {
@@ -12,6 +13,7 @@ Persistence::Persistence(QObject *parent) : QObject(parent), persistenceValid_(t
 	else
 	{
 		messageController_ = new MessageController(db_, this);
+		sessionController_ = new SessionController(db_, this);
 	}
 }
 
@@ -23,12 +25,16 @@ Persistence::~Persistence()
 void Persistence::addMessage(QString const &jid, QString const &message, unsigned int direction)
 {
 	messageController_->addMessage(jid, message, direction);
-	emit messageContollerChanged();
+	sessionController_->updateSession(jid, message);
+
+	emit messageControllerChanged();
+	emit sessionControllerChanged();
 }
 
 void Persistence::setCurrentChatPartner(QString const &jid)
 {
 	messageController_->setFilterOnJid(jid);
+	sessionController_->updateNumberOfUnreadMessages(jid, 0);
 }
 
 bool Persistence::isValid()
@@ -36,7 +42,12 @@ bool Persistence::isValid()
 	return persistenceValid_;
 }
 
-MessageController* Persistence::getMessageContoller()
+MessageController* Persistence::getMessageController()
 {
 	return messageController_;
+}
+
+SessionController* Persistence::getSessionController()
+{
+	return sessionController_;
 }

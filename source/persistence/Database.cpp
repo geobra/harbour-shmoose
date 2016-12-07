@@ -23,12 +23,31 @@ Database::Database(QObject *parent) : QObject(parent), databaseValid_(true)
 		}
 		else
 		{
+			/* shmoose uses two table
+			 * one for all the messages, one for all the sessions
+			 *
+			 * + no table joins
+			 * + no complex queries
+			 * + fast
+			 * + standard qt classes
+			 * - minor redundant data
+			 */
+
+			// table for all the messages
 			QSqlQuery query;
 			// direction: (1)ncomming / (0)utgoing
 			QString sqlCreateCommand = "create table messages (id INTEGER PRIMARY KEY AUTOINCREMENT, jid TEXT, message TEXT, direction INTEGER, received TEXT)";
 			if (query.exec(sqlCreateCommand) == false)
 			{
-				qDebug() << "Error creating table";
+				qDebug() << "Error creating message table";
+				databaseValid_ = false;
+			}
+
+			// another table for the sessions
+			sqlCreateCommand = "create table sessions (jid TEXT, lastmessage TEXT, timestamp INTEGER, unreadmessages INTEGER)";
+			if (query.exec(sqlCreateCommand) == false)
+			{
+				qDebug() << "Error creating sessions table";
 				databaseValid_ = false;
 			}
 		}
@@ -47,6 +66,7 @@ bool Database::isValid()
 
 void Database::dumpDataToStdOut() const
 {
+#if 0
 	QSqlQuery query("select * from messages", database_);
 	QSqlRecord rec = query.record();
 
@@ -66,4 +86,25 @@ void Database::dumpDataToStdOut() const
 				 << query.value(directionCol).toString() << "\t"
 				 << query.value(timeStampCol).toString() << "\t";
 	}
+#endif
+
+	QSqlQuery query("select * from sessions", database_);
+	QSqlRecord rec = query.record();
+
+	const unsigned int jidCol = rec.indexOf("jid");
+	const unsigned int messageCol = rec.indexOf("lastmessage");
+	const unsigned int tsCol = rec.indexOf("timestamp");
+	const unsigned int unreadMsgCol = rec.indexOf("unreadmessages");
+
+	qDebug() << "id:\tjid:\tlastmessage:\ttimestamp\tunreadmessages:";
+	qDebug() << "---------------------------------------------------------------------------------------";
+	while (query.next())
+	{
+		qDebug()
+				 << query.value(jidCol).toString() << "\t"
+				 << query.value(messageCol).toString() << "\t"
+				 << query.value(tsCol).toInt() << "\t"
+				 << query.value(unreadMsgCol).toInt() << "\t";
+	}
+
 }
