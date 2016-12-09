@@ -7,11 +7,9 @@ import "cover"
 
 ApplicationWindow {
     cover: pageCover;
-    initialPage: pageMenu;
-    Component.onCompleted: {
-        pageStack.push (pageContacts, { }, PageStackAction.Immediate);
-    }
+    initialPage: pageLogin;
 
+    Component { id: pageLogin; LoginPage { } }
     Component { id: pageMenu; MenuPage { } }
     Component { id: pageCover; CoverPage { } }
     Component { id: pageContacts; ContactsPage { } }

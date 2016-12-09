@@ -10,25 +10,11 @@ Page {
         header: PageHeader {
             title: qsTr ("Conversations");
         }
-        model: [
-            { },
-            { },
-            { },
-            { },
-            { },
-            { },
-            { },
-            { },
-            { },
-            { },
-            { },
-            { },
-            { },
-        ];
+        model: shmoose.persistence.sessionController
         delegate: BackgroundItem {
             id: item;
             contentHeight: Theme.itemSizeLarge;
-            onClicked: { pageStack.push (pageMessaging, { "conversationId" : "123" }); }
+            onClicked: { pageStack.push (pageMessaging, { "conversationId" : jid }); }
 
             Column {
                 anchors {
@@ -39,11 +25,11 @@ Page {
                 }
 
                 Label {
-                    text: (modelData ["group"] || "Group %1".arg (model.index));
-                    color: (item.highlighted ? Theme.highlightColor : Theme.primaryColor);
+                    text: jid;
+                    color: Theme.primaryColor;
                 }
                 Label {
-                    text: (modelData ["summary"] || "blah blah blah...");
+                    text: lastmessage;
                     color: Theme.secondaryColor;
                 }
             }

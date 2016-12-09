@@ -5,6 +5,7 @@
 #include <boost/smart_ptr/make_shared.hpp>
 
 #include <QDateTime>
+#include <QSettings>
 #include <QDebug>
 
 #include "EchoPayload.h"
@@ -32,7 +33,8 @@ Shmoose::~Shmoose()
 	}
 }
 
-void Shmoose::mainConnect(const QString &jid, const QString &pass){
+void Shmoose::mainConnect(const QString &jid, const QString &pass)
+{
 	client_ = new Swift::Client(jid.toStdString(), pass.toStdString(), netFactories_);
 	client_->setAlwaysTrustCertificates();
 	client_->onConnected.connect(boost::bind(&Shmoose::handleConnected, this));
@@ -51,6 +53,10 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass){
 	client_->addPayloadSerializer(&echoPayloadSerializer_);
 
 	client_->connect();
+
+    // for evtl saving on connection success
+    jid_ = jid;
+    password_ = pass;
 }
 
 void Shmoose::setCurrentChatPartner(QString const &jid)
@@ -100,6 +106,11 @@ void Shmoose::handleConnected()
 
 	// Request the roster
 	rosterController_->requestRosterFromClient(client_);
+
+    // Save account data
+    QSettings settings;
+    settings.setValue("authentication/jid", jid_);
+    settings.setValue("authentication/password", password_);
 }
 
 void Shmoose::handleDisconnected()
@@ -150,4 +161,30 @@ Persistence* Shmoose::getPersistence()
 bool Shmoose::connectionState() const
 {
 	return connected;
+}
+
+QString Shmoose::getJid()
+{
+    QString returnValue = "";
+
+    QSettings settings;
+    if(settings.value("authentication/jid").toString() != "NOT_SET")
+    {
+        returnValue = settings.value("authentication/jid").toString();
+    }
+
+    return returnValue;
+}
+
+QString Shmoose::getPassword()
+{
+    QString returnValue = "";
+
+    QSettings settings;
+    if(settings.value("authentication/password").toString() != "NOT_SET")
+    {
+        returnValue = settings.value("authentication/password").toString();
+    }
+
+    return returnValue;
 }

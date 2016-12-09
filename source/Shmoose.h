@@ -31,6 +31,9 @@ public:
 	Q_INVOKABLE void sendMessage(QString const &toJid, QString const &message);
 	Q_INVOKABLE void setCurrentChatPartner(QString const &jid);
 
+    Q_INVOKABLE QString getJid();
+    Q_INVOKABLE QString getPassword();
+
 	bool connectionState() const;
 
 signals:
@@ -46,6 +49,9 @@ private:
 	void handleDisconnected();
 	void handleMessageReceived(Swift::Message::ref message);
 	bool connected;
+
+    QString jid_;
+    QString password_;
 
 	RosterController* getRosterController();
 	Persistence* getPersistence();
