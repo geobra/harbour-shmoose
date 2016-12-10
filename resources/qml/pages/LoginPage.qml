@@ -5,7 +5,12 @@ import harbour.shmoose 1.0
 Page {
 	id: loginPage
 	Column {
-		anchors.fill: parent
+		anchors {
+			fill: parent;
+			right: avatar.left;
+			margins: Theme.paddingMedium;
+			verticalCenter: parent.verticalCenter;
+		}
 
 		PageHeader {
 			title: "Login"
@@ -41,6 +46,23 @@ Page {
 			onTextChanged: {
 				checkEnableConnectButton();
 			}
+		}
+		Row {
+		    id: credentialsRow
+		    Switch {
+		        id: saveCredentials
+			checked: shmoose.checkSaveCredentials()
+			onClicked: {
+				shmoose.saveCredentials(saveCredentials.checked);
+			}
+		    }
+		    Label {
+		        text: "Save credentials (unencrypted)"
+	                font.pixelSize: Theme.fontSizeSmall
+			anchors {
+				verticalCenter: parent.verticalCenter;
+			}
+		    }
 		}
 
 		Button{

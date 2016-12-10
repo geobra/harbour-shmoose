@@ -29,8 +29,10 @@ public:
 	Q_INVOKABLE void mainDisconnect();
 	Q_INVOKABLE void mainConnect(const QString &jid, const QString &pass);
 	Q_INVOKABLE void sendMessage(QString const &toJid, QString const &message);
-	Q_INVOKABLE void setCurrentChatPartner(QString const &jid);
+	Q_INVOKABLE void setCurrentChatPartner(QString const &jid);       
 
+    Q_INVOKABLE bool checkSaveCredentials();
+    Q_INVOKABLE void saveCredentials(bool save);
     Q_INVOKABLE QString getJid();
     Q_INVOKABLE QString getPassword();
 

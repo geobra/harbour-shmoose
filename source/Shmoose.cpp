@@ -108,9 +108,12 @@ void Shmoose::handleConnected()
 	rosterController_->requestRosterFromClient(client_);
 
     // Save account data
-    QSettings settings;
-    settings.setValue("authentication/jid", jid_);
-    settings.setValue("authentication/password", password_);
+    if (checkSaveCredentials() == true)
+    {
+        QSettings settings;
+        settings.setValue("authentication/jid", jid_);
+        settings.setValue("authentication/password", password_);
+    }
 }
 
 void Shmoose::handleDisconnected()
@@ -162,6 +165,23 @@ bool Shmoose::connectionState() const
 {
 	return connected;
 }
+
+bool Shmoose::checkSaveCredentials()
+{
+    bool save = false;
+
+    QSettings settings;
+    save = settings.value("authentication/saveCredentials", false).toBool();
+
+    return save;
+}
+
+void Shmoose::saveCredentials(bool save)
+{
+    QSettings settings;
+    settings.setValue("authentication/saveCredentials", save);
+}
+
 
 QString Shmoose::getJid()
 {
