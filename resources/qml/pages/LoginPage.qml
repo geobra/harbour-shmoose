@@ -79,11 +79,14 @@ Page {
 		}
 	}
 
-
-        Connections {
+	Connections {
 		target: shmoose
-                onConnectionStateConnected: {
+		onConnectionStateConnected: {
 			pageStack.replace(pageMenu)
+		}
+		onConnectionStateDisconnected: {
+			connectButton.enabled = true;
+			connectButton.text = "Connect";
 		}
 	}
 

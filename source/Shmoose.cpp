@@ -15,6 +15,7 @@
 
 Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 	QObject(parent), rosterController_(new RosterController(this)), persistence_(new Persistence(this))
+    ,jid_(""), password_("")
 {
 	netFactories_ = networkFactories;
 	connected = false;
@@ -37,12 +38,15 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 {
 	client_ = new Swift::Client(jid.toStdString(), pass.toStdString(), netFactories_);
 	client_->setAlwaysTrustCertificates();
+
 	client_->onConnected.connect(boost::bind(&Shmoose::handleConnected, this));
 	client_->onDisconnected.connect(boost::bind(&Shmoose::handleDisconnected, this));
+
 	client_->onMessageReceived.connect(
 				boost::bind(&Shmoose::handleMessageReceived, this, _1));
 	client_->onPresenceReceived.connect(
 				boost::bind(&Shmoose::handlePresenceReceived, this, _1));
+
 	tracer_ = new Swift::ClientXMLTracer(client_);
 
 	softwareVersionResponder_ = new Swift::SoftwareVersionResponder(client_->getIQRouter());
@@ -54,9 +58,12 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 
 	client_->connect();
 
-    // for evtl saving on connection success
-    jid_ = jid;
-    password_ = pass;
+	// for saving on connection success
+	if (checkSaveCredentials() == true)
+	{
+		jid_ = jid;
+		password_ = pass;
+	}
 }
 
 void Shmoose::setCurrentChatPartner(QString const &jid)
@@ -107,13 +114,10 @@ void Shmoose::handleConnected()
 	// Request the roster
 	rosterController_->requestRosterFromClient(client_);
 
-    // Save account data
-    if (checkSaveCredentials() == true)
-    {
-        QSettings settings;
-        settings.setValue("authentication/jid", jid_);
-        settings.setValue("authentication/password", password_);
-    }
+	// Save account data
+	QSettings settings;
+	settings.setValue("authentication/jid", jid_);
+	settings.setValue("authentication/password", password_);
 }
 
 void Shmoose::handleDisconnected()
@@ -168,43 +172,43 @@ bool Shmoose::connectionState() const
 
 bool Shmoose::checkSaveCredentials()
 {
-    bool save = false;
+	bool save = false;
 
-    QSettings settings;
-    save = settings.value("authentication/saveCredentials", false).toBool();
+	QSettings settings;
+	save = settings.value("authentication/saveCredentials", false).toBool();
 
-    return save;
+	return save;
 }
 
 void Shmoose::saveCredentials(bool save)
 {
-    QSettings settings;
-    settings.setValue("authentication/saveCredentials", save);
+	QSettings settings;
+	settings.setValue("authentication/saveCredentials", save);
 }
 
 
 QString Shmoose::getJid()
 {
-    QString returnValue = "";
+	QString returnValue = "";
 
-    QSettings settings;
-    if(settings.value("authentication/jid").toString() != "NOT_SET")
-    {
-        returnValue = settings.value("authentication/jid").toString();
-    }
+	QSettings settings;
+	if(settings.value("authentication/jid").toString() != "NOT_SET")
+	{
+		returnValue = settings.value("authentication/jid").toString();
+	}
 
-    return returnValue;
+	return returnValue;
 }
 
 QString Shmoose::getPassword()
 {
-    QString returnValue = "";
+	QString returnValue = "";
 
-    QSettings settings;
-    if(settings.value("authentication/password").toString() != "NOT_SET")
-    {
-        returnValue = settings.value("authentication/password").toString();
-    }
+	QSettings settings;
+	if(settings.value("authentication/password").toString() != "NOT_SET")
+	{
+		returnValue = settings.value("authentication/password").toString();
+	}
 
-    return returnValue;
+	return returnValue;
 }
