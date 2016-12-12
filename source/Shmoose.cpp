@@ -125,11 +125,12 @@ void Shmoose::handleConnected()
 	rosterController_->requestRosterFromClient(client_);
 
 	// request the discoInfo
-	GetDiscoInfoRequest::ref discoInfoRequest =
+#if 0
+    GetDiscoInfoRequest::ref discoInfoRequest =
 			GetDiscoInfoRequest::create(JID(client_->getJID()), client_->getIQRouter());
 	discoInfoRequest->onResponse.connect(boost::bind(&Shmoose::handleServerDiscoInfoResponse, this, _1, _2));
 	discoInfoRequest->send();
-
+#endif
 
 	// Save account data
 	QSettings settings;
@@ -170,6 +171,17 @@ void Shmoose::handleMessageReceived(Message::ref message)
 		std::string body = *fromBody;
 		persistence_->addMessage(QString::fromStdString(fromJid), QString::fromStdString(body), 1 );
 	}
+
+    // send message receipt
+    // FIXME only on request
+    Message::ref receiptReply = boost::make_shared<Message>();
+    receiptReply->setFrom(message->getTo());
+    receiptReply->setTo(message->getFrom());
+
+    boost::shared_ptr<DeliveryReceipt> receipt = boost::make_shared<DeliveryReceipt>();
+    receipt->setReceivedID(message->getID());
+    receiptReply->addPayload(receipt);
+    client_->sendMessage(receiptReply);
 }
 
 void Shmoose::handleServerDiscoInfoResponse(boost::shared_ptr<DiscoInfo> info, ErrorPayload::ref error)
