@@ -5,7 +5,7 @@ import harbour.shmoose 1.0
 ApplicationWindow {
     visible: true
     width: 360
-    height: 720
+    height: 360
 
     Loader {
         id: mainLoader

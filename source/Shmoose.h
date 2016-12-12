@@ -29,12 +29,12 @@ public:
 	Q_INVOKABLE void mainDisconnect();
 	Q_INVOKABLE void mainConnect(const QString &jid, const QString &pass);
 	Q_INVOKABLE void sendMessage(QString const &toJid, QString const &message);
-	Q_INVOKABLE void setCurrentChatPartner(QString const &jid);       
+	Q_INVOKABLE void setCurrentChatPartner(QString const &jid);
 
-    Q_INVOKABLE bool checkSaveCredentials();
-    Q_INVOKABLE void saveCredentials(bool save);
-    Q_INVOKABLE QString getJid();
-    Q_INVOKABLE QString getPassword();
+	Q_INVOKABLE bool checkSaveCredentials();
+	Q_INVOKABLE void saveCredentials(bool save);
+	Q_INVOKABLE QString getJid();
+	Q_INVOKABLE QString getPassword();
 
 	bool connectionState() const;
 
@@ -50,10 +50,9 @@ private:
 	void handleConnected();
 	void handleDisconnected();
 	void handleMessageReceived(Swift::Message::ref message);
-	bool connected;
+	void handleServerDiscoInfoResponse(boost::shared_ptr<DiscoInfo> info, ErrorPayload::ref error);
 
-    QString jid_;
-    QString password_;
+	bool connected;
 
 	RosterController* getRosterController();
 	Persistence* getPersistence();
@@ -67,6 +66,9 @@ private:
 
 	RosterController* rosterController_;
 	Persistence* persistence_;
+
+	QString jid_;
+	QString password_;
 };
 
 #endif

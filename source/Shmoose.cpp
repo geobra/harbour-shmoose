@@ -8,6 +8,8 @@
 #include <QSettings>
 #include <QDebug>
 
+#include <Swiften/Elements/DiscoInfo.h>
+
 #include "EchoPayload.h"
 #include "RosterContoller.h"
 #include "Persistence.h"
@@ -15,7 +17,7 @@
 
 Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 	QObject(parent), rosterController_(new RosterController(this)), persistence_(new Persistence(this))
-    ,jid_(""), password_("")
+	,jid_(""), password_("")
 {
 	netFactories_ = networkFactories;
 	connected = false;
@@ -111,8 +113,23 @@ void Shmoose::handleConnected()
 	emit connectionStateConnected();
 	client_->sendPresence(Presence::create("Send me a message"));
 
+	// register capabilities
+	// http://xmpp.org/extensions/xep-0184.html, MessageDeliveryReceiptsFeature
+	DiscoInfo discoInfo;
+	discoInfo.addIdentity(DiscoInfo::Identity("shmoose", "client", "phone"));
+	discoInfo.addFeature(DiscoInfo::MessageDeliveryReceiptsFeature);
+	//client_->getDiscoManager()->setCapsNode("https://github.com/geobra/harbour-shmoose");
+	client_->getDiscoManager()->setDiscoInfo(discoInfo);
+
 	// Request the roster
 	rosterController_->requestRosterFromClient(client_);
+
+	// request the discoInfo
+	GetDiscoInfoRequest::ref discoInfoRequest =
+			GetDiscoInfoRequest::create(JID(client_->getJID()), client_->getIQRouter());
+	discoInfoRequest->onResponse.connect(boost::bind(&Shmoose::handleServerDiscoInfoResponse, this, _1, _2));
+	discoInfoRequest->send();
+
 
 	// Save account data
 	QSettings settings;
@@ -152,6 +169,18 @@ void Shmoose::handleMessageReceived(Message::ref message)
 	{
 		std::string body = *fromBody;
 		persistence_->addMessage(QString::fromStdString(fromJid), QString::fromStdString(body), 1 );
+	}
+}
+
+void Shmoose::handleServerDiscoInfoResponse(boost::shared_ptr<DiscoInfo> info, ErrorPayload::ref error)
+{
+	qDebug() << "Shmoose::handleServerDiscoInfoResponse";
+	if (!error)
+	{
+		if (info->hasFeature(DiscoInfo::MessageDeliveryReceiptsFeature))
+		{
+			qDebug() << "has feature MessageDeliveryReceiptsFeature";
+		}
 	}
 }
 

@@ -8,12 +8,14 @@ Item {
             TextField {
                 id: jidField
                 width: 150
+                text: shmoose.getJid()
                 placeholderText: "JID"
             }
             TextField {
                 id: passField
                 width: 150
                 height: 27
+                text: shmoose.getPassword()
                 placeholderText: "Password"
                 echoMode: TextInput.Password
             }
@@ -22,6 +24,7 @@ Item {
             id: connectButton
             text: "Connect"
             onClicked: {
+                shmoose.saveCredentials(true);
                 connectButton.enabled = false;
                 shmoose.mainConnect(jidField.text, passField.text);
             }
