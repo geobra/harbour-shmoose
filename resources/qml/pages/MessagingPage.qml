@@ -135,7 +135,7 @@ Page {
                     color: Theme.primaryColor;
                     width: Math.min (item.maxContentWidth, contentWidth);
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
-                    visible: (modelData ["type"] === "text");
+                    visible: true;
                     font {
                         family: Theme.fontFamilyHeading;
                         pixelSize: Theme.fontSizeMedium;
@@ -156,7 +156,7 @@ Page {
                     }
                 }
                 Label {
-                    text: timestamp;
+                    text: Qt.formatDateTime (new Date (timestamp * 1000), "yyyy-MM-dd hh:mm:ss");
                     color: Theme.secondaryColor;
                     font {
                         family: Theme.fontFamilyHeading;
@@ -166,6 +166,15 @@ Page {
                         left: (item.alignRight ? parent.left : undefined);
                         right: (!item.alignRight ? parent.right : undefined);
                     }
+                }
+                Image {
+                    source: {
+                        if (isreceived) {
+                            return "../img/check.png"
+                        }
+                        return ""
+                    }
+                    anchors.right: parent.right
                 }
             }
         }
