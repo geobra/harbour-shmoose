@@ -17,7 +17,8 @@ public:
 	virtual QHash<int, QByteArray> roleNames() const;
 
 	void setFilterOnJid(QString const &jidFiler);
-	void addMessage(QString const &jid, QString const &message, unsigned int direction);
+    void addMessage(const QString &id, QString const &jid, QString const &message, unsigned int direction);
+    void markMessageReceived(QString const &id);
 
 signals:
 	void signalMessageReceived(unsigned int id, QString jid, QString message);
@@ -27,6 +28,9 @@ public slots:
 private:
 	void generateRoleNames();
 	virtual void setTable ( const QString &table_name );
+    int getRowNumberForId(QString const &id);
+
+    void printSqlError();
 
 	QHash<int, QByteArray> roles_;
 	Database *database_;

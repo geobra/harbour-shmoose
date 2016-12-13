@@ -16,14 +16,16 @@ class Persistence : public QObject
 public:
 	explicit Persistence(QObject *parent = 0);
 	~Persistence();
+
 	bool isValid();
+    void markMessageAsReceivedById(QString const &id);
 
 signals:
 	void messageControllerChanged();
 	void sessionControllerChanged();
 
 public slots:
-	void addMessage(QString const &jid, QString const &message, unsigned int direction);
+    void addMessage(const QString &id, QString const &jid, QString const &message, unsigned int direction);
 	void setCurrentChatPartner(QString const &jid);
 
 private:

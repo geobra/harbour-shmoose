@@ -156,7 +156,7 @@ Page {
                     }
                 }
                 Label {
-                    text: received;
+                    text: timestamp;
                     color: Theme.secondaryColor;
                     font {
                         family: Theme.fontFamilyHeading;

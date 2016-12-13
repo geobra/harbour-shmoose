@@ -36,7 +36,7 @@ Database::Database(QObject *parent) : QObject(parent), databaseValid_(true)
 			// table for all the messages
 			QSqlQuery query;
 			// direction: (1)ncomming / (0)utgoing
-			QString sqlCreateCommand = "create table messages (id INTEGER PRIMARY KEY AUTOINCREMENT, jid TEXT, message TEXT, direction INTEGER, received TEXT)";
+            QString sqlCreateCommand = "create table messages (id TEXT PRIMARY KEY, jid TEXT, message TEXT, direction INTEGER, timestamp INTEGER, isreceived BOOL)";
 			if (query.exec(sqlCreateCommand) == false)
 			{
 				qDebug() << "Error creating message table";
@@ -66,7 +66,6 @@ bool Database::isValid()
 
 void Database::dumpDataToStdOut() const
 {
-#if 0
 	QSqlQuery query("select * from messages", database_);
 	QSqlRecord rec = query.record();
 
@@ -74,20 +73,22 @@ void Database::dumpDataToStdOut() const
 	const unsigned int jidCol = rec.indexOf("jid");
 	const unsigned int messageCol = rec.indexOf("message");
 	const unsigned int directionCol = rec.indexOf("direction");
-	const unsigned int timeStampCol = rec.indexOf("received");
+    const unsigned int timeStampCol = rec.indexOf("timestamp");
+    const unsigned int isReceivedCol = rec.indexOf("isreceived");
 
-	qDebug() << "id:\t\tjid:\t\tmessage:\t\tdirection\t\treceived:";
+    qDebug() << "id:\t\tjid:\tmessage:\t\tdirection\ttimestamp,\treceived:";
 	qDebug() << "---------------------------------------------------------------------------------------";
 	while (query.next())
 	{
-		qDebug() << query.value(idCol).toInt() << "\t"
+        qDebug() << query.value(idCol).toString() << "\t"
 				 << query.value(jidCol).toString() << "\t"
 				 << query.value(messageCol).toString() << "\t"
 				 << query.value(directionCol).toString() << "\t"
-				 << query.value(timeStampCol).toString() << "\t";
+                 << query.value(timeStampCol).toInt() << "\t"
+                 << query.value(isReceivedCol).toBool() << "\t";
 	}
-#endif
 
+#if 0
 	QSqlQuery query("select * from sessions", database_);
 	QSqlRecord rec = query.record();
 
@@ -106,5 +107,5 @@ void Database::dumpDataToStdOut() const
 				 << query.value(tsCol).toInt() << "\t"
 				 << query.value(unreadMsgCol).toInt() << "\t";
 	}
-
+#endif
 }

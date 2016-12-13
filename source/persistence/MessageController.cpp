@@ -16,7 +16,7 @@ MessageController::MessageController(Database *db, QObject *parent) :
 {
 	setEditStrategy(QSqlTableModel::OnRowChange);
 	setTable("messages");
-	setSort(0, Qt::AscendingOrder);
+    setSort(4, Qt::AscendingOrder); // 4 -> timestamp
 	if (!select())
 	{
 		qDebug() << "error on select in MessageController::MessageController";
@@ -84,14 +84,15 @@ void MessageController::setTable ( const QString &table_name )
 	generateRoleNames();
 }
 
-void MessageController::addMessage(const QString &jid, const QString &message, unsigned int direction)
+void MessageController::addMessage(const QString &id, const QString &jid, const QString &message, unsigned int direction)
 {
 	QSqlRecord record = this->record();
 
+    record.setValue("id", id);
 	record.setValue("jid", jid);
 	record.setValue("message", message);
 	record.setValue("direction", direction);
-	record.setValue("received", QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss"));
+    record.setValue("timestamp", QDateTime::currentDateTime().toTime_t());
 
 	if (! this->insertRecord(-1, record))
 	{
@@ -125,4 +126,57 @@ void MessageController::addMessage(const QString &jid, const QString &message, u
 	}
 
 //	database_->dumpDataToStdOut();
+}
+
+void MessageController::markMessageReceived(QString const &id)
+{
+    int row = getRowNumberForId(id);
+
+    if (row >= 0) // only on found messages
+    {
+        QSqlRecord record = this->record(row);
+        record.setValue("isreceived", true);
+
+        if (this->setRecord(row, record) == false)
+        {
+            printSqlError();
+        }
+        else
+        {
+            if (! this->submitAll())
+            {
+                printSqlError();
+            }
+        }
+
+        // update the model with the changes of the database
+        if (select() != true)
+        {
+            qDebug() << "error on select in MessageController::addMessage";
+        }
+    }
+}
+
+int MessageController::getRowNumberForId(QString const &id)
+{
+    int returnValue = -1;
+
+    for (int row = 0; row < rowCount(); row++)
+    {
+        QString idInModel = record(row).value("id").toString();
+
+        if (idInModel == id)
+        {
+            returnValue = row;
+        }
+    }
+
+    return returnValue;
+}
+
+void MessageController::printSqlError()
+{
+    qDebug() << this->lastError().databaseText();
+    qDebug() << this->lastError().driverText();
+    qDebug() << this->lastError().text();
 }

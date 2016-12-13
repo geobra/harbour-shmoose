@@ -22,13 +22,18 @@ Persistence::~Persistence()
 	// db_ has this as parent and gets free'd implicit from this;
 }
 
-void Persistence::addMessage(QString const &jid, QString const &message, unsigned int direction)
+void Persistence::addMessage(QString const &id, QString const &jid, QString const &message, unsigned int direction)
 {
-	messageController_->addMessage(jid, message, direction);
+    messageController_->addMessage(id, jid, message, direction);
 	sessionController_->updateSession(jid, message);
 
 	emit messageControllerChanged();
 	emit sessionControllerChanged();
+}
+
+void Persistence::markMessageAsReceivedById(QString const &id)
+{
+    messageController_->markMessageReceived(id);
 }
 
 void Persistence::setCurrentChatPartner(QString const &jid)

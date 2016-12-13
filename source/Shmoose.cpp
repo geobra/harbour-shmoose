@@ -9,6 +9,7 @@
 #include <QDebug>
 
 #include <Swiften/Elements/DiscoInfo.h>
+#include <Swiften/Base/IDGenerator.h>
 
 #include "EchoPayload.h"
 #include "RosterContoller.h"
@@ -76,15 +77,20 @@ void Shmoose::setCurrentChatPartner(QString const &jid)
 void Shmoose::sendMessage(QString const &toJid, QString const &message)
 {
 	Swift::Message::ref msg(new Swift::Message);
-
 	Swift::JID receiverJid(toJid.toStdString());
 
-	msg->setFrom(JID());
+    Swift::IDGenerator idGenerator;
+    std::string msgId = idGenerator.generateID();
+
+    msg->setFrom(JID(client_->getJID()));
 	msg->setTo(receiverJid);
+    msg->setID(msgId);
 	msg->setBody(message.toStdString());
+    msg->addPayload(boost::make_shared<DeliveryReceiptRequest>());
+
 	client_->sendMessage(msg);
 
-	persistence_->addMessage(QString::fromStdString(receiverJid.toBare().toString()), message, 0);
+    persistence_->addMessage(QString::fromStdString(msgId), QString::fromStdString(receiverJid.toBare().toString()), message, 0);
 }
 
 void Shmoose::mainDisconnect()
@@ -146,52 +152,52 @@ void Shmoose::handleDisconnected()
 
 void Shmoose::handleMessageReceived(Message::ref message)
 {
-	std::cout << "handleMessageReceived" << std::endl;
+    //std::cout << "handleMessageReceived" << std::endl;
 
 	std::string fromJid = message->getFrom().toBare().toString();
 	boost::optional<std::string> fromBody = message->getBody();
 
-#if 0
-	QDateTime timeFromMessage;
-	boost::optional<boost::posix_time::ptime> tsFromMessage = message->getTimestamp();
-	if(tsFromMessage)
-	{
-		boost::posix_time::ptime ts = *tsFromMessage;
-		//qDebug() << "ts: " << ts.time_of_day().
-		std::string isoString = boost::posix_time::to_iso_string(ts);
-		qDebug() << "isoString: " << isoString.c_str();
-		timeFromMessage = QDateTime::fromString(isoString.c_str(), "yyyyMMddTHHmmss");
-		qDebug() << "qstring: " << timeFromMessage.toString();
-	}
-#endif
-
-	// fixme. add empty message if no body in here.
+    // fixme. add message to persistence if body or media a received
 	if (fromBody)
 	{
 		std::string body = *fromBody;
-		persistence_->addMessage(QString::fromStdString(fromJid), QString::fromStdString(body), 1 );
+        persistence_->addMessage(QString::fromStdString(message->getID()), QString::fromStdString(fromJid), QString::fromStdString(body), 1 );
 	}
 
-    // send message receipt
-    // FIXME only on request
-    Message::ref receiptReply = boost::make_shared<Message>();
-    receiptReply->setFrom(message->getTo());
-    receiptReply->setTo(message->getFrom());
+    // XEP 0184
+    if (message->getPayload<DeliveryReceiptRequest>())
+    {
+        // send message receipt
+        Message::ref receiptReply = boost::make_shared<Message>();
+        receiptReply->setFrom(message->getTo());
+        receiptReply->setTo(message->getFrom());
 
-    boost::shared_ptr<DeliveryReceipt> receipt = boost::make_shared<DeliveryReceipt>();
-    receipt->setReceivedID(message->getID());
-    receiptReply->addPayload(receipt);
-    client_->sendMessage(receiptReply);
+        boost::shared_ptr<DeliveryReceipt> receipt = boost::make_shared<DeliveryReceipt>();
+        receipt->setReceivedID(message->getID());
+        receiptReply->addPayload(receipt);
+        client_->sendMessage(receiptReply);
+    }
+
+    // mark sent msg as received
+    DeliveryReceipt::ref rcpt = message->getPayload<DeliveryReceipt>();
+    if (rcpt)
+    {
+        std::string recevideId = rcpt->getReceivedID();
+        if (recevideId.length() > 0)
+        {
+            persistence_->markMessageAsReceivedById(QString::fromStdString(recevideId));
+        }
+    }
 }
 
 void Shmoose::handleServerDiscoInfoResponse(boost::shared_ptr<DiscoInfo> info, ErrorPayload::ref error)
 {
-	qDebug() << "Shmoose::handleServerDiscoInfoResponse";
+    //qDebug() << "Shmoose::handleServerDiscoInfoResponse";
 	if (!error)
 	{
 		if (info->hasFeature(DiscoInfo::MessageDeliveryReceiptsFeature))
 		{
-			qDebug() << "has feature MessageDeliveryReceiptsFeature";
+            //qDebug() << "has feature MessageDeliveryReceiptsFeature";
 		}
 	}
 }
