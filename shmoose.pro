@@ -25,7 +25,9 @@ SOURCES += source/main.cpp \
 	source/persistence/Database.cpp \
 	source/persistence/MessageController.cpp \
 	source/persistence/SessionController.cpp \
-	source/persistence/Persistence.cpp
+	source/persistence/Persistence.cpp \
+	source/FileTransferController.cpp \
+	source/FileTransferProgressInfo.cpp
 
 HEADERS += source/Shmoose.h \
 	source/EchoPayload.h \
@@ -36,7 +38,9 @@ HEADERS += source/Shmoose.h \
 	source/persistence/Database.h \
 	source/persistence/MessageController.h \
 	source/persistence/SessionController.h \
-	source/persistence/Persistence.h
+	source/persistence/Persistence.h \
+	source/FileTransferController.h \
+	source/FileTransferProgressInfo.h
 
 RESOURCES += shmoose.qrc
 
