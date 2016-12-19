@@ -14,6 +14,11 @@
 class RosterController;
 class Persistence;
 
+namespace Swift
+{
+	class FileTransferController;
+}
+
 class Shmoose : public QObject
 {
 	Q_OBJECT
@@ -66,6 +71,7 @@ private:
 
 	RosterController* rosterController_;
 	Persistence* persistence_;
+	FileTransferController* fileTransferController_;
 
 	QString jid_;
 	QString password_;

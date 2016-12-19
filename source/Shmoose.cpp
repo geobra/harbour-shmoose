@@ -10,11 +10,14 @@
 
 #include <Swiften/Elements/DiscoInfo.h>
 #include <Swiften/Base/IDGenerator.h>
+#include <Swiften/FileTransfer/FileTransferManager.h>
+
 
 #include "EchoPayload.h"
 #include "RosterContoller.h"
 #include "Persistence.h"
 #include "MessageController.h"
+#include "FileTransferController.h"
 
 Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 	QObject(parent), rosterController_(new RosterController(this)), persistence_(new Persistence(this))
@@ -50,7 +53,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 	client_->onPresenceReceived.connect(
 				boost::bind(&Shmoose::handlePresenceReceived, this, _1));
 
-	tracer_ = new Swift::ClientXMLTracer(client_);
+	//tracer_ = new Swift::ClientXMLTracer(client_);
 
 	softwareVersionResponder_ = new Swift::SoftwareVersionResponder(client_->getIQRouter());
 	softwareVersionResponder_->setVersion("Shmoose", "0.1");
@@ -79,18 +82,18 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message)
 	Swift::Message::ref msg(new Swift::Message);
 	Swift::JID receiverJid(toJid.toStdString());
 
-    Swift::IDGenerator idGenerator;
-    std::string msgId = idGenerator.generateID();
+	Swift::IDGenerator idGenerator;
+	std::string msgId = idGenerator.generateID();
 
-    msg->setFrom(JID(client_->getJID()));
+	msg->setFrom(JID(client_->getJID()));
 	msg->setTo(receiverJid);
-    msg->setID(msgId);
+	msg->setID(msgId);
 	msg->setBody(message.toStdString());
-    msg->addPayload(boost::make_shared<DeliveryReceiptRequest>());
+	msg->addPayload(boost::make_shared<DeliveryReceiptRequest>());
 
 	client_->sendMessage(msg);
 
-    persistence_->addMessage(QString::fromStdString(msgId), QString::fromStdString(receiverJid.toBare().toString()), message, 0);
+	persistence_->addMessage(QString::fromStdString(msgId), QString::fromStdString(receiverJid.toBare().toString()), message, 0);
 }
 
 void Shmoose::mainDisconnect()
@@ -124,15 +127,25 @@ void Shmoose::handleConnected()
 	DiscoInfo discoInfo;
 	discoInfo.addIdentity(DiscoInfo::Identity("shmoose", "client", "phone"));
 	discoInfo.addFeature(DiscoInfo::MessageDeliveryReceiptsFeature);
-	//client_->getDiscoManager()->setCapsNode("https://github.com/geobra/harbour-shmoose");
+	// xep0234 JingleFileTransfer Feature
+	discoInfo.addFeature(DiscoInfo::JingleFTFeature);
+	discoInfo.addFeature(DiscoInfo::JingleTransportsIBBFeature);
+	discoInfo.addFeature(DiscoInfo::JingleTransportsS5BFeature);
+	// send
 	client_->getDiscoManager()->setDiscoInfo(discoInfo);
+
+	// FileTransferManager
+	std::string testTransfer = "testTransfer";
+	Swift::FileTransferManager *fileTransferManager = client_->getFileTransferManager();
+	fileTransferController_ = new Swift::FileTransferController("schorsch@conversations.im", "/tmp/test.txt", fileTransferManager);
+	fileTransferController_->start(testTransfer);
 
 	// Request the roster
 	rosterController_->requestRosterFromClient(client_);
 
 	// request the discoInfo
 #if 0
-    GetDiscoInfoRequest::ref discoInfoRequest =
+	GetDiscoInfoRequest::ref discoInfoRequest =
 			GetDiscoInfoRequest::create(JID(client_->getJID()), client_->getIQRouter());
 	discoInfoRequest->onResponse.connect(boost::bind(&Shmoose::handleServerDiscoInfoResponse, this, _1, _2));
 	discoInfoRequest->send();
@@ -152,52 +165,52 @@ void Shmoose::handleDisconnected()
 
 void Shmoose::handleMessageReceived(Message::ref message)
 {
-    //std::cout << "handleMessageReceived" << std::endl;
+	//std::cout << "handleMessageReceived" << std::endl;
 
 	std::string fromJid = message->getFrom().toBare().toString();
 	boost::optional<std::string> fromBody = message->getBody();
 
-    // fixme. add message to persistence if body or media a received
+	// fixme. add message to persistence if body or media a received
 	if (fromBody)
 	{
 		std::string body = *fromBody;
-        persistence_->addMessage(QString::fromStdString(message->getID()), QString::fromStdString(fromJid), QString::fromStdString(body), 1 );
+		persistence_->addMessage(QString::fromStdString(message->getID()), QString::fromStdString(fromJid), QString::fromStdString(body), 1 );
 	}
 
-    // XEP 0184
-    if (message->getPayload<DeliveryReceiptRequest>())
-    {
-        // send message receipt
-        Message::ref receiptReply = boost::make_shared<Message>();
-        receiptReply->setFrom(message->getTo());
-        receiptReply->setTo(message->getFrom());
+	// XEP 0184
+	if (message->getPayload<DeliveryReceiptRequest>())
+	{
+		// send message receipt
+		Message::ref receiptReply = boost::make_shared<Message>();
+		receiptReply->setFrom(message->getTo());
+		receiptReply->setTo(message->getFrom());
 
-        boost::shared_ptr<DeliveryReceipt> receipt = boost::make_shared<DeliveryReceipt>();
-        receipt->setReceivedID(message->getID());
-        receiptReply->addPayload(receipt);
-        client_->sendMessage(receiptReply);
-    }
+		boost::shared_ptr<DeliveryReceipt> receipt = boost::make_shared<DeliveryReceipt>();
+		receipt->setReceivedID(message->getID());
+		receiptReply->addPayload(receipt);
+		client_->sendMessage(receiptReply);
+	}
 
-    // mark sent msg as received
-    DeliveryReceipt::ref rcpt = message->getPayload<DeliveryReceipt>();
-    if (rcpt)
-    {
-        std::string recevideId = rcpt->getReceivedID();
-        if (recevideId.length() > 0)
-        {
-            persistence_->markMessageAsReceivedById(QString::fromStdString(recevideId));
-        }
-    }
+	// mark sent msg as received
+	DeliveryReceipt::ref rcpt = message->getPayload<DeliveryReceipt>();
+	if (rcpt)
+	{
+		std::string recevideId = rcpt->getReceivedID();
+		if (recevideId.length() > 0)
+		{
+			persistence_->markMessageAsReceivedById(QString::fromStdString(recevideId));
+		}
+	}
 }
 
 void Shmoose::handleServerDiscoInfoResponse(boost::shared_ptr<DiscoInfo> info, ErrorPayload::ref error)
 {
-    //qDebug() << "Shmoose::handleServerDiscoInfoResponse";
+	//qDebug() << "Shmoose::handleServerDiscoInfoResponse";
 	if (!error)
 	{
 		if (info->hasFeature(DiscoInfo::MessageDeliveryReceiptsFeature))
 		{
-            //qDebug() << "has feature MessageDeliveryReceiptsFeature";
+			//qDebug() << "has feature MessageDeliveryReceiptsFeature";
 		}
 	}
 }
