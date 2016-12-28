@@ -1,5 +1,18 @@
 # Shmoose - XMPP Client for Sailfish OS
 
+## Feature Stack until version 1.0
+
+* Login to Jabber server [done]
+* Get roster [done]
+* Send and receive messages [done]
+* Notification on new messages [done]
+* XEP-0184: Message Delivery Receipts [done]
+* XEP-0363: HTTP File Upload [WIP]
+* XEP-0045: Multi-User Chat [ ]
+* OMEMO Multi-End Message and Object Encryption [ ]
+* Add, edit and delete roster items [ ]
+* Make database persistent [ ]
+
 ## Installation
 
 On Linux do the following:

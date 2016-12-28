@@ -14,7 +14,10 @@ Page {
         delegate: BackgroundItem {
             id: item;
             contentHeight: Theme.itemSizeLarge;
-            onClicked: { pageStack.push (pageMessaging, { "conversationId" : jid }); }
+            onClicked: {
+		pageStack.push (pageMessaging, { "conversationId" : jid }); 
+		shmoose.setCurrentChatPartner(jid);
+	    }
 
             Column {
                 anchors {
@@ -24,10 +27,24 @@ Page {
                     verticalCenter: parent.verticalCenter;
                 }
 
-                Label {
-                    text: jid;
-                    color: Theme.primaryColor;
-                }
+		Row {
+                	Label {
+                    		text: jid;
+                    		color: Theme.primaryColor;
+                	}
+			Rectangle {
+             	    		width: 45
+               			height: 45
+                 		color: "#999900"
+                 		radius: width*0.5
+                 		visible: (unreadmessages > 0) ? true : false
+                 		Label {
+                     			text: unreadmessages
+                     			anchors.horizontalCenter: parent.horizontalCenter
+                     			anchors.verticalCenter: parent.verticalCenter
+                 		}
+            		}
+		}
                 Label {
                     text: lastmessage;
                     color: Theme.secondaryColor;

@@ -18,14 +18,14 @@ public:
 	~Persistence();
 
 	bool isValid();
-    void markMessageAsReceivedById(QString const &id);
+	void markMessageAsReceivedById(QString const &id);
 
 signals:
 	void messageControllerChanged();
 	void sessionControllerChanged();
 
 public slots:
-    void addMessage(const QString &id, QString const &jid, QString const &message, unsigned int direction);
+	void addMessage(const QString &id, QString const &jid, QString const &message, unsigned int direction);
 	void setCurrentChatPartner(QString const &jid);
 
 private:

@@ -13,7 +13,7 @@ SessionController::SessionController(QObject *parent) : QSqlTableModel(parent)
 }
 
 SessionController::SessionController(Database *db, QObject *parent) :
-	QSqlTableModel(parent, *(db->getPointer())), database_(db)
+	QSqlTableModel(parent, *(db->getPointer())), database_(db), currentChatPartner_("")
 {
 	setEditStrategy(QSqlTableModel::OnRowChange);
 	setTable("sessions");
@@ -140,7 +140,10 @@ void SessionController::updateSession(QString const &jid, QString const &lastMes
 	record.setValue("jid", jid);
 	record.setValue("lastmessage", lastMessage);
 	record.setValue("timestamp", QDateTime::currentDateTime().toTime_t() );
-	record.setValue("unreadmessages", ++unreadMessages);
+	if (jid != currentChatPartner_)
+	{
+		record.setValue("unreadmessages", ++unreadMessages);
+	}
 
 	bool submitRecord = false;
 	if (row == -1)
@@ -173,6 +176,10 @@ void SessionController::updateSession(QString const &jid, QString const &lastMes
 	database_->dumpDataToStdOut();
 }
 
+void SessionController::setCurrentChatPartner(QString const &jid)
+{
+	currentChatPartner_ = jid;
+}
 
 void SessionController::printSqlError()
 {

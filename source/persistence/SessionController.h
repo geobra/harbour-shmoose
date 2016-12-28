@@ -19,6 +19,8 @@ public:
 	void updateSession(QString const &jid, QString const &lastMessage);
 	void updateNumberOfUnreadMessages(QString const &jid, unsigned int unreadMessages);
 
+	void setCurrentChatPartner(QString const &jid);
+
 signals:
 
 public slots:
@@ -35,6 +37,8 @@ private:
 
 	QHash<int, QByteArray> roles_;
 	Database *database_;
+
+	QString currentChatPartner_;
 };
 
 #endif // MESSAGECONTROLLER_H
