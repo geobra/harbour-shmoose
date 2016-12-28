@@ -13,6 +13,7 @@
 
 class RosterController;
 class Persistence;
+class HttpFileUploadManager;
 
 class Shmoose : public QObject
 {
@@ -28,7 +29,6 @@ public:
 
 	Q_INVOKABLE void mainDisconnect();
 	Q_INVOKABLE void mainConnect(const QString &jid, const QString &pass);
-	Q_INVOKABLE void sendMessage(QString const &toJid, QString const &message);
 	Q_INVOKABLE void setCurrentChatPartner(QString const &jid);
 
 	Q_INVOKABLE bool checkSaveCredentials();
@@ -37,6 +37,9 @@ public:
 	Q_INVOKABLE QString getPassword();
 
 	bool connectionState() const;
+
+public slots:
+	void sendMessage(QString const &toJid, QString const &message);
 
 signals:
 	void rosterControllerChanged();
@@ -52,6 +55,9 @@ private:
 	void handleMessageReceived(Swift::Message::ref message);
 	void handleServerDiscoInfoResponse(boost::shared_ptr<DiscoInfo> info, ErrorPayload::ref error);
 
+	void requestHttpUploadSlot();
+	void handleHttpUploadResponse(const std::string response);
+
 	bool connected;
 
 	RosterController* getRosterController();
@@ -66,6 +72,7 @@ private:
 
 	RosterController* rosterController_;
 	Persistence* persistence_;
+	HttpFileUploadManager* httpFileUploadManager_;
 
 	QString jid_;
 	QString password_;

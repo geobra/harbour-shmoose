@@ -6,9 +6,12 @@
 
 #include <QDateTime>
 #include <QSettings>
+
 #include <QDebug>
 
 #include <Swiften/Elements/DiscoInfo.h>
+#include <Swiften/Elements/DiscoItems.h>
+
 #include <Swiften/Base/IDGenerator.h>
 
 #include "EchoPayload.h"
@@ -16,12 +19,18 @@
 #include "Persistence.h"
 #include "MessageController.h"
 
+#include "HttpFileUploadManager.h"
+
 Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
-	QObject(parent), rosterController_(new RosterController(this)), persistence_(new Persistence(this))
-	,jid_(""), password_("")
+	QObject(parent), rosterController_(new RosterController(this)),
+	persistence_(new Persistence(this)), httpFileUploadManager_(new HttpFileUploadManager(this)),
+	jid_(""), password_("")
 {
 	netFactories_ = networkFactories;
 	connected = false;
+
+	connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString)),
+			this, SLOT(sendMessage(QString,QString)));
 }
 
 Shmoose::~Shmoose()
@@ -79,18 +88,18 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message)
 	Swift::Message::ref msg(new Swift::Message);
 	Swift::JID receiverJid(toJid.toStdString());
 
-    Swift::IDGenerator idGenerator;
-    std::string msgId = idGenerator.generateID();
+	Swift::IDGenerator idGenerator;
+	std::string msgId = idGenerator.generateID();
 
-    msg->setFrom(JID(client_->getJID()));
+	msg->setFrom(JID(client_->getJID()));
 	msg->setTo(receiverJid);
-    msg->setID(msgId);
+	msg->setID(msgId);
 	msg->setBody(message.toStdString());
-    msg->addPayload(boost::make_shared<DeliveryReceiptRequest>());
+	msg->addPayload(boost::make_shared<DeliveryReceiptRequest>());
 
 	client_->sendMessage(msg);
 
-    persistence_->addMessage(QString::fromStdString(msgId), QString::fromStdString(receiverJid.toBare().toString()), message, 0);
+	persistence_->addMessage(QString::fromStdString(msgId), QString::fromStdString(receiverJid.toBare().toString()), message, 0);
 }
 
 void Shmoose::mainDisconnect()
@@ -117,6 +126,7 @@ void Shmoose::handleConnected()
 {
 	connected = true;
 	emit connectionStateConnected();
+
 	client_->sendPresence(Presence::create("Send me a message"));
 
 	// register capabilities
@@ -130,13 +140,13 @@ void Shmoose::handleConnected()
 	// Request the roster
 	rosterController_->requestRosterFromClient(client_);
 
-	// request the discoInfo
-#if 0
-    GetDiscoInfoRequest::ref discoInfoRequest =
-			GetDiscoInfoRequest::create(JID(client_->getJID()), client_->getIQRouter());
+	// request the discoInfo from server
+	GetDiscoInfoRequest::ref discoInfoRequest = GetDiscoInfoRequest::create(JID(client_->getJID().getDomain()), client_->getIQRouter());
 	discoInfoRequest->onResponse.connect(boost::bind(&Shmoose::handleServerDiscoInfoResponse, this, _1, _2));
 	discoInfoRequest->send();
-#endif
+
+	// pass the client pointer to the httpFileUploadManager
+	httpFileUploadManager_->setClient(client_);
 
 	// Save account data
 	QSettings settings;
@@ -152,52 +162,73 @@ void Shmoose::handleDisconnected()
 
 void Shmoose::handleMessageReceived(Message::ref message)
 {
-    //std::cout << "handleMessageReceived" << std::endl;
+	//std::cout << "handleMessageReceived" << std::endl;
 
 	std::string fromJid = message->getFrom().toBare().toString();
 	boost::optional<std::string> fromBody = message->getBody();
 
-    // fixme. add message to persistence if body or media a received
 	if (fromBody)
 	{
 		std::string body = *fromBody;
-        persistence_->addMessage(QString::fromStdString(message->getID()), QString::fromStdString(fromJid), QString::fromStdString(body), 1 );
+		persistence_->addMessage(QString::fromStdString(message->getID()), QString::fromStdString(fromJid), QString::fromStdString(body), 1 );
 	}
 
-    // XEP 0184
-    if (message->getPayload<DeliveryReceiptRequest>())
-    {
-        // send message receipt
-        Message::ref receiptReply = boost::make_shared<Message>();
-        receiptReply->setFrom(message->getTo());
-        receiptReply->setTo(message->getFrom());
+	// XEP 0184
+	if (message->getPayload<DeliveryReceiptRequest>())
+	{
+		// send message receipt
+		Message::ref receiptReply = boost::make_shared<Message>();
+		receiptReply->setFrom(message->getTo());
+		receiptReply->setTo(message->getFrom());
 
-        boost::shared_ptr<DeliveryReceipt> receipt = boost::make_shared<DeliveryReceipt>();
-        receipt->setReceivedID(message->getID());
-        receiptReply->addPayload(receipt);
-        client_->sendMessage(receiptReply);
-    }
+		boost::shared_ptr<DeliveryReceipt> receipt = boost::make_shared<DeliveryReceipt>();
+		receipt->setReceivedID(message->getID());
+		receiptReply->addPayload(receipt);
+		client_->sendMessage(receiptReply);
+	}
 
-    // mark sent msg as received
-    DeliveryReceipt::ref rcpt = message->getPayload<DeliveryReceipt>();
-    if (rcpt)
-    {
-        std::string recevideId = rcpt->getReceivedID();
-        if (recevideId.length() > 0)
-        {
-            persistence_->markMessageAsReceivedById(QString::fromStdString(recevideId));
-        }
-    }
+	// mark sent msg as received
+	DeliveryReceipt::ref rcpt = message->getPayload<DeliveryReceipt>();
+	if (rcpt)
+	{
+		std::string recevideId = rcpt->getReceivedID();
+		if (recevideId.length() > 0)
+		{
+			persistence_->markMessageAsReceivedById(QString::fromStdString(recevideId));
+		}
+	}
 }
 
 void Shmoose::handleServerDiscoInfoResponse(boost::shared_ptr<DiscoInfo> info, ErrorPayload::ref error)
 {
-    //qDebug() << "Shmoose::handleServerDiscoInfoResponse";
+	//qDebug() << "Shmoose::handleServerDiscoInfoResponse";
+	const std::string httpUpload = "urn:xmpp:http:upload";
+
 	if (!error)
 	{
-		if (info->hasFeature(DiscoInfo::MessageDeliveryReceiptsFeature))
+		if (info->hasFeature(httpUpload))
 		{
-            //qDebug() << "has feature MessageDeliveryReceiptsFeature";
+			qDebug() << "has feature urn:xmpp:http:upload";
+			//severHasFeatureHttpUpload = true;
+			httpFileUploadManager_->setSeverHasFeatureHttpUpload(true);
+
+			foreach (Swift::Form::ref form, info->getExtensions())
+			{
+				if (form)
+				{
+					//qDebug() << "form: " << QString::fromStdString((*form).getFormType());
+					if ((*form).getFormType() == httpUpload)
+					{
+						Swift::FormField::ref formField = (*form).getField("max-file-size");
+						if (formField)
+						{
+							unsigned int maxFileSize = std::stoi((*formField).getTextSingleValue());
+							qDebug() << QString::fromStdString((*formField).getName()) << " val: " << maxFileSize;
+							httpFileUploadManager_->setMaxFileSize(maxFileSize);
+						}
+					}
+				}
+			}
 		}
 	}
 }
