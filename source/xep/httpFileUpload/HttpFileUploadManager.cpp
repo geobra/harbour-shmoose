@@ -23,7 +23,7 @@ void HttpFileUploadManager::setClient(Swift::Client* client)
 	client_ = client;
 }
 
-bool HttpFileUploadManager::generateDownloadUrlToFileForJid(const QString &file, const QString &jid)
+bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const QString &jid)
 {
 	bool returnValue = false;
 

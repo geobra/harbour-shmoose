@@ -16,7 +16,7 @@
 #include "Persistence.h"
 #include "MessageController.h"
 #include "SessionController.h"
-
+#include "FileModel.h"
 
 int main(int argc, char *argv[])
 {
@@ -37,9 +37,11 @@ int main(int argc, char *argv[])
 	QtEventLoop eventLoop;
 	BoostNetworkFactories networkFactories(&eventLoop);
 	Shmoose shmoose(&networkFactories);
+    FileModel fileModel;
 
 #ifdef SFOS
 	view->rootContext()->setContextProperty("shmoose", &shmoose);
+    view->rootContext()->setContextProperty("fileModel", &fileModel);
 
 	view->setSource(QUrl::fromLocalFile("/usr/share/harbour-shmoose/qml/main.qml"));
 	view->showFullScreen();

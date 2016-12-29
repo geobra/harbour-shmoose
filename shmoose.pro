@@ -14,7 +14,10 @@ INCLUDEPATH += $${SWIFT3PATH}/
 INCLUDEPATH += source/persistence
 INCLUDEPATH += source/xep/httpFileUpload
 
-QMAKE_CXXFLAGS += $${SWIFTCXX} -Wno-deprecated-declarations -Wno-placement-new -std=c++11
+QMAKE_CXXFLAGS += $${SWIFTCXX} -std=c++11
+linux-g++ {
+    QMAKE_CXXFLAGS += -Wno-deprecated-declarations -Wno-placement-new
+}
 LIBS += -L$${SWIFT3PATH}/Swiften -L$${SWIFT3PATH}/3rdParty/Boost $${SWIFTLIB}
 
 DEFINES += BOOST_SIGNALS_NO_DEPRECATION_WARNING
@@ -29,8 +32,8 @@ SOURCES += source/main.cpp \
 	source/persistence/Persistence.cpp \
         source/xep/httpFileUpload/XmlHttpUploadContentHandler.cpp \
         source/xep/httpFileUpload/HttpFileuploader.cpp \
-#    source/HttpUploadSlotRequest.cpp
-    source/xep/httpFileUpload/HttpFileUploadManager.cpp
+        source/xep/httpFileUpload/HttpFileUploadManager.cpp \
+        source/FileModel.cpp
 
 HEADERS += source/Shmoose.h \
 	source/EchoPayload.h \
@@ -44,8 +47,8 @@ HEADERS += source/Shmoose.h \
 	source/persistence/Persistence.h \
         source/xep/httpFileUpload/XmlHttpUploadContentHandler.h \
         source/xep/httpFileUpload/HttpFileuploader.h \
-#    source/HttpUploadSlotRequest.h
-    source/xep/httpFileUpload/HttpFileUploadManager.h
+        source/xep/httpFileUpload/HttpFileUploadManager.h \
+        source/FileModel.h
 
 RESOURCES += shmoose.qrc
 

@@ -40,6 +40,8 @@ public:
 
 public slots:
 	void sendMessage(QString const &toJid, QString const &message);
+    void sendFile(QString const &toJid, QString const &file);
+
 
 signals:
 	void rosterControllerChanged();

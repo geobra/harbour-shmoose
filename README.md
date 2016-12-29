@@ -1,5 +1,10 @@
 # Shmoose - XMPP Client for Sailfish OS
 
+Shmoose builds on and includes code from the following projects:
+
+* XMPP library `Swiften <https://swift.im/swiften.html>` from Isode
+* Image picker is from `hangish <https://github.com/rogora/hangish>` written by Daniele Rogora
+
 ## Feature Stack until version 1.0
 
 * Login to Jabber server [done]

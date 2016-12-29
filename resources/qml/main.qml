@@ -17,6 +17,11 @@ ApplicationWindow {
     Component { id: pagePreferences; PreferencesPage { } }
     Component { id: pageAccount; AccountPage { } }
     Component { id: pageMessaging; MessagingPage { } }
+    Component { id: imagePicker; ImagePickerPage { } }
+
+    ImagePickerPage {
+        id: pageImagePicker
+    }
 
     Component {
         id: messageNotification

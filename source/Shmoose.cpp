@@ -102,6 +102,14 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message)
 	persistence_->addMessage(QString::fromStdString(msgId), QString::fromStdString(receiverJid.toBare().toString()), message, 0);
 }
 
+void Shmoose::sendFile(QString const &toJid, QString const &file)
+{
+    if (httpFileUploadManager_->requestToUploadFileForJid(file, toJid) == false)
+    {
+        qDebug() << "Shmoose::sendFile failed";
+    }
+}
+
 void Shmoose::mainDisconnect()
 {
 	if (connectionState())

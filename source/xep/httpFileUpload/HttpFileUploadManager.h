@@ -14,7 +14,7 @@ class HttpFileUploadManager : public QObject
 public:
 	explicit HttpFileUploadManager(QObject *parent = 0);
 
-	bool generateDownloadUrlToFileForJid(QString const &file, const QString &jid);
+    bool requestToUploadFileForJid(QString const &file, const QString &jid);
 	QString getStatus();
 
 	void setClient(Swift::Client* client);
