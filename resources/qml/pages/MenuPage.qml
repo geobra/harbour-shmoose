@@ -34,7 +34,7 @@ Page {
             }
 
             ComboBox {
-		id: onlineStatus
+                id: onlineStatus
                 label: qsTr ("Status");
                 currentIndex: 2;
                 menu: ContextMenu {
@@ -46,16 +46,7 @@ Page {
                     left: parent.left;
                     right: parent.right;
                 }
-		Connections {
-			target: shmoose
-			onConnectionStateConnected: {
-				onlineStatus.currentIndex = 0
-			}
-			onConnectionStateDisconnected: {
-			       onlineStatus.currentIndex = 2
-			}
-		}
-	    }
+            }
             Separator {
                 primaryColor: Qt.rgba (1,1,1, 0.5);
                 secondaryColor: Qt.rgba (1,1,1, 0.0);
@@ -132,6 +123,18 @@ Page {
         anchors.fill: parent
 
         VerticalScrollDecorator {}
+    }
+
+    Connections {
+        target: shmoose
+        onConnectionStateConnected: {
+            onlineStatus.currentIndex = 0
+            console.log("### connected ###")
+        }
+        onConnectionStateDisconnected: {
+            onlineStatus.currentIndex = 2
+            console.log("### DISconnected ###")
+        }
     }
 }
 

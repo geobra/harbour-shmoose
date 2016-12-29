@@ -20,7 +20,7 @@ ApplicationWindow {
     Component { id: imagePicker; ImagePickerPage { } }
 
     ImagePickerPage {
-        id: pageImagePicker
+            id: pageImagePicker
     }
 
     Component {
@@ -36,8 +36,7 @@ ApplicationWindow {
         m.summary = summary
         m.body = body
         m.clicked.connect(function() {
-            contactspage.activate()
-            //contactspage.showConversation(id, PageStackAction.Immediate)
+            pageContacts.activate()
         })
         // This is needed to call default action
         m.remoteActions = [ {
@@ -53,14 +52,14 @@ ApplicationWindow {
         m.publish()
     }
 
-	Connections {
-		target: shmoose.persistence.messageController
-		onSignalMessageReceived: {
-			if (applicationActive == false) {
-				newMessageNotification(id, jid, message);
-			}
-		}
-	}
+    Connections {
+        target: shmoose.persistence.messageController
+        onSignalMessageReceived: {
+            if (applicationActive == false) {
+                newMessageNotification(id, jid, message);
+            }
+        }
+    }
 }
 
 

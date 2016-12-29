@@ -9,7 +9,6 @@ Page {
 
     Image {
         //source: "image://glass/qrc:///qml/img/photo.png";
-        source: "image://glass/file:///tmp/tst.png";
         opacity: 0.85;
         sourceSize: Qt.size (Screen.width, Screen.height);
         asynchronous: false
@@ -81,6 +80,7 @@ Page {
     SilicaListView {
         id: view;
         clip: true;
+
         model: shmoose.persistence.messageController
 
         header: Item {
@@ -188,6 +188,9 @@ Page {
 
     Row {
         id: sendmsgview
+
+        property var attachmentPath: ""
+
         anchors {
             left: parent.left;
             right: parent.right;
@@ -198,16 +201,46 @@ Page {
             id: editbox;
             placeholderText: qsTr ("Enter message...");
             width: parent.width - 100
+
+            onTextChanged: {
+                sendButton.icon.source = getSendButtonImage()
+            }
         }
         IconButton {
             id: sendButton
-            icon.source: "image://theme/icon-m-enter-accept"
+            icon.source: getSendButtonImage()
             width: 100
             onClicked: {
-                var msgToSend = editbox.text;
-                editbox.text = " ";
-
-                shmoose.sendMessage(conversationId, msgToSend);
+                if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0) {
+                    sendmsgview.attachmentPath = ""
+                    fileModel.searchPath = "/home/nemo/Pictures"
+                    pageStack.push(pageImagePicker)
+                    pageImagePicker.selected.connect(setAttachmentPath)
+                } else {
+                    //console.log(sendmsgview.attachmentPath)
+                    var msgToSend = editbox.text;
+                    editbox.text = " ";
+                    if (sendmsgview.attachmentPath.length > 0) {
+                        shmoose.sendFile(conversationId, sendmsgview.attachmentPath);
+                    }
+                    shmoose.sendMessage(conversationId, msgToSend);
+                }
+                sendmsgview.attachmentPath = ""
+            }
+            function setAttachmentPath(path) {
+                //console.log(path)
+                sendmsgview.attachmentPath = path
+            }
+        }
+    }
+    function getSendButtonImage() {
+        if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0) {
+            return "image://theme/icon-m-attach"
+        } else {
+            if (sendmsgview.attachmentPath.length > 0) {
+                return "image://theme/icon-m-media"
+            } else {
+                return "image://theme/icon-m-enter-accept"
             }
         }
     }
