@@ -11,6 +11,7 @@ QT += qml quick core sql xml
 
 INCLUDEPATH += $${SWIFT3PATH}/3rdParty/Boost/src
 INCLUDEPATH += $${SWIFT3PATH}/
+INCLUDEPATH += source
 INCLUDEPATH += source/persistence
 INCLUDEPATH += source/xep/httpFileUpload
 
@@ -33,7 +34,8 @@ SOURCES += source/main.cpp \
         source/xep/httpFileUpload/XmlHttpUploadContentHandler.cpp \
         source/xep/httpFileUpload/HttpFileuploader.cpp \
         source/xep/httpFileUpload/HttpFileUploadManager.cpp \
-        source/FileModel.cpp
+        source/FileModel.cpp \
+        source/ImageProcessing.cpp
 
 HEADERS += source/Shmoose.h \
 	source/EchoPayload.h \
@@ -48,7 +50,8 @@ HEADERS += source/Shmoose.h \
         source/xep/httpFileUpload/XmlHttpUploadContentHandler.h \
         source/xep/httpFileUpload/HttpFileuploader.h \
         source/xep/httpFileUpload/HttpFileUploadManager.h \
-        source/FileModel.h
+        source/FileModel.h \
+        source/ImageProcessing.h
 
 RESOURCES += shmoose.qrc
 

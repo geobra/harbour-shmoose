@@ -1,10 +1,15 @@
 #include "HttpFileUploadManager.h"
 #include "XmlHttpUploadContentHandler.h"
 #include "HttpFileuploader.h"
+#include "ImageProcessing.h"
 
 #include <QFile>
 #include <QFileInfo>
 #include <QXmlSimpleReader>
+#include <QStandardPaths>
+#include <QDir>
+#include <QDateTime>
+
 #include <QDebug>
 
 HttpFileUploadManager::HttpFileUploadManager(QObject *parent) : QObject(parent),
@@ -16,6 +21,8 @@ HttpFileUploadManager::HttpFileUploadManager(QObject *parent) : QObject(parent),
 	connect(httpUpload_, SIGNAL(updateStatus(QString)), this, SLOT(updateStatusString(QString)));
 	connect(httpUpload_, SIGNAL(uploadSuccess()), this, SLOT(successReceived()));
 	connect(httpUpload_, SIGNAL(errorOccurred()), this, SLOT(errorReceived()));
+
+    busy_ = (! this->createAttachmentPath());
 }
 
 void HttpFileUploadManager::setClient(Swift::Client* client)
@@ -29,14 +36,19 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
 
 	if (busy_ == false && client_ != NULL && severHasFeatureHttpUpload_ == true)
 	{
-		busy_ = true;
-		returnValue = true;
+        QString preparedImageForSending = createTargetImageName(file);
 
-		file_->setFileName(file);
-		jid_ = jid;
+        if (ImageProcessing::prepareImageForSending(file, preparedImageForSending, getMaxFileSize()))
+        {
+            busy_ = true;
+            returnValue = true;
 
-		requestHttpUploadSlot();
-	}
+            file_->setFileName(preparedImageForSending);
+            jid_ = jid;
+
+            requestHttpUploadSlot();
+        }
+    }
 
 	return returnValue;
 }
@@ -108,7 +120,6 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
 		{
 			getUrl_ = handler->getGetUrl();
 
-			// FIXME check file size
 			httpUpload_->upload(handler->getPutUrl(), file_);
 		}
 	}
@@ -127,4 +138,36 @@ void HttpFileUploadManager::successReceived()
 void HttpFileUploadManager::errorReceived()
 {
 	busy_ = false;
+}
+
+QString HttpFileUploadManager::getAttachmentPath()
+{
+    return QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QDir::separator() + "attachments";
+}
+
+bool HttpFileUploadManager::createAttachmentPath()
+{
+    QString attachmentLocation = getAttachmentPath();
+    QDir dir(attachmentLocation);
+
+    qDebug() << "attachment location: " << attachmentLocation;
+
+    if (!dir.exists()) {
+        dir.mkpath(".");
+    }
+
+    return dir.exists();
+}
+
+QString HttpFileUploadManager::createTargetImageName(QString source)
+{
+    QDateTime now(QDateTime::currentDateTime());
+    uint unixTime = now.toTime_t();
+
+    QString targetFileName = QFileInfo(source).baseName() + "." + QFileInfo(source).completeSuffix();
+    QString targetPath = getAttachmentPath() + QDir::separator() + QString::number(unixTime) + targetFileName;
+
+    qDebug() << "target file: " << targetPath;
+
+    return targetPath;
 }
