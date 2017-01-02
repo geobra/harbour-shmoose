@@ -48,7 +48,7 @@ void FileModel::searchFiles(QString path)
 {
     QDir dir(path);
     QStringList sl = ImageProcessing::getKnownImageTypes();
-    sl.replaceInStrings(QRegExp("(.*)"), "*.\\1");
+    sl.replaceInStrings(QRegExp("^(.*)$"), "*.\\1");
 
     const QFileInfoList &list = dir.entryInfoList(sl, QDir::AllDirs | QDir::NoDot | QDir::NoSymLinks | QDir::Files, QDir::DirsFirst | QDir::Time);
     foreach (const QFileInfo &info, list) {

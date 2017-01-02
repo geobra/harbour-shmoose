@@ -223,7 +223,7 @@ Page {
                     if (sendmsgview.attachmentPath.length > 0) {
                         shmoose.sendFile(conversationId, sendmsgview.attachmentPath);
                     }
-                    shmoose.sendMessage(conversationId, msgToSend);
+                    shmoose.sendMessage(conversationId, msgToSend, "text");
                 }
                 sendmsgview.attachmentPath = ""
             }
