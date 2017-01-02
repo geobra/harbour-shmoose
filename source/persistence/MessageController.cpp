@@ -84,7 +84,7 @@ void MessageController::setTable ( const QString &table_name )
 	generateRoleNames();
 }
 
-void MessageController::addMessage(const QString &id, const QString &jid, const QString &message, unsigned int direction)
+void MessageController::addMessage(const QString &id, const QString &jid, const QString &message, const QString &type, unsigned int direction)
 {
 	QSqlRecord record = this->record();
 
@@ -92,6 +92,7 @@ void MessageController::addMessage(const QString &id, const QString &jid, const 
 	record.setValue("jid", jid);
 	record.setValue("message", message);
 	record.setValue("direction", direction);
+    record.setValue("type", type);
     record.setValue("timestamp", QDateTime::currentDateTime().toTime_t());
 
 	if (! this->insertRecord(-1, record))

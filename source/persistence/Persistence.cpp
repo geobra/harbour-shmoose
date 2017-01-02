@@ -22,9 +22,9 @@ Persistence::~Persistence()
 	// db_ has this as parent and gets free'd implicit from this;
 }
 
-void Persistence::addMessage(QString const &id, QString const &jid, QString const &message, unsigned int direction)
+void Persistence::addMessage(QString const &id, QString const &jid, QString const &message, QString const &type, unsigned int direction)
 {
-	messageController_->addMessage(id, jid, message, direction);
+    messageController_->addMessage(id, jid, message, type, direction);
 	sessionController_->updateSession(jid, message);
 
 	emit messageControllerChanged();

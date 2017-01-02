@@ -17,7 +17,7 @@ public:
 	virtual QHash<int, QByteArray> roleNames() const;
 
 	void setFilterOnJid(QString const &jidFiler);
-    void addMessage(const QString &id, QString const &jid, QString const &message, unsigned int direction);
+    void addMessage(const QString &id, QString const &jid, QString const &message, const QString &type, unsigned int direction);
     void markMessageReceived(QString const &id);
 
 signals:

@@ -20,6 +20,7 @@
 #include "MessageController.h"
 
 #include "HttpFileUploadManager.h"
+#include "ImageProcessing.h"
 
 Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 	QObject(parent), rosterController_(new RosterController(this)),
@@ -29,8 +30,8 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 	netFactories_ = networkFactories;
 	connected = false;
 
-	connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString)),
-			this, SLOT(sendMessage(QString,QString)));
+    connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString,QString)),
+            this, SLOT(sendMessage(QString,QString,QString)));
 }
 
 Shmoose::~Shmoose()
@@ -83,7 +84,7 @@ void Shmoose::setCurrentChatPartner(QString const &jid)
 	persistence_->setCurrentChatPartner(jid);
 }
 
-void Shmoose::sendMessage(QString const &toJid, QString const &message)
+void Shmoose::sendMessage(QString const &toJid, QString const &message, QString const &type)
 {
 	Swift::Message::ref msg(new Swift::Message);
 	Swift::JID receiverJid(toJid.toStdString());
@@ -99,7 +100,7 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message)
 
 	client_->sendMessage(msg);
 
-	persistence_->addMessage(QString::fromStdString(msgId), QString::fromStdString(receiverJid.toBare().toString()), message, 0);
+    persistence_->addMessage(QString::fromStdString(msgId), QString::fromStdString(receiverJid.toBare().toString()), message, type, 0);
 }
 
 void Shmoose::sendFile(QString const &toJid, QString const &file)
@@ -178,7 +179,18 @@ void Shmoose::handleMessageReceived(Message::ref message)
 	if (fromBody)
 	{
 		std::string body = *fromBody;
-		persistence_->addMessage(QString::fromStdString(message->getID()), QString::fromStdString(fromJid), QString::fromStdString(body), 1 );
+        QString theBody = QString::fromStdString(body);
+
+        QString type = "txt";
+
+        QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
+        QString bodyEnd = theBody.trimmed().right(3); // url ends with an image type
+        if (knownImageTypes.contains(bodyEnd))
+        {
+            type = "image";
+        }
+
+        persistence_->addMessage(QString::fromStdString(message->getID()), QString::fromStdString(fromJid), theBody, type, 1 );
 	}
 
 	// XEP 0184

@@ -132,7 +132,7 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
 void HttpFileUploadManager::successReceived()
 {
 	busy_ = false;
-	emit fileUploadedForJidToUrl(jid_, getUrl_);
+    emit fileUploadedForJidToUrl(jid_, getUrl_, "image");
 }
 
 void HttpFileUploadManager::errorReceived()

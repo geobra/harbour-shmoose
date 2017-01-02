@@ -26,7 +26,7 @@ public:
 	unsigned int getMaxFileSize();
 
 signals:
-	void fileUploadedForJidToUrl(QString, QString);
+    void fileUploadedForJidToUrl(QString, QString, QString);
 
 public slots:
 	void updateStatusString(QString string);

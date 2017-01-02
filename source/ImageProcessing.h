@@ -7,6 +7,8 @@ class ImageProcessing
 {
 public:
     static bool prepareImageForSending(QString source, QString target, unsigned int maxSize);
+    static QStringList getKnownImageTypes();
+
 private:
     ImageProcessing();
 };

@@ -50,3 +50,11 @@ bool ImageProcessing::prepareImageForSending(QString source, QString target, uns
 
     return returnValue;
 }
+
+QStringList ImageProcessing::getKnownImageTypes()
+{
+    QStringList list;
+    list << "jpg" << "JPG" << "jpeg" << "JPEG" << "png" << "PNG" << "gif" << "GIF";
+
+    return list;
+}

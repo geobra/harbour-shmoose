@@ -21,6 +21,8 @@ along with Nome-Programma.  If not, see <http://www.gnu.org/licenses/>
 */
 
 #include "FileModel.h"
+#include "ImageProcessing.h"
+
 #include <QStandardPaths>
 
 FileModel::FileModel(QObject *parent) :
@@ -45,8 +47,9 @@ int FileModel::rowCount(const QModelIndex &parent) const
 void FileModel::searchFiles(QString path)
 {
     QDir dir(path);
-    QStringList sl;
-    sl << "*.jpg" << "*.JPG" << "*.jpeg" << "*.JPEG" << "*.png" << "*.PNG" << "*.gif" << "*.GIF";
+    QStringList sl = ImageProcessing::getKnownImageTypes();
+    sl.replaceInStrings(QRegExp("(.*)"), "*.\\1");
+
     const QFileInfoList &list = dir.entryInfoList(sl, QDir::AllDirs | QDir::NoDot | QDir::NoSymLinks | QDir::Files, QDir::DirsFirst | QDir::Time);
     foreach (const QFileInfo &info, list) {
         if (info.fileName() == "..")

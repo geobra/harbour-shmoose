@@ -39,7 +39,7 @@ public:
 	bool connectionState() const;
 
 public slots:
-	void sendMessage(QString const &toJid, QString const &message);
+    void sendMessage(QString const &toJid, QString const &message, const QString &type);
     void sendFile(QString const &toJid, QString const &file);
 
 

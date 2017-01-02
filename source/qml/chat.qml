@@ -32,7 +32,6 @@ Window {
                     Text { text: message }
                 }
             }
-
         }
     }
 
@@ -44,7 +43,7 @@ Window {
         id: sendbutton
         text: "send"
         onClicked: {
-            shmoose.sendMessage(jid, texttosend.text)
+            shmoose.sendMessage(jid, texttosend.text, "txt")
         }
     }
 }
