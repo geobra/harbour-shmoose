@@ -80,6 +80,7 @@ Page {
     SilicaListView {
         id: view;
         clip: true;
+        rotation: 180
 
         model: shmoose.persistence.messageController
 
@@ -100,6 +101,7 @@ Page {
         spacing: Theme.paddingMedium;
         delegate: Item {
             id: item;
+            rotation: 180
             height: shadow.height;
             anchors {
                 left: parent.left;

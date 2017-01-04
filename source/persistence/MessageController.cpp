@@ -16,7 +16,7 @@ MessageController::MessageController(Database *db, QObject *parent) :
 {
 	setEditStrategy(QSqlTableModel::OnRowChange);
 	setTable("messages");
-    setSort(4, Qt::AscendingOrder); // 4 -> timestamp
+    setSort(4, Qt::DescendingOrder); // 4 -> timestamp
 	if (!select())
 	{
 		qDebug() << "error on select in MessageController::MessageController";
