@@ -6,6 +6,7 @@
 
 #include <QDateTime>
 #include <QSettings>
+#include <QUrl>
 
 #include <QDebug>
 
@@ -21,6 +22,7 @@
 
 #include "HttpFileUploadManager.h"
 #include "ImageProcessing.h"
+#include "System.h"
 
 Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 	QObject(parent), rosterController_(new RosterController(this)),
@@ -183,13 +185,15 @@ void Shmoose::handleMessageReceived(Message::ref message)
 
         QString type = "txt";
 
-        QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
-        QString bodyEnd = theBody.trimmed().right(3); // url ends with an image type
-        if (knownImageTypes.contains(bodyEnd))
+        if (QUrl(theBody).isValid()) // it's an url
         {
-            type = "image";
+            QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
+            QString bodyEnd = theBody.trimmed().right(3); // url ends with an image type
+            if (knownImageTypes.contains(bodyEnd))
+            {
+                type = "image";
+            }
         }
-
         persistence_->addMessage(QString::fromStdString(message->getID()), QString::fromStdString(fromJid), theBody, type, 1 );
 	}
 
@@ -309,4 +313,9 @@ QString Shmoose::getPassword()
 	}
 
 	return returnValue;
+}
+
+QString Shmoose::getAttachmentPath()
+{
+    return System::getAttachmentPath();
 }

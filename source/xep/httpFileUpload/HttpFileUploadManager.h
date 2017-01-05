@@ -38,7 +38,6 @@ private:
 	void requestHttpUploadSlot();
 	void handleHttpUploadResponse(const std::string response);
 
-    QString getAttachmentPath();
     bool createAttachmentPath();
     QString createTargetImageName(QString source);
 

@@ -6,6 +6,7 @@ Page {
     id: page;
 
     property string conversationId : "";
+    property string attachmentPath: shmoose.getAttachmentPath();
 
     Image {
         //source: "image://glass/qrc:///qml/img/photo.png";
@@ -79,6 +80,7 @@ Page {
     }
     SilicaListView {
         id: view;
+
         clip: true;
         rotation: 180
 
@@ -101,6 +103,7 @@ Page {
         spacing: Theme.paddingMedium;
         delegate: Item {
             id: item;
+
             rotation: 180
             height: shadow.height;
             anchors {
@@ -148,10 +151,10 @@ Page {
                     }
                 }
                 Image {
-                    source: (visible ? modelData ["content"] || "" : "");
+                    source: ( (type === "image") ? attachmentPath + "/" + basename(message) : "");
                     width: Math.min (item.maxContentWidth, sourceSize.width);
                     fillMode: Image.PreserveAspectFit;
-                    visible: (modelData ["type"] === "img");
+                    visible: (type === "image")
                     anchors {
                         left: (item.alignRight ? parent.left : undefined);
                         right: (!item.alignRight ? parent.right : undefined);
@@ -221,13 +224,15 @@ Page {
                 } else {
                     //console.log(sendmsgview.attachmentPath)
                     var msgToSend = editbox.text;
-                    editbox.text = " ";
                     if (sendmsgview.attachmentPath.length > 0) {
                         shmoose.sendFile(conversationId, sendmsgview.attachmentPath);
                     }
-                    shmoose.sendMessage(conversationId, msgToSend, "text");
+                    if (msgToSend.length > 0) {
+                        shmoose.sendMessage(conversationId, msgToSend, "text");
+                    }
                 }
                 sendmsgview.attachmentPath = ""
+                editbox.text = "";
             }
             function setAttachmentPath(path) {
                 //console.log(path)
@@ -246,4 +251,10 @@ Page {
             }
         }
     }
+
+    function basename(str)
+    {
+        return (str.slice(str.lastIndexOf("/")+1))
+    }
+
 }

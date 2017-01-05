@@ -17,6 +17,7 @@
 #include "MessageController.h"
 #include "SessionController.h"
 #include "FileModel.h"
+#include "System.h"
 
 int main(int argc, char *argv[])
 {

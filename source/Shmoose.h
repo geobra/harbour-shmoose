@@ -36,6 +36,8 @@ public:
 	Q_INVOKABLE QString getJid();
 	Q_INVOKABLE QString getPassword();
 
+    Q_INVOKABLE QString getAttachmentPath();
+
 	bool connectionState() const;
 
 public slots:

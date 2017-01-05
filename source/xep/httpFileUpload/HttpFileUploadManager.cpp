@@ -2,6 +2,7 @@
 #include "XmlHttpUploadContentHandler.h"
 #include "HttpFileuploader.h"
 #include "ImageProcessing.h"
+#include "System.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -140,14 +141,9 @@ void HttpFileUploadManager::errorReceived()
 	busy_ = false;
 }
 
-QString HttpFileUploadManager::getAttachmentPath()
-{
-    return QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QDir::separator() + "attachments";
-}
-
 bool HttpFileUploadManager::createAttachmentPath()
 {
-    QString attachmentLocation = getAttachmentPath();
+    QString attachmentLocation = System::getAttachmentPath();
     QDir dir(attachmentLocation);
 
     qDebug() << "attachment location: " << attachmentLocation;
@@ -159,13 +155,14 @@ bool HttpFileUploadManager::createAttachmentPath()
     return dir.exists();
 }
 
+// create a path and file name with a jpg suffix
 QString HttpFileUploadManager::createTargetImageName(QString source)
 {
     QDateTime now(QDateTime::currentDateTime());
     uint unixTime = now.toTime_t();
 
-    QString targetFileName = QFileInfo(source).baseName() + "." + QFileInfo(source).completeSuffix();
-    QString targetPath = getAttachmentPath() + QDir::separator() + QString::number(unixTime) + targetFileName;
+    QString targetFileName = QFileInfo(source).baseName() + ".jpg";
+    QString targetPath = System::getAttachmentPath() + QDir::separator() + QString::number(unixTime) + targetFileName;
 
     qDebug() << "target file: " << targetPath;
 
