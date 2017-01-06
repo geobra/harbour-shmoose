@@ -25,7 +25,7 @@ Page {
                 anchors.horizontalCenter: parent.horizontalCenter;
             }
             Label {
-                text: "Joe Mc Testa";
+                text: ""; // FIXME my logged in name
                 font.pixelSize: Theme.fontSizeLarge;
                 anchors {
                     left: parent.left;

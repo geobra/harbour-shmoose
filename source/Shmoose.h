@@ -14,6 +14,7 @@
 class RosterController;
 class Persistence;
 class HttpFileUploadManager;
+class DownloadManager;
 
 class Shmoose : public QObject
 {
@@ -36,13 +37,13 @@ public:
 	Q_INVOKABLE QString getJid();
 	Q_INVOKABLE QString getPassword();
 
-    Q_INVOKABLE QString getAttachmentPath();
+	Q_INVOKABLE QString getAttachmentPath();
 
 	bool connectionState() const;
 
 public slots:
-    void sendMessage(QString const &toJid, QString const &message, const QString &type);
-    void sendFile(QString const &toJid, QString const &file);
+	void sendMessage(QString const &toJid, QString const &message, const QString &type);
+	void sendFile(QString const &toJid, QString const &file);
 
 
 signals:
@@ -76,7 +77,9 @@ private:
 
 	RosterController* rosterController_;
 	Persistence* persistence_;
+
 	HttpFileUploadManager* httpFileUploadManager_;
+	DownloadManager *downloadManager_;
 
 	QString jid_;
 	QString password_;

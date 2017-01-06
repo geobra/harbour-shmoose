@@ -5,6 +5,14 @@ import harbour.shmoose 1.0
 Item {
     Column {
         Row {
+
+            anchors
+            {
+                left: parent.left
+                right: parent.right
+            }
+
+
             TextField {
                 id: jidField
                 width: 150
@@ -18,6 +26,19 @@ Item {
                 text: shmoose.getPassword()
                 placeholderText: "Password"
                 echoMode: TextInput.Password
+            }
+            Rectangle {
+                 width: 30
+                 height: 30
+                 color: "#FFFF99"
+                 radius: width*0.5
+                 visible: true
+
+                 Label {
+                     text: "1"
+                     anchors.horizontalCenter: parent.horizontalCenter
+                     anchors.verticalCenter: parent.verticalCenter
+                 }
             }
         }
         Button {

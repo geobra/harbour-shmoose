@@ -21,19 +21,23 @@
 #include "MessageController.h"
 
 #include "HttpFileUploadManager.h"
+#include "DownloadManager.h"
 #include "ImageProcessing.h"
+
 #include "System.h"
 
 Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 	QObject(parent), rosterController_(new RosterController(this)),
-	persistence_(new Persistence(this)), httpFileUploadManager_(new HttpFileUploadManager(this)),
+	persistence_(new Persistence(this)),
+	httpFileUploadManager_(new HttpFileUploadManager(this)),
+	downloadManager_(new DownloadManager()),
 	jid_(""), password_("")
 {
 	netFactories_ = networkFactories;
 	connected = false;
 
-    connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString,QString)),
-            this, SLOT(sendMessage(QString,QString,QString)));
+	connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString,QString)),
+			this, SLOT(sendMessage(QString,QString,QString)));
 }
 
 Shmoose::~Shmoose()
@@ -47,6 +51,8 @@ Shmoose::~Shmoose()
 		delete softwareVersionResponder_;
 		delete client_;
 	}
+
+	delete downloadManager_;
 }
 
 void Shmoose::mainConnect(const QString &jid, const QString &pass)
@@ -102,15 +108,15 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message, QString 
 
 	client_->sendMessage(msg);
 
-    persistence_->addMessage(QString::fromStdString(msgId), QString::fromStdString(receiverJid.toBare().toString()), message, type, 0);
+	persistence_->addMessage(QString::fromStdString(msgId), QString::fromStdString(receiverJid.toBare().toString()), message, type, 0);
 }
 
 void Shmoose::sendFile(QString const &toJid, QString const &file)
 {
-    if (httpFileUploadManager_->requestToUploadFileForJid(file, toJid) == false)
-    {
-        qDebug() << "Shmoose::sendFile failed";
-    }
+	if (httpFileUploadManager_->requestToUploadFileForJid(file, toJid) == false)
+	{
+		qDebug() << "Shmoose::sendFile failed";
+	}
 }
 
 void Shmoose::mainDisconnect()
@@ -181,20 +187,21 @@ void Shmoose::handleMessageReceived(Message::ref message)
 	if (fromBody)
 	{
 		std::string body = *fromBody;
-        QString theBody = QString::fromStdString(body);
+		QString theBody = QString::fromStdString(body);
 
-        QString type = "txt";
+		QString type = "txt";
 
-        if (QUrl(theBody).isValid()) // it's an url
-        {
-            QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
-            QString bodyEnd = theBody.trimmed().right(3); // url ends with an image type
-            if (knownImageTypes.contains(bodyEnd))
-            {
-                type = "image";
-            }
-        }
-        persistence_->addMessage(QString::fromStdString(message->getID()), QString::fromStdString(fromJid), theBody, type, 1 );
+		if (QUrl(theBody).isValid()) // it's an url
+		{
+			QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
+			QString bodyEnd = theBody.trimmed().right(3); // url ends with an image type
+			if (knownImageTypes.contains(bodyEnd))
+			{
+				type = "image";
+				downloadManager_->doDownload(QUrl(theBody));
+			}
+		}
+		persistence_->addMessage(QString::fromStdString(message->getID()), QString::fromStdString(fromJid), theBody, type, 1 );
 	}
 
 	// XEP 0184
@@ -317,5 +324,5 @@ QString Shmoose::getPassword()
 
 QString Shmoose::getAttachmentPath()
 {
-    return System::getAttachmentPath();
+	return System::getAttachmentPath();
 }

@@ -36,7 +36,8 @@ SOURCES += source/main.cpp \
         source/xep/httpFileUpload/HttpFileUploadManager.cpp \
         source/FileModel.cpp \
         source/ImageProcessing.cpp \
-    source/System.cpp
+    source/System.cpp \
+    source/xep/httpFileUpload/DownloadManager.cpp
 
 HEADERS += source/Shmoose.h \
 	source/EchoPayload.h \
@@ -53,7 +54,8 @@ HEADERS += source/Shmoose.h \
         source/xep/httpFileUpload/HttpFileUploadManager.h \
         source/FileModel.h \
         source/ImageProcessing.h \
-    source/System.h
+    source/System.h \
+    source/xep/httpFileUpload/DownloadManager.h
 
 RESOURCES += shmoose.qrc
 
