@@ -81,7 +81,7 @@ QString DownloadManager::saveFileName(const QUrl &url)
 		basename = "download";
 	}
 
-	basename = System::getAttachmentPath() + QDir::separator();
+    basename = System::getAttachmentPath() + QDir::separator() + basename;
 
 	if (QFile::exists(basename))
 	{
