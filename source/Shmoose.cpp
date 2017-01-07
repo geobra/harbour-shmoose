@@ -61,7 +61,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 	client_->setAlwaysTrustCertificates();
 
 	client_->onConnected.connect(boost::bind(&Shmoose::handleConnected, this));
-	client_->onDisconnected.connect(boost::bind(&Shmoose::handleDisconnected, this));
+    client_->onDisconnected.connect(boost::bind(&Shmoose::handleDisconnected, this, _1));
 
 	client_->onMessageReceived.connect(
 				boost::bind(&Shmoose::handleMessageReceived, this, _1));
@@ -171,10 +171,24 @@ void Shmoose::handleConnected()
 	settings.setValue("authentication/password", password_);
 }
 
-void Shmoose::handleDisconnected()
+void Shmoose::handleDisconnected(const boost::optional<ClientError>& error)
 {
-	connected = false;
-	emit connectionStateDisconnected();
+    connected = false;
+    emit connectionStateDisconnected();
+
+    if (error)
+    {
+        ClientError clientError = *error;
+        Swift::ClientError::Type type = clientError.getType();
+        qDebug() << "disconnet error: " << type;
+    }
+    else
+    {
+        // no error, try a reconnect
+        qDebug() << "disconnect without error";
+    }
+
+    //client_->connect();
 }
 
 void Shmoose::handleMessageReceived(Message::ref message)
