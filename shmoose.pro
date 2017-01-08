@@ -31,13 +31,14 @@ SOURCES += source/main.cpp \
 	source/persistence/MessageController.cpp \
 	source/persistence/SessionController.cpp \
 	source/persistence/Persistence.cpp \
-        source/xep/httpFileUpload/XmlHttpUploadContentHandler.cpp \
-        source/xep/httpFileUpload/HttpFileuploader.cpp \
-        source/xep/httpFileUpload/HttpFileUploadManager.cpp \
-        source/FileModel.cpp \
-        source/ImageProcessing.cpp \
-    source/System.cpp \
-    source/xep/httpFileUpload/DownloadManager.cpp
+	source/xep/httpFileUpload/XmlHttpUploadContentHandler.cpp \
+	source/xep/httpFileUpload/HttpFileuploader.cpp \
+	source/xep/httpFileUpload/HttpFileUploadManager.cpp \
+	source/xep/httpFileUpload/DownloadManager.cpp \
+	source/FileModel.cpp \
+	source/ImageProcessing.cpp \
+	source/System.cpp \
+    source/xep/xmppPing/XmppPingController.cpp
 
 HEADERS += source/Shmoose.h \
 	source/EchoPayload.h \
@@ -49,13 +50,15 @@ HEADERS += source/Shmoose.h \
 	source/persistence/MessageController.h \
 	source/persistence/SessionController.h \
 	source/persistence/Persistence.h \
-        source/xep/httpFileUpload/XmlHttpUploadContentHandler.h \
-        source/xep/httpFileUpload/HttpFileuploader.h \
-        source/xep/httpFileUpload/HttpFileUploadManager.h \
-        source/FileModel.h \
-        source/ImageProcessing.h \
-    source/System.h \
-    source/xep/httpFileUpload/DownloadManager.h
+	source/xep/httpFileUpload/XmlHttpUploadContentHandler.h \
+	source/xep/httpFileUpload/HttpFileuploader.h \
+	source/xep/httpFileUpload/HttpFileUploadManager.h \
+	source/xep/httpFileUpload/DownloadManager.h \
+	source/xep/xmppPing/PingRequest.h \
+	source/FileModel.h \
+	source/ImageProcessing.h \
+	source/System.h \
+    source/xep/xmppPing/XmppPingController.h
 
 RESOURCES += shmoose.qrc
 
