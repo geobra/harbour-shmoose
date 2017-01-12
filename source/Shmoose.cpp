@@ -8,6 +8,8 @@
 #include <QSettings>
 #include <QUrl>
 
+#include <QTimer>
+
 #include <QDebug>
 
 #include <Swiften/Elements/DiscoInfo.h>
@@ -22,6 +24,7 @@
 
 #include "HttpFileUploadManager.h"
 #include "DownloadManager.h"
+#include "XmppPingController.h"
 #include "ImageProcessing.h"
 
 #include "System.h"
@@ -31,6 +34,7 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 	persistence_(new Persistence(this)),
 	httpFileUploadManager_(new HttpFileUploadManager(this)),
 	downloadManager_(new DownloadManager()),
+	xmppPingController_(new XmppPingController()),
 	jid_(""), password_("")
 {
 	netFactories_ = networkFactories;
@@ -38,6 +42,13 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 
 	connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString,QString)),
 			this, SLOT(sendMessage(QString,QString,QString)));
+
+#ifdef SFOS
+	// just a test to prevent interruption of long term tcp connection
+	QTimer *timer = new QTimer(this);
+	connect(timer, SIGNAL(timeout()), this, SLOT(doXmppPingIfConnected()));
+	timer->start(60000);
+#endif
 }
 
 Shmoose::~Shmoose()
@@ -53,6 +64,7 @@ Shmoose::~Shmoose()
 	}
 
 	delete downloadManager_;
+	delete xmppPingController_;
 }
 
 void Shmoose::mainConnect(const QString &jid, const QString &pass)
@@ -61,12 +73,13 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 	client_->setAlwaysTrustCertificates();
 
 	client_->onConnected.connect(boost::bind(&Shmoose::handleConnected, this));
-    client_->onDisconnected.connect(boost::bind(&Shmoose::handleDisconnected, this, _1));
+	client_->onDisconnected.connect(boost::bind(&Shmoose::handleDisconnected, this, _1));
 
 	client_->onMessageReceived.connect(
 				boost::bind(&Shmoose::handleMessageReceived, this, _1));
 	client_->onPresenceReceived.connect(
 				boost::bind(&Shmoose::handlePresenceReceived, this, _1));
+
 
 	tracer_ = new Swift::ClientXMLTracer(client_);
 
@@ -107,8 +120,8 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message, QString 
 	msg->addPayload(boost::make_shared<DeliveryReceiptRequest>());
 
 	client_->sendMessage(msg);
-
 	persistence_->addMessage(QString::fromStdString(msgId), QString::fromStdString(receiverJid.toBare().toString()), message, type, 0);
+	unAckedMessageIds_.push_back(QString::fromStdString(msgId));
 }
 
 void Shmoose::sendFile(QString const &toJid, QString const &file)
@@ -139,6 +152,16 @@ void Shmoose::handlePresenceReceived(Presence::ref presence)
 	}
 }
 
+void Shmoose::handleStanzaAcked(Stanza::ref stanza)
+{
+	if (unAckedMessageIds_.contains(QString::fromStdString(stanza->getID())))
+	{
+		// FIXME remove from list
+		qDebug() << "acked id: " << QString::fromStdString(stanza->getID());
+		persistence_->markMessageAsSentById(QString::fromStdString(stanza->getID()));
+	}
+}
+
 void Shmoose::handleConnected()
 {
 	connected = true;
@@ -164,6 +187,14 @@ void Shmoose::handleConnected()
 
 	// pass the client pointer to the httpFileUploadManager
 	httpFileUploadManager_->setClient(client_);
+	xmppPingController_->setClient(client_);
+
+	// xep 198 stream management
+	if (client_->getStreamManagementEnabled() == true)
+	{
+		client_->onStanzaAcked.connect(
+					boost::bind(&Shmoose::handleStanzaAcked, this, _1));
+	}
 
 	// Save account data
 	QSettings settings;
@@ -173,22 +204,23 @@ void Shmoose::handleConnected()
 
 void Shmoose::handleDisconnected(const boost::optional<ClientError>& error)
 {
-    connected = false;
-    emit connectionStateDisconnected();
+	connected = false;
+	emit connectionStateDisconnected();
 
-    if (error)
-    {
-        ClientError clientError = *error;
-        Swift::ClientError::Type type = clientError.getType();
-        qDebug() << "disconnet error: " << type;
-    }
-    else
-    {
-        // no error, try a reconnect
-        qDebug() << "disconnect without error";
-    }
+	if (error)
+	{
+		ClientError clientError = *error;
+		Swift::ClientError::Type type = clientError.getType();
+		qDebug() << "disconnet error: " << type;
+	}
+	else
+	{
+		// no error, try a reconnect
+		qDebug() << "disconnect without error";
+	}
 
-    //client_->connect();
+	// FIXME only on a drop of tcp connection
+	//client_->connect();
 }
 
 void Shmoose::handleMessageReceived(Message::ref message)
@@ -339,4 +371,10 @@ QString Shmoose::getPassword()
 QString Shmoose::getAttachmentPath()
 {
 	return System::getAttachmentPath();
+}
+
+void Shmoose::doXmppPingIfConnected()
+{
+	// FIXME only if inet connection and xmpp server connection available
+	xmppPingController_->doPing();
 }

@@ -16,7 +16,7 @@ MessageController::MessageController(Database *db, QObject *parent) :
 {
 	setEditStrategy(QSqlTableModel::OnRowChange);
 	setTable("messages");
-    setSort(4, Qt::DescendingOrder); // 4 -> timestamp
+	setSort(4, Qt::DescendingOrder); // 4 -> timestamp
 	if (!select())
 	{
 		qDebug() << "error on select in MessageController::MessageController";
@@ -88,12 +88,12 @@ void MessageController::addMessage(const QString &id, const QString &jid, const 
 {
 	QSqlRecord record = this->record();
 
-    record.setValue("id", id);
+	record.setValue("id", id);
 	record.setValue("jid", jid);
 	record.setValue("message", message);
 	record.setValue("direction", direction);
-    record.setValue("type", type);
-    record.setValue("timestamp", QDateTime::currentDateTime().toTime_t());
+	record.setValue("type", type);
+	record.setValue("timestamp", QDateTime::currentDateTime().toTime_t());
 
 	if (! this->insertRecord(-1, record))
 	{
@@ -131,53 +131,82 @@ void MessageController::addMessage(const QString &id, const QString &jid, const 
 
 void MessageController::markMessageReceived(QString const &id)
 {
-    int row = getRowNumberForId(id);
+	int row = getRowNumberForId(id);
 
-    if (row >= 0) // only on found messages
-    {
-        QSqlRecord record = this->record(row);
-        record.setValue("isreceived", true);
+	if (row >= 0) // only on found messages
+	{
+		QSqlRecord record = this->record(row);
+		record.setValue("isreceived", true);
 
-        if (this->setRecord(row, record) == false)
-        {
-            printSqlError();
-        }
-        else
-        {
-            if (! this->submitAll())
-            {
-                printSqlError();
-            }
-        }
+		if (this->setRecord(row, record) == false)
+		{
+			printSqlError();
+		}
+		else
+		{
+			if (! this->submitAll())
+			{
+				printSqlError();
+			}
+		}
 
-        // update the model with the changes of the database
-        if (select() != true)
-        {
-            qDebug() << "error on select in MessageController::addMessage";
-        }
-    }
+		// update the model with the changes of the database
+		if (select() != true)
+		{
+			qDebug() << "error on select in MessageController::addMessage";
+		}
+	}
+}
+
+void MessageController::markMessageSent(QString const &id)
+{
+	int row = getRowNumberForId(id);
+
+	if (row >= 0) // only on found messages
+	{
+		QSqlRecord record = this->record(row);
+		record.setValue("issent", true);
+
+		if (this->setRecord(row, record) == false)
+		{
+			printSqlError();
+		}
+		else
+		{
+			if (! this->submitAll())
+			{
+				printSqlError();
+			}
+		}
+
+		// update the model with the changes of the database
+		if (select() != true)
+		{
+			qDebug() << "error on select in MessageController::addMessage";
+		}
+	}
 }
 
 int MessageController::getRowNumberForId(QString const &id)
 {
-    int returnValue = -1;
+	int returnValue = -1;
 
-    for (int row = 0; row < rowCount(); row++)
-    {
-        QString idInModel = record(row).value("id").toString();
+	for (int row = 0; row < rowCount(); row++)
+	{
+		QString idInModel = record(row).value("id").toString();
 
-        if (idInModel == id)
-        {
-            returnValue = row;
-        }
-    }
+		if (idInModel == id)
+		{
+			returnValue = row;
+		}
+	}
 
-    return returnValue;
+	return returnValue;
 }
 
 void MessageController::printSqlError()
 {
-    qDebug() << this->lastError().databaseText();
-    qDebug() << this->lastError().driverText();
-    qDebug() << this->lastError().text();
+	qDebug() << this->lastError().databaseText();
+	qDebug() << this->lastError().driverText();
+	qDebug() << this->lastError().text();
 }

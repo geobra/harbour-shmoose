@@ -24,7 +24,7 @@ Persistence::~Persistence()
 
 void Persistence::addMessage(QString const &id, QString const &jid, QString const &message, QString const &type, unsigned int direction)
 {
-    messageController_->addMessage(id, jid, message, type, direction);
+	messageController_->addMessage(id, jid, message, type, direction);
 	sessionController_->updateSession(jid, message);
 
 	emit messageControllerChanged();
@@ -34,6 +34,11 @@ void Persistence::addMessage(QString const &id, QString const &jid, QString cons
 void Persistence::markMessageAsReceivedById(QString const &id)
 {
 	messageController_->markMessageReceived(id);
+}
+
+void Persistence::markMessageAsSentById(QString const &id)
+{
+	messageController_->markMessageSent(id);
 }
 
 void Persistence::setCurrentChatPartner(QString const &jid)

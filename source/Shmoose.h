@@ -15,6 +15,7 @@ class RosterController;
 class Persistence;
 class HttpFileUploadManager;
 class DownloadManager;
+class XmppPingController;
 
 class Shmoose : public QObject
 {
@@ -45,6 +46,8 @@ public slots:
 	void sendMessage(QString const &toJid, QString const &message, const QString &type);
 	void sendFile(QString const &toJid, QString const &file);
 
+private slots:
+	void doXmppPingIfConnected();
 
 signals:
 	void rosterControllerChanged();
@@ -56,9 +59,10 @@ signals:
 private:
 	void handlePresenceReceived(Swift::Presence::ref presence);
 	void handleConnected();
-    void handleDisconnected(const boost::optional<ClientError> &error);
+	void handleDisconnected(const boost::optional<ClientError> &error);
 	void handleMessageReceived(Swift::Message::ref message);
 	void handleServerDiscoInfoResponse(boost::shared_ptr<DiscoInfo> info, ErrorPayload::ref error);
+	void handleStanzaAcked(Stanza::ref stanza);
 
 	void requestHttpUploadSlot();
 	void handleHttpUploadResponse(const std::string response);
@@ -80,9 +84,12 @@ private:
 
 	HttpFileUploadManager* httpFileUploadManager_;
 	DownloadManager *downloadManager_;
+	XmppPingController *xmppPingController_;
 
 	QString jid_;
 	QString password_;
+
+	QStringList unAckedMessageIds_;
 };
 
 #endif

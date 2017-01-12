@@ -17,8 +17,8 @@ Database::Database(QObject *parent) : QObject(parent), databaseValid_(true)
 	}
 	else
 	{
-        QString dbName = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QDir::separator() + "messages.sql";
-        database_.setDatabaseName(dbName);
+		QString dbName = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QDir::separator() + "messages.sql";
+		database_.setDatabaseName(dbName);
 		if (database_.open() == false)
 		{
 			qDebug() << "Error open database!";
@@ -36,34 +36,34 @@ Database::Database(QObject *parent) : QObject(parent), databaseValid_(true)
 			 * - minor redundant data
 			 */
 
-            // FIXME add database version to be able to perform a version update
+			// FIXME add database version to be able to perform a version update
 
 			// table for all the messages
 			QSqlQuery query;
 
-            QString messagesTable = "messages";
-            if (! database_.tables().contains( messagesTable ))
-            {
-                // direction: (1)ncomming / (0)utgoing
-                QString sqlCreateCommand = "create table " + messagesTable + " (id TEXT PRIMARY KEY, jid TEXT, message TEXT, direction INTEGER, timestamp INTEGER, type STRING, isreceived BOOL)";
-                if (query.exec(sqlCreateCommand) == false)
-                {
-                    qDebug() << "Error creating message table";
-                    databaseValid_ = false;
-                }
-            }
+			QString messagesTable = "messages";
+			if (! database_.tables().contains( messagesTable ))
+			{
+				// direction: (1)ncomming / (0)utgoing
+				QString sqlCreateCommand = "create table " + messagesTable + " (id TEXT PRIMARY KEY, jid TEXT, message TEXT, direction INTEGER, timestamp INTEGER, type STRING, issent BOOL, isreceived BOOL)";
+				if (query.exec(sqlCreateCommand) == false)
+				{
+					qDebug() << "Error creating message table";
+					databaseValid_ = false;
+				}
+			}
 
-            QString sessionsTable = "sessions";
-            if (! database_.tables().contains( sessionsTable ))
-            {
-                // another table for the sessions
-                QString sqlCreateCommand = "create table " + sessionsTable + " (jid TEXT, lastmessage TEXT, timestamp INTEGER, unreadmessages INTEGER)";
-                if (query.exec(sqlCreateCommand) == false)
-                {
-                    qDebug() << "Error creating sessions table";
-                    databaseValid_ = false;
-                }
-            }
+			QString sessionsTable = "sessions";
+			if (! database_.tables().contains( sessionsTable ))
+			{
+				// another table for the sessions
+				QString sqlCreateCommand = "create table " + sessionsTable + " (jid TEXT, lastmessage TEXT, timestamp INTEGER, unreadmessages INTEGER)";
+				if (query.exec(sqlCreateCommand) == false)
+				{
+					qDebug() << "Error creating sessions table";
+					databaseValid_ = false;
+				}
+			}
 		}
 	}
 }
@@ -87,21 +87,23 @@ void Database::dumpDataToStdOut() const
 	const unsigned int jidCol = rec.indexOf("jid");
 	const unsigned int messageCol = rec.indexOf("message");
 	const unsigned int directionCol = rec.indexOf("direction");
-    const unsigned int timeStampCol = rec.indexOf("timestamp");
-    const unsigned int isReceivedCol = rec.indexOf("isreceived");
-    const unsigned int typeCol = rec.indexOf("type");
+	const unsigned int timeStampCol = rec.indexOf("timestamp");
+	const unsigned int isSentCol = rec.indexOf("issent");
+	const unsigned int isReceivedCol = rec.indexOf("isreceived");
+	const unsigned int typeCol = rec.indexOf("type");
 
-    qDebug() << "id:\t\tjid:\tmessage:\tdirection\ttimestamp,\ttype,\treceived:";
+	qDebug() << "id:\t\tjid:\tmessage:\tdirection\ttimestamp,\ttype,\tsent,\treceived:";
 	qDebug() << "---------------------------------------------------------------------------------------";
 	while (query.next())
 	{
-        qDebug() << query.value(idCol).toString() << "\t"
+		qDebug() << query.value(idCol).toString() << "\t"
 				 << query.value(jidCol).toString() << "\t"
 				 << query.value(messageCol).toString() << "\t"
 				 << query.value(directionCol).toString() << "\t"
-                 << query.value(timeStampCol).toInt() << "\t"
-                 << query.value(typeCol).toString() << "\t"
-                 << query.value(isReceivedCol).toBool() << "\t";
+				 << query.value(timeStampCol).toInt() << "\t"
+				 << query.value(typeCol).toString() << "\t"
+				 << query.value(isSentCol).toBool() << "\t"
+				<< query.value(isReceivedCol).toBool() << "\t";
 	}
 
 #if 0

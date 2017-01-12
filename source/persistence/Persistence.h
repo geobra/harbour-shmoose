@@ -19,13 +19,14 @@ public:
 
 	bool isValid();
 	void markMessageAsReceivedById(QString const &id);
+	void markMessageAsSentById(QString const &id);
 
 signals:
 	void messageControllerChanged();
 	void sessionControllerChanged();
 
 public slots:
-    void addMessage(const QString &id, QString const &jid, QString const &message, const QString &type, unsigned int direction);
+	void addMessage(const QString &id, QString const &jid, QString const &message, const QString &type, unsigned int direction);
 	void setCurrentChatPartner(QString const &jid);
 
 private:

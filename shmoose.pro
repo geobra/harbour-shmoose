@@ -14,6 +14,7 @@ INCLUDEPATH += $${SWIFT3PATH}/
 INCLUDEPATH += source
 INCLUDEPATH += source/persistence
 INCLUDEPATH += source/xep/httpFileUpload
+INCLUDEPATH += source/xep/xmppPing
 
 QMAKE_CXXFLAGS += $${SWIFTCXX} -std=c++11
 linux-g++ {
