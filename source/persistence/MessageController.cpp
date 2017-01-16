@@ -118,7 +118,7 @@ void MessageController::addMessage(const QString &id, const QString &jid, const 
 	{
 		if (direction == 1)
 		{
-			emit signalMessageReceived(0, jid, message);
+            emit signalMessageReceived(id, jid, message);
 		}
 	}
 	else

@@ -5,6 +5,14 @@ import Sailfish.Silica 1.0
 Page {
     id: page;
 
+    onStatusChanged: {
+        if (status == PageStatus.Deactivating) {
+            if (_navigation == PageNavigation.Back) {
+                shmoose.setCurrentChatPartner("")
+            }
+        }
+    }
+
     property string conversationId : "";
     property string attachmentPath: shmoose.getAttachmentPath();
 
@@ -128,6 +136,7 @@ Page {
             }
             Column {
                 id: layout;
+
                 anchors {
                     left: (item.alignRight ? parent.left : undefined);
                     right: (!item.alignRight ? parent.right : undefined);
@@ -138,7 +147,8 @@ Page {
                 Text {
                     text: message;
                     color: Theme.primaryColor;
-                    width: Math.min (item.maxContentWidth, contentWidth);
+                    //width: Math.min (item.maxContentWidth, contentWidth);
+                    width: item.maxContentWidth;
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
                     visible: true;
                     font {
@@ -175,6 +185,9 @@ Page {
                 Image {
                     source: {
                         if (isreceived) {
+                            return "../img/2check.png"
+                        }
+                        if (issent) {
                             return "../img/check.png"
                         }
                         return ""

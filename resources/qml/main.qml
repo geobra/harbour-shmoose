@@ -9,6 +9,15 @@ import "cover"
 ApplicationWindow {
     id: mainWindow
 
+    onApplicationActiveChanged: {
+        if (applicationActive == true) {
+            shmoose.setAppIsActive(true)
+        }
+        else {
+            shmoose.setAppIsActive(false)
+        }
+    }
+
     cover: pageCover;
     initialPage: pageLogin;
 
@@ -34,15 +43,16 @@ ApplicationWindow {
         Notification {}
     }
 
-    function newMessageNotification(id, summary, body) {
+    function newMessageNotification(id, jid, body) {
         var m = messageNotification.createObject(null)
         m.category = "harbour-shmoose-message"
-        m.previewSummary = summary
+        m.previewSummary = jid
         m.previewBody = body
-        m.summary = summary
+        m.summary = jid
         m.body = body
         m.clicked.connect(function() {
-            pageContacts.activate()
+            mainWindow.activate()
+            mainWindow.showSession(jid)
         })
         // This is needed to call default action
         m.remoteActions = [ {
@@ -53,7 +63,7 @@ ApplicationWindow {
                                "path": "/message",
                                "iface": "org.shmoose.session",
                                "method": "showConversation",
-                               "arguments": [ "id", id ]
+                               "arguments": [ "jid", jid ]
                            } ]
         m.publish()
     }
@@ -84,6 +94,16 @@ ApplicationWindow {
         return false
     }
 
+    function showSession(jid) {
+        //removeNotification(jid)
+        shmoose.setCurrentChatPartner(jid)
+
+        pageStack.clear()
+        pageStack.push(pageMenu)
+        pageStack.push(pageConversations)
+        pageStack.push(pageMessaging, { "conversationId" : jid })
+    }
+
     TechnologyModel {
         id: wifi
         name: "wifi"
@@ -98,7 +118,7 @@ ApplicationWindow {
                 console.log("wifi DISconnected " + mainWindow.networkType)
             }
             mainWindow.hasInetConnection = mainWindow.getHasInetConnection()
-            //shmoose.isOnline(mainWindow.hasInetConnection)
+            shmoose.setHasInetConnection(mainWindow.hasInetConnection)
         }
     }
 
@@ -116,7 +136,7 @@ ApplicationWindow {
                 console.log("cellular DISconnected")
             }
             mainWindow.hasInetConnection = mainWindow.getHasInetConnection()
-            //shmoose.isOnline(mainWindow.hasInetConnection)
+            shmoose.setHasInetConnection(mainWindow.hasInetConnection)
         }
     }
 
@@ -134,7 +154,7 @@ ApplicationWindow {
                 console.log("ethernet DISconnected")
             }
             mainWindow.hasInetConnection = mainWindow.getHasInetConnection()
-            //shmoose.isOnline(mainWindow.hasInetConnection)
+            shmoose.setHasInetConnection(mainWindow.hasInetConnection)
         }
     }
 }

@@ -39,6 +39,8 @@ public:
 	Q_INVOKABLE QString getPassword();
 
 	Q_INVOKABLE QString getAttachmentPath();
+    Q_INVOKABLE void setHasInetConnection(bool connected_);
+    Q_INVOKABLE void setAppIsActive(bool active);
 
 	bool connectionState() const;
 
@@ -67,10 +69,12 @@ private:
 	void requestHttpUploadSlot();
 	void handleHttpUploadResponse(const std::string response);
 
-	bool connected;
+    RosterController* getRosterController();
+    Persistence* getPersistence();
 
-	RosterController* getRosterController();
-	Persistence* getPersistence();
+    bool connected_;
+    bool hasInetConnection_;
+    bool appIsActive_;
 
 	Swift::Client* client_;
 	Swift::ClientXMLTracer* tracer_;

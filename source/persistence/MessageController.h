@@ -22,7 +22,7 @@ public:
 	void markMessageSent(QString const &id);
 
 signals:
-	void signalMessageReceived(unsigned int id, QString jid, QString message);
+    void signalMessageReceived(QString id, QString jid, QString message);
 
 public slots:
 

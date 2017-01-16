@@ -30,16 +30,15 @@
 #include "System.h"
 
 Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
-	QObject(parent), rosterController_(new RosterController(this)),
+    QObject(parent), connected_(false), hasInetConnection_(false),
+    netFactories_(networkFactories),
+    rosterController_(new RosterController(this)),
 	persistence_(new Persistence(this)),
 	httpFileUploadManager_(new HttpFileUploadManager(this)),
 	downloadManager_(new DownloadManager()),
 	xmppPingController_(new XmppPingController()),
 	jid_(""), password_("")
 {
-	netFactories_ = networkFactories;
-	connected = false;
-
 	connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString,QString)),
 			this, SLOT(sendMessage(QString,QString,QString)));
 
@@ -53,7 +52,7 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 
 Shmoose::~Shmoose()
 {
-	if (connected)
+    if (connected_)
 	{
 		client_->removePayloadSerializer(&echoPayloadSerializer_);
 		client_->removePayloadParserFactory(&echoPayloadParserFactory_);
@@ -154,17 +153,21 @@ void Shmoose::handlePresenceReceived(Presence::ref presence)
 
 void Shmoose::handleStanzaAcked(Stanza::ref stanza)
 {
-	if (unAckedMessageIds_.contains(QString::fromStdString(stanza->getID())))
-	{
-		// FIXME remove from list
-		qDebug() << "acked id: " << QString::fromStdString(stanza->getID());
-		persistence_->markMessageAsSentById(QString::fromStdString(stanza->getID()));
-	}
+    QMutableStringListIterator i(unAckedMessageIds_);
+    while (i.hasNext())
+    {
+        QString value = i.next();
+        if (value.compare(QString::fromStdString(stanza->getID())) == 0)
+        {
+            i.remove();
+            persistence_->markMessageAsSentById(value);
+        }
+    }
 }
 
 void Shmoose::handleConnected()
 {
-	connected = true;
+    connected_ = true;
 	emit connectionStateConnected();
 
 	client_->sendPresence(Presence::create("Send me a message"));
@@ -204,7 +207,7 @@ void Shmoose::handleConnected()
 
 void Shmoose::handleDisconnected(const boost::optional<ClientError>& error)
 {
-	connected = false;
+    connected_ = false;
 	emit connectionStateDisconnected();
 
 	if (error)
@@ -322,7 +325,7 @@ Persistence* Shmoose::getPersistence()
 
 bool Shmoose::connectionState() const
 {
-	return connected;
+    return connected_;
 }
 
 bool Shmoose::checkSaveCredentials()
@@ -375,6 +378,21 @@ QString Shmoose::getAttachmentPath()
 
 void Shmoose::doXmppPingIfConnected()
 {
-	// FIXME only if inet connection and xmpp server connection available
-	xmppPingController_->doPing();
+    if (hasInetConnection_ == true
+            && client_->isActive() == true
+            && appIsActive_ == false /* connection wont be droped if app is in use */
+            )
+    {
+        xmppPingController_->doPing();
+    }
+}
+
+void Shmoose::setHasInetConnection(bool connected)
+{
+    hasInetConnection_ = connected;
+}
+
+void Shmoose::setAppIsActive(bool active)
+{
+    appIsActive_ = active;
 }
