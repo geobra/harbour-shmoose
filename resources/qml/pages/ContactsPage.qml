@@ -72,11 +72,11 @@ Page {
             }
         }        anchors.fill: parent;
 
-        PullDownMenu {
-            MenuItem {
-                text: qsTr ("Add new contact...");
-            }
-        }
+        //        PullDownMenu {
+        //            MenuItem {
+        //                text: qsTr ("Add new contact...");
+        //            }
+        //        }
     }
 }
 

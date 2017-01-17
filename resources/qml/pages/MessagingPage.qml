@@ -94,20 +94,20 @@ Page {
 
         model: shmoose.persistence.messageController
 
-        header: Item {
-            height: view.spacing;
-            anchors {
-                left: parent.left;
-                right: parent.right;
-            }
-        }
-        footer: Item {
-            height: view.spacing;
-            anchors {
-                left: parent.left;
-                right: parent.right;
-            }
-        }
+        //        header: Item {
+        //            height: view.spacing;
+        //            anchors {
+        //                left: parent.left;
+        //                right: parent.right;
+        //            }
+        //        }
+        //        footer: Item {
+        //            height: view.spacing;
+        //            anchors {
+        //                left: parent.left;
+        //                right: parent.right;
+        //            }
+        //        }
         spacing: Theme.paddingMedium;
         delegate: Item {
             id: item;
@@ -153,7 +153,7 @@ Page {
                     visible: true;
                     font {
                         family: Theme.fontFamilyHeading;
-                        pixelSize: Theme.fontSizeMedium;
+                        pixelSize: (type === "image") ? Theme.fontSizeTiny : Theme.fontSizeMedium;
                     }
                     anchors {
                         left: (item.alignRight ? parent.left : undefined);
@@ -239,13 +239,14 @@ Page {
                     var msgToSend = editbox.text;
                     if (sendmsgview.attachmentPath.length > 0) {
                         shmoose.sendFile(conversationId, sendmsgview.attachmentPath);
+                        sendmsgview.attachmentPath = ""
                     }
                     if (msgToSend.length > 0) {
                         shmoose.sendMessage(conversationId, msgToSend, "text");
+                        editbox.text = " ";
+                        editbox.text = "";
                     }
                 }
-                sendmsgview.attachmentPath = ""
-                editbox.text = "";
             }
             function setAttachmentPath(path) {
                 //console.log(path)

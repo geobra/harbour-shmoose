@@ -25,7 +25,7 @@ Page {
                 anchors.horizontalCenter: parent.horizontalCenter;
             }
             Label {
-                text: ""; // FIXME my logged in name
+                text: shmoose.getJid();
                 font.pixelSize: Theme.fontSizeLarge;
                 anchors {
                     left: parent.left;
@@ -33,20 +33,20 @@ Page {
                 }
             }
 
-            ComboBox {
-                id: onlineStatus
-                label: qsTr ("Status");
-                currentIndex: 2;
-                menu: ContextMenu {
-                    MenuItem { text: "Online"; }
-                    MenuItem { text: "Away"; }
-                    MenuItem { text: "Offline"; }
-                }
-                anchors {
-                    left: parent.left;
-                    right: parent.right;
-                }
-            }
+            //            ComboBox {
+            //                id: onlineStatus
+            //                label: qsTr ("Status");
+            //                currentIndex: 2;
+            //                menu: ContextMenu {
+            //                    MenuItem { text: "Online"; }
+            //                    MenuItem { text: "Away"; }
+            //                    MenuItem { text: "Offline"; }
+            //                }
+            //                anchors {
+            //                    left: parent.left;
+            //                    right: parent.right;
+            //                }
+            //            }
             Separator {
                 primaryColor: Qt.rgba (1,1,1, 0.5);
                 secondaryColor: Qt.rgba (1,1,1, 0.0);
@@ -59,8 +59,8 @@ Page {
         model: [
             { "title" : qsTr ("Contacts"),      "icon" : "image://theme/icon-m-people",         "page" : pageContacts },
             { "title" : qsTr ("Conversations"), "icon" : "image://theme/icon-m-chat",           "page" : pageConversations },
-            { "title" : qsTr ("Preferences"),   "icon" : "image://theme/icon-l-developer-mode", "page" : pagePreferences },
-            { "title" : qsTr ("Account"),       "icon" : "image://theme/icon-s-secure",         "page" : pageAccount },
+            //            { "title" : qsTr ("Preferences"),   "icon" : "image://theme/icon-l-developer-mode", "page" : pagePreferences },
+            //            { "title" : qsTr ("Account"),       "icon" : "image://theme/icon-s-secure",         "page" : pageAccount },
         ];
         delegate: BackgroundItem {
             id: item;
@@ -110,31 +110,19 @@ Page {
                     right: parent.right;
                 }
             }
-            Label {
-                text: qsTr ("Messaging client for SailfishOS");
-                color: Theme.secondaryColor;
-                font.pixelSize: Theme.fontSizeSmall;
-                anchors {
-                    left: parent.left;
-                    margins: Theme.paddingMedium;
-                }
-            }
+            //            Label {
+            //                text: qsTr ("Messaging client for SailfishOS");
+            //                color: Theme.secondaryColor;
+            //                font.pixelSize: Theme.fontSizeSmall;
+            //                anchors {
+            //                    left: parent.left;
+            //                    margins: Theme.paddingMedium;
+            //                }
+            //            }
         }
         anchors.fill: parent
 
         VerticalScrollDecorator {}
-    }
-
-    Connections {
-        target: shmoose
-        onConnectionStateConnected: {
-            onlineStatus.currentIndex = 0
-            console.log("### connected ###")
-        }
-        onConnectionStateDisconnected: {
-            onlineStatus.currentIndex = 2
-            console.log("### DISconnected ###")
-        }
     }
 }
 

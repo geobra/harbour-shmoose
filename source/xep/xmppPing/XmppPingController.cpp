@@ -2,6 +2,8 @@
 #include "PingRequest.h"
 
 #include <Swiften/Swiften.h>
+
+#include <QTime>
 #include <QDebug>
 
 XmppPingController::XmppPingController() : client_(NULL)
@@ -26,5 +28,5 @@ void XmppPingController::doPing()
 
 void XmppPingController::handlePingResponse(const std::string response)
 {
-		qDebug() << "handlePingResponse: " << QString::fromStdString(response);
+		qDebug() << QTime::currentTime().toString() << "handlePingResponse: " << QString::fromStdString(response);
 }
