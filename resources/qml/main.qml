@@ -33,6 +33,7 @@ ApplicationWindow {
     Component { id: pageAccount; AccountPage { } }
     Component { id: pageMessaging; MessagingPage { } }
     Component { id: imagePicker; ImagePickerPage { } }
+    Component { id: pageAbout; AboutPage { } }
 
     ImagePickerPage {
         id: pageImagePicker

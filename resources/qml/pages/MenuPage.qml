@@ -59,6 +59,7 @@ Page {
         model: [
             { "title" : qsTr ("Contacts"),      "icon" : "image://theme/icon-m-people",         "page" : pageContacts },
             { "title" : qsTr ("Conversations"), "icon" : "image://theme/icon-m-chat",           "page" : pageConversations },
+            { "title" : qsTr ("About"), "icon" : "image://theme/icon-m-about", "page" : pageAbout },
             //            { "title" : qsTr ("Preferences"),   "icon" : "image://theme/icon-l-developer-mode", "page" : pagePreferences },
             //            { "title" : qsTr ("Account"),       "icon" : "image://theme/icon-s-secure",         "page" : pageAccount },
         ];
