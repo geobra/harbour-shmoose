@@ -1,12 +1,16 @@
 # path to local compiled swift 3 lib
-SWIFT3PATH = ../swift-3.0
+SWIFT3PATH = ../swift-3.0-host
+contains(DEFINES, SFOS) {
+    SWIFT3PATH = ../swift-3.0-arm
+}
+
 # from swift-config
 SWIFTCXX = -DSWIFTEN_STATIC -DBOOST_ALL_NO_LIB -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_SIGNALS_NO_DEPRECATION_WARNING -DSWIFT_EXPERIMENTAL_FT
 SWIFTLIB = -lSwiften -lSwiften_Boost -lrt -lz -lssl -lcrypto -lxml2 -lresolv -lpthread -ldl -lm -lc -lstdc++
 
 
 TEMPLATE = app
-QT += qml quick core sql xml
+QT += qml quick core sql xml concurrent
 
 
 INCLUDEPATH += $${SWIFT3PATH}/3rdParty/Boost/src
@@ -22,12 +26,17 @@ linux-g++ {
 }
 LIBS += -L$${SWIFT3PATH}/Swiften -L$${SWIFT3PATH}/3rdParty/Boost $${SWIFTLIB}
 
+contains(DEFINES, SFOS) {
+    LIBS += -liphb
+}
+
 DEFINES += BOOST_SIGNALS_NO_DEPRECATION_WARNING
 
 SOURCES += source/main.cpp \
 	source/Shmoose.cpp \
 	source/RosterContoller.cpp \
 	source/RosterItem.cpp \
+        source/ReConnectionHandler.cpp \
 	source/persistence/Database.cpp \
 	source/persistence/MessageController.cpp \
 	source/persistence/SessionController.cpp \
@@ -39,7 +48,8 @@ SOURCES += source/main.cpp \
 	source/FileModel.cpp \
 	source/ImageProcessing.cpp \
 	source/System.cpp \
-    source/xep/xmppPing/XmppPingController.cpp
+        source/xep/xmppPing/XmppPingController.cpp \
+        source/IpHeartBeatWatcher.cpp
 
 HEADERS += source/Shmoose.h \
 	source/EchoPayload.h \
@@ -47,6 +57,7 @@ HEADERS += source/Shmoose.h \
 	source/EchoPayloadSerializer.h \
 	source/RosterContoller.h \
 	source/RosterItem.h \
+        source/ReConnectionHandler.h \
 	source/persistence/Database.h \
 	source/persistence/MessageController.h \
 	source/persistence/SessionController.h \
@@ -59,7 +70,8 @@ HEADERS += source/Shmoose.h \
 	source/FileModel.h \
 	source/ImageProcessing.h \
 	source/System.h \
-    source/xep/xmppPing/XmppPingController.h
+        source/xep/xmppPing/XmppPingController.h \
+        source/IpHeartBeatWatcher.h
 
 RESOURCES += shmoose.qrc
 

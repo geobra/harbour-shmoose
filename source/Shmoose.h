@@ -16,6 +16,8 @@ class Persistence;
 class HttpFileUploadManager;
 class DownloadManager;
 class XmppPingController;
+class ReConnectionHandler;
+class IpHeartBeatWatcher;
 
 class Shmoose : public QObject
 {
@@ -42,6 +44,8 @@ public:
     Q_INVOKABLE void setHasInetConnection(bool connected_);
     Q_INVOKABLE void setAppIsActive(bool active);
 
+    Q_INVOKABLE QString getVersion();
+
 	bool connectionState() const;
 
 public slots:
@@ -49,7 +53,8 @@ public slots:
 	void sendFile(QString const &toJid, QString const &file);
 
 private slots:
-	void doXmppPingIfConnected();
+    void tryStablishServerConnection();
+    void tryReconnect();
 
 signals:
 	void rosterControllerChanged();
@@ -73,6 +78,7 @@ private:
     Persistence* getPersistence();
 
     bool connected_;
+    bool initialConnectionSuccessfull_;
     bool hasInetConnection_;
     bool appIsActive_;
 
@@ -89,11 +95,15 @@ private:
 	HttpFileUploadManager* httpFileUploadManager_;
 	DownloadManager *downloadManager_;
 	XmppPingController *xmppPingController_;
+    ReConnectionHandler *reConnectionHandler_;
+    IpHeartBeatWatcher *ipHeartBeatWatcher_;
 
 	QString jid_;
 	QString password_;
 
 	QStringList unAckedMessageIds_;
+
+    const QString version_;
 };
 
 #endif
