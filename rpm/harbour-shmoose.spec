@@ -1,4 +1,4 @@
-Name: shmoose
+Name: harbour-shmoose
 Version: 0.1.0
 Release:	1%{?dist}
 Summary: Shmoose - XMPP Client for Sailfish OS
@@ -33,18 +33,18 @@ rm -rf $RPM_BUILD_ROOT
 # >> install pre
 # << install pre
 install -d %{buildroot}%{_bindir}
-install -p -m 0755 %(pwd)/%{name} %{buildroot}%{_bindir}/harbour-%{name}
+install -p -m 0755 %(pwd)/shmoose %{buildroot}%{_bindir}/%{name}
 install -d %{buildroot}%{_datadir}/applications
 install -d %{buildroot}%{_datadir}/lipstick/notificationcategories
-install -d %{buildroot}%{_datadir}/harbour-%{name}
-install -d %{buildroot}%{_datadir}/harbour-%{name}/qml
-install -d %{buildroot}%{_datadir}/harbour-%{name}/icons
-cp -Ra ./resources/qml/* %{buildroot}%{_datadir}/harbour-%{name}/qml
-cp -Ra ./resources/icons/* %{buildroot}%{_datadir}/harbour-%{name}/icons
+install -d %{buildroot}%{_datadir}/%{name}
+install -d %{buildroot}%{_datadir}/%{name}/qml
+install -d %{buildroot}%{_datadir}/%{name}/icons
+cp -Ra ./resources/qml/* %{buildroot}%{_datadir}/%{name}/qml
+cp -Ra ./resources/icons/* %{buildroot}%{_datadir}/%{name}/icons
 install -d %{buildroot}%{_datadir}/icons/hicolor/86x86/apps
-install -m 0444 -t %{buildroot}%{_datadir}/icons/hicolor/86x86/apps/ resources/icons/86x86/harbour-%{name}.png
-install -p %(pwd)/resources/harbour-shmoose.desktop %{buildroot}%{_datadir}/applications/harbour-%{name}.desktop
-install -p %(pwd)/resources/harbour-shmoose-message.conf %{buildroot}%{_datadir}/lipstick/notificationcategories/harbour-%{name}-message.conf
+install -m 0444 -t %{buildroot}%{_datadir}/icons/hicolor/86x86/apps/ resources/icons/86x86/%{name}.png
+install -p %(pwd)/resources/harbour-shmoose.desktop %{buildroot}%{_datadir}/applications/%{name}.desktop
+install -p %(pwd)/resources/harbour-shmoose-message.conf %{buildroot}%{_datadir}/lipstick/notificationcategories/%{name}-message.conf
 # >> install post
 # << install post
 
@@ -59,10 +59,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%{_datadir}/applications/harbour-%{name}.desktop
-%{_datadir}/lipstick/notificationcategories/harbour-%{name}-message.conf
-%{_datadir}/harbour-%{name}/qml
-%{_datadir}/harbour-%{name}/icons
+%{_datadir}/applications/%{name}.desktop
+%{_datadir}/lipstick/notificationcategories/%{name}-message.conf
+%{_datadir}/%{name}/qml
+%{_datadir}/%{name}/icons
 %{_datadir}/icons/hicolor/86x86/apps
 %{_bindir}
 # >> files

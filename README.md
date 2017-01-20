@@ -73,7 +73,7 @@ Fetch swift source
 
 Install all dependencies to build swiften
 
- * `sb2 -t SailfishOS-armv7hl -m sdk-install -R zypper in openssl-devel`
+ * `sb2 -t SailfishOS-armv7hl -m sdk-install -R zypper in openssl-devel libiphb-devel`
 
 Patch SConstruct file to do a PIC build of the library archive
 
