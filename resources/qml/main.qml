@@ -9,9 +9,13 @@ import "cover"
 ApplicationWindow {
     id: mainWindow
 
+    signal appGetsActive();
+
     onApplicationActiveChanged: {
         if (applicationActive == true) {
+            appGetsActive()
             shmoose.setAppIsActive(true)
+            removeNotifications()
         }
         else {
             shmoose.setAppIsActive(false)
@@ -21,6 +25,7 @@ ApplicationWindow {
     cover: pageCover;
     initialPage: pageLogin;
 
+    property var notifications: []
     property var networkType: 0
     property bool hasInetConnection: false
 
@@ -67,6 +72,7 @@ ApplicationWindow {
                                "arguments": [ "jid", jid ]
                            } ]
         m.publish()
+        notifications.push(m)
     }
 
     Connections {
@@ -75,6 +81,17 @@ ApplicationWindow {
             if (applicationActive == false) {
                 newMessageNotification(id, jid, message);
             }
+        }
+    }
+
+    function removeNotifications() {
+        for (var i = notifications.length; i--;) {
+            //	console.log("remove" + i)
+            var n = notifications[i]
+            n.close()
+            n.destroy()
+            delete(n)
+            notifications.splice(n, 1)
         }
     }
 
@@ -96,7 +113,6 @@ ApplicationWindow {
     }
 
     function showSession(jid) {
-        //removeNotification(jid)
         shmoose.setCurrentChatPartner(jid)
 
         pageStack.clear()
