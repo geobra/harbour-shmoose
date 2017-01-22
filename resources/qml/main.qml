@@ -86,6 +86,7 @@ ApplicationWindow {
 
     function removeNotifications() {
 	for (var i = notifications.length; i--;) {
+	//	console.log("remove" + i)
 	    var n = notifications[i]
             n.close()
             n.destroy()
