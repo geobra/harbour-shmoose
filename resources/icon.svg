@@ -16,9 +16,51 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="icon.svg">
+   sodipodi:docname="icon.svg"
+   inkscape:export-filename="/home/schorsch/development/xmpp/sfos/geobra/harbour-shmoose/resources/icons/86x86/harbour-shmoose.png"
+   inkscape:export-xdpi="10"
+   inkscape:export-ydpi="10">
   <defs
      id="defs4">
+    <linearGradient
+       id="linearGradient5645">
+      <stop
+         id="stop5647"
+         offset="0"
+         style="stop-color:#0eb8ee;stop-opacity:1" />
+      <stop
+         id="stop5649"
+         offset="1"
+         style="stop-color:#0505de;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient5601-3-7">
+      <stop
+         style="stop-color:#0077c2;stop-opacity:1;"
+         offset="0"
+         id="stop5635" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient5601-3-6">
+      <stop
+         style="stop-color:#0077c2;stop-opacity:1;"
+         offset="0"
+         id="stop5623" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient5601-3">
+      <stop
+         id="stop5619"
+         offset="0"
+         style="stop-color:#2767c2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient5601">
+      <stop
+         style="stop-color:#0077c2;stop-opacity:0"
+         offset="0"
+         id="stop5603" />
+    </linearGradient>
     <linearGradient
        inkscape:collect="always"
        id="linearGradient4778">
@@ -40,7 +82,7 @@
        fx="262.5"
        fy="300"
        r="246.9456"
-       gradientTransform="matrix(0.61140109,0,0,0.73369414,215.28565,400.91878)"
+       gradientTransform="matrix(0.46099203,0,0,0.56014526,247.62516,462.98345)"
        gradientUnits="userSpaceOnUse" />
     <linearGradient
        id="linearGradient2299">
@@ -62,7 +104,7 @@
        x2="932.37079"
        y2="564.45856"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-616.19306,275.77165)" />
+       gradientTransform="translate(-636.19312,241.48594)" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient4778"
@@ -72,7 +114,7 @@
        x2="932.37079"
        y2="564.45856"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-529.82501,277.7919)" />
+       gradientTransform="translate(-549.82502,243.50619)" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient4778"
@@ -82,7 +124,16 @@
        x2="932.37079"
        y2="564.45856"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(-439.92143,277.7919)" />
+       gradientTransform="translate(-459.92142,243.50619)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5645"
+       id="linearGradient6329"
+       x1="116.65346"
+       y1="117.03446"
+       x2="732.11469"
+       y2="725.6059"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -91,9 +142,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.9899495"
-     inkscape:cx="350.36893"
-     inkscape:cy="370.71617"
+     inkscape:zoom="0.7"
+     inkscape:cx="-58.239595"
+     inkscape:cy="431.94484"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -120,7 +171,7 @@
      id="layer1"
      transform="translate(0,-308.26772)">
     <path
-       style="fill:#0077c2;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       style="fill:url(#linearGradient6329);fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1;opacity:1"
        d="M 372.24023 9.2675781 A 364.16 360.62448 0 0 0 8.0820312 369.89258 A 364.16 360.62448 0 0 0 343.62891 729.09766 C 343.74889 729.1097 343.86228 729.12473 343.98242 729.13672 C 345.32714 729.27085 347.46188 729.36256 350.11523 729.41992 A 364.16 360.62448 0 0 0 372.24219 730.51562 A 364.16 360.62448 0 0 0 373.91406 730.45703 L 736.40039 730.45703 L 736.40039 369.89258 L 736.40039 365.28711 L 736.23633 365.28711 A 364.16 360.62448 0 0 0 372.24023 9.2675781 z "
        id="path3336"
        transform="translate(0,308.26772)"
@@ -129,30 +180,22 @@
        inkscape:export-ydpi="10.63" />
     <path
        inkscape:connector-curvature="0"
-       style="fill:#00c1ee;fill-rule:evenodd;stroke:none;stroke-width:0.81578654px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:0.56"
-       d="M 376.28103,395.37904 A 297.07681,294.19259 0 0 0 79.205676,689.57204 297.07681,294.19259 0 0 0 352.9403,982.60664 c 0.0979,0.01 0.19038,0.022 0.28839,0.032 1.097,0.1094 2.83849,0.1842 5.00306,0.2311 a 297.07681,294.19259 0 0 0 18.05087,0.8939 297.07681,294.19259 0 0 0 1.3639,-0.048 l 295.71145,0 0,-294.14362 0,-3.75708 -0.13384,0 a 297.07681,294.19259 0 0 0 -296.9431,-290.4359 z"
+       style="fill:#06d2ee;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.81578654px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 370.56685,425.37904 A 247.0767,258.47827 0 0 0 123.4914,683.85767 247.0767,258.47827 0 0 0 351.15455,941.31852 c 0.081,0.009 0.1583,0.0193 0.2399,0.0281 0.9123,0.0961 2.3607,0.16184 4.161,0.20304 a 247.0767,258.47827 0 0 0 15.0128,0.78538 247.0767,258.47827 0 0 0 1.1343,-0.0422 l 245.9411,0 0,-258.43524 0,-3.30098 -0.1113,0 A 247.0767,258.47827 0 0 0 370.56685,425.37904 Z"
        id="path3336-4"
        inkscape:export-filename="/home/schorsch/development/xmpp/sfos/geobra/harbour-shmoose/resources/icons/86x86/harbour-shmoose.png"
        inkscape:export-xdpi="10.63"
        inkscape:export-ydpi="10.63" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:Symbol;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;-inkscape-font-specification:Symbol;font-stretch:normal;font-variant:normal;"
-       x="-315.1676"
-       y="542.23517"
-       id="text4191"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan4193"
-         x="-315.1676"
-         y="542.23517">d</tspan></text>
-    <text
-       xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="220.21326"
        y="614.96613"
        id="text4141"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/schorsch/development/xmpp/sfos/geobra/harbour-shmoose/resources/icons/86x86/harbour-shmoose.png"
+       inkscape:export-xdpi="10.63"
+       inkscape:export-ydpi="10.63"><tspan
          sodipodi:role="line"
          id="tspan4143"
          x="220.21326"
@@ -163,7 +206,10 @@
        x="-210.11172"
        y="453.34177"
        id="text4149"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/schorsch/development/xmpp/sfos/geobra/harbour-shmoose/resources/icons/86x86/harbour-shmoose.png"
+       inkscape:export-xdpi="10.63"
+       inkscape:export-ydpi="10.63"><tspan
          sodipodi:role="line"
          id="tspan4151"
          x="-210.11172"
@@ -174,14 +220,17 @@
        x="-158.59395"
        y="529.10321"
        id="text4153"
-       sodipodi:linespacing="125%"><tspan
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/schorsch/development/xmpp/sfos/geobra/harbour-shmoose/resources/icons/86x86/harbour-shmoose.png"
+       inkscape:export-xdpi="10.63"
+       inkscape:export-ydpi="10.63"><tspan
          sodipodi:role="line"
          id="tspan4155"
          x="-158.59395"
          y="529.10321" /></text>
     <path
        inkscape:connector-curvature="0"
-       d="m 224.79563,742.84028 c 0,-5.718 20.60887,-34.42875 45.79748,-63.80167 25.1886,-29.37293 49.46338,-57.89334 53.94395,-63.37873 4.48057,-5.48538 -0.17318,-37.32612 -10.34165,-70.7572 -21.06503,-69.25583 -22.9852,-92.28538 -8.44396,-101.27236 19.8747,-12.28325 47.15086,5.86285 70.04644,46.60002 l 23.19501,41.26996 43.55813,-42.74905 c 28.64091,-28.10893 49.08585,-40.62786 59.69909,-36.55518 20.99869,8.05796 33.1172,39.58883 17.24847,44.8784 -18.01169,6.00389 -92.55922,119.44874 -92.41779,140.63942 0.067,10.03416 10.65929,36.66801 23.53851,59.18634 9.08415,15.88293 21.29476,28.41628 16.44752,37.03135 l -25.91116,46.0523 c -5.02543,8.93178 -23.58789,-14.88155 -45.57704,-37.99694 l -38.35836,-40.32301 -42.52419,50.43118 c -23.38831,27.73715 -45.22367,50.28824 -48.52303,50.11353 -3.29935,-0.17471 -41.37742,-53.65035 -41.37742,-59.36836 z"
+       d="m 254.79562,724.02644 c 0,-4.36547 15.53893,-26.28494 34.53096,-48.70995 18.99203,-22.42503 37.29504,-44.19918 40.67336,-48.38705 3.37832,-4.18787 -0.13058,-28.49696 -7.79753,-54.02021 -15.88289,-52.87397 -17.33068,-70.45609 -6.36669,-77.31728 14.98538,-9.37775 35.55141,4.47605 52.81452,35.5772 l 17.48886,31.50792 32.84252,-32.63714 c 21.59504,-21.46001 37.01038,-31.0177 45.01269,-27.90838 15.83286,6.15192 24.97012,30.22444 13.00522,34.26282 -13.58068,4.58371 -69.78898,91.19419 -69.68235,107.37239 0.0505,7.66067 8.03703,27.99452 17.74787,45.18634 6.84938,12.12596 16.05609,21.69466 12.40131,28.27191 l -19.53683,35.15904 c -3.78914,6.81904 -17.7851,-11.36146 -34.36476,-29.00911 l -28.92193,-30.78495 -32.06293,38.50212 c -17.63461,21.17618 -34.09833,38.393 -36.58601,38.25962 -2.48769,-0.13338 -31.19828,-40.95983 -31.19828,-45.32529 z"
        style="fill:url(#radialGradient2305);fill-opacity:1;stroke:none;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="X"
        inkscape:export-filename="/home/schorsch/development/xmpp/sfos/geobra/harbour-shmoose/resources/icons/86x86/harbour-shmoose.png"
@@ -190,8 +239,8 @@
     <ellipse
        style="fill:url(#linearGradient4784);fill-opacity:1;stroke:none;stroke-opacity:1"
        id="path4750"
-       cx="289.40869"
-       cy="840.23022"
+       cx="269.40869"
+       cy="805.94452"
        rx="26.769045"
        ry="25.253813"
        inkscape:export-filename="/home/schorsch/development/xmpp/sfos/geobra/harbour-shmoose/resources/icons/86x86/harbour-shmoose.png"
@@ -200,8 +249,8 @@
     <ellipse
        style="fill:url(#linearGradient4784-0);fill-opacity:1;stroke:none;stroke-opacity:1"
        id="path4750-9"
-       cx="375.77676"
-       cy="842.25043"
+       cx="355.77676"
+       cy="807.96472"
        rx="26.769045"
        ry="25.253813"
        inkscape:export-filename="/home/schorsch/development/xmpp/sfos/geobra/harbour-shmoose/resources/icons/86x86/harbour-shmoose.png"
@@ -210,8 +259,8 @@
     <ellipse
        style="fill:url(#linearGradient4784-5);fill-opacity:1;stroke:none;stroke-opacity:1"
        id="path4750-3"
-       cx="465.6803"
-       cy="842.25049"
+       cx="445.6803"
+       cy="807.96478"
        rx="26.769045"
        ry="25.253813"
        inkscape:export-filename="/home/schorsch/development/xmpp/sfos/geobra/harbour-shmoose/resources/icons/86x86/harbour-shmoose.png"

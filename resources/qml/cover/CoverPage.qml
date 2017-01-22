@@ -4,10 +4,13 @@ import Sailfish.Silica 1.0
 CoverBackground {
     Column {
         id: cover
+
+
         anchors.top: parent.top
         width: parent.width
 
         property bool xmppConnected: false
+        property int unreadMessages: 0
 
         Label {
             width: parent.width
@@ -31,8 +34,8 @@ CoverBackground {
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
             font.family: Theme.fontFamily
-            color: cover.xmppConnected ? "green" : "red"
-            text: cover.xmppConnected ? "connected" : "disconnected"
+            color: (mainWindow.hasInetConnection && cover.xmppConnected) ? "green" : "red"
+            text: (mainWindow.hasInetConnection && cover.xmppConnected) ? "connected" : "disconnected"
 
             Connections {
                 target: shmoose
@@ -52,7 +55,28 @@ CoverBackground {
             anchors.horizontalCenter: parent.horizontalCenter
             color: "blue"
             font.pixelSize: Theme.fontSizeExtraLarge
-            text: "0" // FIXME show unread messages
+            text: cover.unreadMessages
         }
+
+        Connections {
+            target: shmoose.persistence.messageController
+            onSignalMessageReceived: {
+                if (applicationActive == false) {
+                    cover.unreadMessages++
+                }
+            }
+        }
+
+        Connections {
+            target: mainWindow
+            onAppGetsActive: {
+                cover.resetUnreadMessages()
+            }
+        }
+
+        function resetUnreadMessages() {
+            cover.unreadMessages = 0
+        }
+
     }
 }

@@ -63,6 +63,9 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 
 Shmoose::~Shmoose()
 {
+    qDebug() << "Shmoose::~Shmoose";
+    ipHeartBeatWatcher_->stopWatching();
+
     if (connected_)
 	{
 		client_->removePayloadSerializer(&echoPayloadSerializer_);
@@ -138,6 +141,8 @@ void Shmoose::handleConnected()
     // only on a first connection. skip this on a reconnect event.
     if (initialConnectionSuccessfull_ == false)
     {
+        reConnectionHandler_->setActivated();
+
         // Request the roster
         rosterController_->requestRosterFromClient(client_);
 
@@ -356,6 +361,10 @@ void Shmoose::tryReconnect()
 
     if (initialConnectionSuccessfull_ == true && hasInetConnection_ == true)
     {
+        // try to disconnect the old session fromn before network disturbtion
+        client_->disconnect();
+
+        // try new connect
         client_->connect();
     }
 }

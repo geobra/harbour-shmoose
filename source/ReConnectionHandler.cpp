@@ -3,7 +3,7 @@
 #include <QDebug>
 
 ReConnectionHandler::ReConnectionHandler(unsigned int timeOut, QObject *parent) : QObject(parent),
-    timer_(new QTimer()), timeOut_(timeOut)
+    timer_(new QTimer()), timeOut_(timeOut), activated_(false)
 {
     timer_->setInterval(timeOut_);
     timer_->setSingleShot(true);
@@ -12,20 +12,31 @@ ReConnectionHandler::ReConnectionHandler(unsigned int timeOut, QObject *parent) 
 
 void ReConnectionHandler::isConnected(bool connected)
 {
-    if (connected == false)
+    if (activated_)
     {
-        qDebug() << "ReConnectionHandler::isConnected: stop timer";
-        timer_->stop();
-    }
-    else
-    {
-        qDebug() << "ReConnectionHandler::isConnected: start timer";
-        timer_->start();
+        if (connected == false)
+        {
+            qDebug() << "ReConnectionHandler::isConnected: stop timer";
+            timer_->stop();
+        }
+        else
+        {
+            qDebug() << "ReConnectionHandler::isConnected: start timer";
+            timer_->start();
+        }
     }
 }
 
 void ReConnectionHandler::triggerIsTimedOut()
 {
-    qDebug() << "ReConnectionHandler::triggerIsTimedOut";
-    emit canTryToReconnect();
+    if (activated_)
+    {
+        qDebug() << "ReConnectionHandler::triggerIsTimedOut";
+        emit canTryToReconnect();
+    }
+}
+
+void ReConnectionHandler::setActivated()
+{
+    activated_ = true;
 }
