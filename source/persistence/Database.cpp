@@ -45,7 +45,7 @@ Database::Database(QObject *parent) : QObject(parent), databaseValid_(true)
 			if (! database_.tables().contains( messagesTable ))
 			{
 				// direction: (1)ncomming / (0)utgoing
-				QString sqlCreateCommand = "create table " + messagesTable + " (id TEXT PRIMARY KEY, jid TEXT, message TEXT, direction INTEGER, timestamp INTEGER, type STRING, issent BOOL, isreceived BOOL)";
+                QString sqlCreateCommand = "create table " + messagesTable + " (id TEXT, jid TEXT, message TEXT, direction INTEGER, timestamp INTEGER, type STRING, issent BOOL, isreceived BOOL)";
 				if (query.exec(sqlCreateCommand) == false)
 				{
 					qDebug() << "Error creating message table";
@@ -80,6 +80,7 @@ bool Database::isValid()
 
 void Database::dumpDataToStdOut() const
 {
+#if 0
 	QSqlQuery query("select * from messages", database_);
 	QSqlRecord rec = query.record();
 
@@ -91,6 +92,7 @@ void Database::dumpDataToStdOut() const
 	const unsigned int isSentCol = rec.indexOf("issent");
 	const unsigned int isReceivedCol = rec.indexOf("isreceived");
 	const unsigned int typeCol = rec.indexOf("type");
+
 
 	qDebug() << "id:\t\tjid:\tmessage:\tdirection\ttimestamp,\ttype,\tsent,\treceived:";
 	qDebug() << "---------------------------------------------------------------------------------------";
@@ -105,8 +107,8 @@ void Database::dumpDataToStdOut() const
 				 << query.value(isSentCol).toBool() << "\t"
 				<< query.value(isReceivedCol).toBool() << "\t";
 	}
+#endif
 
-#if 0
 	QSqlQuery query("select * from sessions", database_);
 	QSqlRecord rec = query.record();
 
@@ -125,5 +127,4 @@ void Database::dumpDataToStdOut() const
 				 << query.value(tsCol).toInt() << "\t"
 				 << query.value(unreadMsgCol).toInt() << "\t";
 	}
-#endif
 }

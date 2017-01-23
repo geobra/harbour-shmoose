@@ -3,6 +3,7 @@
 
 #include <QSqlRecord>
 #include <QSqlError>
+#include <QSqlQuery>
 #include <QDateTime>
 
 #include <QDebug>
@@ -88,6 +89,8 @@ void MessageController::addMessage(const QString &id, const QString &jid, const 
 {
 	QSqlRecord record = this->record();
 
+    //qDebug() << "id: " << id << "jid: " << jid << "msg: " << message << "type:" << type << "direct" << direction;
+
 	record.setValue("id", id);
 	record.setValue("jid", jid);
 	record.setValue("message", message);
@@ -97,15 +100,13 @@ void MessageController::addMessage(const QString &id, const QString &jid, const 
 
 	if (! this->insertRecord(-1, record))
 	{
-		qDebug() << "error on insert!";
-	}
+        printSqlError();
+    }
 	else
 	{
 		if (! this->submitAll())
 		{
-			qDebug() << this->lastError().databaseText();
-			qDebug() << this->lastError().driverText();
-			qDebug() << this->lastError().text();
+            printSqlError();
 		}
 		else
 		{
@@ -131,77 +132,31 @@ void MessageController::addMessage(const QString &id, const QString &jid, const 
 
 void MessageController::markMessageReceived(QString const &id)
 {
-	int row = getRowNumberForId(id);
-
-	if (row >= 0) // only on found messages
-	{
-		QSqlRecord record = this->record(row);
-		record.setValue("isreceived", true);
-
-		if (this->setRecord(row, record) == false)
-		{
-			printSqlError();
-		}
-		else
-		{
-			if (! this->submitAll())
-			{
-				printSqlError();
-			}
-		}
-
-		// update the model with the changes of the database
-		if (select() != true)
-		{
-			qDebug() << "error on select in MessageController::addMessage";
-		}
-	}
+    markColumnOfId("isreceived", id);
 }
 
 void MessageController::markMessageSent(QString const &id)
 {
-	int row = getRowNumberForId(id);
-
-	if (row >= 0) // only on found messages
-	{
-		QSqlRecord record = this->record(row);
-		record.setValue("issent", true);
-
-		if (this->setRecord(row, record) == false)
-		{
-			printSqlError();
-		}
-		else
-		{
-			if (! this->submitAll())
-			{
-				printSqlError();
-			}
-		}
-
-		// update the model with the changes of the database
-		if (select() != true)
-		{
-			qDebug() << "error on select in MessageController::addMessage";
-		}
-	}
+    markColumnOfId("issent", id);
 }
 
-int MessageController::getRowNumberForId(QString const &id)
+void MessageController::markColumnOfId(QString const &column, QString const &id)
 {
-	int returnValue = -1;
-
-	for (int row = 0; row < rowCount(); row++)
-	{
-		QString idInModel = record(row).value("id").toString();
-
-		if (idInModel == id)
-		{
-			returnValue = row;
-		}
-	}
-
-	return returnValue;
+    QSqlQuery query(*(database_->getPointer()));
+    if (! query.exec("UPDATE messages SET \"" + column + "\" = 1 WHERE id = \"" + id +"\""))
+    {
+         qDebug() << query.lastError().databaseText();
+         qDebug() << query.lastError().driverText();
+         qDebug() << query.lastError().text();
+    }
+    else
+    {
+        // update the model with the changes of the database
+        if (select() != true)
+        {
+            qDebug() << "error on select in MessageController::addMessage";
+        }
+    }
 }
 
 void MessageController::printSqlError()

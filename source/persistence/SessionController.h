@@ -29,9 +29,7 @@ private:
 	void generateRoleNames();
 	virtual void setTable ( const QString &table_name );
 
-	unsigned int getNumberOfUnreadMessagesInRow(unsigned int row);
-	QSqlRecord getRecordForJid(QString const &jid);
-	int getRowNumberForJid(const QString &jid);
+    unsigned int getNumberOfUnreadMessagesForJid(QString const &jid);
 
 	void printSqlError();
 
@@ -41,4 +39,4 @@ private:
 	QString currentChatPartner_;
 };
 
-#endif // MESSAGECONTROLLER_H
+#endif // SESSIONONTROLLER_H

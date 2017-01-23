@@ -40,7 +40,7 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 	httpFileUploadManager_(new HttpFileUploadManager(this)),
 	downloadManager_(new DownloadManager()),
 	xmppPingController_(new XmppPingController()),
-    reConnectionHandler_(new ReConnectionHandler(60000, this)),
+    reConnectionHandler_(new ReConnectionHandler(30000, this)),
     ipHeartBeatWatcher_(new IpHeartBeatWatcher(this)),
     jid_(""), password_(""),
     version_("0.1.0")

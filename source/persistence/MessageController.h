@@ -29,7 +29,7 @@ public slots:
 private:
 	void generateRoleNames();
 	virtual void setTable ( const QString &table_name );
-	int getRowNumberForId(QString const &id);
+    void markColumnOfId(QString const &column, QString const &id);
 
 	void printSqlError();
 

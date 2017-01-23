@@ -64,116 +64,75 @@ void SessionController::setTable ( const QString &table_name )
 	generateRoleNames();
 }
 
-int SessionController::getRowNumberForJid(QString const &jid)
+unsigned int SessionController::getNumberOfUnreadMessagesForJid(QString const &jid)
 {
-	int returnValue = -1;
+    unsigned int returnValue = 0;
 
-	for (int row = 0; row < rowCount(); row++)
-	{
-		QString jidInModel = record(row).value("jid").toString();
-
-		if (jidInModel == jid)
-		{
-			returnValue = row;
-		}
-	}
-
-	return returnValue;
-}
-
-unsigned int SessionController::getNumberOfUnreadMessagesInRow(unsigned int row)
-{
-	unsigned int returnValue = 0;
-
-	if (row < static_cast<unsigned int>(this->rowCount()))
-	{
-		returnValue = record(row).value("unreadmessages").toInt();
-	}
-
-	return returnValue;
+    QSqlQuery query(*(database_->getPointer()));
+    if (! query.exec("SELECT unreadmessages from sessions WHERE jid = \"" + jid +"\""))
+    {
+         qDebug() << query.lastError().databaseText();
+         qDebug() << query.lastError().driverText();
+         qDebug() << query.lastError().text();
+    }
+    else
+    {
+        int idMsg = query.record().indexOf("unreadmessages");
+        while (query.next())
+        {
+           returnValue = query.value(idMsg).toInt();
+        }
+    }
+    return returnValue;
 }
 
 void SessionController::updateNumberOfUnreadMessages(QString const &jid, unsigned int unreadMessages)
 {
-	int row = getRowNumberForJid(jid);
+    QSqlQuery query(*(database_->getPointer()));
 
-	if (row >= 0) // no need to update, if not already in db
-	{
-		QSqlRecord record = this->record(row);
-		record.setValue("unreadmessages", unreadMessages);
-
-		if (this->setRecord(row, record) == false)
-		{
-			printSqlError();
-		}
-		else
-		{
-			if (! this->submitAll())
-			{
-				printSqlError();
-			}
-		}
-
-		// update the model with the changes of the database
-		if (select() != true)
-		{
-			qDebug() << "error on select in MessageController::addMessage";
-		}
-	}
+    if (! query.exec("UPDATE sessions SET \"unreadmessages\" = " + QString::number(unreadMessages) + " WHERE jid = \"" + jid +"\""))
+    {
+         qDebug() << query.lastError().databaseText();
+         qDebug() << query.lastError().driverText();
+         qDebug() << query.lastError().text();
+    }
+    else
+    {
+        // update the model with the changes of the database
+        if (select() != true)
+        {
+            qDebug() << "error on select in MessageController::addMessage";
+        }
+    }
 }
 
 void SessionController::updateSession(QString const &jid, QString const &lastMessage)
 {
-	int row = getRowNumberForJid(jid);
+    unsigned int unreadMessages = getNumberOfUnreadMessagesForJid(jid);
 
-	QSqlRecord record;
-	if (row == -1)
-	{
-		record = this->record();
-	}
-	else
-	{
-		record = this->record(row);
-	}
+    if (jid != currentChatPartner_)
+    {
+        unreadMessages++;
+    }
 
-	unsigned int unreadMessages = getNumberOfUnreadMessagesInRow(row);
-	record.setValue("jid", jid);
-	record.setValue("lastmessage", lastMessage);
-	record.setValue("timestamp", QDateTime::currentDateTime().toTime_t() );
-	if (jid != currentChatPartner_)
-	{
-		record.setValue("unreadmessages", ++unreadMessages);
-	}
-
-	bool submitRecord = false;
-	if (row == -1)
-	{
-		submitRecord = this->insertRecord(-1, record);
-	}
-	else
-	{
-		submitRecord = this->setRecord(row, record);
-	}
-
-	if (submitRecord == false)
-	{
-		printSqlError();
-	}
-	else
-	{
-		if (! this->submitAll())
-		{
-			printSqlError();
-		}
-	}
-
-	// update the model with the changes of the database
-	if (select() != true)
-	{
-		qDebug() << "error on select in MessageController::addMessage";
-	}
-
-    //database_->dumpDataToStdOut();
+    QSqlQuery query(*(database_->getPointer()));
+    if (! query.exec("UPDATE sessions SET \"unreadmessages\" = " + QString::number(unreadMessages) +
+                     ", \"lastmessage\" = \"" + lastMessage + "\"" +
+                     ", \"timestamp\" = \"" + QDateTime::currentDateTime().toTime_t() + "\"" +
+                     " WHERE jid = \"" + jid +"\""))
+    {
+         qDebug() << query.lastError().databaseText();
+         qDebug() << query.lastError().driverText();
+         qDebug() << query.lastError().text();
+    }
+    else
+    {
+        // update the model with the changes of the database
+        if (select() != true)
+        {
+            qDebug() << "error on select in MessageController::addMessage";
+        }
+    }
 }
 
 void SessionController::setCurrentChatPartner(QString const &jid)
