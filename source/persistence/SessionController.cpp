@@ -138,8 +138,6 @@ void SessionController::updateSession(QString const &jid, QString const &lastMes
 			qDebug() << "error on select in SessionController::updateSession";
 		}
 	}
-
-	database_->dumpDataToStdOut();
 }
 
 void SessionController::setCurrentChatPartner(QString const &jid)
