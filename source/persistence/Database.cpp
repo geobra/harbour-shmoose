@@ -36,8 +36,6 @@ Database::Database(QObject *parent) : QObject(parent), databaseValid_(true)
 			 * - minor redundant data
 			 */
 
-			// FIXME add database version to be able to perform a version update
-
 			// table for all the messages
 			QSqlQuery query;
 
@@ -45,7 +43,7 @@ Database::Database(QObject *parent) : QObject(parent), databaseValid_(true)
 			if (! database_.tables().contains( messagesTable ))
 			{
 				// direction: (1)ncomming / (0)utgoing
-                QString sqlCreateCommand = "create table " + messagesTable + " (id TEXT, jid TEXT, message TEXT, direction INTEGER, timestamp INTEGER, type STRING, issent BOOL, isreceived BOOL)";
+				QString sqlCreateCommand = "create table " + messagesTable + " (id TEXT, jid TEXT, message TEXT, direction INTEGER, timestamp INTEGER, type STRING, issent BOOL, isreceived BOOL)";
 				if (query.exec(sqlCreateCommand) == false)
 				{
 					qDebug() << "Error creating message table";
@@ -57,7 +55,7 @@ Database::Database(QObject *parent) : QObject(parent), databaseValid_(true)
 			if (! database_.tables().contains( sessionsTable ))
 			{
 				// another table for the sessions
-				QString sqlCreateCommand = "create table " + sessionsTable + " (jid TEXT, lastmessage TEXT, timestamp INTEGER, unreadmessages INTEGER)";
+				QString sqlCreateCommand = "create table " + sessionsTable + " (jid TEXT PRIMARY KEY, lastmessage TEXT, timestamp INTEGER, unreadmessages INTEGER)";
 				if (query.exec(sqlCreateCommand) == false)
 				{
 					qDebug() << "Error creating sessions table";
