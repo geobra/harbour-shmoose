@@ -43,7 +43,7 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 	reConnectionHandler_(new ReConnectionHandler(30000, this)),
 	ipHeartBeatWatcher_(new IpHeartBeatWatcher(this)),
 	jid_(""), password_(""),
-	version_("0.1.0")
+	version_("0.1.1")
 {
 	connect(ipHeartBeatWatcher_, SIGNAL(triggered()), this, SLOT(tryStablishServerConnection()));
 	QtConcurrent::run(ipHeartBeatWatcher_, &IpHeartBeatWatcher::startWatching);
