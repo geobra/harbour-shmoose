@@ -7,29 +7,24 @@ extern "C" {
 }
 #endif
 
+#include <QThread>
 #include <QObject>
-#include <poll.h>
 
-class IpHeartBeatWatcher : public QObject
+class IpHeartBeatWatcher : public QThread
 {
 	Q_OBJECT
 public:
 	IpHeartBeatWatcher(QObject *parent = 0);
     ~IpHeartBeatWatcher();
 
-    bool startWatching();
+    void run();
     void stopWatching();
 
 signals:
 	void triggered();
 
 private:
-    bool openIpHb();
-    void closeIpHb();
-
     bool doWatch_;
-
-    pollfd ipHbPollFd_;
 
 #ifdef SFOS
     iphb_t handle_;

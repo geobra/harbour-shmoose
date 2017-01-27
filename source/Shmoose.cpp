@@ -45,8 +45,9 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 	jid_(""), password_(""),
 	version_("0.1.1")
 {
-	connect(ipHeartBeatWatcher_, SIGNAL(triggered()), this, SLOT(tryStablishServerConnection()));
-	QtConcurrent::run(ipHeartBeatWatcher_, &IpHeartBeatWatcher::startWatching);
+    connect(ipHeartBeatWatcher_, SIGNAL(triggered()), this, SLOT(tryStablishServerConnection()));
+    connect(ipHeartBeatWatcher_, SIGNAL(finished()), ipHeartBeatWatcher_, SLOT(deleteLater()));
+    ipHeartBeatWatcher_->start();
 
 	connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString,QString)),
 			this, SLOT(sendMessage(QString,QString,QString)));
@@ -57,14 +58,18 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 Shmoose::~Shmoose()
 {
 	qDebug() << "Shmoose::~Shmoose";
+    client_->disconnect();
+
 	ipHeartBeatWatcher_->stopWatching();
+    ipHeartBeatWatcher_->terminate();
 
 	if (connected_)
 	{
 		client_->removePayloadSerializer(&echoPayloadSerializer_);
 		client_->removePayloadParserFactory(&echoPayloadParserFactory_);
 		softwareVersionResponder_->stop();
-		delete tracer_;
+
+        delete tracer_;
 		delete softwareVersionResponder_;
 		delete client_;
 	}
