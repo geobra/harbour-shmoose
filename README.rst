@@ -1,11 +1,15 @@
-# Shmoose - XMPP Client for Sailfish OS
+===============================================================================
+Shmoose - XMPP Client for Sailfish OS
+===============================================================================
 
 Shmoose builds on and includes code from the following projects:
 
 * XMPP library `Swiften <https://swift.im/swiften.html>`_ from Isode
 * Image picker is from `hangish <https://github.com/rogora/hangish>`_ written by Daniele Rogora
 
-## Feature Stack until version 1.0
+-------------------------------------------------------------------------------
+Feature Stack until version 1.0
+-------------------------------------------------------------------------------
 
 * Login to Jabber server [done]
 * Get roster [done]
@@ -20,10 +24,14 @@ Shmoose builds on and includes code from the following projects:
 * Add, edit and delete roster items [ ]
 * Make database persistent [WIP]
 
-## Ready to use binaries can be found on openrepos
+-------------------------------------------------------------------------------
+Ready to use binaries can be found on openrepos
+-------------------------------------------------------------------------------
 `Shmoose <https://openrepos.net/content/schorsch/shmoose>`_
 
-## Installation
+-------------------------------------------------------------------------------
+Installation
+-------------------------------------------------------------------------------
 
 On Linux do the following:
 
@@ -62,7 +70,9 @@ or use command line::
  * qmake
  * make -j<Number of threads>
 
-## To cross compile for Sailfish OS, do the following::
+-------------------------------------------------------------------------------
+To cross compile for Sailfish OS, do the following::
+-------------------------------------------------------------------------------
 
  * Get and install Sailfish OS mersdk (tested with version 1608)
  * Ssh into mersdk and do the following in a newly created directory
