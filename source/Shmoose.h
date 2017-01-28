@@ -55,6 +55,7 @@ public slots:
 private slots:
     void tryStablishServerConnection();
     void tryReconnect();
+    void slotAboutToQuit();
 
 signals:
 	void rosterControllerChanged();

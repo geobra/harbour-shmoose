@@ -53,12 +53,13 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 			this, SLOT(sendMessage(QString,QString,QString)));
 
 	connect(reConnectionHandler_, SIGNAL(canTryToReconnect()), this, SLOT(tryReconnect()));
+
+    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotAboutToQuit()));
 }
 
 Shmoose::~Shmoose()
 {
 	qDebug() << "Shmoose::~Shmoose";
-    client_->disconnect();
 
 	ipHeartBeatWatcher_->stopWatching();
     ipHeartBeatWatcher_->terminate();
@@ -76,6 +77,14 @@ Shmoose::~Shmoose()
 
 	delete downloadManager_;
 	delete xmppPingController_;
+}
+
+void Shmoose::slotAboutToQuit()
+{
+    if (connected_)
+    {
+        client_->disconnect();
+    }
 }
 
 void Shmoose::mainConnect(const QString &jid, const QString &pass)
