@@ -27,7 +27,7 @@ Feature Stack until version 1.0
 -------------------------------------------------------------------------------
 Ready to use binaries can be found on openrepos
 -------------------------------------------------------------------------------
-`Shmoose <https://openrepos.net/content/schorsch/shmoose>`_
+`Shmoose on openrepos <https://openrepos.net/content/schorsch/shmoose>`_
 
 -------------------------------------------------------------------------------
 Installation
@@ -71,7 +71,7 @@ or use command line::
  * make -j<Number of threads>
 
 -------------------------------------------------------------------------------
-To cross compile for Sailfish OS, do the following::
+To cross compile for Sailfish OS, do the following
 -------------------------------------------------------------------------------
 
  * Get and install Sailfish OS mersdk (tested with version 1608)
@@ -90,7 +90,9 @@ Install all dependencies to build swiften::
 Patch SConstruct file to do a PIC build of the library archive
 
 Add::
+
  * env.Append(CCFLAGS='-fPIC')
+
 under the line 'env.SConscript = SConscript' on line 14
 
 Build Swiften Library::
