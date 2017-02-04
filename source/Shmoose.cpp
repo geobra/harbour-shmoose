@@ -95,11 +95,11 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 	client_->onConnected.connect(boost::bind(&Shmoose::handleConnected, this));
 	client_->onDisconnected.connect(boost::bind(&Shmoose::handleDisconnected, this, _1));
 
-	client_->onMessageReceived.connect(
-				boost::bind(&Shmoose::handleMessageReceived, this, _1));
-	client_->onPresenceReceived.connect(
-				boost::bind(&Shmoose::handlePresenceReceived, this, _1));
+    client_->onMessageReceived.connect(boost::bind(&Shmoose::handleMessageReceived, this, _1));
+    client_->onPresenceReceived.connect(boost::bind(&Shmoose::handlePresenceReceived, this, _1));
 
+    // xep 198 stream management and roster operations
+    client_->onStanzaAcked.connect(boost::bind(&Shmoose::handleStanzaAcked, this, _1));
 
 	tracer_ = new Swift::ClientXMLTracer(client_);
 
@@ -148,26 +148,28 @@ void Shmoose::handleConnected()
 	// only on a first connection. skip this on a reconnect event.
 	if (initialConnectionSuccessfull_ == false)
 	{
-		reConnectionHandler_->setActivated();
+        reConnectionHandler_->setActivated();
 
 		// Request the roster
-		rosterController_->requestRosterFromClient(client_);
+        rosterController_->setClient(client_);
+        rosterController_->requestRosterFromClient(client_);
 
 		// request the discoInfo from server
-		GetDiscoInfoRequest::ref discoInfoRequest = GetDiscoInfoRequest::create(JID(client_->getJID().getDomain()), client_->getIQRouter());
-		discoInfoRequest->onResponse.connect(boost::bind(&Shmoose::handleServerDiscoInfoResponse, this, _1, _2));
-		discoInfoRequest->send();
+        GetDiscoInfoRequest::ref discoInfoRequest = GetDiscoInfoRequest::create(JID(client_->getJID().getDomain()), client_->getIQRouter());
+        discoInfoRequest->onResponse.connect(boost::bind(&Shmoose::handleServerDiscoInfoResponse, this, _1, _2));
+        discoInfoRequest->send();
 
 		// pass the client pointer to the httpFileUploadManager
 		httpFileUploadManager_->setClient(client_);
 		xmppPingController_->setClient(client_);
 
-		// xep 198 stream management
+#if 0
+        // xep 198 stream management !!! moved to top
 		if (client_->getStreamManagementEnabled() == true)
 		{
-			client_->onStanzaAcked.connect(
-						boost::bind(&Shmoose::handleStanzaAcked, this, _1));
+            client_->onStanzaAcked.connect(boost::bind(&Shmoose::handleStanzaAcked, this, _1));
 		}
+#endif
 
 		// Save account data
 		QSettings settings;
@@ -247,6 +249,8 @@ void Shmoose::handlePresenceReceived(Presence::ref presence)
 
 void Shmoose::handleStanzaAcked(Stanza::ref stanza)
 {
+    qDebug() << "Shmoose::handleStanzaAcked " << QString::fromStdString(stanza->getID());
+
 	QMutableStringListIterator i(unAckedMessageIds_);
 	while (i.hasNext())
 	{
@@ -261,7 +265,7 @@ void Shmoose::handleStanzaAcked(Stanza::ref stanza)
 
 void Shmoose::handleMessageReceived(Message::ref message)
 {
-	//std::cout << "handleMessageReceived" << std::endl;
+    std::cout << "handleMessageReceived" << std::endl;
 
 	std::string fromJid = message->getFrom().toBare().toString();
 	boost::optional<std::string> fromBody = message->getBody();

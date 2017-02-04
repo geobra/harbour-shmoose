@@ -7,27 +7,27 @@ import "pages"
 import "cover"
 
 ApplicationWindow {
-	id: mainWindow
+    id: mainWindow
 
-	signal appGetsActive();
+    signal appGetsActive();
 
-	onApplicationActiveChanged: {
-		if (applicationActive == true) {
-			appGetsActive()
-			shmoose.setAppIsActive(true)
-			removeNotifications()
-		}
-		else {
-			shmoose.setAppIsActive(false)
-		}
-	}
+    onApplicationActiveChanged: {
+        if (applicationActive == true) {
+            appGetsActive()
+            shmoose.setAppIsActive(true)
+            removeNotifications()
+        }
+        else {
+            shmoose.setAppIsActive(false)
+        }
+    }
 
     cover: pageCover;
     initialPage: pageLogin;
 
-	property var notifications: []
-	property var networkType: 0
-	property bool hasInetConnection: false
+    property var notifications: []
+    property var networkType: 0
+    property bool hasInetConnection: false
 
     Component { id: pageLogin; LoginPage { } }
     Component { id: pageMenu; MenuPage { } }
@@ -38,10 +38,11 @@ ApplicationWindow {
     Component { id: pageAccount; AccountPage { } }
     Component { id: pageMessaging; MessagingPage { } }
     Component { id: imagePicker; ImagePickerPage { } }
-	Component { id: pageAbout; AboutPage { } }
+    Component { id: pageAbout; AboutPage { } }
+    Component { id: dialogCreateContact; CreateContactDialog { } }
 
     ImagePickerPage {
-            id: pageImagePicker
+        id: pageImagePicker
     }
 
     Component {
@@ -58,21 +59,21 @@ ApplicationWindow {
         m.body = body
         m.clicked.connect(function() {
             mainWindow.activate()
-		mainWindow.showSession(jid)
+            mainWindow.showSession(jid)
         })
         // This is needed to call default action
         m.remoteActions = [ {
-            "name": "default",
-            "displayName": "Show Conversation",
-            "icon": "harbour-shmoose",
-            "service": "org.shmoose.session",
-            "path": "/message",
-            "iface": "org.shmoose.session",
-            "method": "showConversation",
-            "arguments": [ "jid", jid ]
-        } ]
+                               "name": "default",
+                               "displayName": "Show Conversation",
+                               "icon": "harbour-shmoose",
+                               "service": "org.shmoose.session",
+                               "path": "/message",
+                               "iface": "org.shmoose.session",
+                               "method": "showConversation",
+                               "arguments": [ "jid", jid ]
+                           } ]
         m.publish()
-	notifications.push(m)
+        notifications.push(m)
     }
 
     Connections {
@@ -85,57 +86,57 @@ ApplicationWindow {
     }
 
     function removeNotifications() {
-	for (var i = notifications.length; i--;) {
-	//	console.log("remove" + i)
-	    var n = notifications[i]
+        for (var i = notifications.length; i--;) {
+            //	console.log("remove" + i)
+            var n = notifications[i]
             n.close()
             n.destroy()
-	    delete(n)
-	    notifications.splice(i, 1)
-	}
+            delete(n)
+            notifications.splice(i, 1)
+        }
     }
 
-	function getHasInetConnection() {
-	        if(wifi.available && wifi.connected) {
-			networkType = 1
-	            return true
-	        }
-	        if(cellular.available && cellular.connected) {
-			networkType = 2
-	            return true
-	        }
-	        if(ethernet.available && ethernet.connected) {
-			networkType = 3
-	            return true
-	        }
+    function getHasInetConnection() {
+        if(wifi.available && wifi.connected) {
+            networkType = 1
+            return true
+        }
+        if(cellular.available && cellular.connected) {
+            networkType = 2
+            return true
+        }
+        if(ethernet.available && ethernet.connected) {
+            networkType = 3
+            return true
+        }
 
-        	return false
-	}
+        return false
+    }
 
     function showSession(jid) {
-	shmoose.setCurrentChatPartner(jid)
+        shmoose.setCurrentChatPartner(jid)
 
-	pageStack.clear()
-	pageStack.push(pageMenu)
-	pageStack.push(pageConversations)
-	pageStack.push(pageMessaging, { "conversationId" : jid })
+        pageStack.clear()
+        pageStack.push(pageMenu)
+        pageStack.push(pageConversations)
+        pageStack.push(pageMessaging, { "conversationId" : jid })
     }
 
     TechnologyModel {
         id: wifi
         name: "wifi"
         onConnectedChanged: {
-		console.log("wifi changed!")
-		if (wifi.connected)
-		{
-			console.log("wifi connected " + mainWindow.networkType)
-		}
-		else
-		{
-			console.log("wifi DISconnected " + mainWindow.networkType)
-		}
+            console.log("wifi changed!")
+            if (wifi.connected)
+            {
+                console.log("wifi connected " + mainWindow.networkType)
+            }
+            else
+            {
+                console.log("wifi DISconnected " + mainWindow.networkType)
+            }
             mainWindow.hasInetConnection = mainWindow.getHasInetConnection()
-		shmoose.setHasInetConnection(mainWindow.hasInetConnection)
+            shmoose.setHasInetConnection(mainWindow.hasInetConnection)
         }
     }
 
@@ -143,17 +144,17 @@ ApplicationWindow {
         id: cellular
         name: "cellular"
         onConnectedChanged: {
-		console.log("cellular changed!")
-		if (cellular.connected)
-		{
-			console.log("cellular connected")
-		}
-		else
-		{
-			console.log("cellular DISconnected")
-		}
+            console.log("cellular changed!")
+            if (cellular.connected)
+            {
+                console.log("cellular connected")
+            }
+            else
+            {
+                console.log("cellular DISconnected")
+            }
             mainWindow.hasInetConnection = mainWindow.getHasInetConnection()
-		shmoose.setHasInetConnection(mainWindow.hasInetConnection)
+            shmoose.setHasInetConnection(mainWindow.hasInetConnection)
         }
     }
 
@@ -161,19 +162,19 @@ ApplicationWindow {
         id: ethernet
         name: "ethernet"
         onConnectedChanged: {
-		console.log("ethernet changed!")
-		if (ethernet.connected)
-		{
-			console.log("ethernet connected")
-			textsecure.connectEvent()
-		}
-		else
-		{
-			console.log("ethernet DISconnected")
-			textsecure.disconnectEvent()
-		}
+            console.log("ethernet changed!")
+            if (ethernet.connected)
+            {
+                console.log("ethernet connected")
+                textsecure.connectEvent()
+            }
+            else
+            {
+                console.log("ethernet DISconnected")
+                textsecure.disconnectEvent()
+            }
             mainWindow.hasInetConnection = mainWindow.getHasInetConnection()
-		shmoose.setHasInetConnection(mainWindow.hasInetConnection)
+            shmoose.setHasInetConnection(mainWindow.hasInetConnection)
         }
     }
 }
