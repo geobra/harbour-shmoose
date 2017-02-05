@@ -1,6 +1,6 @@
 #include "RosterItem.h"
 
-RosterItem::RosterItem(QObject *parent) : QObject(parent), jid_(""), name_(""), subscription_(None)
+RosterItem::RosterItem(QObject *parent) : QObject(parent), jid_(""), name_(""), subscription_(SUBSCRIPTION_NONE)
 {
 }
 
@@ -33,7 +33,7 @@ void RosterItem::setJid(const QString &jid)
 	emit jidChanged();
 }
 
-Subscription RosterItem::getSubscription()
+RosterItem::Subscription RosterItem::getSubscription()
 {
 	return subscription_;
 }
@@ -44,3 +44,4 @@ void RosterItem::setSubscription(const Subscription &subscription)
 
 	emit subscriptionChanged();
 }
+

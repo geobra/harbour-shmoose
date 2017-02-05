@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import harbour.shmoose 1.0
 
 Page {
     id: page;
@@ -65,20 +66,24 @@ Page {
                     font.pixelSize: Theme.fontSizeMedium;
                 }
                 Label {
-                    id: details;
-                    text: (modelData ["status"] || "Idle");
+                    id: nameId;
+                    text: name;
                     color: Theme.secondaryColor;
                     font.pixelSize: Theme.fontSizeSmall;
                 }
-            }
-            Component {
-                id: contextMenu
-                ContextMenu {
-                    MenuItem {
-                        text: "Remove"
-                        onClicked: {
-                            console.log("remove..." + jid)
-                            shmoose.rosterController.removeContact(jid)
+                Image {
+                    id: subscriptionImage;
+                    source: getSubscriptionImage(subscription);
+                }
+                Component {
+                    id: contextMenu
+                    ContextMenu {
+                        MenuItem {
+                            text: "Remove"
+                            onClicked: {
+                                console.log("remove..." + jid)
+                                shmoose.rosterController.removeContact(jid)
+                            }
                         }
                     }
                 }
@@ -114,6 +119,19 @@ Page {
             }
         }
     }
+
+    function getSubscriptionImage(subs) {
+        if (subs === RosterItem.SUBSCRIPTION_NONE) {
+            return "image://theme/icon-cover-cancel"
+        } else if (subs === RosterItem.SUBSCRIPTION_TO) {
+            return "image://theme/icon-cover-next"
+        } else if (subs === RosterItem.SUBSCRIPTION_FROM) {
+            return "image://theme/icon-cover-previous"
+        } else {
+            return "image://theme/icon-cover-transfers"
+        }
+    }
+
 }
 
 

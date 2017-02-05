@@ -2,15 +2,7 @@
 #define ROSTERITEM_H
 
 #include <QObject>
-
-enum Subscription
-{
-	None,
-	To,
-	From,
-	Both,
-	Remove
-};
+#include <QQmlEngine>
 
 class RosterItem : public QObject
 {
@@ -21,6 +13,16 @@ class RosterItem : public QObject
 	Q_PROPERTY(Subscription subscription READ getSubscription WRITE setSubscription NOTIFY subscriptionChanged)
 
 public:
+
+    enum Subscription
+    {
+        SUBSCRIPTION_NONE,
+        SUBSCRIPTION_TO,
+        SUBSCRIPTION_FROM,
+        SUBSCRIPTION_BOTH
+    };
+    Q_ENUMS(Subscription)
+
 	explicit RosterItem(QObject *parent = 0);
 	RosterItem(const QString& jid, const QString& name, const Subscription& subscription, QObject* parent = 0);
 

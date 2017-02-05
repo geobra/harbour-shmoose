@@ -17,7 +17,7 @@ void RosterController::handleJidAdded(const Swift::JID &jid)
 
     rosterList_.append(new RosterItem(QString::fromStdString(jid.toBare().toString()),
                                       "", // FIXME set name
-                                      None, this));
+                                      RosterItem::SUBSCRIPTION_NONE, this));
     emit rosterListChanged();
 }
 
@@ -25,8 +25,20 @@ void RosterController::handleJidRemoved(const Swift::JID &jid)
 {
     std::cout << "RosterController::handleJidRemoved: " << jid.toString() << std::endl;
 
-    // FIXME
-    //emit rosterListChanged();
+    QList<RosterItem*>::iterator it = rosterList_.begin();
+    while (it != rosterList_.end())
+    {
+        if ((*it)->getJid() == QString::fromStdString(jid.toBare().toString()))
+        {
+            it = rosterList_.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+   emit rosterListChanged();
 }
 
 void RosterController::requestRosterFromClient(Swift::Client *client)
@@ -61,9 +73,9 @@ void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
 						 ", Subscription: " << (*it).getSubscription() << std::endl;
 #endif
 
-            rosterList_.append(new RosterItem(QString::fromStdString((*it).getJID().toString()),
+            rosterList_.append(new RosterItem(QString::fromStdString((*it).getJID().toBare().toString()),
                                               QString::fromStdString((*it).getName()),
-                                              (Subscription)(*it).getSubscription(), this));
+                                              (RosterItem::Subscription)(*it).getSubscription(), this));
 
 			emit rosterListChanged();
 		}
