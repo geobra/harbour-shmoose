@@ -18,7 +18,21 @@ void RosterController::handleJidAdded(const Swift::JID &jid)
     rosterList_.append(new RosterItem(QString::fromStdString(jid.toBare().toString()),
                                       "", // FIXME set name
                                       RosterItem::SUBSCRIPTION_NONE, this));
+
+    // request subscription
+    Swift::Presence::ref presence = Swift::Presence::create();
+    presence->setTo(jid);
+    presence->setType(Swift::Presence::Subscribe);
+    Swift::PresenceSender *presenceSender = client_->getPresenceSender();
+    presenceSender->sendPresence(presence);
+
     emit rosterListChanged();
+}
+
+void RosterController::handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string > &groups)
+{
+    // FIXME update local data structures
+    std::cout << "RosterController::handleJidUpdated " << jid.toString() << ", " << name;
 }
 
 void RosterController::handleJidRemoved(const Swift::JID &jid)
@@ -85,6 +99,7 @@ void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
     Swift::XMPPRoster *xmppRoster = client_->getRoster();
     xmppRoster->onJIDAdded.connect(boost::bind(&RosterController::handleJidAdded, this, _1));
     xmppRoster->onJIDRemoved.connect(boost::bind(&RosterController::handleJidRemoved, this, _1));
+    xmppRoster->onJIDUpdated.connect(boost::bind(&RosterController::handleJidUpdated, this, _1, _2, _3));
 }
 
 void RosterController::addContact(const QString& jid, const QString& name)
@@ -92,8 +107,14 @@ void RosterController::addContact(const QString& jid, const QString& name)
     Swift::IDGenerator idGenerator;
     std::string msgId = idGenerator.generateID();
     boost::shared_ptr<Swift::RosterPayload> payload(new Swift::RosterPayload);
-    payload->addItem(Swift::RosterItemPayload(Swift::JID(jid.toStdString()), name.toStdString(), Swift::RosterItemPayload::None));
-    //riPayload.setSubscriptionRequested();
+
+    Swift::RosterItemPayload riPayload;
+    riPayload.setJID(jid.toStdString());
+    riPayload.setName(name.toStdString());
+    riPayload.setSubscription(Swift::RosterItemPayload::None);
+    riPayload.setSubscriptionRequested();
+    payload->addItem(riPayload);
+
     Swift::IQRouter *iqRouter = client_->getIQRouter();
     iqRouter->sendIQ(Swift::IQ::createRequest(Swift::IQ::Set, Swift::JID(), msgId, payload));
 }

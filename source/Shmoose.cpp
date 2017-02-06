@@ -163,13 +163,7 @@ void Shmoose::handleConnected()
 		httpFileUploadManager_->setClient(client_);
 		xmppPingController_->setClient(client_);
 
-#if 0
-        // xep 198 stream management !!! moved to top
-		if (client_->getStreamManagementEnabled() == true)
-		{
-            client_->onStanzaAcked.connect(boost::bind(&Shmoose::handleStanzaAcked, this, _1));
-		}
-#endif
+        rosterController_->addContact("mobile_schorsch@jabber.de","msj");
 
 		// Save account data
 		QSettings settings;

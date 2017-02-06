@@ -31,6 +31,7 @@ public slots:
 private:
 	void handleRosterReceived(Swift::ErrorPayload::ref error);
     void handleJidAdded(const Swift::JID &jid);
+    void handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string > &groups);
     void handleJidRemoved(const Swift::JID &jid);
 
 	Swift::Client* client_;
