@@ -23,6 +23,17 @@ public:
     };
     Q_ENUMS(Subscription)
 
+    enum Availability
+    {
+        AVAILABILITY_OONLINE,
+        AVAILABILITY_AWAY,
+        AVAILABILITY_FFC,
+        AVAILABILITY_XA,
+        AVAILABILITY_DND,
+        AVAILABILITY_NONE
+    };
+    Q_ENUMS()
+
 	explicit RosterItem(QObject *parent = 0);
 	RosterItem(const QString& jid, const QString& name, const Subscription& subscription, QObject* parent = 0);
 
@@ -35,10 +46,18 @@ public:
 	Subscription getSubscription();
 	void setSubscription(const Subscription& subscription);
 
+    Availability getAvailability();
+    void setAvailability(const Availability& availability);
+
+    QString getStatus();
+    void setStatus(const QString& status);
+
 signals:
 	void nameChanged();
 	void jidChanged();
 	void subscriptionChanged();
+    void availabilityChanged();
+    void statusChanged();
 
 public slots:
 
@@ -46,6 +65,8 @@ private:
 	QString jid_;
 	QString name_;
 	Subscription subscription_;
+    Availability availability_;
+    QString status_;
 };
 
 #endif // ROSTERITEM_H

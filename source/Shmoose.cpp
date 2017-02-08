@@ -97,6 +97,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 
     client_->onMessageReceived.connect(boost::bind(&Shmoose::handleMessageReceived, this, _1));
     client_->onPresenceReceived.connect(boost::bind(&Shmoose::handlePresenceReceived, this, _1));
+    client_->onPresenceChange.connect(boost::bind(&Shmoose::handlePresenceReceived, this, _1));
 
     // xep 198 stream management and roster operations
     client_->onStanzaAcked.connect(boost::bind(&Shmoose::handleStanzaAcked, this, _1));
@@ -106,6 +107,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 	softwareVersionResponder_ = new Swift::SoftwareVersionResponder(client_->getIQRouter());
 	softwareVersionResponder_->setVersion("Shmoose", version_.toStdString());
 	softwareVersionResponder_->start();
+    client_->setSoftwareVersion("Shmoose", version_.toStdString());
 
 	client_->addPayloadParserFactory(&echoPayloadParserFactory_);
 	client_->addPayloadSerializer(&echoPayloadSerializer_);
@@ -162,8 +164,6 @@ void Shmoose::handleConnected()
 		// pass the client pointer to the httpFileUploadManager
 		httpFileUploadManager_->setClient(client_);
 		xmppPingController_->setClient(client_);
-
-        rosterController_->addContact("mobile_schorsch@jabber.de","msj");
 
 		// Save account data
 		QSettings settings;
@@ -232,6 +232,7 @@ void Shmoose::sendFile(QString const &toJid, QString const &file)
 void Shmoose::handlePresenceReceived(Presence::ref presence)
 {
 	// Automatically approve subscription requests
+    // FIXME show to user and let user decide
 	if (presence->getType() == Swift::Presence::Subscribe)
 	{
 		Swift::Presence::ref response = Swift::Presence::create();
@@ -239,6 +240,8 @@ void Shmoose::handlePresenceReceived(Presence::ref presence)
 		response->setType(Swift::Presence::Subscribed);
 		client_->sendPresence(response);
 	}
+
+    rosterController_->handleUpdateFromPresence(presence->getFrom(), QString::fromStdString(presence->getStatus()), presence->getShow());
 }
 
 void Shmoose::handleStanzaAcked(Stanza::ref stanza)

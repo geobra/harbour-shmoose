@@ -5,7 +5,7 @@ RosterItem::RosterItem(QObject *parent) : QObject(parent), jid_(""), name_(""), 
 }
 
 RosterItem::RosterItem(const QString &jid, const QString &name, const Subscription &subscription, QObject* parent) :
-	QObject(parent), jid_(jid), name_(name), subscription_(subscription)
+    QObject(parent), jid_(jid), name_(name), subscription_(subscription), availability_(AVAILABILITY_NONE), status_("")
 {
 }
 
@@ -45,3 +45,26 @@ void RosterItem::setSubscription(const Subscription &subscription)
 	emit subscriptionChanged();
 }
 
+RosterItem::Availability RosterItem::getAvailability()
+{
+    return availability_;
+}
+
+void RosterItem::setAvailability(const Availability& availability)
+{
+    availability_ = availability;
+
+    emit availabilityChanged();
+}
+
+QString RosterItem::getStatus()
+{
+    return status_;
+}
+
+void RosterItem::setStatus(const QString &status)
+{
+    status_ = status;
+
+    emit statusChanged();
+}

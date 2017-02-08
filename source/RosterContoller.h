@@ -23,6 +23,8 @@ public:
 	void requestRosterFromClient(Swift::Client *client);
 	QQmlListProperty<RosterItem> getRosterList();
 
+    void handleUpdateFromPresence(const Swift::JID &jid, const QString &status, const Swift::StatusShow::Type &type);
+
 signals:
 	void rosterListChanged();
 

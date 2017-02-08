@@ -31,8 +31,35 @@ void RosterController::handleJidAdded(const Swift::JID &jid)
 
 void RosterController::handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string > &groups)
 {
-    // FIXME update local data structures
     std::cout << "RosterController::handleJidUpdated " << jid.toString() << ", " << name;
+
+    QList<RosterItem*>::iterator it = rosterList_.begin();
+    while (it != rosterList_.end())
+    {
+        if ((*it)->getJid() == QString::fromStdString(jid.toBare().toString()))
+        {
+            (*it)->setName(QString::fromStdString(name));
+        }
+    }
+
+   emit rosterListChanged();
+}
+
+void RosterController::handleUpdateFromPresence(const Swift::JID &jid, const QString &status, const Swift::StatusShow::Type &type)
+{
+    //std::cout << "RosterController::handleUpdatedFromPresence " << jid.toString();
+
+    QList<RosterItem*>::iterator it = rosterList_.begin();
+    while (it != rosterList_.end())
+    {
+        if ((*it)->getJid() == QString::fromStdString(jid.toBare().toString()))
+        {
+            (*it)->setAvailability(static_cast<RosterItem::Availability>(type));
+            (*it)->setStatus(status);
+        }
+    }
+
+   emit rosterListChanged();
 }
 
 void RosterController::handleJidRemoved(const Swift::JID &jid)
