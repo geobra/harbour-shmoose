@@ -66,6 +66,7 @@ signals:
 
 private:
 	void handlePresenceReceived(Swift::Presence::ref presence);
+    void handlePresenceChanged(Presence::ref presence);
 	void handleConnected();
 	void handleDisconnected(const boost::optional<ClientError> &error);
 	void handleMessageReceived(Swift::Message::ref message);

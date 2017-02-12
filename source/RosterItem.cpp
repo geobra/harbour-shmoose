@@ -1,17 +1,30 @@
 #include "RosterItem.h"
 
-RosterItem::RosterItem(QObject *parent) : QObject(parent), jid_(""), name_(""), subscription_(SUBSCRIPTION_NONE)
+#include <QDebug>
+
+RosterItem::RosterItem(QObject *parent) : QObject(parent), jid_(""), name_(""), subscription_(SUBSCRIPTION_NONE), availability_(AVAILABILITY_UNKNOWN), status_("")
 {
 }
 
 RosterItem::RosterItem(const QString &jid, const QString &name, const Subscription &subscription, QObject* parent) :
-    QObject(parent), jid_(jid), name_(name), subscription_(subscription), availability_(AVAILABILITY_NONE), status_("")
+    QObject(parent), jid_(jid), name_(name), subscription_(subscription), availability_(AVAILABILITY_UNKNOWN), status_("")
 {
 }
 
 QString RosterItem::getName()
 {
-	return name_;
+    QString returnName = name_;
+
+    if (returnName.isEmpty())
+    {
+        QStringList nameAndDomain = jid_.split( "@" );
+        if (nameAndDomain.size() == 2)
+        {
+            returnName = nameAndDomain.at(0);
+        }
+    }
+
+    return returnName;
 }
 
 void RosterItem::setName(const QString &name)
@@ -52,6 +65,7 @@ RosterItem::Availability RosterItem::getAvailability()
 
 void RosterItem::setAvailability(const Availability& availability)
 {
+    qDebug() << "RosterItem::setAvailability" << availability;
     availability_ = availability;
 
     emit availabilityChanged();
@@ -68,3 +82,4 @@ void RosterItem::setStatus(const QString &status)
 
     emit statusChanged();
 }
+

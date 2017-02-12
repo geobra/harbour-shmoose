@@ -60,20 +60,32 @@ Page {
                 }
 
                 Label {
-                    id: lbl;
-                    text: jid
+                    id: nameId;
+                    text: name
                     color: (item.highlighted ? Theme.highlightColor : Theme.primaryColor);
                     font.pixelSize: Theme.fontSizeMedium;
                 }
-                Label {
-                    id: nameId;
-                    text: name;
-                    color: Theme.secondaryColor;
-                    font.pixelSize: Theme.fontSizeSmall;
+                Row {
+                    Image {
+                        id: subscriptionImage;
+                        source: getSubscriptionImage(subscription);
+                    }
+                    Image {
+                        id: availabilityImage;
+                        source: getAvailabilityImage(availability)
+                    }
+                    Label {
+                        id: jidId;
+                        text: jid;
+                        color: Theme.secondaryColor;
+                        font.pixelSize: Theme.fontSizeTiny;
+                    }
                 }
-                Image {
-                    id: subscriptionImage;
-                    source: getSubscriptionImage(subscription);
+                Label {
+                    id: statusId;
+                    text: status;
+                    color: Theme.secondaryColor;
+                    font.pixelSize: Theme.fontSizeTiny;
                 }
                 Component {
                     id: contextMenu
@@ -81,7 +93,6 @@ Page {
                         MenuItem {
                             text: "Remove"
                             onClicked: {
-                                console.log("remove..." + jid)
                                 shmoose.rosterController.removeContact(jid)
                             }
                         }
@@ -99,7 +110,6 @@ Page {
             MenuItem {
                 text: qsTr ("Add contact");
                 onClicked: {
-                    console.log("add contact")
                     pageStack.push(dialogCreateContact)
                 }
             }
@@ -129,6 +139,16 @@ Page {
             return "image://theme/icon-cover-previous"
         } else {
             return "image://theme/icon-cover-transfers"
+        }
+    }
+
+    function getAvailabilityImage(avail) {
+        if (avail === RosterItem.AVAILABILITY_ONLINE) {
+            return "image://theme/icon-s-chat"
+        } else if (avail === RosterItem.AVAILABILITY_OFFLINE) {
+            return "image://theme/icon-s-high-importance"
+        } else {
+            return "image://theme/icon-s-timer"
         }
     }
 

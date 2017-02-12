@@ -23,7 +23,7 @@ public:
 	void requestRosterFromClient(Swift::Client *client);
 	QQmlListProperty<RosterItem> getRosterList();
 
-    void handleUpdateFromPresence(const Swift::JID &jid, const QString &status, const Swift::StatusShow::Type &type);
+    void handleUpdateFromPresence(const Swift::JID &jid, const QString &status, const RosterItem::Availability& availability);
 
 signals:
 	void rosterListChanged();
@@ -33,12 +33,13 @@ public slots:
 private:
 	void handleRosterReceived(Swift::ErrorPayload::ref error);
     void handleJidAdded(const Swift::JID &jid);
-    void handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string > &groups);
+    void handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string > &);
     void handleJidRemoved(const Swift::JID &jid);
 
 	Swift::Client* client_;
 	QList<RosterItem*> rosterList_;
 
+    bool didBindUpdateMethodes_;
 };
 
 #endif // ROSTERCONTROLLER_H

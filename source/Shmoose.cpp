@@ -33,50 +33,50 @@
 #include "System.h"
 
 Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
-	QObject(parent), connected_(false), initialConnectionSuccessfull_(false),
-	hasInetConnection_(false), netFactories_(networkFactories),
-	rosterController_(new RosterController(this)),
-	persistence_(new Persistence(this)),
-	httpFileUploadManager_(new HttpFileUploadManager(this)),
-	downloadManager_(new DownloadManager()),
-	xmppPingController_(new XmppPingController()),
-	reConnectionHandler_(new ReConnectionHandler(30000, this)),
-	ipHeartBeatWatcher_(new IpHeartBeatWatcher(this)),
-	jid_(""), password_(""),
-	version_("0.1.1")
+    QObject(parent), connected_(false), initialConnectionSuccessfull_(false),
+    hasInetConnection_(false), netFactories_(networkFactories),
+    rosterController_(new RosterController(this)),
+    persistence_(new Persistence(this)),
+    httpFileUploadManager_(new HttpFileUploadManager(this)),
+    downloadManager_(new DownloadManager()),
+    xmppPingController_(new XmppPingController()),
+    reConnectionHandler_(new ReConnectionHandler(30000, this)),
+    ipHeartBeatWatcher_(new IpHeartBeatWatcher(this)),
+    jid_(""), password_(""),
+    version_("0.1.1")
 {
     connect(ipHeartBeatWatcher_, SIGNAL(triggered()), this, SLOT(tryStablishServerConnection()));
     connect(ipHeartBeatWatcher_, SIGNAL(finished()), ipHeartBeatWatcher_, SLOT(deleteLater()));
     ipHeartBeatWatcher_->start();
 
-	connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString,QString)),
-			this, SLOT(sendMessage(QString,QString,QString)));
+    connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString,QString)),
+            this, SLOT(sendMessage(QString,QString,QString)));
 
-	connect(reConnectionHandler_, SIGNAL(canTryToReconnect()), this, SLOT(tryReconnect()));
+    connect(reConnectionHandler_, SIGNAL(canTryToReconnect()), this, SLOT(tryReconnect()));
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotAboutToQuit()));
 }
 
 Shmoose::~Shmoose()
 {
-	qDebug() << "Shmoose::~Shmoose";
+    qDebug() << "Shmoose::~Shmoose";
 
-	ipHeartBeatWatcher_->stopWatching();
+    ipHeartBeatWatcher_->stopWatching();
     ipHeartBeatWatcher_->terminate();
 
-	if (connected_)
-	{
-		client_->removePayloadSerializer(&echoPayloadSerializer_);
-		client_->removePayloadParserFactory(&echoPayloadParserFactory_);
-		softwareVersionResponder_->stop();
+    if (connected_)
+    {
+        client_->removePayloadSerializer(&echoPayloadSerializer_);
+        client_->removePayloadParserFactory(&echoPayloadParserFactory_);
+        softwareVersionResponder_->stop();
 
         delete tracer_;
-		delete softwareVersionResponder_;
-		delete client_;
-	}
+        delete softwareVersionResponder_;
+        delete client_;
+    }
 
-	delete downloadManager_;
-	delete xmppPingController_;
+    delete downloadManager_;
+    delete xmppPingController_;
 }
 
 void Shmoose::slotAboutToQuit()
@@ -89,371 +89,392 @@ void Shmoose::slotAboutToQuit()
 
 void Shmoose::mainConnect(const QString &jid, const QString &pass)
 {
-	client_ = new Swift::Client(jid.toStdString(), pass.toStdString(), netFactories_);
-	client_->setAlwaysTrustCertificates();
+    client_ = new Swift::Client(jid.toStdString(), pass.toStdString(), netFactories_);
+    client_->setAlwaysTrustCertificates();
 
-	client_->onConnected.connect(boost::bind(&Shmoose::handleConnected, this));
-	client_->onDisconnected.connect(boost::bind(&Shmoose::handleDisconnected, this, _1));
+    client_->onConnected.connect(boost::bind(&Shmoose::handleConnected, this));
+    client_->onDisconnected.connect(boost::bind(&Shmoose::handleDisconnected, this, _1));
 
     client_->onMessageReceived.connect(boost::bind(&Shmoose::handleMessageReceived, this, _1));
     client_->onPresenceReceived.connect(boost::bind(&Shmoose::handlePresenceReceived, this, _1));
-    client_->onPresenceChange.connect(boost::bind(&Shmoose::handlePresenceReceived, this, _1));
+    client_->onPresenceChange.connect(boost::bind(&Shmoose::handlePresenceChanged, this, _1));
 
     // xep 198 stream management and roster operations
     client_->onStanzaAcked.connect(boost::bind(&Shmoose::handleStanzaAcked, this, _1));
 
-	tracer_ = new Swift::ClientXMLTracer(client_);
+    tracer_ = new Swift::ClientXMLTracer(client_);
 
-	softwareVersionResponder_ = new Swift::SoftwareVersionResponder(client_->getIQRouter());
-	softwareVersionResponder_->setVersion("Shmoose", version_.toStdString());
-	softwareVersionResponder_->start();
+    softwareVersionResponder_ = new Swift::SoftwareVersionResponder(client_->getIQRouter());
+    softwareVersionResponder_->setVersion("Shmoose", version_.toStdString());
+    softwareVersionResponder_->start();
     client_->setSoftwareVersion("Shmoose", version_.toStdString());
 
-	client_->addPayloadParserFactory(&echoPayloadParserFactory_);
-	client_->addPayloadSerializer(&echoPayloadSerializer_);
+    client_->addPayloadParserFactory(&echoPayloadParserFactory_);
+    client_->addPayloadSerializer(&echoPayloadSerializer_);
 
-	client_->connect();
+    client_->connect();
 
-	// for saving on connection success
-	if (checkSaveCredentials() == true)
-	{
-		jid_ = jid;
-		password_ = pass;
-	}
+    // for saving on connection success
+    if (checkSaveCredentials() == true)
+    {
+        jid_ = jid;
+        password_ = pass;
+    }
 }
 
 void Shmoose::mainDisconnect()
 {
-	if (connectionState())
-	{
-		client_->disconnect();
-	}
+    if (connectionState())
+    {
+        client_->disconnect();
+    }
 }
 
 void Shmoose::handleConnected()
 {
-	qDebug() << QTime::currentTime().toString() << "Shmoose::handleConnected";
+    qDebug() << QTime::currentTime().toString() << "Shmoose::handleConnected";
 
-	connected_ = true;
-	emit connectionStateConnected();
+    connected_ = true;
+    emit connectionStateConnected();
 
-	client_->sendPresence(Presence::create("Send me a message"));
+    client_->sendPresence(Presence::create("Send me a message"));
 
-	// register capabilities
-	// http://xmpp.org/extensions/xep-0184.html, MessageDeliveryReceiptsFeature
-	DiscoInfo discoInfo;
-	discoInfo.addIdentity(DiscoInfo::Identity("shmoose", "client", "phone"));
-	discoInfo.addFeature(DiscoInfo::MessageDeliveryReceiptsFeature);
-	//client_->getDiscoManager()->setCapsNode("https://github.com/geobra/harbour-shmoose");
-	client_->getDiscoManager()->setDiscoInfo(discoInfo);
+    // register capabilities
+    // http://xmpp.org/extensions/xep-0184.html, MessageDeliveryReceiptsFeature
+    DiscoInfo discoInfo;
+    discoInfo.addIdentity(DiscoInfo::Identity("shmoose", "client", "phone"));
+    discoInfo.addFeature(DiscoInfo::MessageDeliveryReceiptsFeature);
+    //client_->getDiscoManager()->setCapsNode("https://github.com/geobra/harbour-shmoose");
+    client_->getDiscoManager()->setDiscoInfo(discoInfo);
 
-	// only on a first connection. skip this on a reconnect event.
-	if (initialConnectionSuccessfull_ == false)
-	{
+    // only on a first connection. skip this on a reconnect event.
+    if (initialConnectionSuccessfull_ == false)
+    {
         reConnectionHandler_->setActivated();
 
-		// Request the roster
+        // Request the roster
         rosterController_->setClient(client_);
         rosterController_->requestRosterFromClient(client_);
 
-		// request the discoInfo from server
+        // request the discoInfo from server
         GetDiscoInfoRequest::ref discoInfoRequest = GetDiscoInfoRequest::create(JID(client_->getJID().getDomain()), client_->getIQRouter());
         discoInfoRequest->onResponse.connect(boost::bind(&Shmoose::handleServerDiscoInfoResponse, this, _1, _2));
         discoInfoRequest->send();
 
-		// pass the client pointer to the httpFileUploadManager
-		httpFileUploadManager_->setClient(client_);
-		xmppPingController_->setClient(client_);
+        // pass the client pointer to the httpFileUploadManager
+        httpFileUploadManager_->setClient(client_);
+        xmppPingController_->setClient(client_);
 
-		// Save account data
-		QSettings settings;
-		settings.setValue("authentication/jid", jid_);
-		settings.setValue("authentication/password", password_);
-	}
+        // Save account data
+        QSettings settings;
+        settings.setValue("authentication/jid", jid_);
+        settings.setValue("authentication/password", password_);
+    }
 
-	initialConnectionSuccessfull_ = true;
+    initialConnectionSuccessfull_ = true;
 }
 
 void Shmoose::handleDisconnected(const boost::optional<ClientError>& error)
 {
-	connected_ = false;
-	emit connectionStateDisconnected();
+    connected_ = false;
+    emit connectionStateDisconnected();
 
-	if (error)
-	{
-		ClientError clientError = *error;
-		Swift::ClientError::Type type = clientError.getType();
-		qDebug() << "disconnet error: " << type;
+    if (error)
+    {
+        ClientError clientError = *error;
+        Swift::ClientError::Type type = clientError.getType();
+        qDebug() << "disconnet error: " << type;
 
-		// trigger the reConnectionHandler to get back online if inet is available
-		if (initialConnectionSuccessfull_)
-		{
-			reConnectionHandler_->isConnected(hasInetConnection_);
-		}
-	}
-	else
-	{
-		qDebug() << "disconnect without error";
-	}
+        // trigger the reConnectionHandler to get back online if inet is available
+        if (initialConnectionSuccessfull_)
+        {
+            reConnectionHandler_->isConnected(hasInetConnection_);
+        }
+    }
+    else
+    {
+        qDebug() << "disconnect without error";
+    }
 }
 
 void Shmoose::setCurrentChatPartner(QString const &jid)
 {
-	persistence_->setCurrentChatPartner(jid);
+    persistence_->setCurrentChatPartner(jid);
 }
 
 void Shmoose::sendMessage(QString const &toJid, QString const &message, QString const &type)
 {
-	Swift::Message::ref msg(new Swift::Message);
-	Swift::JID receiverJid(toJid.toStdString());
+    Swift::Message::ref msg(new Swift::Message);
+    Swift::JID receiverJid(toJid.toStdString());
 
-	Swift::IDGenerator idGenerator;
-	std::string msgId = idGenerator.generateID();
+    Swift::IDGenerator idGenerator;
+    std::string msgId = idGenerator.generateID();
 
-	msg->setFrom(JID(client_->getJID()));
-	msg->setTo(receiverJid);
-	msg->setID(msgId);
-	msg->setBody(message.toStdString());
-	msg->addPayload(boost::make_shared<DeliveryReceiptRequest>());
+    msg->setFrom(JID(client_->getJID()));
+    msg->setTo(receiverJid);
+    msg->setID(msgId);
+    msg->setBody(message.toStdString());
+    msg->addPayload(boost::make_shared<DeliveryReceiptRequest>());
 
-	client_->sendMessage(msg);
-	persistence_->addMessage(QString::fromStdString(msgId), QString::fromStdString(receiverJid.toBare().toString()), message, type, 0);
-	unAckedMessageIds_.push_back(QString::fromStdString(msgId));
+    client_->sendMessage(msg);
+    persistence_->addMessage(QString::fromStdString(msgId), QString::fromStdString(receiverJid.toBare().toString()), message, type, 0);
+    unAckedMessageIds_.push_back(QString::fromStdString(msgId));
 }
 
 void Shmoose::sendFile(QString const &toJid, QString const &file)
 {
-	if (httpFileUploadManager_->requestToUploadFileForJid(file, toJid) == false)
-	{
-		qDebug() << "Shmoose::sendFile failed";
-	}
+    if (httpFileUploadManager_->requestToUploadFileForJid(file, toJid) == false)
+    {
+        qDebug() << "Shmoose::sendFile failed";
+    }
 }
 
 void Shmoose::handlePresenceReceived(Presence::ref presence)
 {
-	// Automatically approve subscription requests
+    // Automatically approve subscription requests
     // FIXME show to user and let user decide
-	if (presence->getType() == Swift::Presence::Subscribe)
-	{
-		Swift::Presence::ref response = Swift::Presence::create();
-		response->setTo(presence->getFrom());
-		response->setType(Swift::Presence::Subscribed);
-		client_->sendPresence(response);
-	}
+    if (presence->getType() == Swift::Presence::Subscribe)
+    {
+        Swift::Presence::ref response = Swift::Presence::create();
+        response->setTo(presence->getFrom());
+        response->setType(Swift::Presence::Subscribed);
+        client_->sendPresence(response);
+    }
+}
 
-    rosterController_->handleUpdateFromPresence(presence->getFrom(), QString::fromStdString(presence->getStatus()), presence->getShow());
+void Shmoose::handlePresenceChanged(Presence::ref presence)
+{
+    qDebug() << "handlePresenceChanged: type: " << QString::fromStdString(presence->getFrom());
+
+    Swift::JID jid = presence->getFrom();
+    QString status = ""; //QString::fromStdString(presence->getStatus());
+
+    if (jid.isValid())
+    {
+        RosterItem::Availability availability = RosterItem::AVAILABILITY_ONLINE;
+
+        if (presence->getType() == Swift::Presence::Unavailable
+                || presence->getType() == Swift::Presence::Error
+                || presence->getType() == Swift::Presence::Probe
+                )
+        {
+            availability = RosterItem::AVAILABILITY_OFFLINE;
+        }
+
+        rosterController_->handleUpdateFromPresence(jid, status, availability);
+    }
 }
 
 void Shmoose::handleStanzaAcked(Stanza::ref stanza)
 {
     qDebug() << "Shmoose::handleStanzaAcked " << QString::fromStdString(stanza->getID());
 
-	QMutableStringListIterator i(unAckedMessageIds_);
-	while (i.hasNext())
-	{
-		QString value = i.next();
-		if (value.compare(QString::fromStdString(stanza->getID())) == 0)
-		{
-			i.remove();
-			persistence_->markMessageAsSentById(value);
-		}
-	}
+    QMutableStringListIterator i(unAckedMessageIds_);
+    while (i.hasNext())
+    {
+        QString value = i.next();
+        if (value.compare(QString::fromStdString(stanza->getID())) == 0)
+        {
+            i.remove();
+            persistence_->markMessageAsSentById(value);
+        }
+    }
 }
 
 void Shmoose::handleMessageReceived(Message::ref message)
 {
     std::cout << "handleMessageReceived" << std::endl;
 
-	std::string fromJid = message->getFrom().toBare().toString();
-	boost::optional<std::string> fromBody = message->getBody();
+    std::string fromJid = message->getFrom().toBare().toString();
+    boost::optional<std::string> fromBody = message->getBody();
 
-	if (fromBody)
-	{
-		std::string body = *fromBody;
-		QString theBody = QString::fromStdString(body);
+    if (fromBody)
+    {
+        std::string body = *fromBody;
+        QString theBody = QString::fromStdString(body);
 
-		QString type = "txt";
+        QString type = "txt";
 
-		if (QUrl(theBody).isValid()) // it's an url
-		{
-			QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
-			QString bodyEnd = theBody.trimmed().right(3); // url ends with an image type
-			if (knownImageTypes.contains(bodyEnd))
-			{
-				type = "image";
-				downloadManager_->doDownload(QUrl(theBody));
-			}
-		}
-		persistence_->addMessage(QString::fromStdString(message->getID()), QString::fromStdString(fromJid), theBody, type, 1 );
-	}
+        if (QUrl(theBody).isValid()) // it's an url
+        {
+            QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
+            QString bodyEnd = theBody.trimmed().right(3); // url ends with an image type
+            if (knownImageTypes.contains(bodyEnd))
+            {
+                type = "image";
+                downloadManager_->doDownload(QUrl(theBody));
+            }
+        }
+        persistence_->addMessage(QString::fromStdString(message->getID()), QString::fromStdString(fromJid), theBody, type, 1 );
+    }
 
-	// XEP 0184
-	if (message->getPayload<DeliveryReceiptRequest>())
-	{
-		// send message receipt
-		Message::ref receiptReply = boost::make_shared<Message>();
-		receiptReply->setFrom(message->getTo());
-		receiptReply->setTo(message->getFrom());
+    // XEP 0184
+    if (message->getPayload<DeliveryReceiptRequest>())
+    {
+        // send message receipt
+        Message::ref receiptReply = boost::make_shared<Message>();
+        receiptReply->setFrom(message->getTo());
+        receiptReply->setTo(message->getFrom());
 
-		boost::shared_ptr<DeliveryReceipt> receipt = boost::make_shared<DeliveryReceipt>();
-		receipt->setReceivedID(message->getID());
-		receiptReply->addPayload(receipt);
-		client_->sendMessage(receiptReply);
-	}
+        boost::shared_ptr<DeliveryReceipt> receipt = boost::make_shared<DeliveryReceipt>();
+        receipt->setReceivedID(message->getID());
+        receiptReply->addPayload(receipt);
+        client_->sendMessage(receiptReply);
+    }
 
-	// mark sent msg as received
-	DeliveryReceipt::ref rcpt = message->getPayload<DeliveryReceipt>();
-	if (rcpt)
-	{
-		std::string recevideId = rcpt->getReceivedID();
-		if (recevideId.length() > 0)
-		{
-			persistence_->markMessageAsReceivedById(QString::fromStdString(recevideId));
-		}
-	}
+    // mark sent msg as received
+    DeliveryReceipt::ref rcpt = message->getPayload<DeliveryReceipt>();
+    if (rcpt)
+    {
+        std::string recevideId = rcpt->getReceivedID();
+        if (recevideId.length() > 0)
+        {
+            persistence_->markMessageAsReceivedById(QString::fromStdString(recevideId));
+        }
+    }
 }
 
 void Shmoose::handleServerDiscoInfoResponse(boost::shared_ptr<DiscoInfo> info, ErrorPayload::ref error)
 {
-	//qDebug() << "Shmoose::handleServerDiscoInfoResponse";
-	const std::string httpUpload = "urn:xmpp:http:upload";
+    //qDebug() << "Shmoose::handleServerDiscoInfoResponse";
+    const std::string httpUpload = "urn:xmpp:http:upload";
 
-	if (!error)
-	{
-		if (info->hasFeature(httpUpload))
-		{
-			qDebug() << "has feature urn:xmpp:http:upload";
-			//severHasFeatureHttpUpload = true;
-			httpFileUploadManager_->setSeverHasFeatureHttpUpload(true);
+    if (!error)
+    {
+        if (info->hasFeature(httpUpload))
+        {
+            qDebug() << "has feature urn:xmpp:http:upload";
+            //severHasFeatureHttpUpload = true;
+            httpFileUploadManager_->setSeverHasFeatureHttpUpload(true);
 
-			foreach (Swift::Form::ref form, info->getExtensions())
-			{
-				if (form)
-				{
-					//qDebug() << "form: " << QString::fromStdString((*form).getFormType());
-					if ((*form).getFormType() == httpUpload)
-					{
-						Swift::FormField::ref formField = (*form).getField("max-file-size");
-						if (formField)
-						{
-							unsigned int maxFileSize = std::stoi((*formField).getTextSingleValue());
-							qDebug() << QString::fromStdString((*formField).getName()) << " val: " << maxFileSize;
-							httpFileUploadManager_->setMaxFileSize(maxFileSize);
-						}
-					}
-				}
-			}
-		}
-	}
+            foreach (Swift::Form::ref form, info->getExtensions())
+            {
+                if (form)
+                {
+                    //qDebug() << "form: " << QString::fromStdString((*form).getFormType());
+                    if ((*form).getFormType() == httpUpload)
+                    {
+                        Swift::FormField::ref formField = (*form).getField("max-file-size");
+                        if (formField)
+                        {
+                            unsigned int maxFileSize = std::stoi((*formField).getTextSingleValue());
+                            qDebug() << QString::fromStdString((*formField).getName()) << " val: " << maxFileSize;
+                            httpFileUploadManager_->setMaxFileSize(maxFileSize);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void Shmoose::tryStablishServerConnection()
 {
-	qDebug() << QTime::currentTime().toString() << " Shmoose::tryStablishServerConnection. clientActive: " << client_->isActive() ;
+    qDebug() << QTime::currentTime().toString() << " Shmoose::tryStablishServerConnection. clientActive: " << client_->isActive() ;
 
-	if (hasInetConnection_ == true
-			&& client_->isActive() == true
-			&& appIsActive_ == false /* connection wont be droped if app is in use */
-			)
-	{
-		xmppPingController_->doPing();
-	}
-	else
-	{
-		// test to trigger a reconnect if not connected
-		reConnectionHandler_->isConnected(hasInetConnection_);
-	}
+    if (hasInetConnection_ == true
+            && client_->isActive() == true
+            && appIsActive_ == false /* connection wont be droped if app is in use */
+            )
+    {
+        xmppPingController_->doPing();
+    }
+    else
+    {
+        // test to trigger a reconnect if not connected
+        reConnectionHandler_->isConnected(hasInetConnection_);
+    }
 }
 
 void Shmoose::tryReconnect()
 {
-	qDebug() << QTime::currentTime().toString() << "Shmoose::tryReconnect";
+    qDebug() << QTime::currentTime().toString() << "Shmoose::tryReconnect";
 
-	if (initialConnectionSuccessfull_ == true && hasInetConnection_ == true)
-	{
-		// try to disconnect the old session fromn before network disturbtion
-		client_->disconnect();
+    if (initialConnectionSuccessfull_ == true && hasInetConnection_ == true)
+    {
+        // try to disconnect the old session fromn before network disturbtion
+        client_->disconnect();
 
-		// try new connect
-		client_->connect();
-	}
+        // try new connect
+        client_->connect();
+    }
 }
 
 RosterController* Shmoose::getRosterController()
 {
-	return rosterController_;
+    return rosterController_;
 }
 
 Persistence* Shmoose::getPersistence()
 {
-	return persistence_;
+    return persistence_;
 }
 
 bool Shmoose::connectionState() const
 {
-	return connected_;
+    return connected_;
 }
 
 bool Shmoose::checkSaveCredentials()
 {
-	bool save = false;
+    bool save = false;
 
-	QSettings settings;
-	save = settings.value("authentication/saveCredentials", false).toBool();
+    QSettings settings;
+    save = settings.value("authentication/saveCredentials", false).toBool();
 
-	return save;
+    return save;
 }
 
 void Shmoose::saveCredentials(bool save)
 {
-	QSettings settings;
-	settings.setValue("authentication/saveCredentials", save);
+    QSettings settings;
+    settings.setValue("authentication/saveCredentials", save);
 }
 
 
 QString Shmoose::getJid()
 {
-	QString returnValue = "";
+    QString returnValue = "";
 
-	QSettings settings;
-	if(settings.value("authentication/jid").toString() != "NOT_SET")
-	{
-		returnValue = settings.value("authentication/jid").toString();
-	}
+    QSettings settings;
+    if(settings.value("authentication/jid").toString() != "NOT_SET")
+    {
+        returnValue = settings.value("authentication/jid").toString();
+    }
 
-	return returnValue;
+    return returnValue;
 }
 
 QString Shmoose::getPassword()
 {
-	QString returnValue = "";
+    QString returnValue = "";
 
-	QSettings settings;
-	if(settings.value("authentication/password").toString() != "NOT_SET")
-	{
-		returnValue = settings.value("authentication/password").toString();
-	}
+    QSettings settings;
+    if(settings.value("authentication/password").toString() != "NOT_SET")
+    {
+        returnValue = settings.value("authentication/password").toString();
+    }
 
-	return returnValue;
+    return returnValue;
 }
 
 QString Shmoose::getAttachmentPath()
 {
-	return System::getAttachmentPath();
+    return System::getAttachmentPath();
 }
 
 void Shmoose::setHasInetConnection(bool connected)
 {
-	hasInetConnection_ = connected;
-	reConnectionHandler_->isConnected(connected);
+    hasInetConnection_ = connected;
+    reConnectionHandler_->isConnected(connected);
 }
 
 void Shmoose::setAppIsActive(bool active)
 {
-	appIsActive_ = active;
+    appIsActive_ = active;
 }
 
 QString Shmoose::getVersion()
 {
-	return version_;
+    return version_;
 }
