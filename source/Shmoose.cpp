@@ -43,7 +43,7 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
     reConnectionHandler_(new ReConnectionHandler(30000, this)),
     ipHeartBeatWatcher_(new IpHeartBeatWatcher(this)),
     jid_(""), password_(""),
-    version_("0.1.1")
+    version_("0.2.0")
 {
     connect(ipHeartBeatWatcher_, SIGNAL(triggered()), this, SLOT(tryStablishServerConnection()));
     connect(ipHeartBeatWatcher_, SIGNAL(finished()), ipHeartBeatWatcher_, SLOT(deleteLater()));
@@ -137,8 +137,6 @@ void Shmoose::handleConnected()
     connected_ = true;
     emit connectionStateConnected();
 
-    client_->sendPresence(Presence::create("Send me a message"));
-
     // register capabilities
     // http://xmpp.org/extensions/xep-0184.html, MessageDeliveryReceiptsFeature
     DiscoInfo discoInfo;
@@ -170,6 +168,8 @@ void Shmoose::handleConnected()
         settings.setValue("authentication/jid", jid_);
         settings.setValue("authentication/password", password_);
     }
+
+    client_->sendPresence(Presence::create("Send me a message"));
 
     initialConnectionSuccessfull_ = true;
 }

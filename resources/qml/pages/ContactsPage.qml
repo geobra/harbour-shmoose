@@ -38,7 +38,7 @@ Page {
             Image {
                 id: img;
                 width: height;
-                source: (modelData ["image"] || "qrc:///qml/img/avatar.png");
+                source: (modelData ["image"] || "image://theme/icon-l-people");
                 anchors {
                     top: parent.top;
                     left: parent.left;
@@ -114,19 +114,19 @@ Page {
                 }
             }
 
-            MenuItem {
-                text: qsTr ("Create Room TBD");
-                onClicked: {
-                    console.log("create room")
-                }
-            }
+//            MenuItem {
+//                text: qsTr ("Create Room TBD");
+//                onClicked: {
+//                    console.log("create room")
+//                }
+//            }
 
-            MenuItem {
-                text: qsTr ("Join room by id TBD");
-                onClicked: {
-                    console.log("join room by id")
-                }
-            }
+//            MenuItem {
+//                text: qsTr ("Join room by id TBD");
+//                onClicked: {
+//                    console.log("join room by id")
+//                }
+//            }
         }
     }
 

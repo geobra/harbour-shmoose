@@ -36,10 +36,10 @@ private:
     void handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string > &);
     void handleJidRemoved(const Swift::JID &jid);
 
+    void bindJidUpdateMethodes();
+
 	Swift::Client* client_;
 	QList<RosterItem*> rosterList_;
-
-    bool didBindUpdateMethodes_;
 };
 
 #endif // ROSTERCONTROLLER_H

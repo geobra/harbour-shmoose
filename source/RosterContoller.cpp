@@ -3,13 +3,16 @@
 #include <QQmlContext>
 #include <QDebug>
 
-RosterController::RosterController(QObject *parent) : QObject(parent), client_(NULL), rosterList_(), didBindUpdateMethodes_(false)
+RosterController::RosterController(QObject *parent) : QObject(parent), client_(NULL), rosterList_()
 {
 }
 
 void RosterController::setClient(Swift::Client *client)
 {
     client_ = client;
+
+    Swift::XMPPRoster *xmppRoster = client_->getRoster();
+    xmppRoster->onInitialRosterPopulated.connect(boost::bind(&RosterController::bindJidUpdateMethodes, this));
 }
 
 void RosterController::handleJidAdded(const Swift::JID &jid)
@@ -35,7 +38,7 @@ void RosterController::handleJidUpdated(const Swift::JID &jid, const std::string
     std::cout << "RosterController::handleJidUpdated " << jid.toString() << ", " << name;
 
     QList<RosterItem*>::iterator it = rosterList_.begin();
-    while (it != rosterList_.end())
+    for (; it != rosterList_.end(); ++it)
     {
         if ((*it)->getJid() == QString::fromStdString(jid.toBare().toString()))
         {
@@ -53,7 +56,7 @@ void RosterController::handleUpdateFromPresence(const Swift::JID &jid, const QSt
     QList<RosterItem*>::iterator it = rosterList_.begin();
     for (; it != rosterList_.end(); ++it)
     {
-        qDebug() << (*it)->getJid() << "<->" << QString::fromStdString(jid.toBare().toString());
+        //qDebug() << (*it)->getJid() << "<->" << QString::fromStdString(jid.toBare().toString());
 
         if ((*it)->getJid() == QString::fromStdString(jid.toBare().toString()))
         {
@@ -131,17 +134,14 @@ void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
 			emit rosterListChanged();
 		}
 	}
+}
 
-    // process updates in own methodes
-    if (didBindUpdateMethodes_  == false)
-    {
-        Swift::XMPPRoster *xmppRoster = client_->getRoster();
-        xmppRoster->onJIDAdded.connect(boost::bind(&RosterController::handleJidAdded, this, _1));
-        xmppRoster->onJIDRemoved.connect(boost::bind(&RosterController::handleJidRemoved, this, _1));
-        xmppRoster->onJIDUpdated.connect(boost::bind(&RosterController::handleJidUpdated, this, _1, _2, _3));
-
-        didBindUpdateMethodes_ = true;
-    }
+void RosterController::bindJidUpdateMethodes()
+{
+    Swift::XMPPRoster *xmppRoster = client_->getRoster();
+    xmppRoster->onJIDAdded.connect(boost::bind(&RosterController::handleJidAdded, this, _1));
+    xmppRoster->onJIDRemoved.connect(boost::bind(&RosterController::handleJidRemoved, this, _1));
+    xmppRoster->onJIDUpdated.connect(boost::bind(&RosterController::handleJidUpdated, this, _1, _2, _3));
 }
 
 void RosterController::addContact(const QString& jid, const QString& name)
