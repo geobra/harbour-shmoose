@@ -21,7 +21,7 @@ Feature Stack until version 1.0
 * XEP-0198: Stream Management  [partial]
 * XEP-0045: Multi-User Chat [ ]
 * OMEMO Multi-End Message and Object Encryption [ ]
-* Add, edit and delete roster items [ ]
+* Add, edit and delete roster items [partial]
 * Make database persistent [WIP]
 
 -------------------------------------------------------------------------------
