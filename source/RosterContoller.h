@@ -25,10 +25,13 @@ public:
 
     void handleUpdateFromPresence(const Swift::JID &jid, const QString &status, const RosterItem::Availability& availability);
 
+    bool isGroup(QString const &jid);
+
 signals:
 	void rosterListChanged();
 
 public slots:
+    void addGroupAsContact(QString groupJid, QString groupName);
 
 private:
 	void handleRosterReceived(Swift::ErrorPayload::ref error);

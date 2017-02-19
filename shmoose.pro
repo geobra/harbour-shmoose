@@ -49,7 +49,8 @@ SOURCES += source/main.cpp \
 	source/ImageProcessing.cpp \
 	source/System.cpp \
         source/xep/xmppPing/XmppPingController.cpp \
-        source/IpHeartBeatWatcher.cpp
+        source/IpHeartBeatWatcher.cpp \
+    source/MucManager.cpp
 
 HEADERS += source/Shmoose.h \
 	source/EchoPayload.h \
@@ -71,7 +72,8 @@ HEADERS += source/Shmoose.h \
 	source/ImageProcessing.h \
 	source/System.h \
         source/xep/xmppPing/XmppPingController.h \
-        source/IpHeartBeatWatcher.h
+        source/IpHeartBeatWatcher.h \
+    source/MucManager.h
 
 RESOURCES += shmoose.qrc
 

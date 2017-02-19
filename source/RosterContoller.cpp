@@ -21,7 +21,7 @@ void RosterController::handleJidAdded(const Swift::JID &jid)
 
     rosterList_.append(new RosterItem(QString::fromStdString(jid.toBare().toString()),
                                       "", // FIXME set name
-                                      RosterItem::SUBSCRIPTION_NONE, this));
+                                      RosterItem::SUBSCRIPTION_NONE, false, this));
 
     // request subscription
     Swift::Presence::ref presence = Swift::Presence::create();
@@ -129,7 +129,7 @@ void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
 
             rosterList_.append(new RosterItem(QString::fromStdString((*it).getJID().toBare().toString()),
                                               QString::fromStdString((*it).getName()),
-                                              (RosterItem::Subscription)(*it).getSubscription(), this));
+                                              (RosterItem::Subscription)(*it).getSubscription(), false, this));
 
 			emit rosterListChanged();
 		}
@@ -176,3 +176,26 @@ QQmlListProperty<RosterItem> RosterController::getRosterList()
 	return QQmlListProperty<RosterItem>(this, rosterList_);
 }
 
+void RosterController::addGroupAsContact(QString groupJid, QString groupName)
+{
+    rosterList_.append(new RosterItem(groupJid, groupName, RosterItem::SUBSCRIPTION_NONE, true, this));
+
+    emit rosterListChanged();
+}
+
+bool RosterController::isGroup(QString const &jid)
+{
+    bool returnValue = false;
+
+    QList<RosterItem*>::iterator it = rosterList_.begin();
+    for (; it != rosterList_.end(); ++it)
+    {
+        if ((*it)->getJid() == jid)
+        {
+            returnValue = (*it)->isGroup();
+            break;
+        }
+    }
+
+    return returnValue;
+}

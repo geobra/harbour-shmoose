@@ -29,6 +29,7 @@
 #include "XmppPingController.h"
 #include "ReConnectionHandler.h"
 #include "IpHeartBeatWatcher.h"
+#include "MucManager.h"
 
 #include "System.h"
 
@@ -42,6 +43,7 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
     xmppPingController_(new XmppPingController()),
     reConnectionHandler_(new ReConnectionHandler(30000, this)),
     ipHeartBeatWatcher_(new IpHeartBeatWatcher(this)),
+    mucManager_(new MucManager(this)),
     jid_(""), password_(""),
     version_("0.2.0")
 {
@@ -53,6 +55,8 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
             this, SLOT(sendMessage(QString,QString,QString)));
 
     connect(reConnectionHandler_, SIGNAL(canTryToReconnect()), this, SLOT(tryReconnect()));
+
+    connect(mucManager_, SIGNAL(newGroupForContactsList(QString,QString)), rosterController_, SLOT(addGroupAsContact(QString,QString)));
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotAboutToQuit()));
 }
@@ -162,6 +166,8 @@ void Shmoose::handleConnected()
         // pass the client pointer to the httpFileUploadManager
         httpFileUploadManager_->setClient(client_);
         xmppPingController_->setClient(client_);
+        mucManager_->setClient(client_);
+        mucManager_->initialize();
 
         // Save account data
         QSettings settings;
@@ -214,6 +220,14 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message, QString 
     msg->setTo(receiverJid);
     msg->setID(msgId);
     msg->setBody(message.toStdString());
+
+    Swift::Message::Type messagesTyp = Swift::Message::Chat;
+    if (rosterController_->isGroup(toJid))
+    {
+        messagesTyp = Swift::Message::Groupchat;
+    }
+    msg->setType(messagesTyp);
+
     msg->addPayload(boost::make_shared<DeliveryReceiptRequest>());
 
     client_->sendMessage(msg);
@@ -320,6 +334,17 @@ void Shmoose::handleMessageReceived(Message::ref message)
         receipt->setReceivedID(message->getID());
         receiptReply->addPayload(receipt);
         client_->sendMessage(receiptReply);
+    }
+
+    // MUC
+    // Examples/MUCListAndJoin/MUCListAndJoin.cpp
+    if (message->getPayload<MUCInvitationPayload>())
+    {
+        qDebug() << "its a muc inventation!!!";
+        MUCInvitationPayload::ref mucInventation = message->getPayload<MUCInvitationPayload>();
+
+        Swift::JID roomJid = mucInventation->getJID();
+        mucManager_->addRoom(roomJid, "fooBarRoom");
     }
 
     // mark sent msg as received

@@ -34,7 +34,7 @@ public:
     Q_ENUMS(Availability)
 
 	explicit RosterItem(QObject *parent = 0);
-	RosterItem(const QString& jid, const QString& name, const Subscription& subscription, QObject* parent = 0);
+    RosterItem(const QString& jid, const QString& name, const Subscription& subscription, bool isGroup, QObject* parent = 0);
 
 	QString getName();
 	void setName(const QString& name);
@@ -51,12 +51,13 @@ public:
     QString getStatus();
     void setStatus(const QString& status);
 
+    bool isGroup();
+
 signals:
 	void nameChanged();
 	void jidChanged();
 	void subscriptionChanged();
     void availabilityChanged();
-    //void isOnlineChanged();
     void statusChanged();
 
 public slots:
@@ -67,6 +68,7 @@ private:
 	Subscription subscription_;
     Availability availability_;
     QString status_;
+    bool isGroup_;
 };
 
 #endif // ROSTERITEM_H
