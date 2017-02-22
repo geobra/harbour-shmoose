@@ -3,18 +3,15 @@
 #include "MessageController.h"
 #include "SessionController.h"
 
-Persistence::Persistence(QObject *parent) : QObject(parent), persistenceValid_(true)
+#include <QDebug>
+
+Persistence::Persistence(QObject *parent)
+    : QObject(parent),
+      db_(new Database(this)),
+      messageController_(new MessageController(db_, this)),
+      sessionController_(new SessionController(db_, this)),
+      persistenceValid_(false)
 {
-	db_ = new Database(this);
-	if (! db_->isValid())
-	{
-		persistenceValid_ = false;
-	}
-	else
-	{
-		messageController_ = new MessageController(db_, this);
-		sessionController_ = new SessionController(db_, this);
-	}
 }
 
 Persistence::~Persistence()
@@ -22,30 +19,59 @@ Persistence::~Persistence()
 	// db_ has this as parent and gets free'd implicit from this;
 }
 
-void Persistence::addMessage(QString const &id, QString const &jid, QString const &message, QString const &type, unsigned int direction)
+void Persistence::openDatabaseForJid(QString const &jid)
 {
-	messageController_->addMessage(id, jid, message, type, direction);
-	sessionController_->updateSession(jid, message);
+    if (db_->open(jid))
+    {
+        messageController_->setup();
+        sessionController_->setup();
 
-	emit messageControllerChanged();
-	emit sessionControllerChanged();
+        persistenceValid_ = true;
+    }
+    else
+    {
+        qDebug() << "failed to open db for " << jid;
+    }
+}
+
+void Persistence::addMessage(bool isGroupMessage, QString const &id, QString const &jid, QString const &resource, QString const &message, QString const &type, unsigned int direction)
+{
+    if (persistenceValid_)
+    {
+        if (messageController_->addMessage(isGroupMessage, id, jid, resource, message, type, direction))
+        {
+            sessionController_->updateSession(jid, message);
+
+            emit messageControllerChanged();
+            emit sessionControllerChanged();
+        }
+    }
 }
 
 void Persistence::markMessageAsReceivedById(QString const &id)
 {
-	messageController_->markMessageReceived(id);
+    if (persistenceValid_)
+    {
+        messageController_->markMessageReceived(id);
+    }
 }
 
 void Persistence::markMessageAsSentById(QString const &id)
 {
-	messageController_->markMessageSent(id);
+    if (persistenceValid_)
+    {
+        messageController_->markMessageSent(id);
+    }
 }
 
 void Persistence::setCurrentChatPartner(QString const &jid)
 {
-	messageController_->setFilterOnJid(jid);
-	sessionController_->setCurrentChatPartner(jid);
-	sessionController_->updateNumberOfUnreadMessages(jid, 0);
+    if (persistenceValid_)
+    {
+        messageController_->setFilterOnJid(jid);
+        sessionController_->setCurrentChatPartner(jid);
+        sessionController_->updateNumberOfUnreadMessages(jid, 0);
+    }
 }
 
 bool Persistence::isValid()

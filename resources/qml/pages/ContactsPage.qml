@@ -38,7 +38,7 @@ Page {
             Image {
                 id: img;
                 width: height;
-                source: (modelData ["image"] || "image://theme/icon-l-people");
+                source: shmoose.rosterController.isGroup(jid) ? "image://theme/icon-l-image" : "image://theme/icon-l-people"
                 anchors {
                     top: parent.top;
                     left: parent.left;

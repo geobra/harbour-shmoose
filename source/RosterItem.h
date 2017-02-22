@@ -13,6 +13,7 @@ class RosterItem : public QObject
 	Q_PROPERTY(Subscription subscription READ getSubscription WRITE setSubscription NOTIFY subscriptionChanged)
     Q_PROPERTY(Availability availability READ getAvailability WRITE setAvailability NOTIFY availabilityChanged)
     Q_PROPERTY(QString status READ getStatus WRITE setStatus NOTIFY statusChanged)
+    Q_PROPERTY(QString isGroup READ isGroup NOTIFY isGroupChanged)
 
 public:
 
@@ -59,6 +60,7 @@ signals:
 	void subscriptionChanged();
     void availabilityChanged();
     void statusChanged();
+    void isGroupChanged();
 
 public slots:
 

@@ -19,13 +19,12 @@ public:
 
     Q_INVOKABLE void addContact(const QString& jid, const QString& name);
     Q_INVOKABLE void removeContact(const QString& jid);
+    Q_INVOKABLE bool isGroup(QString const &jid);
 
 	void requestRosterFromClient(Swift::Client *client);
 	QQmlListProperty<RosterItem> getRosterList();
 
     void handleUpdateFromPresence(const Swift::JID &jid, const QString &status, const RosterItem::Availability& availability);
-
-    bool isGroup(QString const &jid);
 
 signals:
 	void rosterListChanged();

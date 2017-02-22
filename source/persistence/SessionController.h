@@ -13,6 +13,8 @@ public:
 	explicit SessionController(QObject *parent = 0);
 	SessionController(Database *db, QObject *parent = 0);
 
+    bool setup();
+
 	Q_INVOKABLE QVariant data(const QModelIndex &requestedIndex, int role=Qt::DisplayRole ) const;
 	virtual QHash<int, QByteArray> roleNames() const;
 

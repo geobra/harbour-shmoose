@@ -122,7 +122,7 @@ void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
 		for(it = rosterItems.begin(); it < rosterItems.end(); it++ )
 		{
 #if 0
-			std::cout << "jid: " << (*it).getJID().toString() <<
+            std::cout << "jid: " << (*it).getJID().toString() <<
 						 ", Name: " << (*it).getName() <<
 						 ", Subscription: " << (*it).getSubscription() << std::endl;
 #endif

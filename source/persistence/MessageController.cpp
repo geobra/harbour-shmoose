@@ -15,13 +15,22 @@ MessageController::MessageController(QObject *parent) : QSqlTableModel(parent)
 MessageController::MessageController(Database *db, QObject *parent) :
 	QSqlTableModel(parent, *(db->getPointer())), database_(db)
 {
-	setEditStrategy(QSqlTableModel::OnRowChange);
-	setTable("messages");
-	setSort(4, Qt::DescendingOrder); // 4 -> timestamp
-	if (!select())
-	{
-		qDebug() << "error on select in MessageController::MessageController";
-	}
+}
+
+bool MessageController::setup()
+{
+    bool returnValue = true;
+
+    setEditStrategy(QSqlTableModel::OnRowChange);
+    setTable("messages");
+    setSort(5, Qt::DescendingOrder); // 5 -> timestamp
+    if (!select())
+    {
+        qDebug() << "error on select in MessageController::setup";
+        returnValue = false;
+    }
+
+    return returnValue;
 }
 
 void MessageController::setFilterOnJid(QString const &jidFiler)
@@ -85,49 +94,68 @@ void MessageController::setTable ( const QString &table_name )
 	generateRoleNames();
 }
 
-void MessageController::addMessage(const QString &id, const QString &jid, const QString &message, const QString &type, unsigned int direction)
+bool MessageController::addMessage(bool isGroupMessage, const QString &id, const QString &jid, const QString &resource, const QString &message, const QString &type, unsigned int direction)
 {
-	QSqlRecord record = this->record();
+    /* received group messages are special
+     * - my own message into a room will be send back to me from the room
+     * - on room (re)joun, the last n messages are (re)send to me
+     * -> here we skip adding received messages if it was a group message AND the message id is already in the database
+    */
 
-    //qDebug() << "id: " << id << "jid: " << jid << "msg: " << message << "type:" << type << "direct" << direction;
+    bool messageAdded = false;
 
-	record.setValue("id", id);
-	record.setValue("jid", jid);
-	record.setValue("message", message);
-	record.setValue("direction", direction);
-	record.setValue("type", type);
-	record.setValue("timestamp", QDateTime::currentDateTime().toTime_t());
+    if ( (isGroupMessage == false)
+         || ( (isGroupMessage == true) && (! isMessageIdInDatabase(id)) )
+         )
+    {
+        messageAdded = true;
 
-	if (! this->insertRecord(-1, record))
-	{
-        printSqlError();
-    }
-	else
-	{
-		if (! this->submitAll())
-		{
+        QSqlRecord record = this->record();
+
+        record.setValue("id", id);
+        record.setValue("jid", jid);
+        record.setValue("resource", resource);
+        record.setValue("message", message);
+        record.setValue("direction", direction);
+        record.setValue("type", type);
+        record.setValue("timestamp", QDateTime::currentDateTime().toTime_t());
+
+        if (! this->insertRecord(-1, record))
+        {
+            messageAdded = false;
             printSqlError();
-		}
-		else
-		{
-			//qDebug() << "Success on adding message";
-		}
-	}
+        }
+        else
+        {
+            if (! this->submitAll())
+            {
+                messageAdded = false;
+                printSqlError();
+            }
+        }
 
-	// update the model with the changes of the database
-	if (select())
-	{
-		if (direction == 1)
-		{
-            emit signalMessageReceived(id, jid, message);
-		}
-	}
-	else
-	{
-		qDebug() << "error on select in MessageController::addMessage";
-	}
+        // update the model with the changes of the database
+        if (select())
+        {
+            if (direction == 1)
+            {
+                emit signalMessageReceived(id, jid, message);
+            }
+        }
+        else
+        {
+            messageAdded = false;
+            qDebug() << "error on select in MessageController::addMessage";
+        }
 
-//	database_->dumpDataToStdOut();
+        //database_->dumpDataToStdOut();
+    }
+    else
+    {
+        messageAdded = false;
+    }
+
+    return messageAdded;
 }
 
 void MessageController::markMessageReceived(QString const &id)
@@ -157,6 +185,29 @@ void MessageController::markColumnOfId(QString const &column, QString const &id)
             qDebug() << "error on select in MessageController::addMessage";
         }
     }
+}
+
+bool MessageController::isMessageIdInDatabase(QString const &id)
+{
+    bool returnValue = false;
+
+    QSqlQuery query(*(database_->getPointer()));
+    if (! query.exec("select id from messages WHERE id = \"" + id +"\""))
+    {
+         qDebug() << query.lastError().databaseText();
+         qDebug() << query.lastError().driverText();
+         qDebug() << query.lastError().text();
+    }
+    else
+    {
+        while (query.next())
+        {
+            returnValue = true;
+            break;
+        }
+    }
+
+    return returnValue;
 }
 
 void MessageController::printSqlError()

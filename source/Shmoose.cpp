@@ -45,7 +45,7 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
     ipHeartBeatWatcher_(new IpHeartBeatWatcher(this)),
     mucManager_(new MucManager(this)),
     jid_(""), password_(""),
-    version_("0.2.0")
+    version_("0.3.0")
 {
     connect(ipHeartBeatWatcher_, SIGNAL(triggered()), this, SLOT(tryStablishServerConnection()));
     connect(ipHeartBeatWatcher_, SIGNAL(finished()), ipHeartBeatWatcher_, SLOT(deleteLater()));
@@ -93,7 +93,10 @@ void Shmoose::slotAboutToQuit()
 
 void Shmoose::mainConnect(const QString &jid, const QString &pass)
 {
-    client_ = new Swift::Client(jid.toStdString(), pass.toStdString(), netFactories_);
+    persistence_->openDatabaseForJid(jid);
+
+    QString completeJid = jid + "/shmoose";
+    client_ = new Swift::Client(Swift::JID(completeJid.toStdString()), pass.toStdString(), netFactories_);
     client_->setAlwaysTrustCertificates();
 
     client_->onConnected.connect(boost::bind(&Shmoose::handleConnected, this));
@@ -231,7 +234,11 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message, QString 
     msg->addPayload(boost::make_shared<DeliveryReceiptRequest>());
 
     client_->sendMessage(msg);
-    persistence_->addMessage(QString::fromStdString(msgId), QString::fromStdString(receiverJid.toBare().toString()), message, type, 0);
+    persistence_->addMessage( (Swift::Message::Groupchat == messagesTyp) ? true : false,
+                             QString::fromStdString(msgId),
+                             QString::fromStdString(receiverJid.toBare().toString()),
+                             QString::fromStdString(receiverJid.getResource()),
+                             message, type, 0);
     unAckedMessageIds_.push_back(QString::fromStdString(msgId));
 }
 
@@ -297,7 +304,7 @@ void Shmoose::handleStanzaAcked(Stanza::ref stanza)
 
 void Shmoose::handleMessageReceived(Message::ref message)
 {
-    std::cout << "handleMessageReceived" << std::endl;
+    //std::cout << "handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
 
     std::string fromJid = message->getFrom().toBare().toString();
     boost::optional<std::string> fromBody = message->getBody();
@@ -319,7 +326,18 @@ void Shmoose::handleMessageReceived(Message::ref message)
                 downloadManager_->doDownload(QUrl(theBody));
             }
         }
-        persistence_->addMessage(QString::fromStdString(message->getID()), QString::fromStdString(fromJid), theBody, type, 1 );
+
+        bool isGroupMessage = false;
+        if (message->getType() == Swift::Message::Groupchat)
+        {
+            isGroupMessage = true;
+        }
+
+        persistence_->addMessage(isGroupMessage,
+                                 QString::fromStdString(message->getID()),
+                                 QString::fromStdString(fromJid),
+                                 QString::fromStdString(message->getFrom().getResource()),
+                                 theBody, type, 1 );
     }
 
     // XEP 0184

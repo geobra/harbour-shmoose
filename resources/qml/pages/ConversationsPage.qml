@@ -28,10 +28,6 @@ Page {
                 }
 
                 Row {
-                    Label {
-                        text: jid;
-                        color: Theme.primaryColor;
-                    }
                     Rectangle {
                         width: 45
                         height: 45
@@ -43,6 +39,10 @@ Page {
                             anchors.horizontalCenter: parent.horizontalCenter
                             anchors.verticalCenter: parent.verticalCenter
                         }
+                    }
+                    Label {
+                        text: jid;
+                        color: Theme.primaryColor;
                     }
                 }
                 Label {

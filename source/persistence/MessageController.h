@@ -13,11 +13,13 @@ public:
 	explicit MessageController(QObject *parent = 0);
 	MessageController(Database *db, QObject *parent = 0);
 
+    bool setup();
+
 	Q_INVOKABLE QVariant data(const QModelIndex &requestedIndex, int role=Qt::DisplayRole ) const;
 	virtual QHash<int, QByteArray> roleNames() const;
 
 	void setFilterOnJid(QString const &jidFiler);
-	void addMessage(const QString &id, QString const &jid, QString const &message, const QString &type, unsigned int direction);
+    bool addMessage(bool isGroupMessage, const QString &id, QString const &jid, const QString &resource, QString const &message, const QString &type, unsigned int direction);
 	void markMessageReceived(QString const &id);
 	void markMessageSent(QString const &id);
 
@@ -30,6 +32,7 @@ private:
 	void generateRoleNames();
 	virtual void setTable ( const QString &table_name );
     void markColumnOfId(QString const &column, QString const &id);
+    bool isMessageIdInDatabase(QString const &id);
 
 	void printSqlError();
 

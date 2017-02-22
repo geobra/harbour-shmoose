@@ -9,7 +9,8 @@ class Database : public QObject
 	Q_OBJECT
 
 public:
-	explicit Database(QObject *parent = 0);
+    explicit Database(QObject *parent = 0);
+    bool open(QString const &jid);
 	bool isValid();
 	QSqlDatabase* getPointer();
 

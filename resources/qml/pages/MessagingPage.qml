@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Window 2.0;
 import Sailfish.Silica 1.0
+import harbour.shmoose 1.0
 
 Page {
     id: page;
@@ -14,6 +15,7 @@ Page {
     }
 
     property string conversationId : "";
+    property bool isGroup : shmoose.rosterController.isGroup(conversationId);
     property string attachmentPath: shmoose.getAttachmentPath();
 
     Image {
@@ -76,7 +78,8 @@ Page {
                 anchors.right: parent.right;
             }
             Label {
-                text: qsTr ("last seen yesterday, 12:30 PM");
+                //text: qsTr ("last seen yesterday, 12:30 PM");
+                text: "";
                 color: Theme.secondaryColor;
                 font {
                     family: Theme.fontFamilyHeading;
@@ -171,6 +174,15 @@ Page {
                     }
                 }
                 Label {
+                    visible: isGroup;
+                    color: Theme.secondaryColor;
+                    font {
+                        family: Theme.fontFamilyHeading;
+                        pixelSize: Theme.fontSizeTiny;
+                    }
+                    text: resource;
+                }
+                Label {
                     text: Qt.formatDateTime (new Date (timestamp * 1000), "yyyy-MM-dd hh:mm:ss");
                     color: Theme.secondaryColor;
                     font {
@@ -194,6 +206,7 @@ Page {
                     }
                     anchors.right: parent.right
                 }
+
             }
         }
         anchors {

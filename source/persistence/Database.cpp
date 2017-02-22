@@ -7,63 +7,75 @@
 
 #include <QDebug>
 
-Database::Database(QObject *parent) : QObject(parent), databaseValid_(true)
+Database::Database(QObject *parent) : QObject(parent),
+    databaseValid_(false), database_(QSqlDatabase::addDatabase("QSQLITE"))
 {
-	database_ = QSqlDatabase::addDatabase("QSQLITE");
-	if (! database_.isValid())
-	{
-		qDebug() << "Database error!";
-		databaseValid_ = false;
-	}
-	else
-	{
-		QString dbName = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QDir::separator() + "messages.sql";
-		database_.setDatabaseName(dbName);
-		if (database_.open() == false)
-		{
-			qDebug() << "Error open database!";
-			databaseValid_ = false;
-		}
-		else
-		{
-			/* shmoose uses two table
-			 * one for all the messages, one for all the sessions
-			 *
-			 * + no table joins
-			 * + no complex queries
-			 * + fast
-			 * + standard qt classes
-			 * - minor redundant data
-			 */
+}
 
-			// table for all the messages
-			QSqlQuery query;
+bool Database::open(QString const &jid)
+{
+    QString databaseName = jid;
+    databaseName.replace("@", "-at-");
+    databaseName.append(".sql");
 
-			QString messagesTable = "messages";
-			if (! database_.tables().contains( messagesTable ))
-			{
-				// direction: (1)ncomming / (0)utgoing
-				QString sqlCreateCommand = "create table " + messagesTable + " (id TEXT, jid TEXT, message TEXT, direction INTEGER, timestamp INTEGER, type STRING, issent BOOL, isreceived BOOL)";
-				if (query.exec(sqlCreateCommand) == false)
-				{
-					qDebug() << "Error creating message table";
-					databaseValid_ = false;
-				}
-			}
+    if (! database_.isValid())
+    {
+        qDebug() << "Database error!";
+        databaseValid_ = false;
+    }
+    else
+    {
+        QString dbName = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QDir::separator() + databaseName;
+        database_.setDatabaseName(dbName);
+        if (database_.open() == false)
+        {
+            qDebug() << "Error open database!";
+            databaseValid_ = false;
+        }
+        else
+        {
+            /* shmoose uses two table
+             * one for all the messages, one for all the sessions
+             *
+             * + no table joins
+             * + no complex queries
+             * + fast
+             * + standard qt classes
+             * - minor redundant data
+             */
 
-			QString sessionsTable = "sessions";
-			if (! database_.tables().contains( sessionsTable ))
-			{
-				// another table for the sessions
-				QString sqlCreateCommand = "create table " + sessionsTable + " (jid TEXT PRIMARY KEY, lastmessage TEXT, timestamp INTEGER, unreadmessages INTEGER)";
-				if (query.exec(sqlCreateCommand) == false)
-				{
-					qDebug() << "Error creating sessions table";
-					databaseValid_ = false;
-				}
-			}
-		}
-	}
+            databaseValid_ = true; // will be set to false again on error
+
+            // table for all the messages
+            QSqlQuery query;
+
+            QString messagesTable = "messages";
+            if (! database_.tables().contains( messagesTable ))
+            {
+                // direction: (1)ncomming / (0)utgoing
+                QString sqlCreateCommand = "create table " + messagesTable + " (id TEXT, jid TEXT, resource TEXT, message TEXT, direction INTEGER, timestamp INTEGER, type STRING, issent BOOL, isreceived BOOL)";
+                if (query.exec(sqlCreateCommand) == false)
+                {
+                    qDebug() << "Error creating message table";
+                    databaseValid_ = false;
+                }
+            }
+
+            QString sessionsTable = "sessions";
+            if (! database_.tables().contains( sessionsTable ))
+            {
+                // another table for the sessions
+                QString sqlCreateCommand = "create table " + sessionsTable + " (jid TEXT PRIMARY KEY, lastmessage TEXT, timestamp INTEGER, unreadmessages INTEGER)";
+                if (query.exec(sqlCreateCommand) == false)
+                {
+                    qDebug() << "Error creating sessions table";
+                    databaseValid_ = false;
+                }
+            }
+        }
+    }
+
+    return databaseValid_;
 }
 
 QSqlDatabase* Database::getPointer()
@@ -78,12 +90,13 @@ bool Database::isValid()
 
 void Database::dumpDataToStdOut() const
 {
-#if 0
+
 	QSqlQuery query("select * from messages", database_);
 	QSqlRecord rec = query.record();
 
 	const unsigned int idCol = rec.indexOf("id");
 	const unsigned int jidCol = rec.indexOf("jid");
+    const unsigned int resourceCol = rec.indexOf("resource");
 	const unsigned int messageCol = rec.indexOf("message");
 	const unsigned int directionCol = rec.indexOf("direction");
 	const unsigned int timeStampCol = rec.indexOf("timestamp");
@@ -92,12 +105,13 @@ void Database::dumpDataToStdOut() const
 	const unsigned int typeCol = rec.indexOf("type");
 
 
-	qDebug() << "id:\t\tjid:\tmessage:\tdirection\ttimestamp,\ttype,\tsent,\treceived:";
+    qDebug() << "id:\t\tjid:\tresource:\tmessage:\tdirection\ttimestamp,\ttype,\tsent,\treceived:";
 	qDebug() << "---------------------------------------------------------------------------------------";
 	while (query.next())
 	{
 		qDebug() << query.value(idCol).toString() << "\t"
 				 << query.value(jidCol).toString() << "\t"
+                 << query.value(resourceCol).toString() << "\t"
 				 << query.value(messageCol).toString() << "\t"
 				 << query.value(directionCol).toString() << "\t"
 				 << query.value(timeStampCol).toInt() << "\t"
@@ -105,8 +119,8 @@ void Database::dumpDataToStdOut() const
 				 << query.value(isSentCol).toBool() << "\t"
 				<< query.value(isReceivedCol).toBool() << "\t";
 	}
-#endif
 
+#if 0
 	QSqlQuery query("select * from sessions", database_);
 	QSqlRecord rec = query.record();
 
@@ -125,4 +139,5 @@ void Database::dumpDataToStdOut() const
 				 << query.value(tsCol).toInt() << "\t"
 				 << query.value(unreadMsgCol).toInt() << "\t";
 	}
+#endif
 }

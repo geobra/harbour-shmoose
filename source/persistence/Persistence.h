@@ -21,12 +21,14 @@ public:
 	void markMessageAsReceivedById(QString const &id);
 	void markMessageAsSentById(QString const &id);
 
+    void openDatabaseForJid(QString const &jid);
+
 signals:
 	void messageControllerChanged();
 	void sessionControllerChanged();
 
 public slots:
-	void addMessage(const QString &id, QString const &jid, QString const &message, const QString &type, unsigned int direction);
+    void addMessage(bool isGroupMessage, const QString &id, QString const &jid, QString const &resource, QString const &message, const QString &type, unsigned int direction);
 	void setCurrentChatPartner(QString const &jid);
 
 private:

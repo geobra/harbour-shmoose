@@ -15,13 +15,22 @@ SessionController::SessionController(QObject *parent) : QSqlTableModel(parent)
 SessionController::SessionController(Database *db, QObject *parent) :
 	QSqlTableModel(parent, *(db->getPointer())), database_(db), currentChatPartner_("")
 {
-	setEditStrategy(QSqlTableModel::OnRowChange);
-	setTable("sessions");
-	setSort(2, Qt::DescendingOrder);
-	if (!select())
-	{
-		qDebug() << "error on select in SessionController::SessionController";
-	}
+}
+
+bool SessionController::setup()
+{
+    bool returnValue = true;
+
+    setEditStrategy(QSqlTableModel::OnRowChange);
+    setTable("sessions");
+    setSort(2, Qt::DescendingOrder);
+    if (!select())
+    {
+        qDebug() << "error on select in SessionController::setup";
+        returnValue = false;
+    }
+
+    return returnValue;
 }
 
 QVariant SessionController::data ( const QModelIndex & requestedIndex, int role ) const
