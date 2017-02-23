@@ -40,6 +40,7 @@ ApplicationWindow {
     Component { id: imagePicker; ImagePickerPage { } }
     Component { id: pageAbout; AboutPage { } }
     Component { id: dialogCreateContact; CreateContactDialog { } }
+    Component { id: dialogJoinRoom; JoinRoomDialog { } }
 
     ImagePickerPage {
         id: pageImagePicker

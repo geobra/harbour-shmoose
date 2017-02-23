@@ -31,6 +31,7 @@ signals:
 
 public slots:
     void addGroupAsContact(QString groupJid, QString groupName);
+    void removeGroupFromContacts(QString groupJid);
 
 private:
 	void handleRosterReceived(Swift::ErrorPayload::ref error);

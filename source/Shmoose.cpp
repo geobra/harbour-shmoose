@@ -57,6 +57,7 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
     connect(reConnectionHandler_, SIGNAL(canTryToReconnect()), this, SLOT(tryReconnect()));
 
     connect(mucManager_, SIGNAL(newGroupForContactsList(QString,QString)), rosterController_, SLOT(addGroupAsContact(QString,QString)));
+    connect(mucManager_, SIGNAL(removeGroupFromContactsList(QString)), rosterController_, SLOT(removeGroupFromContacts(QString)) );
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotAboutToQuit()));
 }
@@ -520,4 +521,15 @@ void Shmoose::setAppIsActive(bool active)
 QString Shmoose::getVersion()
 {
     return version_;
+}
+
+void Shmoose::joinRoom(QString const &roomJid, QString const &roomName)
+{
+    Swift::JID jid(roomJid.toStdString());
+    mucManager_->addRoom(jid, roomName);
+}
+
+void Shmoose::removeRoom(QString const &roomJid)
+{
+    mucManager_->removeRoom(roomJid);
 }

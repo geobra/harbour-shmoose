@@ -68,6 +68,7 @@ Page {
                 Row {
                     Image {
                         id: subscriptionImage;
+                        visible: ! shmoose.rosterController.isGroup(jid)
                         source: getSubscriptionImage(subscription);
                     }
                     Image {
@@ -93,7 +94,12 @@ Page {
                         MenuItem {
                             text: "Remove"
                             onClicked: {
-                                shmoose.rosterController.removeContact(jid)
+                                if (shmoose.rosterController.isGroup(jid)) {
+                                    shmoose.removeRoom(jid)
+                                }
+                                else {
+                                    shmoose.rosterController.removeContact(jid)
+                                }
                             }
                         }
                     }
@@ -114,19 +120,19 @@ Page {
                 }
             }
 
-//            MenuItem {
-//                text: qsTr ("Create Room TBD");
-//                onClicked: {
-//                    console.log("create room")
-//                }
-//            }
+            //            MenuItem {
+            //                text: qsTr ("Create Room TBD");
+            //                onClicked: {
+            //                    console.log("create room")
+            //                }
+            //            }
 
-//            MenuItem {
-//                text: qsTr ("Join room by id TBD");
-//                onClicked: {
-//                    console.log("join room by id")
-//                }
-//            }
+            MenuItem {
+                text: qsTr ("Join room by address");
+                onClicked: {
+                    pageStack.push(dialogJoinRoom)
+                }
+            }
         }
     }
 

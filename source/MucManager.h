@@ -16,10 +16,11 @@ public:
     void initialize();
 
     void addRoom(Swift::JID &jroomJid, QString const &RoomName);
-    void removeRoom(QString const &jroomJid, QString const &RoomName);
+    void removeRoom(QString const &jroomJid);
 
 signals:
     void newGroupForContactsList(QString groupJid, QString groupName);
+    void removeGroupFromContactsList(QString groupJid);
 
 public slots:
 
@@ -32,6 +33,8 @@ private:
     void handleBookmarkRemoved(Swift::MUCBookmark bookmark);
 
     void joinRoomIfConfigured(Swift::MUCBookmark const &bookmark);
+    void sendUnavailableToRoom(Swift::MUCBookmark bookmark);
+
     QString getNickName();
 };
 

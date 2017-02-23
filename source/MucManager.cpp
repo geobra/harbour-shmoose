@@ -1,5 +1,7 @@
 #include "MucManager.h"
 
+#include <iostream>
+
 MucManager::MucManager(QObject *parent) :
     QObject(parent), client_(NULL), mucBookmarkManager_(NULL)
 {
@@ -43,7 +45,7 @@ void MucManager::handleBookmarkAdded(Swift::MUCBookmark bookmark)
     std::cout << "handleBookmarkAdded: " << bookmark.getRoom().toBare().toString() << std::endl;
 
     // update contacts list
-    emit newGroupForContactsList( QString::fromStdString(bookmark.getRoom().toBare().toString()) , "");
+    emit newGroupForContactsList( QString::fromStdString(bookmark.getRoom().toBare().toString()) , QString::fromStdString(bookmark.getName()));
 
     // maybee join room
     joinRoomIfConfigured(bookmark);
@@ -67,6 +69,10 @@ void MucManager::joinRoomIfConfigured(Swift::MUCBookmark const &bookmark)
             nick = getNickName().toStdString();
         }
         muc->joinAs(nick);
+
+        // FIXME
+        // onJoinComplete
+        // onJoinFailed
     }
 }
 
@@ -83,9 +89,11 @@ void MucManager::handleBookmarkRemoved(Swift::MUCBookmark bookmark)
 {
     std::cout << "handleBookmarkRemoved: " << bookmark.getRoom().toString() << std::endl;
 
-    // FIXME update roster
+    // leave room
+    sendUnavailableToRoom(bookmark);
 
-    // FIXME leave room
+    // update roster
+    emit removeGroupFromContactsList( QString::fromStdString(bookmark.getRoom().toBare().toString()) );
 }
 
 void MucManager::addRoom(Swift::JID &jroomJid, QString const &RoomName)
@@ -98,8 +106,25 @@ void MucManager::addRoom(Swift::JID &jroomJid, QString const &RoomName)
     mucBookmarkManager_->addBookmark(mucBookmark);
 }
 
-void MucManager::removeRoom(QString const &jroomJid, QString const &RoomName)
+void MucManager::removeRoom(QString const &roomJid)
 {
-    Swift::MUCBookmark mucBookmark(jroomJid.toStdString(), RoomName.toStdString());
-    mucBookmarkManager_->removeBookmark(mucBookmark);
+    std::vector< Swift::MUCBookmark > bookmarks = mucBookmarkManager_->getBookmarks();
+
+    for(std::vector<Swift::MUCBookmark>::iterator it = bookmarks.begin(); it != bookmarks.end(); ++it)
+    {
+        if ((*it).getRoom().toBare().toString().compare(roomJid.toStdString()) == 0)
+        {
+            mucBookmarkManager_->removeBookmark(*it);
+            break;
+        }
+    }
+}
+
+void MucManager::sendUnavailableToRoom(Swift::MUCBookmark bookmark)
+{
+    Swift::Presence::ref presence = Swift::Presence::create();
+    presence->setTo(bookmark.getRoom());
+    presence->setType(Swift::Presence::Unavailable);
+    Swift::PresenceSender *presenceSender = client_->getPresenceSender();
+    presenceSender->sendPresence(presence);
 }

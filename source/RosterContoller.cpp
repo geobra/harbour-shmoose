@@ -183,6 +183,22 @@ void RosterController::addGroupAsContact(QString groupJid, QString groupName)
     emit rosterListChanged();
 }
 
+void RosterController::removeGroupFromContacts(QString groupJid)
+{
+    QList<RosterItem*>::iterator it = rosterList_.begin();
+
+    for (; it != rosterList_.end(); ++it)
+    {
+        if ((*it)->getJid() == groupJid)
+        {
+            rosterList_.erase(it);
+            break;
+        }
+    }
+
+    emit rosterListChanged();
+}
+
 bool RosterController::isGroup(QString const &jid)
 {
     bool returnValue = false;
