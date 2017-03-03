@@ -153,8 +153,6 @@ void RosterController::addContact(const QString& jid, const QString& name)
     Swift::RosterItemPayload riPayload;
     riPayload.setJID(jid.toStdString());
     riPayload.setName(name.toStdString());
-    riPayload.setSubscription(Swift::RosterItemPayload::None);
-    riPayload.setSubscriptionRequested();
     payload->addItem(riPayload);
 
     Swift::IQRouter *iqRouter = client_->getIQRouter();
@@ -191,7 +189,7 @@ void RosterController::removeGroupFromContacts(QString groupJid)
     {
         if ((*it)->getJid() == groupJid)
         {
-            rosterList_.erase(it);
+            it = rosterList_.erase(it);
             break;
         }
     }

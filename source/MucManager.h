@@ -1,6 +1,8 @@
 #ifndef MUCMANAGER_H
 #define MUCMANAGER_H
 
+#include "MucCollection.h"
+
 #include <QObject>
 #include <Swiften/Swiften.h>
 
@@ -15,7 +17,7 @@ public:
     void setClient(Swift::Client* client);
     void initialize();
 
-    void addRoom(Swift::JID &jroomJid, QString const &RoomName);
+    void addRoom(Swift::JID &roomJid, QString const &roomName);
     void removeRoom(QString const &jroomJid);
 
 signals:
@@ -27,10 +29,14 @@ public slots:
 private:
     Swift::Client* client_;
     Swift::MUCBookmarkManager *mucBookmarkManager_;
+    std::vector<boost::shared_ptr<MucCollection>> mucCollection_;
 
     void handleBookmarksReady();
     void handleBookmarkAdded(Swift::MUCBookmark bookmark);
     void handleBookmarkRemoved(Swift::MUCBookmark bookmark);
+
+    void handleJoinFailed(Swift::ErrorPayload::ref error);
+    void handleJoinComplete(const std::string &joinedName);
 
     void joinRoomIfConfigured(Swift::MUCBookmark const &bookmark);
     void sendUnavailableToRoom(Swift::MUCBookmark bookmark);

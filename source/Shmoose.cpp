@@ -271,6 +271,18 @@ void Shmoose::handlePresenceChanged(Presence::ref presence)
     Swift::JID jid = presence->getFrom();
     QString status = ""; //QString::fromStdString(presence->getStatus());
 
+#if 0
+    if (presence->getType() == Swift::Presence::Error)
+    {
+        std::vector<boost::shared_ptr<Swift::ErrorPayload> > errorPayloads = presence->getPayloads<Swift::ErrorPayload>();
+
+        for (std::vector<boost::shared_ptr<Swift::ErrorPayload>>::iterator it = errorPayloads.begin() ; it != errorPayloads.end(); ++it)
+        {
+            std::cout << "++++++++++++++ errorpaylaod: " << (*it)->getText() << std::endl;
+        }
+    }
+#endif
+
     if (jid.isValid())
     {
         RosterItem::Availability availability = RosterItem::AVAILABILITY_ONLINE;
