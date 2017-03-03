@@ -29,6 +29,9 @@ ApplicationWindow {
     property var networkType: 0
     property bool hasInetConnection: false
 
+    property string dialogHeadlineText : ""
+    property string dialogBodyText: ""
+
     Component { id: pageLogin; LoginPage { } }
     Component { id: pageMenu; MenuPage { } }
     Component { id: pageCover; CoverPage { } }
@@ -41,6 +44,7 @@ ApplicationWindow {
     Component { id: pageAbout; AboutPage { } }
     Component { id: dialogCreateContact; CreateContactDialog { } }
     Component { id: dialogJoinRoom; JoinRoomDialog { } }
+    Component { id: dialogOk; OkDialog { } }
 
     ImagePickerPage {
         id: pageImagePicker
@@ -82,6 +86,31 @@ ApplicationWindow {
         onSignalMessageReceived: {
             if (applicationActive == false) {
                 newMessageNotification(id, jid, message);
+            }
+        }
+    }
+
+    Connections {
+        target: shmoose
+        onSignalShowMessage: {
+            //console.log("hl: " + headline + ", body: " + body);
+            dialogHeadlineText = headline;
+            dialogBodyText = body;
+            watchPagestackTimer.running = true;
+        }
+    }
+
+    Timer {
+        id: watchPagestackTimer;
+        interval: 50;
+        running: false;
+        repeat: true;
+        onTriggered: {
+            if (pageStack.busy == false) {
+                watchPagestackTimer.running = false;
+                pageStack.push(dialogOk, { "headline" : dialogHeadlineText, "bodyText": dialogBodyText });
+                dialogHeadlineText = "";
+                dialogBodyText = "";
             }
         }
     }

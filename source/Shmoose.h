@@ -68,6 +68,8 @@ signals:
 	void connectionStateConnected();
 	void connectionStateDisconnected();
 
+    void signalShowMessage(QString headline, QString body);
+
 private:
 	void handlePresenceReceived(Swift::Presence::ref presence);
     void handlePresenceChanged(Presence::ref presence);

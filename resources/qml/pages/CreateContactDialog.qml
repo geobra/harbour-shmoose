@@ -8,7 +8,10 @@ Dialog {
     Column {
         width: parent.width
 
-        DialogHeader { }
+        DialogHeader {
+            id: header
+            title: "Add Contact"
+        }
 
         TextField {
             id: jidField

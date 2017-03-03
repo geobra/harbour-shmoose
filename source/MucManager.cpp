@@ -140,9 +140,8 @@ void MucManager::handleJoinFailed(Swift::ErrorPayload::ref error)
     if (error)
     {
         Swift::ErrorPayload joinError = *error;
-
-        // FIXME show to user
-        std::cout << "join error: " << joinError.getText() << std::endl;
+        //std::cout << "join error: " << joinError.getText() << std::endl;
+        signalShowMessage("Error joining room", QString::fromStdString(joinError.getText()));
     }
 }
 

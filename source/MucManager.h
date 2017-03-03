@@ -24,7 +24,7 @@ signals:
     void newGroupForContactsList(QString groupJid, QString groupName);
     void removeGroupFromContactsList(QString groupJid);
 
-public slots:
+    void signalShowMessage(QString headline, QString body);
 
 private:
     Swift::Client* client_;
