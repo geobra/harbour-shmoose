@@ -32,18 +32,23 @@ CoverBackground {
             text: mainWindow.hasInetConnection ? "online" : "offline"
         }
         Label {
+            id: appConnectedId
             anchors.horizontalCenter: parent.horizontalCenter
             font.family: Theme.fontFamily
-            color: (mainWindow.hasInetConnection && cover.xmppConnected) ? "green" : "red"
-            text: (mainWindow.hasInetConnection && cover.xmppConnected) ? "connected" : "disconnected"
+            color: "red"
+            text: "disconnected"
 
             Connections {
                 target: shmoose
-                onConnectionStateConnected: {
-                    cover.xmppConnected = true;
-                }
-                onConnectionStateDisconnected: {
-                    cover.xmppConnected = false;
+                onSignalAppIsOnline: {
+                    if (connected === true) {
+                        appConnectedId.color = "green";
+                        appConnectedId.text = "connected";
+                    }
+                    else {
+                        appConnectedId.color = "red";
+                        appConnectedId.text = "disconnected";
+                    }
                 }
             }
         }
