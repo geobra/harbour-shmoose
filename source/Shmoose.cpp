@@ -45,6 +45,7 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
     ipHeartBeatWatcher_(new IpHeartBeatWatcher(this)),
     mucManager_(new MucManager(this)),
     jid_(""), password_(""),
+    currentChatPartner_(""),
     version_("0.3.0")
 {
     connect(ipHeartBeatWatcher_, SIGNAL(triggered()), this, SLOT(tryStablishServerConnection()));
@@ -210,7 +211,13 @@ void Shmoose::handleDisconnected(const boost::optional<ClientError>& error)
 
 void Shmoose::setCurrentChatPartner(QString const &jid)
 {
+    currentChatPartner_ = jid;
     persistence_->setCurrentChatPartner(jid);
+}
+
+QString Shmoose::getCurrentChatPartner()
+{
+    return currentChatPartner_;
 }
 
 void Shmoose::sendMessage(QString const &toJid, QString const &message, QString const &type)

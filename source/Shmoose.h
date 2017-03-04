@@ -35,6 +35,7 @@ public:
 	Q_INVOKABLE void mainDisconnect();
 	Q_INVOKABLE void mainConnect(const QString &jid, const QString &pass);
 	Q_INVOKABLE void setCurrentChatPartner(QString const &jid);
+    Q_INVOKABLE QString getCurrentChatPartner();
 
 	Q_INVOKABLE bool checkSaveCredentials();
 	Q_INVOKABLE void saveCredentials(bool save);
@@ -112,6 +113,7 @@ private:
 
 	QStringList unAckedMessageIds_;
 
+    QString currentChatPartner_;
     const QString version_;
 };
 
