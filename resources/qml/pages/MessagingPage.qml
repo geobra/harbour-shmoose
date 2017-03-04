@@ -173,6 +173,7 @@ Page {
                         right: (!item.alignRight ? parent.right : undefined);
                     }
                 }
+
                 Label {
                     visible: isGroup;
                     color: Theme.secondaryColor;
@@ -182,6 +183,7 @@ Page {
                     }
                     text: resource;
                 }
+
                 Label {
                     text: Qt.formatDateTime (new Date (timestamp * 1000), "yyyy-MM-dd hh:mm:ss");
                     color: Theme.secondaryColor;
@@ -239,6 +241,7 @@ Page {
         }
         IconButton {
             id: sendButton
+            enabled: true
             icon.source: getSendButtonImage()
             width: 100
             onClicked: {
@@ -267,6 +270,16 @@ Page {
             }
         }
     }
+
+    Connections {
+        target: shmoose
+        onSignalAppIsOnline: {
+            connected ? sendButton.enabled = true : sendButton.enabled = false;
+        }
+    }
+
+
+
     function getSendButtonImage() {
         if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0) {
             return "image://theme/icon-m-attach"

@@ -182,6 +182,7 @@ void Shmoose::handleConnected()
     }
 
     client_->sendPresence(Presence::create("Send me a message"));
+    emit signalAppIsOnline(true);
 
     initialConnectionSuccessfull_ = true;
 }
@@ -530,6 +531,9 @@ void Shmoose::setHasInetConnection(bool connected)
 {
     hasInetConnection_ = connected;
     reConnectionHandler_->isConnected(connected);
+
+    // emit disconnect signal on every change of inet connection. Connect signal will be send in Shmosse::handleConnected()
+    emit signalAppIsOnline(false);
 }
 
 void Shmoose::setAppIsActive(bool active)

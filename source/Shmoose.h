@@ -71,6 +71,8 @@ signals:
 
     void signalShowMessage(QString headline, QString body);
 
+    void signalAppIsOnline(bool connected);
+
 private:
 	void handlePresenceReceived(Swift::Presence::ref presence);
     void handlePresenceChanged(Presence::ref presence);
