@@ -17,13 +17,13 @@ Page {
             PageHeader {
                 title: qsTr ("Contacts");
             }
-            SearchField {
-                placeholderText: qsTr ("Filter");
-                anchors {
-                    left: parent.left;
-                    right: parent.right;
-                }
-            }
+            //            SearchField {
+            //                placeholderText: qsTr ("Filter");
+            //                anchors {
+            //                    left: parent.left;
+            //                    right: parent.right;
+            //                }
+            //            }
         }
         model: shmoose.rosterController.rosterList
         delegate: ListItem {
@@ -113,13 +113,6 @@ Page {
             enabled: true
             visible: true
 
-            MenuItem {
-                text: qsTr ("Add contact");
-                onClicked: {
-                    pageStack.push(dialogCreateContact)
-                }
-            }
-
             //            MenuItem {
             //                text: qsTr ("Create Room TBD");
             //                onClicked: {
@@ -133,6 +126,14 @@ Page {
                     pageStack.push(dialogJoinRoom)
                 }
             }
+
+            MenuItem {
+                text: qsTr ("Add contact");
+                onClicked: {
+                    pageStack.push(dialogCreateContact)
+                }
+            }
+
         }
     }
 

@@ -5,20 +5,21 @@ Dialog {
     property string headline
     property string bodyText
 
-    Column {
+    width: parent.width
+
+    DialogHeader {
+        id: headerId
+        title: headline
+    }
+
+    TextArea {
+        id: bodyId
         width: parent.width
-
-        DialogHeader {
-            id: headerId
-            title: headline
-        }
-
-        Label {
-            id: bodyId
-            anchors.horizontalCenter: parent.horizontalCenter
-            font.pixelSize: Theme.fontSizeNormal
-            color: Theme.primaryColor
-            text: bodyText
-        }
+        height: parent.height
+        readOnly: true
+        anchors.top: headerId.bottom
+        font.pixelSize: Theme.fontSizeMedium
+        color: Theme.primaryColor
+        text: bodyText
     }
 }
