@@ -1,10 +1,22 @@
 #include "RosterContoller.h"
+#include "System.h"
 
 #include <QQmlContext>
+#include <QImage>
+#include <QStandardPaths>
+#include <QDir>
+
 #include <QDebug>
 
 RosterController::RosterController(QObject *parent) : QObject(parent), client_(NULL), rosterList_()
 {
+    QString avatarLocation = System::getAvatarPath();
+    QDir dir(avatarLocation);
+
+    if (!dir.exists())
+    {
+        dir.mkpath(".");
+    }
 }
 
 void RosterController::setClient(Swift::Client *client)
@@ -112,20 +124,17 @@ void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
 	}
 	else
 	{
-		//std::cout << "handleRosterReceived!!!" << std::endl;
+        Swift::VCardManager *vCardManager = client_->getVCardManager();
+        vCardManager->onVCardChanged.connect(boost::bind(&RosterController::handleVCardChanged, this, _1, _2));
+
 		Swift::XMPPRoster* roster = client_->getRoster();
 		std::vector<Swift::XMPPRosterItem> rosterItems = roster->getItems();
 
 		std::vector<Swift::XMPPRosterItem>::iterator it;
-		//std::cout << "size: " << rosterItems.size() << std::endl;
 
 		for(it = rosterItems.begin(); it < rosterItems.end(); it++ )
 		{
-#if 0
-            std::cout << "jid: " << (*it).getJID().toString() <<
-						 ", Name: " << (*it).getName() <<
-						 ", Subscription: " << (*it).getSubscription() << std::endl;
-#endif
+            vCardManager->requestVCard((*it).getJID());
 
             rosterList_.append(new RosterItem(QString::fromStdString((*it).getJID().toBare().toString()),
                                               QString::fromStdString((*it).getName()),
@@ -134,6 +143,127 @@ void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
 			emit rosterListChanged();
 		}
 	}
+}
+
+void RosterController::handleVCardChanged(const Swift::JID &jid, const Swift::VCard::ref &vCard)
+{
+    Swift::VCardManager *vCardManager = client_->getVCardManager();
+
+    const QString bareJid = QString::fromStdString(jid.toBare().toString());
+    const QString newHash = QString::fromStdString(vCardManager->getPhotoHash(jid));
+
+    if (checkHashDiffers(bareJid, newHash) == true && vCard)
+    {
+        Swift::ByteArray imageByteArray = vCard->getPhoto();
+
+        // FIXME is there an easier way from Swift::ByteArray to QByteArray?!
+        QByteArray byteArray;
+        for (std::vector<unsigned char>::iterator it = imageByteArray.begin(); it != imageByteArray.end(); it++)
+        {
+            byteArray.append(*it);
+        }
+
+        // try to extract photo type for processing to QImage
+        QString photoType = QString::fromStdString(vCard->getPhotoType());
+        QString imageType = photoType;
+        if (imageType.contains("/"))
+        {
+            QStringList splitedImageType = imageType.split("/");
+            if (splitedImageType.size() == 2)
+            {
+                imageType = splitedImageType.at(1);
+            }
+        }
+
+        // create a QImage out of the vCard photo data
+        QImage image = QImage::fromData(byteArray, imageType.toStdString().c_str());
+
+        if (image.isNull() == false)
+        {
+            // write image file to disk
+            QString imageName = bareJid;
+            imageName.replace("@", "-at-");
+            QString imageBasePath = System::getAvatarPath() + QDir::separator() + imageName;
+            QString imagePath = imageBasePath + ".png";
+
+            if (! image.save(imagePath, "PNG"))
+            {
+                qDebug() << "cant save image to: " << imagePath;
+            }
+
+            // write hash file to disk
+            QString imageHash = imageBasePath + ".hash";
+            QFile file(imageHash);
+            if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+            {
+                QTextStream out(&file);
+                out << newHash;
+                file.close();
+            }
+            else
+            {
+                qDebug() << "cant save hash to: " << imageHash;
+            }
+
+
+            // signal new avatar to the rosterItem
+            foreach(RosterItem *item, rosterList_)
+            {
+                if (item->getJid().compare( QString::fromStdString(jid.toBare().toString())) == 0)
+                {
+                    //std::cout << "---2---: " << jid.toBare().toString() << ", photo type: " << imageType.toStdString() << ", h:" << image.height() << ", w: " << image.width() << std::endl;
+                    item->triggerNewImage();
+                }
+            }
+        }
+    }
+}
+
+bool RosterController::checkHashDiffers(QString const &jid, QString const &newHash)
+{
+    bool returnValue = false;
+
+    // read existing hash from file
+    QString jidPart = jid;
+    jidPart.replace("@", "-at-");
+
+    QString imageHashPath = System::getAvatarPath() + QDir::separator() + jidPart + ".hash";
+    QFileInfo info(imageHashPath);
+
+    if (info.exists() && info.isFile())
+    {
+        QFile file(imageHashPath);
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QString line = file.readLine();
+            if (line.compare(newHash) == 0)
+            {
+                // same hash
+                returnValue = false;
+            }
+            else
+            {
+                // hash differs
+                returnValue = true;
+            }
+
+             //std::cout << "old hash: " << line.toStdString() << ". new: " << newHash.toStdString() << "bool: " << returnValue << std::endl;
+
+            file.close();
+        }
+        else
+        {
+            qDebug() << "cant save hash to: " << imageHashPath;
+        }
+
+    }
+    else
+    {
+        // no hash file. hash differs!
+        returnValue = true;
+    }
+
+    return returnValue;
 }
 
 void RosterController::bindJidUpdateMethodes()

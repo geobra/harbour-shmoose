@@ -38,7 +38,7 @@ Page {
             Image {
                 id: img;
                 width: height;
-                source: shmoose.rosterController.isGroup(jid) ? "image://theme/icon-l-image" : "image://theme/icon-l-people"
+                source: imagePath != "" ? imagePath : getImage(jid)
                 anchors {
                     top: parent.top;
                     left: parent.left;
@@ -134,6 +134,14 @@ Page {
                 }
             }
 
+        }
+    }
+
+    function getImage(jid) {
+        if (shmoose.rosterController.isGroup(jid)) {
+            return "image://theme/icon-l-image";
+        } else {
+            return "image://theme/icon-l-people"
         }
     }
 

@@ -11,6 +11,7 @@ class System : public QObject
 
 public:
     Q_INVOKABLE static QString getAttachmentPath();
+    Q_INVOKABLE static QString getAvatarPath();
 };
 
 #endif // SYSTEM_H

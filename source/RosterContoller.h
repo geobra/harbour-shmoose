@@ -39,7 +39,11 @@ private:
     void handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string > &);
     void handleJidRemoved(const Swift::JID &jid);
 
+    void handleVCardChanged(const Swift::JID &jid, const Swift::VCard::ref &vCard);
+
     void bindJidUpdateMethodes();
+
+    bool checkHashDiffers(QString const &jid, QString const &newHash);
 
 	Swift::Client* client_;
 	QList<RosterItem*> rosterList_;

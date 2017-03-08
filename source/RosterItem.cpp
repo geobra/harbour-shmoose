@@ -1,6 +1,10 @@
 #include "RosterItem.h"
+#include "System.h"
 
 #include <QDebug>
+#include <QFileInfo>
+#include <QStandardPaths>
+#include <QDir>
 
 RosterItem::RosterItem(QObject *parent) : QObject(parent), jid_(""), name_(""), subscription_(SUBSCRIPTION_NONE), availability_(AVAILABILITY_UNKNOWN), status_("")
 {
@@ -81,6 +85,31 @@ void RosterItem::setStatus(const QString &status)
     status_ = status;
 
     emit statusChanged();
+}
+
+QString RosterItem::getImagePath()
+{
+    QString imagePath = "";
+
+    QString avatarFile = getJid();
+    avatarFile.replace("@","-at-");
+
+    QString avatarImagePath = System::getAvatarPath() + QDir::separator() + avatarFile + ".png";
+
+    QFileInfo info(avatarImagePath);
+
+    if (info.exists() && info.isFile())
+    {
+        imagePath = avatarImagePath;
+    }
+
+    return imagePath;
+}
+
+void RosterItem::triggerNewImage()
+{
+    // triggerd if a new image is successfull written to disk
+    emit imageChanged();
 }
 
 bool RosterItem::isGroup()
