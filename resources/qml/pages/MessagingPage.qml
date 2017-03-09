@@ -17,6 +17,7 @@ Page {
     property string conversationId : "";
     property bool isGroup : shmoose.rosterController.isGroup(conversationId);
     property string attachmentPath: shmoose.getAttachmentPath();
+    property string imagePath : shmoose.rosterController.getAvatarImagePathForJid(conversationId);
 
     Image {
         //source: "image://glass/qrc:///qml/img/photo.png";
@@ -45,7 +46,7 @@ Page {
             width: Theme.iconSizeMedium;
             height: width;
             smooth: true;
-            source: "qrc:///qml/img/avatar.png";
+            source: imagePath != "" ? imagePath : getImage(conversationId);
             fillMode: Image.PreserveAspectCrop;
             antialiasing: true;
             anchors {
@@ -295,6 +296,14 @@ Page {
     function basename(str)
     {
         return (str.slice(str.lastIndexOf("/")+1))
+    }
+
+    function getImage(jid) {
+        if (shmoose.rosterController.isGroup(jid)) {
+            return "image://theme/icon-l-image";
+        } else {
+            return "image://theme/icon-l-people"
+        }
     }
 
 }

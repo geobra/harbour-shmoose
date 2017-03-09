@@ -9,9 +9,9 @@ Dialog {
         width: parent.width
 
         DialogHeader {
-		id: header
-                title: "Join Rom"
-	}
+            id: header
+            title: "Join Room by address"
+        }
 
         TextField {
             id: jidField
@@ -33,7 +33,10 @@ Dialog {
             jid = jidField.text
             name = nameField.text
 
-            shmoose.joinRoom(jid, name)
+            if (jid.length > 0 && name.length > 0)
+            {
+                shmoose.joinRoom(jid, name)
+            }
         }
     }
 }

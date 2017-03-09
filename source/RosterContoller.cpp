@@ -180,38 +180,40 @@ void RosterController::handleVCardChanged(const Swift::JID &jid, const Swift::VC
 
         if (image.isNull() == false)
         {
-            // write image file to disk
+            // write image file to disk, try to delete old one
             QString imageName = bareJid;
             imageName.replace("@", "-at-");
             QString imageBasePath = System::getAvatarPath() + QDir::separator() + imageName;
             QString imagePath = imageBasePath + ".png";
+
+            QFile oldImageFile(imagePath);
+            oldImageFile.remove();
 
             if (! image.save(imagePath, "PNG"))
             {
                 qDebug() << "cant save image to: " << imagePath;
             }
 
-            // write hash file to disk
+            // write hash file to disk, try to delete old one
             QString imageHash = imageBasePath + ".hash";
-            QFile file(imageHash);
-            if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+            QFile hashFile(imageHash);
+            hashFile.remove();
+            if (hashFile.open(QIODevice::WriteOnly | QIODevice::Text))
             {
-                QTextStream out(&file);
+                QTextStream out(&hashFile);
                 out << newHash;
-                file.close();
+                hashFile.close();
             }
             else
             {
                 qDebug() << "cant save hash to: " << imageHash;
             }
 
-
             // signal new avatar to the rosterItem
             foreach(RosterItem *item, rosterList_)
             {
-                if (item->getJid().compare( QString::fromStdString(jid.toBare().toString())) == 0)
+                if (item->getJid().compare(bareJid) == 0)
                 {
-                    //std::cout << "---2---: " << jid.toBare().toString() << ", photo type: " << imageType.toStdString() << ", h:" << image.height() << ", w: " << image.width() << std::endl;
                     item->triggerNewImage();
                 }
             }
@@ -329,14 +331,31 @@ void RosterController::removeGroupFromContacts(QString groupJid)
 
 bool RosterController::isGroup(QString const &jid)
 {
-    bool returnValue = false;
+    bool returnValue = true;
 
     QList<RosterItem*>::iterator it = rosterList_.begin();
     for (; it != rosterList_.end(); ++it)
     {
-        if ((*it)->getJid() == jid)
+        if (jid.compare((*it)->getJid()) == 0)
         {
-            returnValue = (*it)->isGroup();
+            returnValue = false;
+            break;
+        }
+    }
+
+    return returnValue;
+}
+
+QString RosterController::getAvatarImagePathForJid(QString const &jid)
+{
+    QString returnValue = "";
+
+    QList<RosterItem*>::iterator it = rosterList_.begin();
+    for (; it != rosterList_.end(); ++it)
+    {
+        if (jid.compare((*it)->getJid()) == 0)
+        {
+            returnValue = (*it)->getImagePath();
             break;
         }
     }

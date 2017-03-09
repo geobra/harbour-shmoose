@@ -33,8 +33,10 @@ Dialog {
             jid = jidField.text
             name = nameField.text
 
-            console.log("new contact: " + jid + ", " + name)
-            shmoose.rosterController.addContact(jid, name)
+            if (jid.length > 0 && name.length > 0)
+            {
+                shmoose.rosterController.addContact(jid, name)
+            }
         }
     }
 }

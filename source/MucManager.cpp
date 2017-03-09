@@ -69,6 +69,9 @@ void MucManager::joinRoomIfConfigured(Swift::MUCBookmark const &bookmark)
         {
             nick = getNickName().toStdString();
         }
+
+        std::cout << "####### join room " << bookmark.getRoom().toBare().toString() << " as " << nick;
+
         muc->joinAs(nick);
     }
 }

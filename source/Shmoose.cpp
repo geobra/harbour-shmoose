@@ -309,8 +309,6 @@ void Shmoose::handlePresenceChanged(Presence::ref presence)
 
 void Shmoose::handleStanzaAcked(Stanza::ref stanza)
 {
-    qDebug() << "Shmoose::handleStanzaAcked " << QString::fromStdString(stanza->getID());
-
     QMutableStringListIterator i(unAckedMessageIds_);
     while (i.hasNext())
     {

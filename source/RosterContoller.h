@@ -20,6 +20,7 @@ public:
     Q_INVOKABLE void addContact(const QString& jid, const QString& name);
     Q_INVOKABLE void removeContact(const QString& jid);
     Q_INVOKABLE bool isGroup(QString const &jid);
+    Q_INVOKABLE QString getAvatarImagePathForJid(QString const &jid);
 
 	void requestRosterFromClient(Swift::Client *client);
 	QQmlListProperty<RosterItem> getRosterList();
