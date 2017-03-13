@@ -278,17 +278,26 @@ void RosterController::bindJidUpdateMethodes()
 
 void RosterController::addContact(const QString& jid, const QString& name)
 {
-    Swift::IDGenerator idGenerator;
-    std::string msgId = idGenerator.generateID();
-    boost::shared_ptr<Swift::RosterPayload> payload(new Swift::RosterPayload);
+    Swift::JID newContactJid(jid.toStdString());
 
-    Swift::RosterItemPayload riPayload;
-    riPayload.setJID(jid.toStdString());
-    riPayload.setName(name.toStdString());
-    payload->addItem(riPayload);
+    if (newContactJid.isValid())
+    {
+        Swift::IDGenerator idGenerator;
+        std::string msgId = idGenerator.generateID();
+        boost::shared_ptr<Swift::RosterPayload> payload(new Swift::RosterPayload);
 
-    Swift::IQRouter *iqRouter = client_->getIQRouter();
-    iqRouter->sendIQ(Swift::IQ::createRequest(Swift::IQ::Set, Swift::JID(), msgId, payload));
+        Swift::RosterItemPayload riPayload;
+        riPayload.setJID(newContactJid);
+        riPayload.setName(name.toStdString());
+        payload->addItem(riPayload);
+
+        Swift::IQRouter *iqRouter = client_->getIQRouter();
+        iqRouter->sendIQ(Swift::IQ::createRequest(Swift::IQ::Set, Swift::JID(), msgId, payload));
+    }
+    else
+    {
+        emit signalShowMessage("Add Contact", "Jid not valid!");
+    }
 }
 
 void RosterController::removeContact(const QString& jid)
@@ -338,7 +347,7 @@ bool RosterController::isGroup(QString const &jid)
     {
         if (jid.compare((*it)->getJid()) == 0)
         {
-            returnValue = false;
+            returnValue = (*it)->isGroup();
             break;
         }
     }

@@ -33,7 +33,7 @@ Dialog {
             jid = jidField.text
             name = nameField.text
 
-            if (jid.length > 0 && name.length > 0)
+            if (jid.length > 0)
             {
                 shmoose.rosterController.addContact(jid, name)
             }

@@ -29,6 +29,7 @@ public:
 
 signals:
 	void rosterListChanged();
+    void signalShowMessage(QString headline, QString body);
 
 public slots:
     void addGroupAsContact(QString groupJid, QString groupName);

@@ -59,7 +59,10 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 
     connect(mucManager_, SIGNAL(newGroupForContactsList(QString,QString)), rosterController_, SLOT(addGroupAsContact(QString,QString)));
     connect(mucManager_, SIGNAL(removeGroupFromContactsList(QString)), rosterController_, SLOT(removeGroupFromContacts(QString)) );
+
+    // show errors to user
     connect(mucManager_, SIGNAL(signalShowMessage(QString,QString)), this, SIGNAL(signalShowMessage(QString,QString)));
+    connect(rosterController_, SIGNAL(signalShowMessage(QString,QString)), this, SIGNAL(signalShowMessage(QString,QString)));
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotAboutToQuit()));
 }
@@ -547,7 +550,16 @@ QString Shmoose::getVersion()
 void Shmoose::joinRoom(QString const &roomJid, QString const &roomName)
 {
     Swift::JID jid(roomJid.toStdString());
-    mucManager_->addRoom(jid, roomName);
+
+    if (jid.isValid())
+    {
+        setCurrentChatPartner(roomJid); // this prevents notifications for each initial history message
+        mucManager_->addRoom(jid, roomName);
+    }
+    else
+    {
+        emit signalShowMessage("Join room", "Jid not valid!");
+    }
 }
 
 void Shmoose::removeRoom(QString const &roomJid)
