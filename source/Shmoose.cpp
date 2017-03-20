@@ -187,7 +187,7 @@ void Shmoose::handleConnected()
     client_->sendPresence(Presence::create("Send me a message"));
     emit signalAppIsOnline(true);
 
-    initialConnectionSuccessfull_ = true;
+    initialConnectionSuccessfull_ = true;    
 }
 
 void Shmoose::handleDisconnected(const boost::optional<ClientError>& error)
@@ -269,10 +269,19 @@ void Shmoose::handlePresenceReceived(Presence::ref presence)
     // FIXME show to user and let user decide
     if (presence->getType() == Swift::Presence::Subscribe)
     {
-        Swift::Presence::ref response = Swift::Presence::create();
-        response->setTo(presence->getFrom());
-        response->setType(Swift::Presence::Subscribed);
-        client_->sendPresence(response);
+        // answer subscription request
+        Swift::Presence::ref subscriptionRequestResponse = Swift::Presence::create();
+        subscriptionRequestResponse->setTo(presence->getFrom());
+        subscriptionRequestResponse->setFrom(client_->getJID());
+        subscriptionRequestResponse->setType(Swift::Presence::Subscribed);
+        client_->sendPresence(subscriptionRequestResponse);
+
+        // request subscription
+        Swift::Presence::ref subscriptionRequest = Swift::Presence::create();
+        subscriptionRequest->setTo(presence->getFrom());
+        subscriptionRequest->setFrom(client_->getJID());
+        subscriptionRequest->setType(Swift::Presence::Subscribe);
+        client_->sendPresence(subscriptionRequest);
     }
 }
 

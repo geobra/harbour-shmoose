@@ -32,22 +32,22 @@ void RosterController::handleJidAdded(const Swift::JID &jid)
     std::cout << "RosterController::handleJidAdded: " << jid.toString() << std::endl;
 
     rosterList_.append(new RosterItem(QString::fromStdString(jid.toBare().toString()),
-                                      "", // FIXME set name
+                                      QString::fromStdString(client_->getRoster()->getNameForJID(jid)),
                                       RosterItem::SUBSCRIPTION_NONE, false, this));
+
+    emit rosterListChanged();
 
     // request subscription
     Swift::Presence::ref presence = Swift::Presence::create();
     presence->setTo(jid);
     presence->setType(Swift::Presence::Subscribe);
-    Swift::PresenceSender *presenceSender = client_->getPresenceSender();
-    presenceSender->sendPresence(presence);
-
-    emit rosterListChanged();
+    client_->sendPresence(presence);
 }
 
 void RosterController::handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string >&)
 {
     std::cout << "RosterController::handleJidUpdated " << jid.toString() << ", " << name;
+    bool somethingChanged = false;
 
     QList<RosterItem*>::iterator it = rosterList_.begin();
     for (; it != rosterList_.end(); ++it)
@@ -55,15 +55,22 @@ void RosterController::handleJidUpdated(const Swift::JID &jid, const std::string
         if ((*it)->getJid() == QString::fromStdString(jid.toBare().toString()))
         {
             (*it)->setName(QString::fromStdString(name));
+
+            somethingChanged = true;
+            break;
         }
     }
 
-   emit rosterListChanged();
+    if (somethingChanged)
+    {
+        emit rosterListChanged();
+    }
 }
 
 void RosterController::handleUpdateFromPresence(const Swift::JID &jid, const QString &status, const RosterItem::Availability& availability)
 {
-    std::cout << "RosterController::handleUpdatedFromPresence " << jid.toString() << ", status: " << status.toStdString() << std::endl;
+    //std::cout << "RosterController::handleUpdatedFromPresence " << jid.toString() << ", status: " << status.toStdString() << std::endl;
+    bool somethingChanged = false;
 
     QList<RosterItem*>::iterator it = rosterList_.begin();
     for (; it != rosterList_.end(); ++it)
@@ -76,19 +83,24 @@ void RosterController::handleUpdateFromPresence(const Swift::JID &jid, const QSt
 
             if (! status.isEmpty())
             {
-                (*it)->setStatus(status);
+                (*it)->setStatus(status);                
             }
 
+            somethingChanged = true;
             break;
         }
     }
 
-   emit rosterListChanged();
+    if (somethingChanged)
+    {
+        emit rosterListChanged();
+    }
 }
 
 void RosterController::handleJidRemoved(const Swift::JID &jid)
 {
     std::cout << "RosterController::handleJidRemoved: " << jid.toString() << std::endl;
+    bool somethingChanged = false;
 
     QList<RosterItem*>::iterator it = rosterList_.begin();
     while (it != rosterList_.end())
@@ -96,6 +108,8 @@ void RosterController::handleJidRemoved(const Swift::JID &jid)
         if ((*it)->getJid() == QString::fromStdString(jid.toBare().toString()))
         {
             it = rosterList_.erase(it);
+
+            somethingChanged = true;
             break;
         }
         else
@@ -104,7 +118,11 @@ void RosterController::handleJidRemoved(const Swift::JID &jid)
         }
     }
 
-   emit rosterListChanged();
+    if (somethingChanged)
+    {
+        qDebug() << "handleJidRemoved: emit rosterListChanged";
+        emit rosterListChanged();
+    }
 }
 
 void RosterController::requestRosterFromClient(Swift::Client *client)
@@ -124,6 +142,8 @@ void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
 	}
 	else
 	{
+        bool somethingChanged = false;
+
         Swift::VCardManager *vCardManager = client_->getVCardManager();
         vCardManager->onVCardChanged.connect(boost::bind(&RosterController::handleVCardChanged, this, _1, _2));
 
@@ -140,8 +160,13 @@ void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
                                               QString::fromStdString((*it).getName()),
                                               (RosterItem::Subscription)(*it).getSubscription(), false, this));
 
-			emit rosterListChanged();
+            somethingChanged = true;
 		}
+
+        if (somethingChanged)
+        {
+            emit rosterListChanged();
+        }
 	}
 }
 
@@ -289,6 +314,7 @@ void RosterController::addContact(const QString& jid, const QString& name)
         Swift::RosterItemPayload riPayload;
         riPayload.setJID(newContactJid);
         riPayload.setName(name.toStdString());
+        riPayload.setSubscription(Swift::RosterItemPayload::None);
         payload->addItem(riPayload);
 
         Swift::IQRouter *iqRouter = client_->getIQRouter();
@@ -302,6 +328,11 @@ void RosterController::addContact(const QString& jid, const QString& name)
 
 void RosterController::removeContact(const QString& jid)
 {
+    // FIXME
+    //1. <presence type="unavailable" to="" from=""></presence>
+    //2. <presence type="unsubscribe" to="" from=""></presence>
+    // then remove from roster
+
     Swift::IDGenerator idGenerator;
     std::string msgId = idGenerator.generateID();
     boost::shared_ptr<Swift::RosterPayload> payload(new Swift::RosterPayload);
@@ -324,18 +355,26 @@ void RosterController::addGroupAsContact(QString groupJid, QString groupName)
 
 void RosterController::removeGroupFromContacts(QString groupJid)
 {
+    bool somethingChanged = false;
     QList<RosterItem*>::iterator it = rosterList_.begin();
 
     for (; it != rosterList_.end(); ++it)
     {
-        if ((*it)->getJid() == groupJid)
+        if (groupJid.compare( (*it)->getJid() ) == 0)
         {
-            it = rosterList_.erase(it);
+            qDebug() << "remove group:" << groupJid;
+
+            rosterList_.erase(it);
+
+            somethingChanged = true;
             break;
         }
     }
 
-    emit rosterListChanged();
+    if (somethingChanged)
+    {
+        emit rosterListChanged();
+    }
 }
 
 bool RosterController::isGroup(QString const &jid)

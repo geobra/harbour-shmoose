@@ -29,27 +29,36 @@ void MucManager::initialize()
 void MucManager::handleBookmarksReady()
 {
     std::vector<Swift::MUCBookmark> bookmarks = mucBookmarkManager_->getBookmarks();
-    //std::cout << "########MBM#####" <<  bookmarks.size() << std::endl;
 
     for(std::vector<Swift::MUCBookmark>::iterator it = bookmarks.begin(); it != bookmarks.end(); ++it)
     {
-        std::cout << "rooms: " << (*it).getRoom() << std::endl;
-        emit newGroupForContactsList( QString::fromStdString((*it).getRoom().toBare().toString()) , "");
+        Swift::JID roomJid((*it).getRoom());
+        std::cout << "rooms: " << roomJid << std::endl;
 
-        // maybee join room
-        joinRoomIfConfigured(*it);
+        if (roomJid.isValid())
+        {
+            emit newGroupForContactsList( QString::fromStdString(roomJid.toBare().toString()) , "");
+
+            // maybee join room
+            joinRoomIfConfigured(*it);
+        }
     }
 }
 
 void MucManager::handleBookmarkAdded(Swift::MUCBookmark bookmark)
 {
-    std::cout << "handleBookmarkAdded: " << bookmark.getRoom().toBare().toString() << std::endl;
+    Swift::JID roomJid(bookmark.getRoom());
+
+    std::cout << "handleBookmarkAdded: " << roomJid.toBare().toString() << std::endl;
 
     // update contacts list
-    emit newGroupForContactsList( QString::fromStdString(bookmark.getRoom().toBare().toString()) , QString::fromStdString(bookmark.getName()));
+    if (roomJid.isValid())
+    {
+        emit newGroupForContactsList( QString::fromStdString(roomJid.toBare().toString()) , QString::fromStdString(bookmark.getName()));
 
-    // maybee join room
-    joinRoomIfConfigured(bookmark);
+        // maybee join room
+        joinRoomIfConfigured(bookmark);
+    }
 }
 
 void MucManager::joinRoomIfConfigured(Swift::MUCBookmark const &bookmark)
@@ -69,8 +78,6 @@ void MucManager::joinRoomIfConfigured(Swift::MUCBookmark const &bookmark)
         {
             nick = getNickName().toStdString();
         }
-
-        std::cout << "####### join room " << bookmark.getRoom().toBare().toString() << " as " << nick;
 
         muc->joinAs(nick);
     }
