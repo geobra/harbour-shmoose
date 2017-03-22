@@ -27,6 +27,8 @@ public:
 
     void handleUpdateFromPresence(const Swift::JID &jid, const QString &status, const RosterItem::Availability& availability);
 
+    void updateNameForJid(const Swift::JID &jid, const std::string &name);
+
 signals:
 	void rosterListChanged();
     void signalShowMessage(QString headline, QString body);
@@ -40,6 +42,8 @@ private:
     void handleJidAdded(const Swift::JID &jid);
     void handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string > &);
     void handleJidRemoved(const Swift::JID &jid);
+
+    void sendUnavailableAndUnsubscribeToJid(const QString& jid);
 
     void handleVCardChanged(const Swift::JID &jid, const Swift::VCard::ref &vCard);
 

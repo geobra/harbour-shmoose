@@ -46,8 +46,7 @@ void RosterController::handleJidAdded(const Swift::JID &jid)
 
 void RosterController::handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string >&)
 {
-    std::cout << "RosterController::handleJidUpdated " << jid.toString() << ", " << name;
-    bool somethingChanged = false;
+    std::cout << "RosterController::handleJidUpdated " << jid.toString() << ", name: " << name;
 
     QList<RosterItem*>::iterator it = rosterList_.begin();
     for (; it != rosterList_.end(); ++it)
@@ -55,22 +54,19 @@ void RosterController::handleJidUpdated(const Swift::JID &jid, const std::string
         if ((*it)->getJid() == QString::fromStdString(jid.toBare().toString()))
         {
             (*it)->setName(QString::fromStdString(name));
-
-            somethingChanged = true;
             break;
         }
     }
+}
 
-    if (somethingChanged)
-    {
-        emit rosterListChanged();
-    }
+void RosterController::updateNameForJid(const Swift::JID &jid, const std::string &name)
+{
+    handleJidUpdated(jid, name, std::vector< std::string >());
 }
 
 void RosterController::handleUpdateFromPresence(const Swift::JID &jid, const QString &status, const RosterItem::Availability& availability)
 {
     //std::cout << "RosterController::handleUpdatedFromPresence " << jid.toString() << ", status: " << status.toStdString() << std::endl;
-    bool somethingChanged = false;
 
     QList<RosterItem*>::iterator it = rosterList_.begin();
     for (; it != rosterList_.end(); ++it)
@@ -86,14 +82,8 @@ void RosterController::handleUpdateFromPresence(const Swift::JID &jid, const QSt
                 (*it)->setStatus(status);                
             }
 
-            somethingChanged = true;
             break;
         }
-    }
-
-    if (somethingChanged)
-    {
-        emit rosterListChanged();
     }
 }
 
@@ -328,10 +318,7 @@ void RosterController::addContact(const QString& jid, const QString& name)
 
 void RosterController::removeContact(const QString& jid)
 {
-    // FIXME
-    //1. <presence type="unavailable" to="" from=""></presence>
-    //2. <presence type="unsubscribe" to="" from=""></presence>
-    // then remove from roster
+    sendUnavailableAndUnsubscribeToJid(jid);
 
     Swift::IDGenerator idGenerator;
     std::string msgId = idGenerator.generateID();
@@ -339,6 +326,26 @@ void RosterController::removeContact(const QString& jid)
     payload->addItem(Swift::RosterItemPayload(Swift::JID(jid.toStdString()), "", Swift::RosterItemPayload::Remove));
     Swift::IQRouter *iqRouter = client_->getIQRouter();
     iqRouter->sendIQ(Swift::IQ::createRequest(Swift::IQ::Set, Swift::JID(), msgId, payload));
+}
+
+void RosterController::sendUnavailableAndUnsubscribeToJid(const QString& jid)
+{
+    Swift::JID contactJid(jid.toStdString());
+
+    if (contactJid.isValid())
+    {
+        // unavailable
+        Swift::Presence::ref presenceUnavailable = Swift::Presence::create();
+        presenceUnavailable->setTo(contactJid);
+        presenceUnavailable->setType(Swift::Presence::Unavailable);
+        client_->sendPresence(presenceUnavailable);
+
+        // unsubscribe
+        Swift::Presence::ref presenceUnsubscribe = Swift::Presence::create();
+        presenceUnsubscribe->setTo(contactJid);
+        presenceUnsubscribe->setType(Swift::Presence::Unsubscribe);
+        client_->sendPresence(presenceUnsubscribe);
+    }
 }
 
 QQmlListProperty<RosterItem> RosterController::getRosterList()
@@ -364,7 +371,7 @@ void RosterController::removeGroupFromContacts(QString groupJid)
         {
             qDebug() << "remove group:" << groupJid;
 
-            rosterList_.erase(it);
+            it = rosterList_.erase(it);
 
             somethingChanged = true;
             break;
@@ -373,7 +380,7 @@ void RosterController::removeGroupFromContacts(QString groupJid)
 
     if (somethingChanged)
     {
-        emit rosterListChanged();
+        //emit rosterListChanged();
     }
 }
 

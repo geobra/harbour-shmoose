@@ -28,16 +28,17 @@ void MucManager::initialize()
 
 void MucManager::handleBookmarksReady()
 {
+    //std::cout << "##################### handleBookmarksReady ######################" << std::endl;
     std::vector<Swift::MUCBookmark> bookmarks = mucBookmarkManager_->getBookmarks();
 
     for(std::vector<Swift::MUCBookmark>::iterator it = bookmarks.begin(); it != bookmarks.end(); ++it)
     {
         Swift::JID roomJid((*it).getRoom());
-        std::cout << "rooms: " << roomJid << std::endl;
+        //std::cout << "rooms: jid:" << roomJid << ", name: " << (*it).getName() << std::endl;
 
         if (roomJid.isValid())
         {
-            emit newGroupForContactsList( QString::fromStdString(roomJid.toBare().toString()) , "");
+            emit newGroupForContactsList( QString::fromStdString(roomJid.toBare().toString()) , QString::fromStdString((*it).getName()));
 
             // maybee join room
             joinRoomIfConfigured(*it);
@@ -49,7 +50,7 @@ void MucManager::handleBookmarkAdded(Swift::MUCBookmark bookmark)
 {
     Swift::JID roomJid(bookmark.getRoom());
 
-    std::cout << "handleBookmarkAdded: " << roomJid.toBare().toString() << std::endl;
+    //std::cout << "###################### handleBookmarkAdded: ############### " << roomJid.toBare().toString() << ", name: " << bookmark.getName() << std::endl;
 
     // update contacts list
     if (roomJid.isValid())
@@ -99,7 +100,6 @@ void MucManager::handleBookmarkRemoved(Swift::MUCBookmark bookmark)
     // leave room
     sendUnavailableToRoom(bookmark);
 
-    std::cout << "handleBookmarkRemoved: update Roster" << std::endl;
     // update roster
     emit removeGroupFromContactsList( QString::fromStdString(bookmark.getRoom().toBare().toString()) );
 }
@@ -117,7 +117,6 @@ void MucManager::addRoom(Swift::JID &roomJid, QString const &roomName)
     boost::shared_ptr<Swift::MUCBookmark> mucBookmark(new Swift::MUCBookmark(roomJid, roomName.toStdString()));
     mucBookmark->setNick(nickName);
     mucBookmark->setAutojoin(true);
-    //mucBookmarkManager_->addBookmark(mucBookmark);
 
     // save MucCollection
     boost::shared_ptr<MucCollection> mucCollection(new MucCollection(muc, mucBookmark, nickName));
@@ -174,6 +173,5 @@ void MucManager::sendUnavailableToRoom(Swift::MUCBookmark bookmark)
     Swift::Presence::ref presence = Swift::Presence::create();
     presence->setTo(bookmark.getRoom());
     presence->setType(Swift::Presence::Unavailable);
-    Swift::PresenceSender *presenceSender = client_->getPresenceSender();
-    presenceSender->sendPresence(presence);
+    client_->sendPresence(presence);
 }

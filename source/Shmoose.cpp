@@ -287,7 +287,7 @@ void Shmoose::handlePresenceReceived(Presence::ref presence)
 
 void Shmoose::handlePresenceChanged(Presence::ref presence)
 {
-    qDebug() << "handlePresenceChanged: type: " << QString::fromStdString(presence->getFrom());
+    //qDebug() << "handlePresenceChanged: type: " << presence->getType() << ", jid: " << QString::fromStdString(presence->getFrom());
 
     Swift::JID jid = presence->getFrom();
     QString status = "";
@@ -393,8 +393,21 @@ void Shmoose::handleMessageReceived(Message::ref message)
         MUCInvitationPayload::ref mucInventation = message->getPayload<MUCInvitationPayload>();
 
         Swift::JID roomJid = mucInventation->getJID();
-        mucManager_->addRoom(roomJid, "fooBarRoom");
+        QString roomName = QString::fromStdString(message->getSubject());
+
+        mucManager_->addRoom(roomJid, roomName);
     }
+    if (message->getType() == Swift::Message::Groupchat)
+    {
+        // check for updated room name
+        std::string roomName = message->getSubject();
+
+        if (! roomName.empty() )
+        {
+            rosterController_->updateNameForJid(message->getFrom().toBare(), roomName);
+        }
+    }
+
 
     // mark sent msg as received
     DeliveryReceipt::ref rcpt = message->getPayload<DeliveryReceipt>();
