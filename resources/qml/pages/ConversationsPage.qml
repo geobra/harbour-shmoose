@@ -1,28 +1,53 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import harbour.shmoose 1.0
 
 Page {
     id: page;
 
     SilicaListView {
         id: view;
-        spacing: Theme.paddingMedium;
-        header: PageHeader {
-            title: qsTr ("Conversations");
+        header: Column {
+            spacing: Theme.paddingMedium;
+            anchors {
+                left: parent.left;
+                right: parent.right;
+            }
+
+            PageHeader {
+                title: qsTr ("Conversations");
+            }
         }
         model: shmoose.persistence.sessionController
-        delegate: BackgroundItem {
+        delegate: ListItem {
             id: item;
-            contentHeight: Theme.itemSizeLarge;
+            contentHeight: Theme.itemSizeMedium;
             onClicked: {
+                console.log("set current char partner: " + jid);
                 pageStack.push (pageMessaging, { "conversationId" : jid });
                 shmoose.setCurrentChatPartner(jid);
             }
 
+            Image {
+                id: img;
+                width: height;
+                source: getImage(jid)
+                anchors {
+                    top: parent.top;
+                    left: parent.left;
+                    bottom: parent.bottom;
+                }
+
+                Rectangle {
+                    z: -1;
+                    color: (model.index % 2 ? "black" : "white");
+                    opacity: 0.15;
+                    anchors.fill: parent;
+                }
+            }
             Column {
                 anchors {
-                    left: parent.left;
-                    right: parent.right;
+                    left: img.right;
                     margins: Theme.paddingMedium;
                     verticalCenter: parent.verticalCenter;
                 }
@@ -40,19 +65,46 @@ Page {
                             anchors.verticalCenter: parent.verticalCenter
                         }
                     }
+
                     Label {
-                        text: jid;
-                        color: Theme.primaryColor;
+                        id: nameId;
+                        // FIXME
+                        //text: name
+                        text: jid
+                        color: (item.highlighted ? Theme.highlightColor : Theme.primaryColor);
+                        font.pixelSize: Theme.fontSizeMedium;
                     }
                 }
                 Label {
+                    id: jidId;
+                    text: jid;
+                    color: Theme.secondaryColor;
+                    font.pixelSize: Theme.fontSizeTiny;
+                }
+                Label {
+                    id: statusId;
                     text: lastmessage;
                     color: Theme.secondaryColor;
+                    font.pixelSize: Theme.fontSizeTiny;
                 }
             }
         }
+
         anchors.fill: parent;
 
-        VerticalScrollDecorator { }
+    }
+
+    function getImage(jid) {
+        var imagePath = shmoose.rosterController.getAvatarImagePathForJid(jid);
+
+        if (imagePath.length > 0) {
+            return imagePath;
+        } else if (shmoose.rosterController.isGroup(jid)) {
+            return "image://theme/icon-l-image";
+        } else {
+            return "image://theme/icon-l-people"
+        }
     }
 }
+
+

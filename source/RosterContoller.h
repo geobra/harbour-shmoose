@@ -50,6 +50,7 @@ private:
     void bindJidUpdateMethodes();
 
     bool checkHashDiffers(QString const &jid, QString const &newHash);
+    void sortRosterList();
 
 	Swift::Client* client_;
 	QList<RosterItem*> rosterList_;

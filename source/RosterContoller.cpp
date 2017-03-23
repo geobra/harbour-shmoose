@@ -6,6 +6,8 @@
 #include <QStandardPaths>
 #include <QDir>
 
+#include <algorithm>
+
 #include <QDebug>
 
 RosterController::RosterController(QObject *parent) : QObject(parent), client_(NULL), rosterList_()
@@ -35,6 +37,7 @@ void RosterController::handleJidAdded(const Swift::JID &jid)
                                       QString::fromStdString(client_->getRoster()->getNameForJID(jid)),
                                       RosterItem::SUBSCRIPTION_NONE, false, this));
 
+    sortRosterList();
     emit rosterListChanged();
 
     // request subscription
@@ -111,6 +114,8 @@ void RosterController::handleJidRemoved(const Swift::JID &jid)
     if (somethingChanged)
     {
         qDebug() << "handleJidRemoved: emit rosterListChanged";
+
+        sortRosterList();
         emit rosterListChanged();
     }
 }
@@ -155,6 +160,7 @@ void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
 
         if (somethingChanged)
         {
+            sortRosterList();
             emit rosterListChanged();
         }
 	}
@@ -357,6 +363,7 @@ void RosterController::addGroupAsContact(QString groupJid, QString groupName)
 {
     rosterList_.append(new RosterItem(groupJid, groupName, RosterItem::SUBSCRIPTION_NONE, true, this));
 
+    sortRosterList();
     emit rosterListChanged();
 }
 
@@ -380,6 +387,7 @@ void RosterController::removeGroupFromContacts(QString groupJid)
 
     if (somethingChanged)
     {
+        sortRosterList();
         //emit rosterListChanged();
     }
 }
@@ -416,4 +424,17 @@ QString RosterController::getAvatarImagePathForJid(QString const &jid)
     }
 
     return returnValue;
+}
+
+void RosterController::sortRosterList()
+{
+    struct
+    {
+        bool operator()(RosterItem* a, RosterItem* b)
+        {
+            return a->getName() < b->getName();
+        }
+    } customSort;
+
+    std::sort(rosterList_.begin(), rosterList_.end(), customSort);
 }
