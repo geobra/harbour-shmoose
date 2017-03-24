@@ -12,6 +12,12 @@ class RosterController : public QObject
 	Q_OBJECT
 	Q_PROPERTY(QQmlListProperty<RosterItem> rosterList READ getRosterList NOTIFY rosterListChanged)
 
+    enum itemAttribute
+    {
+        attributePicturePath,
+        attributeName
+    };
+
 public:
 	RosterController(QObject *parent = 0);
 
@@ -20,7 +26,9 @@ public:
     Q_INVOKABLE void addContact(const QString& jid, const QString& name);
     Q_INVOKABLE void removeContact(const QString& jid);
     Q_INVOKABLE bool isGroup(QString const &jid);
+
     Q_INVOKABLE QString getAvatarImagePathForJid(QString const &jid);
+    Q_INVOKABLE QString getNameForJid(QString const &jid);
 
 	void requestRosterFromClient(Swift::Client *client);
 	QQmlListProperty<RosterItem> getRosterList();
@@ -51,6 +59,8 @@ private:
 
     bool checkHashDiffers(QString const &jid, QString const &newHash);
     void sortRosterList();
+
+    QString getTypeForJid(itemAttribute const &attribute, QString const &jid);
 
 	Swift::Client* client_;
 	QList<RosterItem*> rosterList_;

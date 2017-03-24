@@ -70,7 +70,7 @@ Page {
             }
 
             Label {
-                text:  conversationId;
+                text:  shmoose.rosterController.getNameForJid(conversationId);
                 color: Theme.highlightColor;
                 font {
                     family: Theme.fontFamilyHeading;

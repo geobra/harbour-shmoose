@@ -411,6 +411,16 @@ bool RosterController::isGroup(QString const &jid)
 
 QString RosterController::getAvatarImagePathForJid(QString const &jid)
 {
+    return getTypeForJid(attributePicturePath, jid);
+}
+
+QString RosterController::getNameForJid(QString const &jid)
+{
+    return getTypeForJid(attributeName, jid);
+}
+
+QString RosterController::getTypeForJid(itemAttribute const &attribute, QString const &jid)
+{
     QString returnValue = "";
 
     QList<RosterItem*>::iterator it = rosterList_.begin();
@@ -418,13 +428,22 @@ QString RosterController::getAvatarImagePathForJid(QString const &jid)
     {
         if (jid.compare((*it)->getJid()) == 0)
         {
-            returnValue = (*it)->getImagePath();
+            if (attribute == attributePicturePath)
+            {
+                returnValue = (*it)->getImagePath();
+            }
+            else if(attribute == attributeName)
+            {
+                returnValue = (*it)->getName();
+            }
             break;
         }
     }
 
     return returnValue;
 }
+
+
 
 void RosterController::sortRosterList()
 {

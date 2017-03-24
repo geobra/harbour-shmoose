@@ -68,9 +68,7 @@ Page {
 
                     Label {
                         id: nameId;
-                        // FIXME
-                        //text: name
-                        text: jid
+                        text: shmoose.rosterController.getNameForJid(jid)
                         color: (item.highlighted ? Theme.highlightColor : Theme.primaryColor);
                         font.pixelSize: Theme.fontSizeMedium;
                     }
