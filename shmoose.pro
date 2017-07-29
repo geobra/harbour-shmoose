@@ -56,8 +56,8 @@ SOURCES += source/main.cpp \
 	source/System.cpp \
         source/xep/xmppPing/XmppPingController.cpp \
         source/IpHeartBeatWatcher.cpp \
-    source/MucManager.cpp \
-    source/MucCollection.cpp
+        source/MucManager.cpp \
+        source/MucCollection.cpp
 
 HEADERS += source/Shmoose.h \
 	source/EchoPayload.h \
