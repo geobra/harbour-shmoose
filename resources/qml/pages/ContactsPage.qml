@@ -15,7 +15,7 @@ Page {
             }
 
             PageHeader {
-                title: qsTr ("Contacts");
+                title: qsTr("Contacts");
             }
             //            SearchField {
             //                placeholderText: qsTr ("Filter");
@@ -61,7 +61,7 @@ Page {
 
                 Label {
                     id: nameId;
-                    text: name
+                    text: qsTr("name")
                     color: (item.highlighted ? Theme.highlightColor : Theme.primaryColor);
                     font.pixelSize: Theme.fontSizeMedium;
                 }
@@ -77,14 +77,14 @@ Page {
                     }
                     Label {
                         id: jidId;
-                        text: jid;
+                        text: qsTr("jid");
                         color: Theme.secondaryColor;
                         font.pixelSize: Theme.fontSizeTiny;
                     }
                 }
                 Label {
                     id: statusId;
-                    text: status;
+                    text: qsTr("status");
                     color: Theme.secondaryColor;
                     font.pixelSize: Theme.fontSizeTiny;
                 }
@@ -92,7 +92,7 @@ Page {
                     id: contextMenu
                     ContextMenu {
                         MenuItem {
-                            text: "Remove"
+                            text: qsTr("Remove")
                             onClicked: {
                                 if (shmoose.rosterController.isGroup(jid)) {
                                     shmoose.removeRoom(jid)
@@ -114,21 +114,21 @@ Page {
             visible: true
 
             //            MenuItem {
-            //                text: qsTr ("Create Room TBD");
+            //                text: qsTr("Create Room TBD");
             //                onClicked: {
             //                    console.log("create room")
             //                }
             //            }
 
             MenuItem {
-                text: qsTr ("Join room by address");
+                text: qsTr("Join room by address");
                 onClicked: {
                     pageStack.push(dialogJoinRoom)
                 }
             }
 
             MenuItem {
-                text: qsTr ("Add contact");
+                text: qsTr("Add contact");
                 onClicked: {
                     pageStack.push(dialogCreateContact)
                 }
