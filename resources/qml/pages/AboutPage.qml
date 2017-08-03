@@ -10,7 +10,7 @@ Page {
         width: parent.width
 
         PageHeader {
-            title: "Shmoose - Xmpp Client"
+            title: qsTr("Shmoose - Xmpp Client")
         }
         Item {
             width: parent.width
@@ -30,7 +30,7 @@ Page {
             anchors.horizontalCenter: parent.horizontalCenter
             font.pixelSize: Theme.fontSizeExtraSmall
             color: Theme.secondaryColor
-            text: "Version " + shmoose.getVersion()
+            text: qsTr("Version ") + shmoose.getVersion()
         }
         Item {
             width: parent.width
