@@ -32,6 +32,12 @@ contains(DEFINES, SFOS) {
 
 DEFINES += BOOST_SIGNALS_NO_DEPRECATION_WARNING
 
+lupdate_only {
+OTHER_FILES += source/qml/*.qml \
+               resources/qml/cover/CoverPage.qml \
+               translations/* 
+}
+
 SOURCES += source/main.cpp \
 	source/Shmoose.cpp \
 	source/RosterContoller.cpp \
@@ -76,6 +82,10 @@ HEADERS += source/Shmoose.h \
         source/IpHeartBeatWatcher.h \
     source/MucManager.h \
     source/MucCollection.h
+    
+ CONFIG += sailfishapp_i18n
+
+TRANSLATIONS += \
 
 RESOURCES += shmoose.qrc
 
