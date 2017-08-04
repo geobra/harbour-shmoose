@@ -15,7 +15,7 @@ Page {
             }
 
             PageHeader {
-                title: qsTr ("Conversations");
+                title: qsTr("Conversations");
             }
         }
         model: shmoose.persistence.sessionController
@@ -75,13 +75,13 @@ Page {
                 }
                 Label {
                     id: jidId;
-                    text: jid;
+                    text: qsTr("jid");
                     color: Theme.secondaryColor;
                     font.pixelSize: Theme.fontSizeTiny;
                 }
                 Label {
                     id: statusId;
-                    text: lastmessage;
+                    text: qsTr("last message");
                     color: Theme.secondaryColor;
                     font.pixelSize: Theme.fontSizeTiny;
                 }

@@ -10,21 +10,21 @@ Dialog {
 
         DialogHeader {
             id: header
-            title: "Join Room by address"
+            title: qsTr("Join Room by address")
         }
 
         TextField {
             id: jidField
             width: parent.width
-            placeholderText: "id@domain.org"
-            label: "Room address"
+            placeholderText: qsTr("id@domain.org")
+            label: qsTr("Room address")
         }
 
         TextField {
             id: nameField
             width: parent.width
-            placeholderText: "Name"
-            label: "Room name"
+            placeholderText: qsTr("Name")
+            label: qsTr("Room name")
         }
     }
 
