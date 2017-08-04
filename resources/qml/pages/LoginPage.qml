@@ -13,19 +13,19 @@ Page {
         }
 
         PageHeader {
-            title: "Login"
+            title: qsTr("Login")
         }
 
         Label {
             x: Theme.paddingLarge
-            text: "Login to Jabber Server"
+            text: qsTr("Login to Jabber Server")
             color: Theme.secondaryHighlightColor
             font.pixelSize: Theme.fontSizeExtraLarge
         }
 
         TextField {
             id: jidTextField
-            placeholderText: "jid@server.com"
+            placeholderText: qsTr("jid@server.com")
             label: "Jid"
             text: shmoose.getJid()
             width: parent.width
@@ -37,9 +37,9 @@ Page {
 
         TextField {
             id: passTextField
-            placeholderText: "password"
+            placeholderText: qsTr("password")
             echoMode: TextInput.Password
-            label: "Password"
+            label: qsTr("Password")
             text: shmoose.getPassword()
             width: parent.width
 
@@ -58,7 +58,7 @@ Page {
                 }
             }
             Label {
-                text: "Save credentials (unencrypted)"
+                text: qsTr("Save credentials (unencrypted)")
                 font.pixelSize: Theme.fontSizeSmall
                 anchors {
                     verticalCenter: parent.verticalCenter;
@@ -68,7 +68,7 @@ Page {
 
         Button{
             id: connectButton
-            text: "Connect"
+            text: qsTr("Connect")
             enabled: false
 
             onClicked: {
