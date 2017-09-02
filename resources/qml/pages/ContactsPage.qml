@@ -61,7 +61,7 @@ Page {
 
                 Label {
                     id: nameId;
-                    text: qsTr("name")
+                    text: "name"
                     color: (item.highlighted ? Theme.highlightColor : Theme.primaryColor);
                     font.pixelSize: Theme.fontSizeMedium;
                 }
