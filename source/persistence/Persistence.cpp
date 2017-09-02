@@ -48,6 +48,22 @@ void Persistence::addMessage(bool isGroupMessage, QString const &id, QString con
     }
 }
 
+void Persistence::markMessageDisplayedConfirmedId(QString const &id)
+{
+    if (persistenceValid_)
+    {
+        messageController_->markMessageDisplayedConfirmed(id);
+    }
+}
+
+void Persistence::markMessageAsDisplayedId(QString const &id)
+{
+    if (persistenceValid_)
+    {
+        messageController_->markMessageDisplayed(id);
+    }
+}
+
 void Persistence::markMessageAsReceivedById(QString const &id)
 {
     if (persistenceValid_)
@@ -72,6 +88,11 @@ void Persistence::setCurrentChatPartner(QString const &jid)
         sessionController_->setCurrentChatPartner(jid);
         sessionController_->updateNumberOfUnreadMessages(jid, 0);
     }
+}
+
+QPair<QString, int> Persistence::getNewestReceivedMessageIdAndStateOfJid(QString const &jid)
+{
+    return messageController_->getNewestReceivedMessageIdAndStateOfJid(jid);
 }
 
 bool Persistence::isValid()

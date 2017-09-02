@@ -199,10 +199,13 @@ Page {
                 }
                 Image {
                     source: {
-                        if (isreceived) {
+                        if (msgstate == 3) {
+                            return "../img/read_until_green.png"
+                        }
+                        if (msgstate == 2) {
                             return "../img/2check.png"
                         }
-                        if (issent) {
+                        if (msgstate == 1) {
                             return "../img/check.png"
                         }
                         return ""

@@ -19,6 +19,7 @@ class XmppPingController;
 class ReConnectionHandler;
 class IpHeartBeatWatcher;
 class MucManager;
+class ChatMarkers;
 
 class Shmoose : public QObject
 {
@@ -109,6 +110,7 @@ private:
     ReConnectionHandler *reConnectionHandler_;
     IpHeartBeatWatcher *ipHeartBeatWatcher_;
     MucManager *mucManager_;
+    ChatMarkers *chatMarkers_;
 
 	QString jid_;
 	QString password_;

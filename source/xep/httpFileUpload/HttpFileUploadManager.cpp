@@ -107,7 +107,6 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
 	XmlHttpUploadContentHandler* handler = new XmlHttpUploadContentHandler();
 
 	parser->setContentHandler(handler);
-	parser->setContentHandler(handler);
 
 	QXmlInputSource xmlSource;
 	xmlSource.setData(QString::fromStdString(response));
@@ -128,6 +127,9 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
 	{
 		qDebug() << "xml response parsing failed...";
 	}
+
+    delete (handler);
+    delete (parser);
 }
 
 void HttpFileUploadManager::successReceived()

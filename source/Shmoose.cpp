@@ -30,6 +30,7 @@
 #include "ReConnectionHandler.h"
 #include "IpHeartBeatWatcher.h"
 #include "MucManager.h"
+#include "ChatMarkers.h"
 
 #include "System.h"
 
@@ -44,9 +45,10 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
     reConnectionHandler_(new ReConnectionHandler(30000, this)),
     ipHeartBeatWatcher_(new IpHeartBeatWatcher(this)),
     mucManager_(new MucManager(this)),
+    chatMarkers_(new ChatMarkers(this)),
     jid_(""), password_(""),
     currentChatPartner_(""),
-    version_("0.3.0")
+    version_("0.4.0")
 {
     connect(ipHeartBeatWatcher_, SIGNAL(triggered()), this, SLOT(tryStablishServerConnection()));
     connect(ipHeartBeatWatcher_, SIGNAL(finished()), ipHeartBeatWatcher_, SLOT(deleteLater()));
@@ -151,12 +153,18 @@ void Shmoose::handleConnected()
     emit connectionStateConnected();
 
     // register capabilities
-    // http://xmpp.org/extensions/xep-0184.html, MessageDeliveryReceiptsFeature
     DiscoInfo discoInfo;
     discoInfo.addIdentity(DiscoInfo::Identity("shmoose", "client", "phone"));
+
+    // http://xmpp.org/extensions/xep-0184.html, MessageDeliveryReceiptsFeature
     discoInfo.addFeature(DiscoInfo::MessageDeliveryReceiptsFeature);
+
+    // https://xmpp.org/extensions/xep-0333.html
+    discoInfo.addFeature(ChatMarkers::chatMarkersIdentifier.toStdString());
+
     //client_->getDiscoManager()->setCapsNode("https://github.com/geobra/harbour-shmoose");
     client_->getDiscoManager()->setDiscoInfo(discoInfo);
+
 
     // only on a first connection. skip this on a reconnect event.
     if (initialConnectionSuccessfull_ == false)
@@ -177,6 +185,11 @@ void Shmoose::handleConnected()
         xmppPingController_->setClient(client_);
         mucManager_->setClient(client_);
         mucManager_->initialize();
+
+        // pass the needed pointers
+        chatMarkers_->setClient(client_);
+        chatMarkers_->setPersistence(persistence_);
+        chatMarkers_->initialize();
 
         // Save account data
         QSettings settings;
@@ -216,6 +229,12 @@ void Shmoose::handleDisconnected(const boost::optional<ClientError>& error)
 void Shmoose::setCurrentChatPartner(QString const &jid)
 {
     currentChatPartner_ = jid;
+
+    if (! currentChatPartner_.isEmpty())
+    {
+        chatMarkers_->sendDisplayedForJid(jid);
+    }
+
     persistence_->setCurrentChatPartner(jid);
 }
 
@@ -245,6 +264,9 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message, QString 
     msg->setType(messagesTyp);
 
     msg->addPayload(boost::make_shared<DeliveryReceiptRequest>());
+
+    // add chatMarkers stanza
+    msg->addPayload(boost::make_shared<Swift::RawXMLPayload>(chatMarkers_->getMarkableString().toStdString()));
 
     client_->sendMessage(msg);
     persistence_->addMessage( (Swift::Message::Groupchat == messagesTyp) ? true : false,
@@ -369,6 +391,13 @@ void Shmoose::handleMessageReceived(Message::ref message)
                                  QString::fromStdString(fromJid),
                                  QString::fromStdString(message->getFrom().getResource()),
                                  theBody, type, 1 );
+
+        // xep 0333
+        qDebug() << "fromJid: " << QString::fromStdString(fromJid) << "current: " << currentChatPartner_;
+        if ( (isGroupMessage == false) && currentChatPartner_.compare(QString::fromStdString(fromJid)) == 0)
+        {
+            chatMarkers_->sendDisplayedForJid(currentChatPartner_);
+        }
     }
 
     // XEP 0184

@@ -19,6 +19,7 @@ INCLUDEPATH += source
 INCLUDEPATH += source/persistence
 INCLUDEPATH += source/xep/httpFileUpload
 INCLUDEPATH += source/xep/xmppPing
+INCLUDEPATH += source/xep/chatMarkers
 
 QMAKE_CXXFLAGS += $${SWIFTCXX} -std=c++11
 linux-g++ {
@@ -51,7 +52,8 @@ SOURCES += source/main.cpp \
         source/xep/xmppPing/XmppPingController.cpp \
         source/IpHeartBeatWatcher.cpp \
     source/MucManager.cpp \
-    source/MucCollection.cpp
+    source/MucCollection.cpp \
+    source/xep/chatMarkers/ChatMarkers.cpp
 
 HEADERS += source/Shmoose.h \
 	source/EchoPayload.h \
@@ -75,7 +77,8 @@ HEADERS += source/Shmoose.h \
         source/xep/xmppPing/XmppPingController.h \
         source/IpHeartBeatWatcher.h \
     source/MucManager.h \
-    source/MucCollection.h
+    source/MucCollection.h \
+    source/xep/chatMarkers/ChatMarkers.h
 
 RESOURCES += shmoose.qrc
 

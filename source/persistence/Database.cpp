@@ -7,6 +7,26 @@
 
 #include <QDebug>
 
+// messages table
+const QString Database::sqlMsgName_ = "messages";                   // sql table name
+const QString Database::sqlMsgMessage_ = "message";                 // plain msg
+const QString Database::sqlMsgDirection_ = "direction";             // (1)ncomming, (0)utgoing
+const QString Database::sqlMsgType_ = "type";                       // group / normal
+const QString Database::sqlMsgState_ = "msgstate";                  // (-1) displayedConfirmed, (0) unknown, (1) send, (2) received, (3) displayed
+
+// session table
+const QString Database::sqlSessionName_ = "sessions";               // sql table name
+const QString Database::sqlSessionLastMsg_ = "lastmessage";         // the content of the last message
+const QString Database::sqlSessionUnreadMsg_ = "unreadmessages";    // number of unread messages
+
+// common sql column names
+const QString Database::sqlId_ = "id";                              // the msg id
+const QString Database::sqlJid_ = "jid";                            // the jid
+const QString Database::sqlResource_ = "resource";                  // resource of jid
+const QString Database::sqlTimestamp_ = "timestamp";                // the unix timestamp
+
+
+
 Database::Database(QObject *parent) : QObject(parent),
     databaseValid_(false), database_(QSqlDatabase::addDatabase("QSQLITE"))
 {
@@ -49,11 +69,11 @@ bool Database::open(QString const &jid)
             // table for all the messages
             QSqlQuery query;
 
-            QString messagesTable = "messages";
-            if (! database_.tables().contains( messagesTable ))
-            {
-                // direction: (1)ncomming / (0)utgoing
-                QString sqlCreateCommand = "create table " + messagesTable + " (id TEXT, jid TEXT, resource TEXT, message TEXT, direction INTEGER, timestamp INTEGER, type STRING, issent BOOL, isreceived BOOL)";
+            if (! database_.tables().contains( sqlMsgName_ ))
+            {                
+                QString sqlCreateCommand = "create table " + sqlMsgName_ + " (" + sqlId_ + " TEXT, " + sqlJid_ + " TEXT, "
+                        + sqlResource_ + " TEXT, " + sqlMsgMessage_ + " TEXT, " + sqlMsgDirection_ + " INTEGER, "
+                        + sqlTimestamp_ + " INTEGER, " + sqlMsgType_ + " STRING, " + sqlMsgState_ + " INTEGER)";
                 if (query.exec(sqlCreateCommand) == false)
                 {
                     qDebug() << "Error creating message table";
@@ -61,11 +81,11 @@ bool Database::open(QString const &jid)
                 }
             }
 
-            QString sessionsTable = "sessions";
-            if (! database_.tables().contains( sessionsTable ))
+            if (! database_.tables().contains( sqlSessionName_ ))
             {
                 // another table for the sessions
-                QString sqlCreateCommand = "create table " + sessionsTable + " (jid TEXT PRIMARY KEY, lastmessage TEXT, timestamp INTEGER, unreadmessages INTEGER)";
+                QString sqlCreateCommand = "create table " + sqlSessionName_ + " (" + sqlJid_ + " TEXT PRIMARY KEY, " + sqlSessionLastMsg_ + " TEXT, "
+                        + sqlTimestamp_ + " INTEGER, " + sqlSessionUnreadMsg_ + " INTEGER)";
                 if (query.exec(sqlCreateCommand) == false)
                 {
                     qDebug() << "Error creating sessions table";
@@ -94,15 +114,14 @@ void Database::dumpDataToStdOut() const
 	QSqlQuery query("select * from messages", database_);
 	QSqlRecord rec = query.record();
 
-	const unsigned int idCol = rec.indexOf("id");
-	const unsigned int jidCol = rec.indexOf("jid");
-    const unsigned int resourceCol = rec.indexOf("resource");
-	const unsigned int messageCol = rec.indexOf("message");
-	const unsigned int directionCol = rec.indexOf("direction");
-	const unsigned int timeStampCol = rec.indexOf("timestamp");
-	const unsigned int isSentCol = rec.indexOf("issent");
-	const unsigned int isReceivedCol = rec.indexOf("isreceived");
-	const unsigned int typeCol = rec.indexOf("type");
+    const unsigned int idCol = rec.indexOf(Database::sqlId_);
+    const unsigned int jidCol = rec.indexOf(Database::sqlJid_);
+    const unsigned int resourceCol = rec.indexOf(Database::sqlResource_);
+    const unsigned int messageCol = rec.indexOf(Database::sqlMsgMessage_);
+    const unsigned int directionCol = rec.indexOf(Database::sqlMsgDirection_);
+    const unsigned int timeStampCol = rec.indexOf(Database::sqlTimestamp_);
+    const unsigned int messageState = rec.indexOf(Database::sqlMsgState_);
+    const unsigned int typeCol = rec.indexOf(Database::sqlMsgType_);
 
 
     qDebug() << "id:\t\tjid:\tresource:\tmessage:\tdirection\ttimestamp,\ttype,\tsent,\treceived:";
@@ -116,8 +135,7 @@ void Database::dumpDataToStdOut() const
 				 << query.value(directionCol).toString() << "\t"
 				 << query.value(timeStampCol).toInt() << "\t"
 				 << query.value(typeCol).toString() << "\t"
-				 << query.value(isSentCol).toBool() << "\t"
-				<< query.value(isReceivedCol).toBool() << "\t";
+                 << query.value(messageState).toBool() << "\t";
 	}
 
 #if 0

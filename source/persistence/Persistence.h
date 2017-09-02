@@ -18,8 +18,12 @@ public:
 	~Persistence();
 
 	bool isValid();
+    void markMessageDisplayedConfirmedId(QString const &id);
+    void markMessageAsDisplayedId(QString const &id);
 	void markMessageAsReceivedById(QString const &id);
 	void markMessageAsSentById(QString const &id);
+
+    QPair<QString, int> getNewestReceivedMessageIdAndStateOfJid(QString const &jid);
 
     void openDatabaseForJid(QString const &jid);
 
