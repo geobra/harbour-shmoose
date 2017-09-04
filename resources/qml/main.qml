@@ -85,7 +85,7 @@ ApplicationWindow {
         target: shmoose.persistence.messageController
         onSignalMessageReceived: {
             var currentChatPartner = shmoose.getCurrentChatPartner();
-            if ( currentChatPartner.localeCompare(jid) != 0 ) {
+            if ( applicationActive == false || currentChatPartner.localeCompare(jid) != 0 ) {
                 newMessageNotification(id, jid, message);
             }
         }

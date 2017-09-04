@@ -24,7 +24,7 @@ void IpHeartBeatWatcher::run()
     {
         while ( doWatch_ )
         {
-                time_t time = iphb_wait(handle_, 0, IPHB_GS_WAIT_10_MINS, 1);
+                time_t time = iphb_wait(handle_, 0, (2 * IPHB_GS_WAIT_10_MINS), 1);
                 printf("%ld seconds since the epoch began\n", (long)time);
                 printf("%s", asctime(gmtime(&time)));
 

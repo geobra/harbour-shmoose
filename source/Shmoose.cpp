@@ -393,7 +393,7 @@ void Shmoose::handleMessageReceived(Message::ref message)
                                  theBody, type, 1 );
 
         // xep 0333
-        qDebug() << "fromJid: " << QString::fromStdString(fromJid) << "current: " << currentChatPartner_;
+        //qDebug() << "fromJid: " << QString::fromStdString(fromJid) << "current: " << currentChatPartner_;
         if ( (isGroupMessage == false) && currentChatPartner_.compare(QString::fromStdString(fromJid)) == 0)
         {
             chatMarkers_->sendDisplayedForJid(currentChatPartner_);
