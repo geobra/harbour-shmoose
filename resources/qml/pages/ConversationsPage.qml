@@ -15,7 +15,7 @@ Page {
             }
 
             PageHeader {
-                title: qsTr ("Conversations");
+                title: qsTr("Conversations");
             }
         }
         model: shmoose.persistence.sessionController

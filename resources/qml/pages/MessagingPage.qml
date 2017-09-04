@@ -236,7 +236,7 @@ Page {
 
         TextArea {
             id: editbox;
-            placeholderText: qsTr ("Enter message...");
+            placeholderText: qsTr("Enter message...");
             width: parent.width - 100
 
             onTextChanged: {

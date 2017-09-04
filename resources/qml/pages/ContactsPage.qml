@@ -15,7 +15,7 @@ Page {
             }
 
             PageHeader {
-                title: qsTr ("Contacts");
+                title: qsTr("Contacts");
             }
             //            SearchField {
             //                placeholderText: qsTr ("Filter");
@@ -121,14 +121,14 @@ Page {
             //            }
 
             MenuItem {
-                text: qsTr ("Join room by address");
+                text: qsTr("Join room by address");
                 onClicked: {
                     pageStack.push(dialogJoinRoom)
                 }
             }
 
             MenuItem {
-                text: qsTr ("Add contact");
+                text: qsTr("Add contact");
                 onClicked: {
                     pageStack.push(dialogCreateContact)
                 }

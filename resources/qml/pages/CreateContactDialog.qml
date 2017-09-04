@@ -10,21 +10,21 @@ Dialog {
 
         DialogHeader {
             id: header
-            title: "Add Contact"
+            title: qsTr("Add Contact")
         }
 
         TextField {
             id: jidField
             width: parent.width
-            placeholderText: "id@domain.org"
-            label: "Jid"
+            placeholderText: qsTr("id@domain.org")
+            label: qsTr("Jid")
         }
 
         TextField {
             id: nameField
             width: parent.width
-            placeholderText: "Name"
-            label: "NickName"
+            placeholderText: qsTr("Name")
+            label: qsTr("NickName")
         }
     }
 

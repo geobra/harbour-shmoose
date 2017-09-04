@@ -51,9 +51,9 @@ SOURCES += source/main.cpp \
 	source/System.cpp \
         source/xep/xmppPing/XmppPingController.cpp \
         source/IpHeartBeatWatcher.cpp \
-    source/MucManager.cpp \
-    source/MucCollection.cpp \
-    source/xep/chatMarkers/ChatMarkers.cpp
+        source/MucManager.cpp \
+        source/MucCollection.cpp \
+        source/xep/chatMarkers/ChatMarkers.cpp
 
 HEADERS += source/Shmoose.h \
 	source/EchoPayload.h \
@@ -76,9 +76,17 @@ HEADERS += source/Shmoose.h \
 	source/System.h \
         source/xep/xmppPing/XmppPingController.h \
         source/IpHeartBeatWatcher.h \
-    source/MucManager.h \
-    source/MucCollection.h \
-    source/xep/chatMarkers/ChatMarkers.h
+        source/MucManager.h \
+        source/MucCollection.h \
+        source/xep/chatMarkers/ChatMarkers.h
+
+lupdate_only {
+        SOURCES += resources/qml/*.qml \
+        SOURCES += resources/qml/pages/*.qml \
+}
+
+TRANSLATIONS = resources/translations/de_DE.ts \
+               resources/translations/en_GB.ts
 
 RESOURCES += shmoose.qrc
 

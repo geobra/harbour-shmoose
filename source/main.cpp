@@ -7,6 +7,8 @@
 #include <QQuickView>
 #include <QQmlContext>
 #include <QtQml>
+#include <QLocale>
+#include <QTranslator>
 
 #include "Swiften/EventLoop/Qt/QtEventLoop.h"
 
@@ -28,6 +30,7 @@ int main(int argc, char *argv[])
 	qRegisterMetaType<MessageController*>("MessageController*");
 	qRegisterMetaType<MessageController*>("SessionController*");
 
+    // app
 #ifdef SFOS
 	QGuiApplication *app = SailfishApp::application(argc, argv);
 	QQuickView *view = SailfishApp::createView();
@@ -35,6 +38,17 @@ int main(int argc, char *argv[])
 	QGuiApplication app(argc, argv);
 #endif
 
+    // i18n
+    QTranslator qtTranslator;
+    qtTranslator.load("qt_" + QLocale::system().name(),	QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+    app.installTranslator(&qtTranslator);
+    // Translations
+    QTranslator shmooseTranslator;
+    // (QLocale::system().name() != "C")?(QLocale::system().name()):("en_GB"), "/usr/share/harbour-shmoose/translations/")
+    shmooseTranslator.load(QLocale::system().name()); // loads the systems locale or none
+    app.installTranslator(&shmooseTranslator);
+
+    // eventloop
 	QtEventLoop eventLoop;
 	BoostNetworkFactories networkFactories(&eventLoop);
 	Shmoose shmoose(&networkFactories);
