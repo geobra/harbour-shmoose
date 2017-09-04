@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en_AU" sourcelanguage="en_AU">
+<TS version="2.1" language="es" sourcelanguage="es">
 <context>
     <name>AboutPage</name>
     <message>
