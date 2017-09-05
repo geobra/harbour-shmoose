@@ -31,27 +31,34 @@ int main(int argc, char *argv[])
 	qRegisterMetaType<MessageController*>("SessionController*");
 
     // app
+    QGuiApplication *pApp = NULL;
+
 #ifdef SFOS
 	QGuiApplication *app = SailfishApp::application(argc, argv);
 	QQuickView *view = SailfishApp::createView();
+    pApp = app;
 #else
 	QGuiApplication app(argc, argv);
+    pApp = &app;
 #endif
 
     // i18n
-    QTranslator qtTranslator;
-    qtTranslator.load("qt_" + QLocale::system().name(),	QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-    app.installTranslator(&qtTranslator);
-    // Translations
+#ifdef SFOS
     QTranslator shmooseTranslator;
-    // (QLocale::system().name() != "C")?(QLocale::system().name()):("en_GB"), "/usr/share/harbour-shmoose/translations/")
-    shmooseTranslator.load(QLocale::system().name()); // loads the systems locale or none
-    app.installTranslator(&shmooseTranslator);
+    QString locale = QLocale::system().name();
+    if(!shmooseTranslator.load(SailfishApp::pathTo("translations").toLocalFile() + "/" + locale + ".qm"))
+    {
+        qDebug() << "Couldn't load translation";
+    }
+
+    pApp->installTranslator(&shmooseTranslator);
+#endif
 
     // eventloop
 	QtEventLoop eventLoop;
 	BoostNetworkFactories networkFactories(&eventLoop);
 	Shmoose shmoose(&networkFactories);
+
     FileModel fileModel;
 
 #ifdef SFOS
@@ -60,8 +67,6 @@ int main(int argc, char *argv[])
 
 	view->setSource(QUrl::fromLocalFile("/usr/share/harbour-shmoose/qml/main.qml"));
 	view->showFullScreen();
-
-	return app->exec();
 #else
 	QQmlApplicationEngine engine;
 	engine.rootContext()->setContextProperty("shmoose", &shmoose);
@@ -71,6 +76,7 @@ int main(int argc, char *argv[])
 	QQuickWindow *window = qobject_cast<QQuickWindow*>(topLevel);
 
 	window->show();
-	return app.exec();
 #endif
+
+    return pApp->exec();
 }
