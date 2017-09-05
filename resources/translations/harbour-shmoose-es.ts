@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="13"/>
         <source>Shmoose - Xmpp Client</source>
-        <translation>Shmoose - Xmpp Client</translation>
+        <translation>Shmoose - Cliente Xmpp</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="33"/>
@@ -19,17 +19,17 @@
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="18"/>
         <source>Contacts</source>
-        <translation>Contacts</translation>
+        <translation>Contactos</translation>
     </message>
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="124"/>
         <source>Join room by address</source>
-        <translation>Join room by address</translation>
+        <translation>Unirse a una sala por dirección</translation>
     </message>
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="131"/>
         <source>Add contact</source>
-        <translation>Add contact</translation>
+        <translation>Agregar contactos</translation>
     </message>
 </context>
 <context>
@@ -37,7 +37,7 @@
     <message>
         <location filename="../qml/pages/ConversationsPage.qml" line="18"/>
         <source>Conversations</source>
-        <translation>Conversations</translation>
+        <translation>Conversaciones</translation>
     </message>
 </context>
 <context>
@@ -45,7 +45,7 @@
     <message>
         <location filename="../qml/pages/CreateContactDialog.qml" line="13"/>
         <source>Add Contact</source>
-        <translation>Add contact</translation>
+        <translation>Agregar un contacto</translation>
     </message>
     <message>
         <location filename="../qml/pages/CreateContactDialog.qml" line="19"/>
@@ -60,12 +60,12 @@
     <message>
         <location filename="../qml/pages/CreateContactDialog.qml" line="26"/>
         <source>Name</source>
-        <translation>Name</translation>
+        <translation>Nombre</translation>
     </message>
     <message>
         <location filename="../qml/pages/CreateContactDialog.qml" line="27"/>
         <source>NickName</source>
-        <translation>Nickname</translation>
+        <translation>Alias</translation>
     </message>
 </context>
 <context>
@@ -73,7 +73,7 @@
     <message>
         <location filename="../qml/pages/ImagePickerPage.qml" line="42"/>
         <source>Select picture</source>
-        <translation>Select picture</translation>
+        <translation>Seleccionar una foto</translation>
     </message>
 </context>
 <context>
@@ -81,7 +81,7 @@
     <message>
         <location filename="../qml/pages/JoinRoomDialog.qml" line="13"/>
         <source>Join Room by address</source>
-        <translation>Join room by address</translation>
+        <translation>Unirse a una sala por dirección</translation>
     </message>
     <message>
         <location filename="../qml/pages/JoinRoomDialog.qml" line="19"/>
@@ -91,17 +91,17 @@
     <message>
         <location filename="../qml/pages/JoinRoomDialog.qml" line="20"/>
         <source>Room address</source>
-        <translation>Room address</translation>
+        <translation>dirección de sala</translation>
     </message>
     <message>
         <location filename="../qml/pages/JoinRoomDialog.qml" line="26"/>
         <source>Name</source>
-        <translation>Name</translation>
+        <translation>Nombre</translation>
     </message>
     <message>
         <location filename="../qml/pages/JoinRoomDialog.qml" line="27"/>
         <source>Room name</source>
-        <translation>Room name</translation>
+        <translation>Nombre de la sala</translation>
     </message>
 </context>
 <context>
@@ -109,12 +109,12 @@
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="16"/>
         <source>Login</source>
-        <translation>Login</translation>
+        <translation>Iniciar sesión</translation>
     </message>
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="21"/>
         <source>Login to Jabber Server</source>
-        <translation>Login to Jabber Server</translation>
+        <translation>Iniciar sesión en Jabber</translation>
     </message>
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="28"/>
@@ -129,22 +129,22 @@
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="40"/>
         <source>password</source>
-        <translation>password</translation>
+        <translation>contraseña</translation>
     </message>
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="42"/>
         <source>Password</source>
-        <translation>Password</translation>
+        <translation>Contraseña</translation>
     </message>
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="61"/>
         <source>Save credentials (unencrypted)</source>
-        <translation>Save credentials (unencrypted)</translation>
+        <translation>Guardar credenciales (sin encriptar)</translation>
     </message>
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="71"/>
         <source>Connect</source>
-        <translation>Connect</translation>
+        <translation>Conectar</translation>
     </message>
 </context>
 <context>
@@ -152,17 +152,17 @@
     <message>
         <location filename="../qml/pages/MenuPage.qml" line="60"/>
         <source>Contacts</source>
-        <translation>Contacts</translation>
+        <translation>Contactos</translation>
     </message>
     <message>
         <location filename="../qml/pages/MenuPage.qml" line="61"/>
         <source>Conversations</source>
-        <translation>Conversations</translation>
+        <translation>Conversaciones</translation>
     </message>
     <message>
         <location filename="../qml/pages/MenuPage.qml" line="62"/>
         <source>About</source>
-        <translation>About</translation>
+        <translation>Acerca de</translation>
     </message>
 </context>
 <context>
@@ -170,7 +170,7 @@
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="239"/>
         <source>Enter message...</source>
-        <translation>Enter message...</translation>
+        <translation>Escribir mensaje...</translation>
     </message>
 </context>
 </TS>
