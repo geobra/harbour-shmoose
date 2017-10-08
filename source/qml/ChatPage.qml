@@ -10,6 +10,8 @@ GridLayout {
     anchors.fill: parent
     columns: 2
 
+    readonly property int margin: 10;
+
     ListView {
         id: roster
 
@@ -63,16 +65,43 @@ GridLayout {
             model: shmoose.persistence.messageController
             //model: messageController
 
-            delegate: Component {
-                Item {
+            delegate: Item {
+                    id: item
+
                     width: parent.width
                     height: 20
 
+                    readonly property bool alignRight: (direction == 1);
+
                     Column {
-                        Text { text: message }
+
+                        width: messages.width
+
+                        Rectangle {
+
+                            width: parent.width - 50
+                            height: messageText.height
+                            radius: margin
+
+                            anchors {
+                                left: (item.alignRight ? parent.left : undefined);
+                                right: (!item.alignRight ? parent.right : undefined);
+                                margins: margin
+                            }
+
+                            color: (item.alignRight ? "yellow" : "lightgreen")
+
+                            Text {
+                                id: messageText
+                                horizontalAlignment: (item.alignRight ? Text.AlignRight : Text.AlignLeft)
+                                text: message
+
+                            }
+
+                        }
+
                     }
                 }
-            }
         }
 
         Row {
