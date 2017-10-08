@@ -60,7 +60,7 @@ Item {
             statusLabel.text = "Connected";
             //we need to disconnect enableConnectButton to prevent calling it on normal disconnection
             shmoose.connectionStateDisconnected.disconnect(enableConnectButton)
-            mainLoader.source = "RosterPage.qml"
+            mainLoader.source = "ChatPage.qml"
         }
         function enableConnectButton() {
             connectButton.enabled = true

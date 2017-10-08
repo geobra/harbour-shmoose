@@ -6,15 +6,17 @@ import QtQuick.Layouts 1.1
 import harbour.shmoose 1.0
 
 
-RowLayout {
+GridLayout {
     anchors.fill: parent
+    columns: 2
 
     ListView {
         id: roster
 
         Layout.fillHeight: true
-        width: 400
+        Layout.fillWidth: true
 
+        //model: rosterList
         model: shmoose.rosterController.rosterList
         //model: shmoose.persistence.sessionController
 
@@ -41,10 +43,10 @@ RowLayout {
     Rectangle {
         id: chat
 
-        width: 400
         anchors.left: roster.right
 
         Layout.fillHeight: true
+        Layout.fillWidth: true
 
         property string jid: "foo"
 
@@ -55,10 +57,11 @@ RowLayout {
         ListView {
             id: messages
 
-            height: 300
-            width: 300
+            height: parent.height
+            width: parent.width
 
             model: shmoose.persistence.messageController
+            //model: messageController
 
             delegate: Component {
                 Item {
@@ -72,32 +75,31 @@ RowLayout {
             }
         }
 
-        TextField {
-            id: texttosend
-
-            width: 200
+        Row {
+            anchors.bottom: chat.bottom
             height: 30
+            width: parent.width
 
-            anchors.top: messages.bottom
-            anchors.left: messages.left
+            TextField {
+                id: texttosend
 
-            placeholderText: qsTr("Enter message")
-        }
-        Button {
-            id: sendbutton
+                width: parent.width - sendbutton.width
+                height: parent.height
 
-            width: 30
-            height: 30
+                placeholderText: qsTr("Enter message")
+            }
+            Button {
+                id: sendbutton
 
-            anchors.top: messages.bottom
-            anchors.left: texttosend.right
+                width: 50
+                height: parent.height
 
-            text: "send"
-            onClicked: {
-                console.log("send to: " + shmoose.rosterController.rosterList[roster.currentIndex].jid)
-                shmoose.sendMessage(shmoose.rosterController.rosterList[roster.currentIndex].jid, texttosend.text, "txt")
+                text: "send"
+                onClicked: {
+                    console.log("send to: " + shmoose.rosterController.rosterList[roster.currentIndex].jid)
+                    shmoose.sendMessage(shmoose.rosterController.rosterList[roster.currentIndex].jid, texttosend.text, "txt")
+                }
             }
         }
     }
-
 }

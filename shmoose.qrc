@@ -1,8 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file alias="main.qml">source/qml/main.qml</file>
-        <file alias="RosterPage.qml">source/qml/RosterPage.qml</file>
+        <file alias="ChatPage.qml">source/qml/ChatPage.qml</file>
         <file alias="LoginPage.qml">source/qml/LoginPage.qml</file>
-        <file alias="chat.qml">source/qml/chat.qml</file>
     </qresource>
 </RCC>
