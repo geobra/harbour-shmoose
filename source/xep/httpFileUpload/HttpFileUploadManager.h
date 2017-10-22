@@ -41,7 +41,7 @@ private:
     bool createAttachmentPath();
     QString createTargetImageName(QString source);
 
-	bool severHasFeatureHttpUpload_;
+    bool serverHasFeatureHttpUpload_;
 	unsigned int maxFileSize_;
 
 	QFile* file_;

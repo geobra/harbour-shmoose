@@ -15,7 +15,7 @@
 
 HttpFileUploadManager::HttpFileUploadManager(QObject *parent) : QObject(parent),
 	httpUpload_(new HttpFileUploader(this)),
-	severHasFeatureHttpUpload_(false), maxFileSize_(0),
+    serverHasFeatureHttpUpload_(false), maxFileSize_(0),
 	file_(new QFile(this)), jid_(""), client_(NULL),
 	statusString_(""), getUrl_(""), busy_(false)
 {
@@ -35,7 +35,7 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
 {
 	bool returnValue = false;
 
-	if (busy_ == false && client_ != NULL && severHasFeatureHttpUpload_ == true)
+    if (busy_ == false && client_ != NULL && serverHasFeatureHttpUpload_ == true)
 	{
         QString preparedImageForSending = createTargetImageName(file);
 
@@ -66,12 +66,12 @@ QString HttpFileUploadManager::getStatus()
 
 void HttpFileUploadManager::setSeverHasFeatureHttpUpload(bool hasFeature)
 {
-	severHasFeatureHttpUpload_ = hasFeature;
+    serverHasFeatureHttpUpload_ = hasFeature;
 }
 
 bool HttpFileUploadManager::getSeverHasFeatureHttpUpload()
 {
-	return severHasFeatureHttpUpload_;
+    return serverHasFeatureHttpUpload_;
 }
 
 void HttpFileUploadManager::setMaxFileSize(unsigned int maxFileSize)
