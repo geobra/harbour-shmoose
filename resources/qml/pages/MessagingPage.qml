@@ -247,6 +247,7 @@ Page {
             id: sendButton
             enabled: true
             icon.source: getSendButtonImage()
+            anchors.bottom: parent.bottom
             width: 100
             onClicked: {
                 if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0) {
