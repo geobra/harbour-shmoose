@@ -81,6 +81,7 @@ private:
 	void handleDisconnected(const boost::optional<ClientError> &error);
 	void handleMessageReceived(Swift::Message::ref message);
 	void handleServerDiscoInfoResponse(boost::shared_ptr<DiscoInfo> info, ErrorPayload::ref error);
+    void handleServerDiscoItemsResponse(boost::shared_ptr<DiscoItems> items, ErrorPayload::ref error);
 	void handleStanzaAcked(Stanza::ref stanza);
 
 	void requestHttpUploadSlot();

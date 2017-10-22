@@ -180,6 +180,10 @@ void Shmoose::handleConnected()
         discoInfoRequest->onResponse.connect(boost::bind(&Shmoose::handleServerDiscoInfoResponse, this, _1, _2));
         discoInfoRequest->send();
 
+        GetDiscoItemsRequest::ref discoItemsRequest = GetDiscoItemsRequest::create(JID(client_->getJID().getDomain()), client_->getIQRouter());
+        discoItemsRequest->onResponse.connect(boost::bind(&Shmoose::handleServerDiscoItemsResponse, this, _1, _2));
+        discoItemsRequest->send();
+
         // pass the client pointer to the httpFileUploadManager
         httpFileUploadManager_->setClient(client_);
         xmppPingController_->setClient(client_);
@@ -457,6 +461,7 @@ void Shmoose::handleServerDiscoInfoResponse(boost::shared_ptr<DiscoInfo> info, E
 
     if (!error)
     {
+        qDebug() << "DiscoInfo Node '" << QString::fromStdString(info->getNode()) << "'.";
         if (info->hasFeature(httpUpload))
         {
             qDebug() << "has feature urn:xmpp:http:upload";
@@ -480,6 +485,21 @@ void Shmoose::handleServerDiscoInfoResponse(boost::shared_ptr<DiscoInfo> info, E
                     }
                 }
             }
+        }
+    }
+}
+
+void Shmoose::handleServerDiscoItemsResponse(boost::shared_ptr<DiscoItems> items, ErrorPayload::ref error)
+{
+    qDebug() << "Shmoose::handleServerDiscoItemsResponse";
+    if (!error)
+    {
+        for(auto item : items->getItems())
+        {
+            qDebug() << "Item '" << QString::fromStdString(item.getJID().toString()) << "'.";
+            GetDiscoInfoRequest::ref discoInfoRequest = GetDiscoInfoRequest::create(item.getJID(), client_->getIQRouter());
+            discoInfoRequest->onResponse.connect(boost::bind(&Shmoose::handleServerDiscoInfoResponse, this, _1, _2));
+            discoInfoRequest->send();
         }
     }
 }
