@@ -20,7 +20,6 @@ GridLayout {
 
         //model: rosterList
         model: shmoose.rosterController.rosterList
-        //model: shmoose.persistence.sessionController
 
         delegate: Rectangle {
             height: 25
@@ -69,18 +68,21 @@ GridLayout {
                     id: item
 
                     width: parent.width
-                    height: 20
+                    height: messageText.height + msgStatus.height
+                    //height: children.height
 
                     readonly property bool alignRight: (direction == 1);
 
                     Column {
 
                         width: messages.width
+                        spacing: 200
 
                         Rectangle {
 
                             width: parent.width - 50
-                            height: messageText.height
+                            height: item.height
+                            //height: messageText.height + msgStatus.height
                             radius: margin
 
                             anchors {
@@ -89,12 +91,51 @@ GridLayout {
                                 margins: margin
                             }
 
-                            color: (item.alignRight ? "yellow" : "lightgreen")
+                            color: (item.alignRight ? "yellow" : "lightblue")
+
 
                             Text {
                                 id: messageText
-                                horizontalAlignment: (item.alignRight ? Text.AlignRight : Text.AlignLeft)
+                                horizontalAlignment: (item.alignRight ? Text.AlignLeft : Text.AlignRight)
+                                wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
+                                width: parent.width
+
+                                anchors {
+                                    left: (item.alignRight ? parent.left : undefined);
+                                    right: (!item.alignRight ? parent.right : undefined);
+                                }
+
                                 text: message
+
+                                // make a hand over the link
+                                MouseArea {
+                                    anchors.fill: parent
+                                    acceptedButtons: Qt.NoButton // we don't want to eat clicks on the Text
+                                    cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                }
+
+                                onLinkActivated: Qt.openUrlExternally(link)
+                            }
+
+                            Image {
+                                id: msgStatus
+                                //source: "img/check.png"
+
+                                anchors.right: parent.right
+                                anchors.bottom: parent.bottom
+
+                                source: {
+                                    if (msgstate == 3) {
+                                        return "img/read_until_green.png"
+                                    }
+                                    if (msgstate == 2) {
+                                        return "img/2check.png"
+                                    }
+                                    if (msgstate == 1) {
+                                        return "img/check.png"
+                                    }
+                                    return ""
+                                }
 
                             }
 
@@ -102,6 +143,7 @@ GridLayout {
 
                     }
                 }
+
         }
 
         Row {
@@ -127,6 +169,7 @@ GridLayout {
                 onClicked: {
                     console.log("send to: " + shmoose.rosterController.rosterList[roster.currentIndex].jid)
                     shmoose.sendMessage(shmoose.rosterController.rosterList[roster.currentIndex].jid, texttosend.text, "txt")
+                    texttosend.text = ""
                 }
             }
         }
