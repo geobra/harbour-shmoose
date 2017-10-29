@@ -267,6 +267,20 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message, QString 
     msg->setID(msgId);
     msg->setBody(message.toStdString());
 
+    if(type == "image")
+    {
+        QString outOfBandElement("");
+        outOfBandElement.append("<x xmlns=\"jabber:x:oob\">");
+        outOfBandElement.append("<url>");
+        outOfBandElement.append(message);
+        outOfBandElement.append("</url>");
+        outOfBandElement.append("</x>");
+
+        boost::shared_ptr<Swift::RawXMLPayload> outOfBand =
+                boost::make_shared<Swift::RawXMLPayload>(outOfBandElement.toStdString());
+        msg->addPayload(outOfBand);
+    }
+
     Swift::Message::Type messagesTyp = Swift::Message::Chat;
     if (rosterController_->isGroup(toJid))
     {
