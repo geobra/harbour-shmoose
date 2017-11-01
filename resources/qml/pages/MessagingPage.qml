@@ -113,11 +113,12 @@ Page {
         //            }
         //        }
         spacing: Theme.paddingMedium;
-        delegate: Item {
+        delegate: ListItem {
             id: item;
 
             rotation: 180
-            height: shadow.height;
+            contentHeight: shadow.height;
+
             anchors {
                 left: parent.left;
                 right: parent.right;
@@ -155,6 +156,7 @@ Page {
                     width: item.maxContentWidth;
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
                     visible: true;
+
                     font {
                         family: Theme.fontFamilyHeading;
                         pixelSize: (type === "image") ? Theme.fontSizeTiny : Theme.fontSizeMedium;
@@ -214,6 +216,14 @@ Page {
                 }
 
             }
+
+            menu: ContextMenu {
+                MenuItem {
+                    text: qsTr("Copy")
+                    onClicked: Clipboard.text = message
+                }
+            }
+
         }
         anchors {
             top: banner.bottom;
@@ -221,6 +231,7 @@ Page {
             right: parent.right;
             bottom: sendmsgview.top;
         }
+
     }
 
     Row {
