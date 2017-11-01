@@ -249,6 +249,12 @@ Page {
             id: editbox;
             placeholderText: qsTr("Enter message...");
             width: parent.width - 100
+            font {
+                family: Theme.fontFamily
+                pixelSize: Theme.fontSizeMedium
+            }
+
+            height: editbox.activeFocus ? font.pixelSize * 6 : font.pixelSize * 4
 
             onTextChanged: {
                 sendButton.icon.source = getSendButtonImage()
@@ -257,6 +263,8 @@ Page {
         IconButton {
             id: sendButton
             enabled: true
+            anchors.bottom: parent.bottom
+
             icon.source: getSendButtonImage()
             width: 100
             onClicked: {
