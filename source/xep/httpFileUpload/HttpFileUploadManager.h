@@ -19,8 +19,11 @@ public:
 
 	void setClient(Swift::Client* client);
 
-	void setSeverHasFeatureHttpUpload(bool hasFeature);
-	bool getSeverHasFeatureHttpUpload();
+	void setServerHasFeatureHttpUpload(bool hasFeature);
+	bool getServerHasFeatureHttpUpload();
+
+	void setUploadServerJid(Swift::JID const & uploadServerJid);
+	Swift::JID getUploadServerJid();
 
 	void setMaxFileSize(unsigned int maxFileSize);
 	unsigned int getMaxFileSize();
@@ -41,13 +44,14 @@ private:
     bool createAttachmentPath();
     QString createTargetImageName(QString source);
 
-	bool severHasFeatureHttpUpload_;
+	bool serverHasFeatureHttpUpload_;
 	unsigned int maxFileSize_;
 
 	QFile* file_;
 	QString jid_;
 
 	Swift::Client* client_;
+	Swift::JID uploadServerJid_;
 
 	QString statusString_;
 	QString getUrl_;

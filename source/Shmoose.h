@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QList>
 
 #include <Swiften/Swiften.h>
 
@@ -81,6 +82,9 @@ private:
 	void handleDisconnected(const boost::optional<ClientError> &error);
 	void handleMessageReceived(Swift::Message::ref message);
 	void handleServerDiscoInfoResponse(boost::shared_ptr<DiscoInfo> info, ErrorPayload::ref error);
+	void handleDiscoServiceWalker(const JID & jid, boost::shared_ptr<DiscoInfo> info);
+	void cleanupDiscoServiceWalker();
+	void handleServerDiscoItemsResponse(boost::shared_ptr<DiscoItems> items, ErrorPayload::ref error);
 	void handleStanzaAcked(Stanza::ref stanza);
 
 	void requestHttpUploadSlot();
@@ -103,6 +107,9 @@ private:
 
 	RosterController* rosterController_;
 	Persistence* persistence_;
+
+	Swift::GetDiscoItemsRequest::ref discoItemReq_;
+	QList<boost::shared_ptr<Swift::DiscoServiceWalker> > danceFloor_;
 
 	HttpFileUploadManager* httpFileUploadManager_;
 	DownloadManager *downloadManager_;

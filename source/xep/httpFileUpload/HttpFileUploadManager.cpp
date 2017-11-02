@@ -15,9 +15,9 @@
 
 HttpFileUploadManager::HttpFileUploadManager(QObject *parent) : QObject(parent),
 	httpUpload_(new HttpFileUploader(this)),
-	severHasFeatureHttpUpload_(false), maxFileSize_(0),
+	serverHasFeatureHttpUpload_(false), maxFileSize_(0),
 	file_(new QFile(this)), jid_(""), client_(NULL),
-	statusString_(""), getUrl_(""), busy_(false)
+	uploadServerJid_(""), statusString_(""), getUrl_(""), busy_(false)
 {
 	connect(httpUpload_, SIGNAL(updateStatus(QString)), this, SLOT(updateStatusString(QString)));
 	connect(httpUpload_, SIGNAL(uploadSuccess()), this, SLOT(successReceived()));
@@ -35,7 +35,7 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
 {
 	bool returnValue = false;
 
-	if (busy_ == false && client_ != NULL && severHasFeatureHttpUpload_ == true)
+	if (busy_ == false && client_ != NULL && serverHasFeatureHttpUpload_ == true)
 	{
         QString preparedImageForSending = createTargetImageName(file);
 
@@ -64,14 +64,25 @@ QString HttpFileUploadManager::getStatus()
 	return statusString_;
 }
 
-void HttpFileUploadManager::setSeverHasFeatureHttpUpload(bool hasFeature)
+void HttpFileUploadManager::setServerHasFeatureHttpUpload(bool hasFeature)
 {
-	severHasFeatureHttpUpload_ = hasFeature;
+	serverHasFeatureHttpUpload_ = hasFeature;
 }
 
-bool HttpFileUploadManager::getSeverHasFeatureHttpUpload()
+
+bool HttpFileUploadManager::getServerHasFeatureHttpUpload()
 {
-	return severHasFeatureHttpUpload_;
+	return serverHasFeatureHttpUpload_;
+}
+
+void HttpFileUploadManager::setUploadServerJid(Swift::JID const & uploadServerJid)
+{
+	uploadServerJid_ = uploadServerJid;
+}
+
+Swift::JID HttpFileUploadManager::getUploadServerJid()
+{
+	return uploadServerJid_;
 }
 
 void HttpFileUploadManager::setMaxFileSize(unsigned int maxFileSize)
@@ -92,7 +103,7 @@ void HttpFileUploadManager::requestHttpUploadSlot()
 		 + std::string("<size>") + std::to_string(file_->size()) + std::string("</size></request>");
 
 	Swift::RawRequest::ref httpUploadRequest = Swift::RawRequest::create(Swift::IQ::Type::Get,
-																		 Swift::JID(client_->getJID().getDomain()),
+																		 uploadServerJid_,
 																		 uploadRequest,
 																		 client_->getIQRouter());
 	httpUploadRequest->onResponse.connect(boost::bind(&HttpFileUploadManager::handleHttpUploadResponse, this, _1));

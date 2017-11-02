@@ -39,6 +39,8 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
     hasInetConnection_(false), netFactories_(networkFactories),
     rosterController_(new RosterController(this)),
     persistence_(new Persistence(this)),
+    discoItemReq_(NULL),
+    danceFloor_(),
     httpFileUploadManager_(new HttpFileUploadManager(this)),
     downloadManager_(new DownloadManager()),
     xmppPingController_(new XmppPingController()),
@@ -75,6 +77,8 @@ Shmoose::~Shmoose()
 
     ipHeartBeatWatcher_->stopWatching();
     ipHeartBeatWatcher_->terminate();
+
+    cleanupDiscoServiceWalker();
 
     if (connected_)
     {
@@ -176,9 +180,16 @@ void Shmoose::handleConnected()
         rosterController_->requestRosterFromClient(client_);
 
         // request the discoInfo from server
-        GetDiscoInfoRequest::ref discoInfoRequest = GetDiscoInfoRequest::create(JID(client_->getJID().getDomain()), client_->getIQRouter());
-        discoInfoRequest->onResponse.connect(boost::bind(&Shmoose::handleServerDiscoInfoResponse, this, _1, _2));
-        discoInfoRequest->send();
+        boost::shared_ptr<Swift::DiscoServiceWalker> topLevelInfo(
+                    new Swift::DiscoServiceWalker(JID(client_->getJID().getDomain()), client_->getIQRouter()));
+        topLevelInfo->onServiceFound.connect(boost::bind(&Shmoose::handleDiscoServiceWalker, this, _1, _2));
+        topLevelInfo->beginWalk();
+        danceFloor_.append(topLevelInfo);
+
+        // find additional items on the server
+        discoItemReq_ = GetDiscoItemsRequest::create(JID(client_->getJID().getDomain()), client_->getIQRouter());
+        discoItemReq_->onResponse.connect(boost::bind(&Shmoose::handleServerDiscoItemsResponse, this, _1, _2));
+        discoItemReq_->send();
 
         // pass the client pointer to the httpFileUploadManager
         httpFileUploadManager_->setClient(client_);
@@ -255,6 +266,20 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message, QString 
     msg->setTo(receiverJid);
     msg->setID(msgId);
     msg->setBody(message.toStdString());
+
+    if(type == "image")
+    {
+        QString outOfBandElement("");
+        outOfBandElement.append("<x xmlns=\"jabber:x:oob\">");
+        outOfBandElement.append("<url>");
+        outOfBandElement.append(message);
+        outOfBandElement.append("</url>");
+        outOfBandElement.append("</x>");
+
+        boost::shared_ptr<Swift::RawXMLPayload> outOfBand =
+                boost::make_shared<Swift::RawXMLPayload>(outOfBandElement.toStdString());
+        msg->addPayload(outOfBand);
+    }
 
     Swift::Message::Type messagesTyp = Swift::Message::Chat;
     if (rosterController_->isGroup(toJid))
@@ -450,36 +475,64 @@ void Shmoose::handleMessageReceived(Message::ref message)
     }
 }
 
-void Shmoose::handleServerDiscoInfoResponse(boost::shared_ptr<DiscoInfo> info, ErrorPayload::ref error)
+void Shmoose::handleDiscoServiceWalker(const JID & jid, boost::shared_ptr<DiscoInfo> info)
 {
-    //qDebug() << "Shmoose::handleServerDiscoInfoResponse";
+    qDebug() << "Shmoose::handleDiscoWalkerService for '" << QString::fromStdString(jid.toString()) << "'.";
+    for(auto feature : info->getFeatures())
+    {
+        qDebug() << "Shmoose::handleDiscoWalkerService feature '" << QString::fromStdString(feature) << "'.";
+    }
     const std::string httpUpload = "urn:xmpp:http:upload";
 
-    if (!error)
+    if (info->hasFeature(httpUpload))
     {
-        if (info->hasFeature(httpUpload))
-        {
-            qDebug() << "has feature urn:xmpp:http:upload";
-            //severHasFeatureHttpUpload = true;
-            httpFileUploadManager_->setSeverHasFeatureHttpUpload(true);
+        qDebug() << "has feature urn:xmpp:http:upload";
+        httpFileUploadManager_->setServerHasFeatureHttpUpload(true);
+        httpFileUploadManager_->setUploadServerJid(jid);
 
-            foreach (Swift::Form::ref form, info->getExtensions())
+        foreach (Swift::Form::ref form, info->getExtensions())
+        {
+            if (form)
             {
-                if (form)
+                if ((*form).getFormType() == httpUpload)
                 {
-                    //qDebug() << "form: " << QString::fromStdString((*form).getFormType());
-                    if ((*form).getFormType() == httpUpload)
+                    Swift::FormField::ref formField = (*form).getField("max-file-size");
+                    if (formField)
                     {
-                        Swift::FormField::ref formField = (*form).getField("max-file-size");
-                        if (formField)
-                        {
-                            unsigned int maxFileSize = std::stoi((*formField).getTextSingleValue());
-                            qDebug() << QString::fromStdString((*formField).getName()) << " val: " << maxFileSize;
-                            httpFileUploadManager_->setMaxFileSize(maxFileSize);
-                        }
+                        unsigned int maxFileSize = std::stoi((*formField).getTextSingleValue());
+                        qDebug() << QString::fromStdString((*formField).getName()) << " val: " << maxFileSize;
+                        httpFileUploadManager_->setMaxFileSize(maxFileSize);
                     }
                 }
             }
+        }
+    }
+}
+
+void Shmoose::cleanupDiscoServiceWalker()
+{
+    for(auto walker : danceFloor_)
+    {
+        walker->endWalk();
+    }
+
+    danceFloor_.clear();
+}
+
+
+void Shmoose::handleServerDiscoItemsResponse(boost::shared_ptr<DiscoItems> items, ErrorPayload::ref error)
+{
+    qDebug() << "Shmoose::handleServerDiscoItemsResponse";
+    if (!error)
+    {
+        for(auto item : items->getItems())
+        {
+            qDebug() << "Item '" << QString::fromStdString(item.getJID().toString()) << "'.";
+            boost::shared_ptr<Swift::DiscoServiceWalker> itemInfo(
+                        new Swift::DiscoServiceWalker(JID(client_->getJID().getDomain()), client_->getIQRouter()));
+            itemInfo->onServiceFound.connect(boost::bind(&Shmoose::handleDiscoServiceWalker, this, _1, _2));
+            itemInfo->beginWalk();
+            danceFloor_.append(itemInfo);
         }
     }
 }
