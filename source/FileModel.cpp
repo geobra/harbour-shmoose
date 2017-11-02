@@ -24,6 +24,8 @@ along with Nome-Programma.  If not, see <http://www.gnu.org/licenses/>
 #include "ImageProcessing.h"
 
 #include <QStandardPaths>
+#include <QDateTime>
+#include <QDebug>
 
 FileModel::FileModel(QObject *parent) :
     QAbstractListModel(parent)
@@ -60,7 +62,7 @@ void FileModel::searchFiles(QString path)
         }
         else if (info.isFile()) {
             beginInsertRows(QModelIndex(), rowCount(), rowCount());
-            fileList.append(new FileInfo(info.fileName(), info.absoluteFilePath(), info.size()));
+            fileList.append(new FileInfo(info.fileName(), info.absoluteFilePath(), info.size(), info.created().toMSecsSinceEpoch()));
             endInsertRows();
         }
     }
@@ -85,6 +87,14 @@ QString FileModel::getSearchPath()
     return res;
 }
 
+void FileModel::dump()
+{
+    for (auto fileInfo: fileList)
+    {
+        qDebug() << "name: " << fileInfo->name << ", created: "  << fileInfo->timeStamp;
+    }
+}
+
 void FileModel::setSearchPath(QString path)
 //void FileModel::setSearchPath()
 {
@@ -96,4 +106,7 @@ void FileModel::setSearchPath(QString path)
     //Let's make this harbour compatible
     //searchFiles(path);
     searchFiles(getSearchPath());
+
+    // sort the list by the image time stamp
+    qSort(fileList.begin(), fileList.end(), [] (const FileInfo* a, const FileInfo* b) -> bool {return a->timeStamp > b->timeStamp; });
 }

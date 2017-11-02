@@ -36,11 +36,13 @@ public:
     QString name;
     QString path;
     int size;
+    qint64 timeStamp;
 
-    FileInfo(QString pname, QString ppath, int psize) {
+    FileInfo(QString pname, QString ppath, int psize, qint64 ptimeStamp) {
         path = ppath;
         name = pname;
         size = psize;
+        timeStamp = ptimeStamp;
     }
 };
 
@@ -65,6 +67,8 @@ public:
 private:
     QList<FileInfo *> fileList;
     void searchFiles(QString path);
+
+    void dump();
 
 signals:
 
