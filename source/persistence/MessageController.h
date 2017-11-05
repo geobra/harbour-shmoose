@@ -41,6 +41,7 @@ private:
 
     void remarkMessageToReceivedForJidOfId(QString const &id);
     QString getJidOfMessageId(const QString &id);
+    int getStateOfMessageId(QString const &id);
 
     void printSqlError();
 
@@ -55,11 +56,11 @@ private:
 
     enum MessageState
     {
-        MESSAGE_STATE_DISPLAYED_CONFIRMED = -1,
-        MESSAGE_STATE_DEFAULT,
-        MESSAGE_STATE_SENT,
-        MESSAGE_STATE_RECEIVED,
-        MESSAGE_STATE_DISPLAYED
+        MESSAGE_STATE_DISPLAYED_CONFIRMED = -1,     // sent by me to other client to confirm I read the message
+        MESSAGE_STATE_DEFAULT,                      // default after I sent a message
+        MESSAGE_STATE_SENT,                         // session management confirmed message is received by server
+        MESSAGE_STATE_RECEIVED,                     // other client confirmed that message is received in app
+        MESSAGE_STATE_DISPLAYED                     // other client confirmed that message is read (xep 0333, chat markers)
     };
 
 };

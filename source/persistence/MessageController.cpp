@@ -186,6 +186,31 @@ QString MessageController::getJidOfMessageId(QString const &id)
     return jid;
 }
 
+int MessageController::getStateOfMessageId(QString const &id)
+{
+    int msgState = MESSAGE_STATE_DEFAULT;
+
+    QSqlQuery query(*(database_->getPointer()));
+    if (! query.exec("SELECT " + Database::sqlMsgState_ + " FROM " + Database::sqlMsgName_ + " WHERE " + Database::sqlId_ + " = \"" + id + "\""))
+    {
+        qDebug() << query.lastError().databaseText();
+        qDebug() << query.lastError().driverText();
+        qDebug() << query.lastError().text();
+    }
+    else
+    {
+        while (query.next())
+        {
+            msgState = query.value(0).toInt();
+            break;
+        }
+    }
+
+    qDebug() << "found state: " << msgState << "for msg id " << id;
+
+    return msgState;
+}
+
 void MessageController::remarkMessageToReceivedForJidOfId(QString const &id)
 {
     QString jid = getJidOfMessageId(id);
@@ -236,21 +261,33 @@ void MessageController::markMessageSent(QString const &id)
     setMessageStateOfId(id, MESSAGE_STATE_SENT);
 }
 
+/*
+ * valid state changes:
+ * DEFAULT (0) -> DISPLAYED_CONFIRMED (-1)
+ * or new state is bigger then current one
+ */
 void MessageController::setMessageStateOfId(QString const &id, int const state)
 {
-    QSqlQuery query(*(database_->getPointer()));
-    if (! query.exec("UPDATE " + Database::sqlMsgName_ + " SET \"" + Database::sqlMsgState_ + "\" = " + QString::number(state) + " WHERE id = \"" + id +"\""))
+    int currentState = getStateOfMessageId(id);
+
+    if ( (currentState == MESSAGE_STATE_DEFAULT && state == MESSAGE_STATE_DISPLAYED_CONFIRMED) ||
+         (state > currentState)
+         )
     {
-        qDebug() << query.lastError().databaseText();
-        qDebug() << query.lastError().driverText();
-        qDebug() << query.lastError().text();
-    }
-    else
-    {
-        // update the model with the changes of the database
-        if (select() != true)
+        QSqlQuery query(*(database_->getPointer()));
+        if (! query.exec("UPDATE " + Database::sqlMsgName_ + " SET \"" + Database::sqlMsgState_ + "\" = " + QString::number(state) + " WHERE id = \"" + id +"\""))
         {
-            qDebug() << "error on select in MessageController::addMessage";
+            qDebug() << query.lastError().databaseText();
+            qDebug() << query.lastError().driverText();
+            qDebug() << query.lastError().text();
+        }
+        else
+        {
+            // update the model with the changes of the database
+            if (select() != true)
+            {
+                qDebug() << "error on select in MessageController::addMessage";
+            }
         }
     }
 }
