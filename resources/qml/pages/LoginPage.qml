@@ -73,7 +73,7 @@ Page {
 
             onClicked: {
                 connectButton.enabled = false;
-                connectButton.text = qsTr("Connecting...)";
+                connectButton.text = qsTr("Connecting...");
                 shmoose.mainConnect(jidTextField.text, passTextField.text);
             }
 
@@ -88,7 +88,7 @@ Page {
         }
         onConnectionStateDisconnected: {
             connectButton.enabled = true;
-            connectButton.text = "Connect";
+            connectButton.text = qsTr("Connect");
         }
     }
 
