@@ -82,7 +82,7 @@ HEADERS += source/Shmoose.h \
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \
-	           resources/qml/*.qml \
+	           resources/qml/cover/*.qml \
                    resources/qml/pages/*.qml 
 }
 
