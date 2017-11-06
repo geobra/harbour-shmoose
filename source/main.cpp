@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 	view->rootContext()->setContextProperty("shmoose", &shmoose);
     view->rootContext()->setContextProperty("fileModel", &fileModel);
 
-	view->setSource(QUrl::fromLocalFile("/usr/share/harbour-shmoose/qml/main.qml"));
+    view->setSource(SailfishApp::pathTo("qml/main.qml"));
 	view->showFullScreen();
 #else
 	QQmlApplicationEngine engine;

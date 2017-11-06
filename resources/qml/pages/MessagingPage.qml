@@ -149,7 +149,8 @@ Page {
                     verticalCenter: parent.verticalCenter;
                 }
 
-                Text {
+
+                Label {
                     text: message;
                     color: Theme.primaryColor;
                     //width: Math.min (item.maxContentWidth, contentWidth);
@@ -165,6 +166,8 @@ Page {
                         left: (item.alignRight ? parent.left : undefined);
                         right: (!item.alignRight ? parent.right : undefined);
                     }
+
+                    onLinkActivated: Qt.openUrlExternally(link)
                 }
                 Image {
                     source: ( (type === "image") ? attachmentPath + "/" + basename(message) : "");

@@ -1,3 +1,5 @@
+TARGET = harbour-shmoose
+
 # path to local compiled swift 3 lib
 SWIFT3PATH = ../swift-3.0-host
 contains(DEFINES, SFOS) {

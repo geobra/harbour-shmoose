@@ -151,7 +151,7 @@ void Shmoose::mainDisconnect()
 
 void Shmoose::handleConnected()
 {
-    qDebug() << QTime::currentTime().toString() << "Shmoose::handleConnected";
+    //qDebug() << QTime::currentTime().toString() << "Shmoose::handleConnected";
 
     connected_ = true;
     emit connectionStateConnected();
@@ -443,7 +443,7 @@ void Shmoose::handleMessageReceived(Message::ref message)
     // Examples/MUCListAndJoin/MUCListAndJoin.cpp
     if (message->getPayload<MUCInvitationPayload>())
     {
-        qDebug() << "its a muc inventation!!!";
+        //qDebug() << "its a muc inventation!!!";
         MUCInvitationPayload::ref mucInventation = message->getPayload<MUCInvitationPayload>();
 
         Swift::JID roomJid = mucInventation->getJID();
@@ -477,11 +477,13 @@ void Shmoose::handleMessageReceived(Message::ref message)
 
 void Shmoose::handleDiscoServiceWalker(const JID & jid, boost::shared_ptr<DiscoInfo> info)
 {
+#if 0
     qDebug() << "Shmoose::handleDiscoWalkerService for '" << QString::fromStdString(jid.toString()) << "'.";
     for(auto feature : info->getFeatures())
     {
         qDebug() << "Shmoose::handleDiscoWalkerService feature '" << QString::fromStdString(feature) << "'.";
     }
+#endif
     const std::string httpUpload = "urn:xmpp:http:upload";
 
     if (info->hasFeature(httpUpload))
@@ -500,7 +502,7 @@ void Shmoose::handleDiscoServiceWalker(const JID & jid, boost::shared_ptr<DiscoI
                     if (formField)
                     {
                         unsigned int maxFileSize = std::stoi((*formField).getTextSingleValue());
-                        qDebug() << QString::fromStdString((*formField).getName()) << " val: " << maxFileSize;
+                        //qDebug() << QString::fromStdString((*formField).getName()) << " val: " << maxFileSize;
                         httpFileUploadManager_->setMaxFileSize(maxFileSize);
                     }
                 }
@@ -522,12 +524,12 @@ void Shmoose::cleanupDiscoServiceWalker()
 
 void Shmoose::handleServerDiscoItemsResponse(boost::shared_ptr<DiscoItems> items, ErrorPayload::ref error)
 {
-    qDebug() << "Shmoose::handleServerDiscoItemsResponse";
+    //qDebug() << "Shmoose::handleServerDiscoItemsResponse";
     if (!error)
     {
         for(auto item : items->getItems())
         {
-            qDebug() << "Item '" << QString::fromStdString(item.getJID().toString()) << "'.";
+            //qDebug() << "Item '" << QString::fromStdString(item.getJID().toString()) << "'.";
             boost::shared_ptr<Swift::DiscoServiceWalker> itemInfo(
                         new Swift::DiscoServiceWalker(JID(client_->getJID().getDomain()), client_->getIQRouter()));
             itemInfo->onServiceFound.connect(boost::bind(&Shmoose::handleDiscoServiceWalker, this, _1, _2));
@@ -539,7 +541,7 @@ void Shmoose::handleServerDiscoItemsResponse(boost::shared_ptr<DiscoItems> items
 
 void Shmoose::tryStablishServerConnection()
 {
-    qDebug() << QTime::currentTime().toString() << " Shmoose::tryStablishServerConnection. clientActive: " << client_->isActive() ;
+    //qDebug() << QTime::currentTime().toString() << " Shmoose::tryStablishServerConnection. clientActive: " << client_->isActive() ;
 
     if (hasInetConnection_ == true
             && client_->isActive() == true
