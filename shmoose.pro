@@ -82,7 +82,8 @@ HEADERS += source/Shmoose.h \
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \
-        SOURCES += resources/qml/pages/*.qml \
+	           resources/qml/*.qml \
+                   resources/qml/pages/*.qml 
 }
 
 TRANSLATIONS = resources/translations/de_DE.ts \
