@@ -87,8 +87,8 @@ lupdate_only {
 }
 
 TRANSLATIONS = resources/translations/de_DE.ts \
-               resources/translations/en_GB.ts
-
+               resources/translations/en_GB.ts \
+               resources/translations/harbour-shmoose-es.ts
 RESOURCES += shmoose.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
