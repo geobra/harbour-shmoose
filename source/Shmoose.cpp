@@ -36,7 +36,7 @@
 
 Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
     QObject(parent), connected_(false), initialConnectionSuccessfull_(false),
-    hasInetConnection_(false), netFactories_(networkFactories),
+    hasInetConnection_(false), appIsActive_(true), netFactories_(networkFactories),
     rosterController_(new RosterController(this)),
     persistence_(new Persistence(this)),
     discoItemReq_(NULL),
@@ -63,6 +63,9 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
 
     connect(mucManager_, SIGNAL(newGroupForContactsList(QString,QString)), rosterController_, SLOT(addGroupAsContact(QString,QString)));
     connect(mucManager_, SIGNAL(removeGroupFromContactsList(QString)), rosterController_, SLOT(removeGroupFromContacts(QString)) );
+
+    // send read notification if app gets active
+    connect(this, SIGNAL(signalAppGetsActive(bool)), this, SLOT(sendReadNotificationOnAppActivation(bool)));
 
     // show errors to user
     connect(mucManager_, SIGNAL(signalShowMessage(QString,QString)), this, SIGNAL(signalShowMessage(QString,QString)));
@@ -418,8 +421,11 @@ void Shmoose::handleMessageReceived(Message::ref message)
                                  theBody, type, 1 );
 
         // xep 0333
-        //qDebug() << "fromJid: " << QString::fromStdString(fromJid) << "current: " << currentChatPartner_;
-        if ( (isGroupMessage == false) && currentChatPartner_.compare(QString::fromStdString(fromJid)) == 0)
+        qDebug() << "fromJid: " << QString::fromStdString(fromJid) << "current: " << currentChatPartner_ << ", isGroup: " << isGroupMessage << ", appActive? " << appIsActive_;
+        if ( (isGroupMessage == false) &&                                               // no read notification for group messages
+             (currentChatPartner_.compare(QString::fromStdString(fromJid)) == 0) &&     // immediatelly send read notification if sender is current chat partner
+             (appIsActive_ == true)                                                     // but only if app is active
+             )
         {
             chatMarkers_->sendDisplayedForJid(currentChatPartner_);
         }
@@ -539,6 +545,14 @@ void Shmoose::handleServerDiscoItemsResponse(boost::shared_ptr<DiscoItems> items
     }
 }
 
+void Shmoose::sendReadNotificationOnAppActivation(bool active)
+{
+    if (active == true && (! currentChatPartner_.isEmpty()))
+    {
+        chatMarkers_->sendDisplayedForJid(currentChatPartner_);
+    }
+}
+
 void Shmoose::tryStablishServerConnection()
 {
     //qDebug() << QTime::currentTime().toString() << " Shmoose::tryStablishServerConnection. clientActive: " << client_->isActive() ;
@@ -646,6 +660,8 @@ void Shmoose::setHasInetConnection(bool connected)
 void Shmoose::setAppIsActive(bool active)
 {
     appIsActive_ = active;
+
+    emit signalAppGetsActive(appIsActive_);
 }
 
 QString Shmoose::getVersion()

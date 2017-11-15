@@ -62,6 +62,9 @@ public slots:
 private slots:
     void tryStablishServerConnection();
     void tryReconnect();
+
+    void sendReadNotificationOnAppActivation(bool active);
+
     void slotAboutToQuit();
 
 signals:
@@ -74,6 +77,7 @@ signals:
     void signalShowMessage(QString headline, QString body);
 
     void signalAppIsOnline(bool connected);
+    void signalAppGetsActive(bool active);
 
 private:
 	void handlePresenceReceived(Swift::Presence::ref presence);
