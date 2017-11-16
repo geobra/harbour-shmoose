@@ -13,7 +13,7 @@ Page {
         }
 
         PageHeader {
-            title: qsTr("Wellcome to Shmoose")
+            title: qsTr("Welcome to Shmoose")
         }
 
         Label {
