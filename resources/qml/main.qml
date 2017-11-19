@@ -146,8 +146,10 @@ ApplicationWindow {
 
     function showSession(jid) {
         pageStack.clear()
-        pageStack.push(pageMenu)
-        pageStack.push(pageConversations)
+        pageStack.push(pageMenu, {}, PageStackAction.Immediate)
+        pageStack.push(pageConversations, {}, PageStackAction.Immediate)
+        pageStack.push (pageMessaging, { "conversationId" : jid }, PageStackAction.Immediate);
+        shmoose.setCurrentChatPartner(jid);
     }
 
     TechnologyModel {
