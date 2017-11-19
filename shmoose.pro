@@ -93,8 +93,8 @@ CONFIG += sailfishapp_i18n
 
 TRANSLATIONS = resources/translations/de_DE.ts \
                resources/translations/en_GB.ts \
-               resources/translations/harbour-shmoose-es.ts \
-	       resources/translations/harbour-shmoose.ts
+               resources/translations/es_GT.ts \
+	       
 RESOURCES += shmoose.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
