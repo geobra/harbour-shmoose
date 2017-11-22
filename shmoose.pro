@@ -93,7 +93,7 @@ CONFIG += sailfishapp_i18n
 
 TRANSLATIONS = resources/translations/de_DE.ts \
                resources/translations/en_GB.ts \
-               resources/translations/es_GT.ts \
+               resources/translations/es_GT.ts 
 	       
 RESOURCES += shmoose.qrc
 
