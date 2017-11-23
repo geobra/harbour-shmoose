@@ -24,7 +24,7 @@ XMPP Client for Sailfish OS
 
 
 %build
-qmake CONFIG+=sailfishapp DEFINES+=SFOS
+qmake CONFIG+=sailfishapp CONFIG+=sailfishapp_i18n DEFINES+=SFOS
 make %{?_smp_mflags}
 
 
