@@ -10,7 +10,8 @@ contains(DEFINES, SFOS) {
 SWIFTCXX = -DSWIFTEN_STATIC -DBOOST_ALL_NO_LIB -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_SIGNALS_NO_DEPRECATION_WARNING -DSWIFT_EXPERIMENTAL_FT
 SWIFTLIB = -lSwiften -lSwiften_Boost -lrt -lz -lssl -lcrypto -lxml2 -lresolv -lpthread -ldl -lm -lc -lstdc++
 
-
+ 
+ 
 TEMPLATE = app
 QT += qml quick core sql xml concurrent
 
@@ -84,12 +85,18 @@ HEADERS += source/Shmoose.h \
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \
-        SOURCES += resources/qml/pages/*.qml \
+	           resources/qml/cover/*.qml \
+                   resources/qml/pages/*.qml
 }
 
-TRANSLATIONS = resources/translations/de_DE.ts \
-               resources/translations/en_GB.ts
+CONFIG += sailfishapp 
 
+CONFIG += sailfishapp_i18n
+
+TRANSLATIONS = resources/translations/de_DE.ts \
+               resources/translations/en_GB.ts \
+               resources/translations/es_GT.ts 
+	       
 RESOURCES += shmoose.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
