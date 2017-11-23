@@ -29,7 +29,7 @@ CoverBackground {
             anchors.horizontalCenter: parent.horizontalCenter
             font.family: Theme.fontFamily
             color: mainWindow.hasInetConnection ? "green" : "red"
-            text: mainWindow.hasInetConnection ? "online" : "offline"
+            text: mainWindow.hasInetConnection ? qsTr("online") : qsTr("offline")
         }
         Label {
             id: appConnectedId
@@ -43,11 +43,11 @@ CoverBackground {
                 onSignalAppIsOnline: {
                     if (connected === true) {
                         appConnectedId.color = "green";
-                        appConnectedId.text = "connected";
+                        appConnectedId.text = qsTr("connected");
                     }
                     else {
                         appConnectedId.color = "red";
-                        appConnectedId.text = "disconnected";
+                        appConnectedId.text = qsTr("disconnected");
                     }
                 }
             }

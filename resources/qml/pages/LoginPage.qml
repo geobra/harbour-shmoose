@@ -13,7 +13,7 @@ Page {
         }
 
         PageHeader {
-            title: qsTr("Login")
+            title: qsTr("Welcome to Shmoose")
         }
 
         Label {
@@ -73,7 +73,7 @@ Page {
 
             onClicked: {
                 connectButton.enabled = false;
-                connectButton.text = "Connecting...";
+                connectButton.text = qsTr("Connecting...");
                 shmoose.mainConnect(jidTextField.text, passTextField.text);
             }
 
@@ -88,7 +88,7 @@ Page {
         }
         onConnectionStateDisconnected: {
             connectButton.enabled = true;
-            connectButton.text = "Connect";
+            connectButton.text = qsTr("Connect");
         }
     }
 
