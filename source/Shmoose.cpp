@@ -52,6 +52,8 @@ Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
     currentChatPartner_(""),
     version_("0.4.0")
 {
+    qApp->setApplicationVersion(version_);
+
     connect(ipHeartBeatWatcher_, SIGNAL(triggered()), this, SLOT(tryStablishServerConnection()));
     connect(ipHeartBeatWatcher_, SIGNAL(finished()), ipHeartBeatWatcher_, SLOT(deleteLater()));
     ipHeartBeatWatcher_->start();
@@ -79,7 +81,9 @@ Shmoose::~Shmoose()
     qDebug() << "Shmoose::~Shmoose";
 
     ipHeartBeatWatcher_->stopWatching();
+#ifdef SFOS
     ipHeartBeatWatcher_->terminate();
+#endif
 
     cleanupDiscoServiceWalker();
 

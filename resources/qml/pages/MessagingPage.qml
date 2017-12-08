@@ -275,7 +275,7 @@ Page {
                     sendmsgview.attachmentPath = ""
                     fileModel.searchPath = "/home/nemo/Pictures"
                     pageStack.push(pageImagePicker)
-                    pageImagePicker.selected.connect(setAttachmentPath)
+                    pageImagePicker.selected.connect(processAttachment)
                 } else {
                     //console.log(sendmsgview.attachmentPath)
                     var msgToSend = editbox.text;
@@ -290,9 +290,10 @@ Page {
                     }
                 }
             }
-            function setAttachmentPath(path) {
+            function processAttachment(path) {
                 //console.log(path)
                 sendmsgview.attachmentPath = path
+                sendButton.icon.source = getSendButtonImage()
             }
         }
     }

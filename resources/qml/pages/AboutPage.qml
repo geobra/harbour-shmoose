@@ -8,33 +8,30 @@ Page {
         id: headerPart
         anchors.top: parent.top
         width: parent.width
+        spacing: Theme.paddingLarge
 
         PageHeader {
             title: qsTr("Shmoose - Xmpp Client")
         }
-        Item {
-            width: parent.width
-            height: Theme.paddingMedium
-        }
+
         Image {
             anchors.horizontalCenter: parent.horizontalCenter
-            height: 256
             fillMode: Image.PreserveAspectFit
             source: "/usr/share/harbour-shmoose/icons/86x86/harbour-shmoose.png"
         }
-        Item {
-            width: parent.width
-            height: Theme.paddingMedium
-        }
+
         Label {
             anchors.horizontalCenter: parent.horizontalCenter
-            font.pixelSize: Theme.fontSizeExtraSmall
+            font.pixelSize: Theme.fontSizeSmall
             color: Theme.secondaryColor
-            text: qsTr("Version ") + shmoose.getVersion()
+            text: qsTr("Version") + " " + shmoose.getVersion()
         }
-        Item {
-            width: parent.width
-            height: Theme.paddingMedium
+
+        Label {
+            anchors.horizontalCenter: parent.horizontalCenter
+            font.pixelSize: Theme.fontSizeSmall
+            color: Theme.secondaryColor
+            text: qsTr("Contributions:") + "<br\>- slohse<br \>- Caballlero"
         }
     }
 

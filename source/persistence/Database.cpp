@@ -1,5 +1,6 @@
 #include "Database.h"
 
+#include <QCoreApplication>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QStandardPaths>
@@ -36,6 +37,7 @@ bool Database::open(QString const &jid)
 {
     QString databaseName = jid;
     databaseName.replace("@", "-at-");
+    databaseName.append("." + qApp->applicationVersion());
     databaseName.append(".sql");
 
     if (! database_.isValid())

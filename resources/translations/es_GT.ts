@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0">
+<TS version="2.1" language="es">
 <context>
     <name>AboutPage</name>
     <message>
@@ -10,7 +10,7 @@
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="33"/>
-        <source>Version </source>
+        <source>Version</source>
         <translation>Versión</translation>
     </message>
 </context>
@@ -130,8 +130,12 @@
 <context>
     <name>LoginPage</name>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="16"/>
         <source>Login</source>
+        <translation type="vanished">Bienvenidos a Shmoose</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/LoginPage.qml" line="16"/>
+        <source>Welcome to Shmoose</source>
         <translation>Bienvenidos a Shmoose</translation>
     </message>
     <message>
@@ -197,12 +201,12 @@
 <context>
     <name>MessagingPage</name>
     <message>
-        <location filename="../qml/pages/MessagingPage.qml" line="222"/>
+        <location filename="../qml/pages/MessagingPage.qml" line="225"/>
         <source>Copy</source>
         <translation>Copiar</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagingPage.qml" line="250"/>
+        <location filename="../qml/pages/MessagingPage.qml" line="253"/>
         <source>Enter message...</source>
         <translation>Escribir mensaje...</translation>
     </message>

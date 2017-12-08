@@ -10,7 +10,7 @@
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="33"/>
-        <source>Version </source>
+        <source>Version</source>
         <translation>Version</translation>
     </message>
 </context>
@@ -38,6 +38,29 @@
         <location filename="../qml/pages/ConversationsPage.qml" line="18"/>
         <source>Conversations</source>
         <translation>Unterhaltungen</translation>
+    </message>
+</context>
+<context>
+    <name>CoverPage</name>
+    <message>
+        <location filename="../qml/cover/CoverPage.qml" line="32"/>
+        <source>online</source>
+        <translation>Online</translation>
+    </message>
+    <message>
+        <location filename="../qml/cover/CoverPage.qml" line="32"/>
+        <source>offline</source>
+        <translation>Offline</translation>
+    </message>
+    <message>
+        <location filename="../qml/cover/CoverPage.qml" line="46"/>
+        <source>connected</source>
+        <translation>Verbunden</translation>
+    </message>
+    <message>
+        <location filename="../qml/cover/CoverPage.qml" line="50"/>
+        <source>disconnected</source>
+        <translation>Getrennt</translation>
     </message>
 </context>
 <context>
@@ -107,9 +130,13 @@
 <context>
     <name>LoginPage</name>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="16"/>
         <source>Login</source>
-        <translation>Login</translation>
+        <translation type="vanished">Login</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/LoginPage.qml" line="16"/>
+        <source>Welcome to Shmoose</source>
+        <translation>Willkommen zu Shmoose</translation>
     </message>
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="21"/>
@@ -143,8 +170,14 @@
     </message>
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="71"/>
+        <location filename="../qml/pages/LoginPage.qml" line="91"/>
         <source>Connect</source>
         <translation>Verbinden</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/LoginPage.qml" line="76"/>
+        <source>Connecting...</source>
+        <translation>Verbinden...</translation>
     </message>
 </context>
 <context>
@@ -168,7 +201,12 @@
 <context>
     <name>MessagingPage</name>
     <message>
-        <location filename="../qml/pages/MessagingPage.qml" line="239"/>
+        <location filename="../qml/pages/MessagingPage.qml" line="225"/>
+        <source>Copy</source>
+        <translation>Kopieren</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingPage.qml" line="253"/>
         <source>Enter message...</source>
         <translation>Nachricht eingeben...</translation>
     </message>
