@@ -4,79 +4,90 @@ import harbour.shmoose 1.0
 
 Page {
     id: loginPage
-    Column {
-        anchors {
-            fill: parent;
-            right: avatar.left;
-            margins: Theme.paddingMedium;
-            verticalCenter: parent.verticalCenter;
-        }
+    SilicaFlickable {
+        anchors.fill: parent;
+        contentHeight: loginPageContent.height
 
-        PageHeader {
-            title: qsTr("Welcome to Shmoose")
-        }
-
-        Label {
-            x: Theme.paddingLarge
-            text: qsTr("Login to Jabber Server")
-            color: Theme.secondaryHighlightColor
-            font.pixelSize: Theme.fontSizeExtraLarge
-        }
-
-        TextField {
-            id: jidTextField
-            placeholderText: qsTr("jid@server.com")
-            label: qsTr("Jid")
-            text: shmoose.getJid()
-            width: parent.width
-
-            onTextChanged: {
-                checkEnableConnectButton();
+        Column {
+            id: loginPageContent
+            anchors {
+                fill: parent;
+                margins: Theme.paddingMedium;
             }
-        }
 
-        TextField {
-            id: passTextField
-            placeholderText: qsTr("password")
-            echoMode: TextInput.Password
-            label: qsTr("Password")
-            text: shmoose.getPassword()
-            width: parent.width
+            width: loginPage.width
+            spacing: Theme.paddingSmall
 
-            onTextChanged: {
-                checkEnableConnectButton();
+            PageHeader {
+                title: qsTr("Welcome to Shmoose")
             }
-        }
-        Row {
-            id: credentialsRow
-            Switch {
-                id: saveCredentials
-                checked: shmoose.checkSaveCredentials()
-                onClicked: {
-                    console.log("clicked cred " + saveCredentials.checked);
-                    shmoose.saveCredentials(saveCredentials.checked);
-                }
-            }
+
             Label {
-                text: qsTr("Save credentials (unencrypted)")
-                font.pixelSize: Theme.fontSizeSmall
-                anchors {
-                    verticalCenter: parent.verticalCenter;
+                x: Theme.paddingLarge
+                width: parent.width
+                wrapMode: Text.Wrap
+                text: qsTr("Login to Jabber Server")
+                color: Theme.secondaryHighlightColor
+                font.pixelSize: Theme.fontSizeExtraLarge
+            }
+
+            TextField {
+                id: jidTextField
+                placeholderText: qsTr("jid@server.com")
+                label: qsTr("Jid")
+                text: shmoose.getJid()
+                width: parent.width
+
+                onTextChanged: {
+                    checkEnableConnectButton();
                 }
             }
-        }
 
-        Button{
-            id: connectButton
-            text: qsTr("Connect")
-            enabled: false
+            TextField {
+                id: passTextField
+                placeholderText: qsTr("password")
+                echoMode: TextInput.Password
+                label: qsTr("Password")
+                text: shmoose.getPassword()
+                width: parent.width
 
-            onClicked: {
-                connectButton.enabled = false;
-                connectButton.text = qsTr("Connecting...");
-                shmoose.mainConnect(jidTextField.text, passTextField.text);
+                onTextChanged: {
+                    checkEnableConnectButton();
+                }
+            }
+            Row {
+                id: credentialsRow
+                width: parent.width
+                Switch {
+                    id: saveCredentials
+                    checked: shmoose.checkSaveCredentials()
+                    onClicked: {
+                        shmoose.saveCredentials(saveCredentials.checked);
+                    }
+                }
+                Label {
+                    wrapMode: Text.Wrap
+                    width: credentialsRow.width - saveCredentials.width
+                    text: qsTr("Save credentials (unencrypted)")
+                    font.pixelSize: Theme.fontSizeSmall
+                    anchors {
+                        verticalCenter: parent.verticalCenter;
+                    }
+                }
             }
 
+            Button{
+                id: connectButton
+                text: qsTr("Connect")
+                enabled: false
+
+                onClicked: {
+                    connectButton.enabled = false;
+                    connectButton.text = qsTr("Connecting...");
+                    shmoose.mainConnect(jidTextField.text, passTextField.text);
+                }
+
+            }
         }
     }
 
