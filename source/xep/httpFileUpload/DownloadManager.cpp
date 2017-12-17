@@ -56,7 +56,7 @@
 #include <QDir>
 #include <QDebug>
 
-DownloadManager::DownloadManager()
+DownloadManager::DownloadManager(QObject *parent) : QObject(parent)
 {
 	connect(&manager, SIGNAL(finished(QNetworkReply*)), SLOT(downloadFinished(QNetworkReply*)));
 }

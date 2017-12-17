@@ -10,11 +10,8 @@ contains(DEFINES, SFOS) {
 SWIFTCXX = -DSWIFTEN_STATIC -DBOOST_ALL_NO_LIB -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_SIGNALS_NO_DEPRECATION_WARNING -DSWIFT_EXPERIMENTAL_FT
 SWIFTLIB = -lSwiften -lSwiften_Boost -lrt -lz -lssl -lcrypto -lxml2 -lresolv -lpthread -ldl -lm -lc -lstdc++
 
-
-
 TEMPLATE = app
 QT += qml quick core sql xml concurrent
-
 
 INCLUDEPATH += $${SWIFT3PATH}/3rdParty/Boost/src
 INCLUDEPATH += $${SWIFT3PATH}/
@@ -56,12 +53,10 @@ SOURCES += source/main.cpp \
         source/IpHeartBeatWatcher.cpp \
         source/MucManager.cpp \
         source/MucCollection.cpp \
-        source/xep/chatMarkers/ChatMarkers.cpp
+        source/xep/chatMarkers/ChatMarkers.cpp \
+        source/ConnectionHandler.cpp
 
 HEADERS += source/Shmoose.h \
-	source/EchoPayload.h \
-	source/EchoPayloadParserFactory.h \
-	source/EchoPayloadSerializer.h \
 	source/RosterContoller.h \
 	source/RosterItem.h \
         source/ReConnectionHandler.h \
@@ -81,7 +76,8 @@ HEADERS += source/Shmoose.h \
         source/IpHeartBeatWatcher.h \
         source/MucManager.h \
         source/MucCollection.h \
-        source/xep/chatMarkers/ChatMarkers.h
+        source/xep/chatMarkers/ChatMarkers.h \
+        source/ConnectionHandler.h
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \

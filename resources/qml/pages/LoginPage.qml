@@ -94,12 +94,14 @@ Page {
 
     Connections {
         target: shmoose
-        onConnectionStateConnected: {
-            pageStack.replace(pageMenu)
-        }
-        onConnectionStateDisconnected: {
-            connectButton.enabled = true;
-            connectButton.text = qsTr("Connect");
+        onConnectionStateChanged: {
+            if (shmoose.connectionState == true) {
+                pageStack.replace(pageMenu)
+            }
+            else {
+                connectButton.enabled = true;
+                connectButton.text = qsTr("Connect");
+            }
         }
     }
 

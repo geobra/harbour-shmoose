@@ -265,7 +265,15 @@ Page {
         }
         IconButton {
             id: sendButton
-            enabled: true
+            enabled: {
+                if (shmoose.connectionState && mainWindow.hasInetConnection) {
+                    return true
+                }
+                else {
+                    return false
+                }
+            }
+
             anchors.bottom: parent.bottom
 
             icon.source: getSendButtonImage()
@@ -297,15 +305,6 @@ Page {
             }
         }
     }
-
-    Connections {
-        target: shmoose
-        onSignalAppIsOnline: {
-            connected ? sendButton.enabled = true : sendButton.enabled = false;
-        }
-    }
-
-
 
     function getSendButtonImage() {
         if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0) {

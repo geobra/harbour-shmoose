@@ -1,5 +1,7 @@
-#ifndef KAIDAN_H
-#define KAIDAN_H
+#ifndef SHMOOSE_H
+#define SHMOOSE_H
+
+#include "Persistence.h"
 
 #include <QObject>
 #include <QStringList>
@@ -7,18 +9,11 @@
 
 #include <Swiften/Swiften.h>
 
-#include "EchoPayloadParserFactory.h"
-#include "EchoPayloadSerializer.h"
-#include "Persistence.h"
-
-
+class ConnectionHandler;
 class RosterController;
 class Persistence;
 class HttpFileUploadManager;
 class DownloadManager;
-class XmppPingController;
-class ReConnectionHandler;
-class IpHeartBeatWatcher;
 class MucManager;
 class ChatMarkers;
 
@@ -28,7 +23,7 @@ class Shmoose : public QObject
 
 	Q_PROPERTY(RosterController* rosterController READ getRosterController NOTIFY rosterControllerChanged)
 	Q_PROPERTY(Persistence* persistence READ getPersistence NOTIFY persistenceChanged)
-	Q_PROPERTY(bool connectionState READ connectionState NOTIFY connectionStateConnected NOTIFY connectionStateDisconnected)
+    Q_PROPERTY(bool connectionState READ connectionState NOTIFY connectionStateChanged)
 
 public:
 	Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent = 0);
@@ -60,10 +55,8 @@ public slots:
 	void sendFile(QString const &toJid, QString const &file);
 
 private slots:
-    void tryStablishServerConnection();
-    void tryReconnect();
-
     void sendReadNotificationOnAppActivation(bool active);
+    void intialSetupOnFirstConnection();
 
     void slotAboutToQuit();
 
@@ -71,25 +64,23 @@ signals:
 	void rosterControllerChanged();
 	void persistenceChanged();
 
-	void connectionStateConnected();
-	void connectionStateDisconnected();
+    void connectionStateChanged();
 
     void signalShowMessage(QString headline, QString body);
 
-    void signalAppIsOnline(bool connected);
+    void signalHasInetConnection(bool connected);
     void signalAppGetsActive(bool active);
 
 private:
 	void handlePresenceReceived(Swift::Presence::ref presence);
-    void handlePresenceChanged(Presence::ref presence);
-	void handleConnected();
-	void handleDisconnected(const boost::optional<ClientError> &error);
-	void handleMessageReceived(Swift::Message::ref message);
-	void handleServerDiscoInfoResponse(boost::shared_ptr<DiscoInfo> info, ErrorPayload::ref error);
-	void handleDiscoServiceWalker(const JID & jid, boost::shared_ptr<DiscoInfo> info);
+    void handlePresenceChanged(Swift::Presence::ref presence);
+
+    void handleMessageReceived(Swift::Message::ref message);
+    void handleServerDiscoInfoResponse(boost::shared_ptr<Swift::DiscoInfo> info, Swift::ErrorPayload::ref error);
+    void handleDiscoServiceWalker(const Swift::JID & jid, boost::shared_ptr<Swift::DiscoInfo> info);
 	void cleanupDiscoServiceWalker();
-	void handleServerDiscoItemsResponse(boost::shared_ptr<DiscoItems> items, ErrorPayload::ref error);
-	void handleStanzaAcked(Stanza::ref stanza);
+    void handleServerDiscoItemsResponse(boost::shared_ptr<Swift::DiscoItems> items, Swift::ErrorPayload::ref error);
+    void handleStanzaAcked(Swift::Stanza::ref stanza);
 
 	void requestHttpUploadSlot();
 	void handleHttpUploadResponse(const std::string response);
@@ -97,16 +88,11 @@ private:
     RosterController* getRosterController();
     Persistence* getPersistence();
 
-    bool connected_;
-    bool initialConnectionSuccessfull_;
-    bool hasInetConnection_;
     bool appIsActive_;
 
 	Swift::Client* client_;
 	Swift::ClientXMLTracer* tracer_;
 	Swift::SoftwareVersionResponder* softwareVersionResponder_;
-	EchoPayloadParserFactory echoPayloadParserFactory_;
-	EchoPayloadSerializer echoPayloadSerializer_;
 	Swift::NetworkFactories *netFactories_;
 
 	RosterController* rosterController_;
@@ -115,13 +101,11 @@ private:
 	Swift::GetDiscoItemsRequest::ref discoItemReq_;
 	QList<boost::shared_ptr<Swift::DiscoServiceWalker> > danceFloor_;
 
+    ConnectionHandler* connectionHandler_;
 	HttpFileUploadManager* httpFileUploadManager_;
 	DownloadManager *downloadManager_;
-	XmppPingController *xmppPingController_;
-    ReConnectionHandler *reConnectionHandler_;
-    IpHeartBeatWatcher *ipHeartBeatWatcher_;
     MucManager *mucManager_;
-    ChatMarkers *chatMarkers_;
+    ChatMarkers *chatMarkers_;    
 
 	QString jid_;
 	QString password_;

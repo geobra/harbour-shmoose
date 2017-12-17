@@ -18,11 +18,12 @@
 
 #include <Swiften/Base/IDGenerator.h>
 
-#include "EchoPayload.h"
 #include "RosterContoller.h"
 #include "Persistence.h"
 #include "MessageController.h"
 
+#include "ChatMarkers.h"
+#include "ConnectionHandler.h"
 #include "HttpFileUploadManager.h"
 #include "ImageProcessing.h"
 #include "DownloadManager.h"
@@ -34,40 +35,41 @@
 
 #include "System.h"
 
-Shmoose::Shmoose(NetworkFactories* networkFactories, QObject *parent) :
-    QObject(parent), connected_(false), initialConnectionSuccessfull_(false),
-    hasInetConnection_(false), appIsActive_(true), netFactories_(networkFactories),
+Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
+    QObject(parent),
+    appIsActive_(true), netFactories_(networkFactories),
     rosterController_(new RosterController(this)),
     persistence_(new Persistence(this)),
     discoItemReq_(NULL),
     danceFloor_(),
+    connectionHandler_(new ConnectionHandler(this)),
     httpFileUploadManager_(new HttpFileUploadManager(this)),
-    downloadManager_(new DownloadManager()),
-    xmppPingController_(new XmppPingController()),
-    reConnectionHandler_(new ReConnectionHandler(30000, this)),
-    ipHeartBeatWatcher_(new IpHeartBeatWatcher(this)),
+    downloadManager_(new DownloadManager(this)),   
     mucManager_(new MucManager(this)),
     chatMarkers_(new ChatMarkers(this)),
     jid_(""), password_(""),
     currentChatPartner_(""),
-    version_("0.4.0")
+    version_("0.5.0")
 {
     qApp->setApplicationVersion(version_);
 
-    connect(ipHeartBeatWatcher_, SIGNAL(triggered()), this, SLOT(tryStablishServerConnection()));
-    connect(ipHeartBeatWatcher_, SIGNAL(finished()), ipHeartBeatWatcher_, SLOT(deleteLater()));
-    ipHeartBeatWatcher_->start();
+    connect(connectionHandler_, SIGNAL(signalInitialConnectionEstablished()), this, SLOT(intialSetupOnFirstConnection()));
 
     connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString,QString)),
             this, SLOT(sendMessage(QString,QString,QString)));
-
-    connect(reConnectionHandler_, SIGNAL(canTryToReconnect()), this, SLOT(tryReconnect()));
 
     connect(mucManager_, SIGNAL(newGroupForContactsList(QString,QString)), rosterController_, SLOT(addGroupAsContact(QString,QString)));
     connect(mucManager_, SIGNAL(removeGroupFromContactsList(QString)), rosterController_, SLOT(removeGroupFromContacts(QString)) );
 
     // send read notification if app gets active
     connect(this, SIGNAL(signalAppGetsActive(bool)), this, SLOT(sendReadNotificationOnAppActivation(bool)));
+
+    // inform connection handler about app status
+    connect(this, SIGNAL(signalAppGetsActive(bool)), connectionHandler_, SLOT(slotAppGetsActice(bool)));
+
+    // proxy signal to qml ui
+    connect(connectionHandler_, SIGNAL(signalHasInetConnection(bool)), this, SIGNAL(signalHasInetConnection(bool)));
+    connect(connectionHandler_, SIGNAL(connectionStateChanged()), this, SIGNAL(connectionStateChanged()));
 
     // show errors to user
     connect(mucManager_, SIGNAL(signalShowMessage(QString,QString)), this, SIGNAL(signalShowMessage(QString,QString)));
@@ -80,31 +82,21 @@ Shmoose::~Shmoose()
 {
     qDebug() << "Shmoose::~Shmoose";
 
-    ipHeartBeatWatcher_->stopWatching();
-#ifdef SFOS
-    ipHeartBeatWatcher_->terminate();
-#endif
-
     cleanupDiscoServiceWalker();
 
-    if (connected_)
+    if (connectionHandler_->isConnected())
     {
-        client_->removePayloadSerializer(&echoPayloadSerializer_);
-        client_->removePayloadParserFactory(&echoPayloadParserFactory_);
         softwareVersionResponder_->stop();
 
         delete tracer_;
         delete softwareVersionResponder_;
         delete client_;
     }
-
-    delete downloadManager_;
-    delete xmppPingController_;
 }
 
 void Shmoose::slotAboutToQuit()
 {
-    if (connected_)
+    if (connectionHandler_->isConnected())
     {
         client_->disconnect();
     }
@@ -115,29 +107,47 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     persistence_->openDatabaseForJid(jid);
 
     QString completeJid = jid + "/shmoose";
+
+    // setup the xmpp client
     client_ = new Swift::Client(Swift::JID(completeJid.toStdString()), pass.toStdString(), netFactories_);
     client_->setAlwaysTrustCertificates();
 
-    client_->onConnected.connect(boost::bind(&Shmoose::handleConnected, this));
-    client_->onDisconnected.connect(boost::bind(&Shmoose::handleDisconnected, this, _1));
+    // ConnectionHandler
+    connectionHandler_->setClient(client_);
+    connectionHandler_->setupConnections();
 
+    // FIXME MessageHandler
     client_->onMessageReceived.connect(boost::bind(&Shmoose::handleMessageReceived, this, _1));
+
+    // FIXME PresenceHandler
     client_->onPresenceReceived.connect(boost::bind(&Shmoose::handlePresenceReceived, this, _1));
     client_->onPresenceChange.connect(boost::bind(&Shmoose::handlePresenceChanged, this, _1));
 
+    // FIXME StanzaHandler
     // xep 198 stream management and roster operations
     client_->onStanzaAcked.connect(boost::bind(&Shmoose::handleStanzaAcked, this, _1));
 
     tracer_ = new Swift::ClientXMLTracer(client_);
 
+    // configure the xmpp client
     softwareVersionResponder_ = new Swift::SoftwareVersionResponder(client_->getIQRouter());
     softwareVersionResponder_->setVersion("Shmoose", version_.toStdString());
     softwareVersionResponder_->start();
     client_->setSoftwareVersion("Shmoose", version_.toStdString());
 
-    client_->addPayloadParserFactory(&echoPayloadParserFactory_);
-    client_->addPayloadSerializer(&echoPayloadSerializer_);
+    // register capabilities
+    Swift::DiscoInfo discoInfo;
+    discoInfo.addIdentity(Swift::DiscoInfo::Identity("shmoose", "client", "phone"));
 
+    // http://xmpp.org/extensions/xep-0184.html, MessageDeliveryReceiptsFeature
+    discoInfo.addFeature(Swift::DiscoInfo::MessageDeliveryReceiptsFeature);
+
+    // https://xmpp.org/extensions/xep-0333.html
+    discoInfo.addFeature(ChatMarkers::chatMarkersIdentifier.toStdString());
+
+    client_->getDiscoManager()->setDiscoInfo(discoInfo);
+
+    // finaly try to connect
     client_->connect();
 
     // for saving on connection success
@@ -156,92 +166,38 @@ void Shmoose::mainDisconnect()
     }
 }
 
-void Shmoose::handleConnected()
+void Shmoose::intialSetupOnFirstConnection()
 {
-    //qDebug() << QTime::currentTime().toString() << "Shmoose::handleConnected";
+    // Request the roster
+    rosterController_->setClient(client_);
+    rosterController_->requestRosterFromClient(client_);
 
-    connected_ = true;
-    emit connectionStateConnected();
+    // request the discoInfo from server
+    boost::shared_ptr<Swift::DiscoServiceWalker> topLevelInfo(
+                new Swift::DiscoServiceWalker(Swift::JID(client_->getJID().getDomain()), client_->getIQRouter()));
+    topLevelInfo->onServiceFound.connect(boost::bind(&Shmoose::handleDiscoServiceWalker, this, _1, _2));
+    topLevelInfo->beginWalk();
+    danceFloor_.append(topLevelInfo);
 
-    // register capabilities
-    DiscoInfo discoInfo;
-    discoInfo.addIdentity(DiscoInfo::Identity("shmoose", "client", "phone"));
+    // find additional items on the server
+    discoItemReq_ = Swift::GetDiscoItemsRequest::create(Swift::JID(client_->getJID().getDomain()), client_->getIQRouter());
+    discoItemReq_->onResponse.connect(boost::bind(&Shmoose::handleServerDiscoItemsResponse, this, _1, _2));
+    discoItemReq_->send();
 
-    // http://xmpp.org/extensions/xep-0184.html, MessageDeliveryReceiptsFeature
-    discoInfo.addFeature(DiscoInfo::MessageDeliveryReceiptsFeature);
+    // pass the client pointer to the httpFileUploadManager
+    httpFileUploadManager_->setClient(client_);
+    mucManager_->setClient(client_);
+    mucManager_->initialize();
 
-    // https://xmpp.org/extensions/xep-0333.html
-    discoInfo.addFeature(ChatMarkers::chatMarkersIdentifier.toStdString());
+    // pass the needed pointers
+    chatMarkers_->setClient(client_);
+    chatMarkers_->setPersistence(persistence_);
+    chatMarkers_->initialize();
 
-    //client_->getDiscoManager()->setCapsNode("https://github.com/geobra/harbour-shmoose");
-    client_->getDiscoManager()->setDiscoInfo(discoInfo);
-
-
-    // only on a first connection. skip this on a reconnect event.
-    if (initialConnectionSuccessfull_ == false)
-    {
-        reConnectionHandler_->setActivated();
-
-        // Request the roster
-        rosterController_->setClient(client_);
-        rosterController_->requestRosterFromClient(client_);
-
-        // request the discoInfo from server
-        boost::shared_ptr<Swift::DiscoServiceWalker> topLevelInfo(
-                    new Swift::DiscoServiceWalker(JID(client_->getJID().getDomain()), client_->getIQRouter()));
-        topLevelInfo->onServiceFound.connect(boost::bind(&Shmoose::handleDiscoServiceWalker, this, _1, _2));
-        topLevelInfo->beginWalk();
-        danceFloor_.append(topLevelInfo);
-
-        // find additional items on the server
-        discoItemReq_ = GetDiscoItemsRequest::create(JID(client_->getJID().getDomain()), client_->getIQRouter());
-        discoItemReq_->onResponse.connect(boost::bind(&Shmoose::handleServerDiscoItemsResponse, this, _1, _2));
-        discoItemReq_->send();
-
-        // pass the client pointer to the httpFileUploadManager
-        httpFileUploadManager_->setClient(client_);
-        xmppPingController_->setClient(client_);
-        mucManager_->setClient(client_);
-        mucManager_->initialize();
-
-        // pass the needed pointers
-        chatMarkers_->setClient(client_);
-        chatMarkers_->setPersistence(persistence_);
-        chatMarkers_->initialize();
-
-        // Save account data
-        QSettings settings;
-        settings.setValue("authentication/jid", jid_);
-        settings.setValue("authentication/password", password_);
-    }
-
-    client_->sendPresence(Presence::create("Send me a message"));
-    emit signalAppIsOnline(true);
-
-    initialConnectionSuccessfull_ = true;    
-}
-
-void Shmoose::handleDisconnected(const boost::optional<ClientError>& error)
-{
-    connected_ = false;
-    emit connectionStateDisconnected();
-
-    if (error)
-    {
-        ClientError clientError = *error;
-        Swift::ClientError::Type type = clientError.getType();
-        qDebug() << "disconnet error: " << type;
-
-        // trigger the reConnectionHandler to get back online if inet is available
-        if (initialConnectionSuccessfull_)
-        {
-            reConnectionHandler_->isConnected(hasInetConnection_);
-        }
-    }
-    else
-    {
-        qDebug() << "disconnect without error";
-    }
+    // Save account data
+    QSettings settings;
+    settings.setValue("authentication/jid", jid_);
+    settings.setValue("authentication/password", password_);
 }
 
 void Shmoose::setCurrentChatPartner(QString const &jid)
@@ -269,7 +225,7 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message, QString 
     Swift::IDGenerator idGenerator;
     std::string msgId = idGenerator.generateID();
 
-    msg->setFrom(JID(client_->getJID()));
+    msg->setFrom(Swift::JID(client_->getJID()));
     msg->setTo(receiverJid);
     msg->setID(msgId);
     msg->setBody(message.toStdString());
@@ -295,7 +251,7 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message, QString 
     }
     msg->setType(messagesTyp);
 
-    msg->addPayload(boost::make_shared<DeliveryReceiptRequest>());
+    msg->addPayload(boost::make_shared<Swift::DeliveryReceiptRequest>());
 
     // add chatMarkers stanza
     msg->addPayload(boost::make_shared<Swift::RawXMLPayload>(chatMarkers_->getMarkableString().toStdString()));
@@ -317,7 +273,7 @@ void Shmoose::sendFile(QString const &toJid, QString const &file)
     }
 }
 
-void Shmoose::handlePresenceReceived(Presence::ref presence)
+void Shmoose::handlePresenceReceived(Swift::Presence::ref presence)
 {
     // Automatically approve subscription requests
     // FIXME show to user and let user decide
@@ -339,7 +295,7 @@ void Shmoose::handlePresenceReceived(Presence::ref presence)
     }
 }
 
-void Shmoose::handlePresenceChanged(Presence::ref presence)
+void Shmoose::handlePresenceChanged(Swift::Presence::ref presence)
 {
     //qDebug() << "handlePresenceChanged: type: " << presence->getType() << ", jid: " << QString::fromStdString(presence->getFrom());
 
@@ -373,7 +329,7 @@ void Shmoose::handlePresenceChanged(Presence::ref presence)
     }
 }
 
-void Shmoose::handleStanzaAcked(Stanza::ref stanza)
+void Shmoose::handleStanzaAcked(Swift::Stanza::ref stanza)
 {
     QMutableStringListIterator i(unAckedMessageIds_);
     while (i.hasNext())
@@ -387,7 +343,7 @@ void Shmoose::handleStanzaAcked(Stanza::ref stanza)
     }
 }
 
-void Shmoose::handleMessageReceived(Message::ref message)
+void Shmoose::handleMessageReceived(Swift::Message::ref message)
 {
     //std::cout << "handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
 
@@ -436,14 +392,14 @@ void Shmoose::handleMessageReceived(Message::ref message)
     }
 
     // XEP 0184
-    if (message->getPayload<DeliveryReceiptRequest>())
+    if (message->getPayload<Swift::DeliveryReceiptRequest>())
     {
         // send message receipt
-        Message::ref receiptReply = boost::make_shared<Message>();
+        Swift::Message::ref receiptReply = boost::make_shared<Swift::Message>();
         receiptReply->setFrom(message->getTo());
         receiptReply->setTo(message->getFrom());
 
-        boost::shared_ptr<DeliveryReceipt> receipt = boost::make_shared<DeliveryReceipt>();
+        boost::shared_ptr<Swift::DeliveryReceipt> receipt = boost::make_shared<Swift::DeliveryReceipt>();
         receipt->setReceivedID(message->getID());
         receiptReply->addPayload(receipt);
         client_->sendMessage(receiptReply);
@@ -451,10 +407,10 @@ void Shmoose::handleMessageReceived(Message::ref message)
 
     // MUC
     // Examples/MUCListAndJoin/MUCListAndJoin.cpp
-    if (message->getPayload<MUCInvitationPayload>())
+    if (message->getPayload<Swift::MUCInvitationPayload>())
     {
         //qDebug() << "its a muc inventation!!!";
-        MUCInvitationPayload::ref mucInventation = message->getPayload<MUCInvitationPayload>();
+        Swift::MUCInvitationPayload::ref mucInventation = message->getPayload<Swift::MUCInvitationPayload>();
 
         Swift::JID roomJid = mucInventation->getJID();
         QString roomName = QString::fromStdString(message->getSubject());
@@ -474,7 +430,7 @@ void Shmoose::handleMessageReceived(Message::ref message)
 
 
     // mark sent msg as received
-    DeliveryReceipt::ref rcpt = message->getPayload<DeliveryReceipt>();
+    Swift::DeliveryReceipt::ref rcpt = message->getPayload<Swift::DeliveryReceipt>();
     if (rcpt)
     {
         std::string recevideId = rcpt->getReceivedID();
@@ -485,7 +441,7 @@ void Shmoose::handleMessageReceived(Message::ref message)
     }
 }
 
-void Shmoose::handleDiscoServiceWalker(const JID & jid, boost::shared_ptr<DiscoInfo> info)
+void Shmoose::handleDiscoServiceWalker(const Swift::JID & jid, boost::shared_ptr<Swift::DiscoInfo> info)
 {
 #if 0
     qDebug() << "Shmoose::handleDiscoWalkerService for '" << QString::fromStdString(jid.toString()) << "'.";
@@ -532,7 +488,7 @@ void Shmoose::cleanupDiscoServiceWalker()
 }
 
 
-void Shmoose::handleServerDiscoItemsResponse(boost::shared_ptr<DiscoItems> items, ErrorPayload::ref error)
+void Shmoose::handleServerDiscoItemsResponse(boost::shared_ptr<Swift::DiscoItems> items, Swift::ErrorPayload::ref error)
 {
     //qDebug() << "Shmoose::handleServerDiscoItemsResponse";
     if (!error)
@@ -541,7 +497,7 @@ void Shmoose::handleServerDiscoItemsResponse(boost::shared_ptr<DiscoItems> items
         {
             //qDebug() << "Item '" << QString::fromStdString(item.getJID().toString()) << "'.";
             boost::shared_ptr<Swift::DiscoServiceWalker> itemInfo(
-                        new Swift::DiscoServiceWalker(JID(client_->getJID().getDomain()), client_->getIQRouter()));
+                        new Swift::DiscoServiceWalker(Swift::JID(client_->getJID().getDomain()), client_->getIQRouter()));
             itemInfo->onServiceFound.connect(boost::bind(&Shmoose::handleDiscoServiceWalker, this, _1, _2));
             itemInfo->beginWalk();
             danceFloor_.append(itemInfo);
@@ -557,38 +513,6 @@ void Shmoose::sendReadNotificationOnAppActivation(bool active)
     }
 }
 
-void Shmoose::tryStablishServerConnection()
-{
-    //qDebug() << QTime::currentTime().toString() << " Shmoose::tryStablishServerConnection. clientActive: " << client_->isActive() ;
-
-    if (hasInetConnection_ == true
-            && client_->isActive() == true
-            && appIsActive_ == false /* connection wont be droped if app is in use */
-            )
-    {
-        xmppPingController_->doPing();
-    }
-    else
-    {
-        // test to trigger a reconnect if not connected
-        reConnectionHandler_->isConnected(hasInetConnection_);
-    }
-}
-
-void Shmoose::tryReconnect()
-{
-    qDebug() << QTime::currentTime().toString() << "Shmoose::tryReconnect";
-
-    if (initialConnectionSuccessfull_ == true && hasInetConnection_ == true)
-    {
-        // try to disconnect the old session fromn before network disturbtion
-        client_->disconnect();
-
-        // try new connect
-        client_->connect();
-    }
-}
-
 RosterController* Shmoose::getRosterController()
 {
     return rosterController_;
@@ -601,7 +525,7 @@ Persistence* Shmoose::getPersistence()
 
 bool Shmoose::connectionState() const
 {
-    return connected_;
+    return connectionHandler_->isConnected();
 }
 
 bool Shmoose::checkSaveCredentials()
@@ -654,11 +578,7 @@ QString Shmoose::getAttachmentPath()
 
 void Shmoose::setHasInetConnection(bool connected)
 {
-    hasInetConnection_ = connected;
-    reConnectionHandler_->isConnected(connected);
-
-    // emit disconnect signal on every change of inet connection. Connect signal will be send in Shmosse::handleConnected()
-    emit signalAppIsOnline(false);
+    connectionHandler_->setHasInetConnection(connected);
 }
 
 void Shmoose::setAppIsActive(bool active)

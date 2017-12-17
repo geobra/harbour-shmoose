@@ -55,8 +55,8 @@ int main(int argc, char *argv[])
 #endif
 
     // eventloop
-	QtEventLoop eventLoop;
-	BoostNetworkFactories networkFactories(&eventLoop);
+    Swift::QtEventLoop eventLoop;
+    Swift::BoostNetworkFactories networkFactories(&eventLoop);
 	Shmoose shmoose(&networkFactories);
 
     FileModel fileModel;

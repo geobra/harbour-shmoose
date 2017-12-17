@@ -35,20 +35,20 @@ CoverBackground {
             id: appConnectedId
             anchors.horizontalCenter: parent.horizontalCenter
             font.family: Theme.fontFamily
-            color: "red"
-            text: "disconnected"
-
-            Connections {
-                target: shmoose
-                onSignalAppIsOnline: {
-                    if (connected === true) {
-                        appConnectedId.color = "green";
-                        appConnectedId.text = qsTr("connected");
-                    }
-                    else {
-                        appConnectedId.color = "red";
-                        appConnectedId.text = qsTr("disconnected");
-                    }
+            color: {
+                if (shmoose.connectionState && mainWindow.hasInetConnection) {
+                    return "green"
+                }
+                else {
+                    return "red"
+                }
+            }
+            text: {
+                if (shmoose.connectionState && mainWindow.hasInetConnection) {
+                    return qsTr("connected")
+                }
+                else {
+                    return qsTr("disconnected")
                 }
             }
         }
