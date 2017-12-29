@@ -55,6 +55,8 @@ private:
 
     void handleVCardChanged(const Swift::JID &jid, const Swift::VCard::ref &vCard);
 
+    void handleMessageReceived(Swift::Message::ref message);
+
     void bindJidUpdateMethodes();
 
     bool checkHashDiffers(QString const &jid, QString const &newHash);

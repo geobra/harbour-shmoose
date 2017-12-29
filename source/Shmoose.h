@@ -10,12 +10,11 @@
 #include <Swiften/Swiften.h>
 
 class ConnectionHandler;
+class MessageHandler;
 class RosterController;
 class Persistence;
 class HttpFileUploadManager;
-class DownloadManager;
 class MucManager;
-class ChatMarkers;
 
 class Shmoose : public QObject
 {
@@ -55,7 +54,7 @@ public slots:
 	void sendFile(QString const &toJid, QString const &file);
 
 private slots:
-    void sendReadNotificationOnAppActivation(bool active);
+    void sendReadNotification(bool active);
     void intialSetupOnFirstConnection();
 
     void slotAboutToQuit();
@@ -75,20 +74,16 @@ private:
 	void handlePresenceReceived(Swift::Presence::ref presence);
     void handlePresenceChanged(Swift::Presence::ref presence);
 
-    void handleMessageReceived(Swift::Message::ref message);
     void handleServerDiscoInfoResponse(boost::shared_ptr<Swift::DiscoInfo> info, Swift::ErrorPayload::ref error);
     void handleDiscoServiceWalker(const Swift::JID & jid, boost::shared_ptr<Swift::DiscoInfo> info);
 	void cleanupDiscoServiceWalker();
     void handleServerDiscoItemsResponse(boost::shared_ptr<Swift::DiscoItems> items, Swift::ErrorPayload::ref error);
-    void handleStanzaAcked(Swift::Stanza::ref stanza);
 
 	void requestHttpUploadSlot();
 	void handleHttpUploadResponse(const std::string response);
 
     RosterController* getRosterController();
     Persistence* getPersistence();
-
-    bool appIsActive_;
 
 	Swift::Client* client_;
 	Swift::ClientXMLTracer* tracer_;
@@ -102,17 +97,13 @@ private:
 	QList<boost::shared_ptr<Swift::DiscoServiceWalker> > danceFloor_;
 
     ConnectionHandler* connectionHandler_;
+    MessageHandler* messageHandler_;
 	HttpFileUploadManager* httpFileUploadManager_;
-	DownloadManager *downloadManager_;
     MucManager *mucManager_;
-    ChatMarkers *chatMarkers_;    
 
 	QString jid_;
 	QString password_;
 
-	QStringList unAckedMessageIds_;
-
-    QString currentChatPartner_;
     const QString version_;
 };
 

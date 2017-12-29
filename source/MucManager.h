@@ -38,6 +38,8 @@ private:
     void handleJoinFailed(Swift::ErrorPayload::ref error);
     void handleJoinComplete(const std::string &joinedName);
 
+    void handleMessageReceived(Swift::Message::ref message);
+
     void joinRoomIfConfigured(Swift::MUCBookmark const &bookmark);
     void sendUnavailableToRoom(Swift::MUCBookmark bookmark);
 

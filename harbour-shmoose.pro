@@ -54,7 +54,8 @@ SOURCES += source/main.cpp \
         source/MucManager.cpp \
         source/MucCollection.cpp \
         source/xep/chatMarkers/ChatMarkers.cpp \
-        source/ConnectionHandler.cpp
+        source/ConnectionHandler.cpp \
+    source/MessageHandler.cpp
 
 HEADERS += source/Shmoose.h \
 	source/RosterContoller.h \
@@ -77,7 +78,8 @@ HEADERS += source/Shmoose.h \
         source/MucManager.h \
         source/MucCollection.h \
         source/xep/chatMarkers/ChatMarkers.h \
-        source/ConnectionHandler.h
+        source/ConnectionHandler.h \
+    source/MessageHandler.h
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \

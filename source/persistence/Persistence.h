@@ -27,13 +27,15 @@ public:
 
     void openDatabaseForJid(QString const &jid);
 
+    QString getCurrentChatPartner();
+
 signals:
 	void messageControllerChanged();
 	void sessionControllerChanged();
 
 public slots:
     void addMessage(bool isGroupMessage, const QString &id, QString const &jid, QString const &resource, QString const &message, const QString &type, unsigned int direction);
-	void setCurrentChatPartner(QString const &jid);
+    void setCurrentChatPartner(QString const &jid);
 
 private:
 	MessageController* getMessageController();
@@ -43,6 +45,7 @@ private:
 	MessageController *messageController_;
 	SessionController *sessionController_;
 
+    QString currentChatPartner_;
 	bool persistenceValid_;
 };
 

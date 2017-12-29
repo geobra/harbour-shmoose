@@ -25,8 +25,13 @@ void RosterController::setClient(Swift::Client *client)
 {
     client_ = client;
 
-    Swift::XMPPRoster *xmppRoster = client_->getRoster();
-    xmppRoster->onInitialRosterPopulated.connect(boost::bind(&RosterController::bindJidUpdateMethodes, this));
+    if (client_ != NULL)
+    {
+        Swift::XMPPRoster *xmppRoster = client_->getRoster();
+        xmppRoster->onInitialRosterPopulated.connect(boost::bind(&RosterController::bindJidUpdateMethodes, this));
+
+        client_->onMessageReceived.connect(boost::bind(&RosterController::handleMessageReceived, this, _1));
+    }
 }
 
 void RosterController::handleJidAdded(const Swift::JID &jid)
@@ -117,6 +122,20 @@ void RosterController::handleJidRemoved(const Swift::JID &jid)
 
         sortRosterList();
         emit rosterListChanged();
+    }
+}
+
+void RosterController::handleMessageReceived(Swift::Message::ref message)
+{
+    if (message->getType() == Swift::Message::Groupchat)
+    {
+        // check for updated room name
+        std::string roomName = message->getSubject();
+
+        if (! roomName.empty() )
+        {
+            this->updateNameForJid(message->getFrom().toBare(), roomName);
+        }
     }
 }
 

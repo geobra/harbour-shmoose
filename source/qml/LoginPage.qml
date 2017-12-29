@@ -55,18 +55,19 @@ Item {
             text: "Not connected"
         }
     }
-    Component.onCompleted: {
-        function goToRoster() {
-            statusLabel.text = "Connected";
-            //we need to disconnect enableConnectButton to prevent calling it on normal disconnection
-            shmoose.connectionStateDisconnected.disconnect(enableConnectButton)
-            mainLoader.source = "ChatPage.qml"
+
+    Connections {
+        target: shmoose
+        onConnectionStateChanged: {
+            if (shmoose.connectionState == true) {
+                statusLabel.text = "Connected";
+                mainLoader.source = "ChatPage.qml"
+            }
+            else {
+                connectButton.enabled = true;
+                connectButton.text = qsTr("Connect");
+            }
         }
-        function enableConnectButton() {
-            connectButton.enabled = true
-        }
-        shmoose.connectionStateConnected.connect(goToRoster)
-        shmoose.connectionStateDisconnected.connect(enableConnectButton)
     }
 }
 

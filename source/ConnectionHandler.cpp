@@ -140,7 +140,7 @@ void ConnectionHandler::setHasInetConnection(bool connected)
     emit signalHasInetConnection(false);
 }
 
-void ConnectionHandler::slotAppGetsActice(bool active)
+void ConnectionHandler::slotAppGetsActive(bool active)
 {
     appIsActive_ = active;
 }

@@ -10,6 +10,7 @@ Persistence::Persistence(QObject *parent)
       db_(new Database(this)),
       messageController_(new MessageController(db_, this)),
       sessionController_(new SessionController(db_, this)),
+      currentChatPartner_(""),
       persistenceValid_(false)
 {
 }
@@ -32,6 +33,11 @@ void Persistence::openDatabaseForJid(QString const &jid)
     {
         qDebug() << "failed to open db for " << jid;
     }
+}
+
+QString Persistence::getCurrentChatPartner()
+{
+    return currentChatPartner_;
 }
 
 void Persistence::addMessage(bool isGroupMessage, QString const &id, QString const &jid, QString const &resource, QString const &message, QString const &type, unsigned int direction)
@@ -82,6 +88,8 @@ void Persistence::markMessageAsSentById(QString const &id)
 
 void Persistence::setCurrentChatPartner(QString const &jid)
 {
+    currentChatPartner_ = jid;
+
     if (persistenceValid_)
     {
         messageController_->setFilterOnJid(jid);

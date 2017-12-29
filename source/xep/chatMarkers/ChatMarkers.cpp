@@ -62,7 +62,7 @@ void ChatMarkers::handleMessageReceived(Swift::Message::ref message)
     }
 }
 
-void ChatMarkers::sendDisplayedForJid(QString jid)
+void ChatMarkers::sendDisplayedForJid(const QString& jid)
 {
     // FIXME be sure to use complete jid with resource!
 

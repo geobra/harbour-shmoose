@@ -16,11 +16,11 @@ public:
     void setPersistence(Persistence* persistence);
     void initialize();
 
-    QString getMarkableString();
+    static QString getMarkableString();
     QString getDisplayedStringForId(QString displayedId);
 
     void sendDisplayedForJidAndMessageId(QString jid, QString messageId);
-    void sendDisplayedForJid(QString jid);
+    void sendDisplayedForJid(const QString &jid);
 
     static const QString chatMarkersIdentifier;
 

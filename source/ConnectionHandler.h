@@ -29,7 +29,7 @@ signals:
 
 public slots:
     void tryStablishServerConnection();
-    void slotAppGetsActice(bool active);
+    void slotAppGetsActive(bool active);
 
 private slots:
     void tryReconnect();

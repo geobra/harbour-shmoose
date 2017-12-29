@@ -24,6 +24,23 @@ void MucManager::initialize()
     mucBookmarkManager_->onBookmarksReady.connect(boost::bind(&MucManager::handleBookmarksReady, this));
     mucBookmarkManager_->onBookmarkAdded.connect(boost::bind(&MucManager::handleBookmarkAdded, this, _1));
     mucBookmarkManager_->onBookmarkRemoved.connect(boost::bind(&MucManager::handleBookmarkRemoved, this, _1));
+
+    client_->onMessageReceived.connect(boost::bind(&MucManager::handleMessageReceived, this, _1));
+}
+
+void MucManager::handleMessageReceived(Swift::Message::ref message)
+{
+    // Examples/MUCListAndJoin/MUCListAndJoin.cpp
+    if (message->getPayload<Swift::MUCInvitationPayload>())
+    {
+        //qDebug() << "its a muc inventation!!!";
+        Swift::MUCInvitationPayload::ref mucInventation = message->getPayload<Swift::MUCInvitationPayload>();
+
+        Swift::JID roomJid = mucInventation->getJID();
+        QString roomName = QString::fromStdString(message->getSubject());
+
+        this->addRoom(roomJid, roomName);
+    }
 }
 
 void MucManager::handleBookmarksReady()
