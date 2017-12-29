@@ -121,10 +121,6 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     messageHandler_->setPersistence(persistence_);
     messageHandler_->initialize();
 
-    // FIXME PresenceHandler
-    client_->onPresenceReceived.connect(boost::bind(&Shmoose::handlePresenceReceived, this, _1));
-    client_->onPresenceChange.connect(boost::bind(&Shmoose::handlePresenceChanged, this, _1));
-
     tracer_ = new Swift::ClientXMLTracer(client_);
 
     // configure the xmpp client
@@ -168,6 +164,7 @@ void Shmoose::intialSetupOnFirstConnection()
 {
     // Request the roster
     rosterController_->setClient(client_);
+    rosterController_->initialize();
     rosterController_->requestRosterFromClient(client_);
 
     // request the discoInfo from server
@@ -216,62 +213,6 @@ void Shmoose::sendFile(QString const &toJid, QString const &file)
     if (httpFileUploadManager_->requestToUploadFileForJid(file, toJid) == false)
     {
         qDebug() << "Shmoose::sendFile failed";
-    }
-}
-
-void Shmoose::handlePresenceReceived(Swift::Presence::ref presence)
-{
-    // Automatically approve subscription requests
-    // FIXME show to user and let user decide
-    if (presence->getType() == Swift::Presence::Subscribe)
-    {
-        // answer subscription request
-        Swift::Presence::ref subscriptionRequestResponse = Swift::Presence::create();
-        subscriptionRequestResponse->setTo(presence->getFrom());
-        subscriptionRequestResponse->setFrom(client_->getJID());
-        subscriptionRequestResponse->setType(Swift::Presence::Subscribed);
-        client_->sendPresence(subscriptionRequestResponse);
-
-        // request subscription
-        Swift::Presence::ref subscriptionRequest = Swift::Presence::create();
-        subscriptionRequest->setTo(presence->getFrom());
-        subscriptionRequest->setFrom(client_->getJID());
-        subscriptionRequest->setType(Swift::Presence::Subscribe);
-        client_->sendPresence(subscriptionRequest);
-    }
-}
-
-void Shmoose::handlePresenceChanged(Swift::Presence::ref presence)
-{
-    //qDebug() << "handlePresenceChanged: type: " << presence->getType() << ", jid: " << QString::fromStdString(presence->getFrom());
-
-    Swift::JID jid = presence->getFrom();
-    QString status = "";
-
-    if (presence->getType() == Swift::Presence::Available)
-    {
-        std::vector<boost::shared_ptr<Swift::Status> > availabilityPayloads = presence->getPayloads<Swift::Status>();
-
-        for (std::vector<boost::shared_ptr<Swift::Status>>::iterator it = availabilityPayloads.begin() ; it != availabilityPayloads.end(); ++it)
-        {
-            status = QString::fromStdString((*it)->getText());
-            break;
-        }
-    }
-
-    if (jid.isValid())
-    {
-        RosterItem::Availability availability = RosterItem::AVAILABILITY_ONLINE;
-
-        if (presence->getType() == Swift::Presence::Unavailable
-                || presence->getType() == Swift::Presence::Error
-                || presence->getType() == Swift::Presence::Probe
-                )
-        {
-            availability = RosterItem::AVAILABILITY_OFFLINE;
-        }
-
-        rosterController_->handleUpdateFromPresence(jid, status, availability);
     }
 }
 

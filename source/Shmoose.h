@@ -71,9 +71,6 @@ signals:
     void signalAppGetsActive(bool active);
 
 private:
-	void handlePresenceReceived(Swift::Presence::ref presence);
-    void handlePresenceChanged(Swift::Presence::ref presence);
-
     void handleServerDiscoInfoResponse(boost::shared_ptr<Swift::DiscoInfo> info, Swift::ErrorPayload::ref error);
     void handleDiscoServiceWalker(const Swift::JID & jid, boost::shared_ptr<Swift::DiscoInfo> info);
 	void cleanupDiscoServiceWalker();

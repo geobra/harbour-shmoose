@@ -1,5 +1,6 @@
 #include "RosterContoller.h"
 #include "System.h"
+#include "PresenceHandler.h"
 
 #include <QQmlContext>
 #include <QImage>
@@ -10,7 +11,9 @@
 
 #include <QDebug>
 
-RosterController::RosterController(QObject *parent) : QObject(parent), client_(NULL), rosterList_()
+RosterController::RosterController(QObject *parent) : QObject(parent),
+    client_(NULL), rosterList_(),
+    presenceHandler_(new PresenceHandler(this))
 {
     QString avatarLocation = System::getAvatarPath();
     QDir dir(avatarLocation);
@@ -24,13 +27,20 @@ RosterController::RosterController(QObject *parent) : QObject(parent), client_(N
 void RosterController::setClient(Swift::Client *client)
 {
     client_ = client;
+}
 
+void RosterController::initialize()
+{
     if (client_ != NULL)
     {
         Swift::XMPPRoster *xmppRoster = client_->getRoster();
         xmppRoster->onInitialRosterPopulated.connect(boost::bind(&RosterController::bindJidUpdateMethodes, this));
 
         client_->onMessageReceived.connect(boost::bind(&RosterController::handleMessageReceived, this, _1));
+
+        presenceHandler_->setClient(client_);
+        presenceHandler_->setRosterController(this);
+        presenceHandler_->initialize();
     }
 }
 

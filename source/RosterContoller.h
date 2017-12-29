@@ -7,6 +7,8 @@
 #include <QObject>
 #include <QQmlListProperty>
 
+class PresenceHandler;
+
 class RosterController : public QObject
 {
 	Q_OBJECT
@@ -22,6 +24,7 @@ public:
 	RosterController(QObject *parent = 0);
 
     void setClient(Swift::Client *client);
+    void initialize();
 
     Q_INVOKABLE void addContact(const QString& jid, const QString& name);
     Q_INVOKABLE void removeContact(const QString& jid);
@@ -66,6 +69,8 @@ private:
 
 	Swift::Client* client_;
 	QList<RosterItem*> rosterList_;
+
+    PresenceHandler* presenceHandler_;
 };
 
 #endif // ROSTERCONTROLLER_H
