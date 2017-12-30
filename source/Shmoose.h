@@ -15,6 +15,7 @@ class RosterController;
 class Persistence;
 class HttpFileUploadManager;
 class MucManager;
+class DiscoInfoHandler;
 
 class Shmoose : public QObject
 {
@@ -71,11 +72,6 @@ signals:
     void signalAppGetsActive(bool active);
 
 private:
-    void handleServerDiscoInfoResponse(boost::shared_ptr<Swift::DiscoInfo> info, Swift::ErrorPayload::ref error);
-    void handleDiscoServiceWalker(const Swift::JID & jid, boost::shared_ptr<Swift::DiscoInfo> info);
-	void cleanupDiscoServiceWalker();
-    void handleServerDiscoItemsResponse(boost::shared_ptr<Swift::DiscoItems> items, Swift::ErrorPayload::ref error);
-
 	void requestHttpUploadSlot();
 	void handleHttpUploadResponse(const std::string response);
 
@@ -90,13 +86,11 @@ private:
 	RosterController* rosterController_;
 	Persistence* persistence_;
 
-	Swift::GetDiscoItemsRequest::ref discoItemReq_;
-	QList<boost::shared_ptr<Swift::DiscoServiceWalker> > danceFloor_;
-
     ConnectionHandler* connectionHandler_;
     MessageHandler* messageHandler_;
 	HttpFileUploadManager* httpFileUploadManager_;
     MucManager *mucManager_;
+    DiscoInfoHandler* discoInfoHandler_;
 
 	QString jid_;
 	QString password_;

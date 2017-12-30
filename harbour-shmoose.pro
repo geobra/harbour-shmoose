@@ -56,7 +56,8 @@ SOURCES += source/main.cpp \
         source/xep/chatMarkers/ChatMarkers.cpp \
         source/ConnectionHandler.cpp \
     source/MessageHandler.cpp \
-    source/PresenceHandler.cpp
+    source/PresenceHandler.cpp \
+    source/DiscoInfoHandler.cpp
 
 HEADERS += source/Shmoose.h \
 	source/RosterContoller.h \
@@ -81,7 +82,8 @@ HEADERS += source/Shmoose.h \
         source/xep/chatMarkers/ChatMarkers.h \
         source/ConnectionHandler.h \
     source/MessageHandler.h \
-    source/PresenceHandler.h
+    source/PresenceHandler.h \
+    source/DiscoInfoHandler.h
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \

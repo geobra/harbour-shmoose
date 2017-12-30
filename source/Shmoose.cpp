@@ -26,12 +26,8 @@
 #include "ConnectionHandler.h"
 #include "MessageHandler.h"
 #include "HttpFileUploadManager.h"
-#include "ImageProcessing.h"
-#include "DownloadManager.h"
-#include "XmppPingController.h"
-#include "ReConnectionHandler.h"
-#include "IpHeartBeatWatcher.h"
 #include "MucManager.h"
+#include "DiscoInfoHandler.h"
 
 
 #include "System.h"
@@ -41,12 +37,11 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     netFactories_(networkFactories),
     rosterController_(new RosterController(this)),
     persistence_(new Persistence(this)),
-    discoItemReq_(NULL),
-    danceFloor_(),
     connectionHandler_(new ConnectionHandler(this)),
     messageHandler_(new MessageHandler(this)),
     httpFileUploadManager_(new HttpFileUploadManager(this)),
     mucManager_(new MucManager(this)),
+    discoInfoHandler_(new DiscoInfoHandler(this)),
     jid_(""), password_(""),
     version_("0.5.0")
 {
@@ -81,8 +76,6 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
 Shmoose::~Shmoose()
 {
     qDebug() << "Shmoose::~Shmoose";
-
-    cleanupDiscoServiceWalker();
 
     if (connectionHandler_->isConnected())
     {
@@ -167,20 +160,15 @@ void Shmoose::intialSetupOnFirstConnection()
     rosterController_->initialize();
     rosterController_->requestRosterFromClient(client_);
 
-    // request the discoInfo from server
-    boost::shared_ptr<Swift::DiscoServiceWalker> topLevelInfo(
-                new Swift::DiscoServiceWalker(Swift::JID(client_->getJID().getDomain()), client_->getIQRouter()));
-    topLevelInfo->onServiceFound.connect(boost::bind(&Shmoose::handleDiscoServiceWalker, this, _1, _2));
-    topLevelInfo->beginWalk();
-    danceFloor_.append(topLevelInfo);
-
-    // find additional items on the server
-    discoItemReq_ = Swift::GetDiscoItemsRequest::create(Swift::JID(client_->getJID().getDomain()), client_->getIQRouter());
-    discoItemReq_->onResponse.connect(boost::bind(&Shmoose::handleServerDiscoItemsResponse, this, _1, _2));
-    discoItemReq_->send();
-
     // pass the client pointer to the httpFileUploadManager
     httpFileUploadManager_->setClient(client_);
+
+    // init and setup discoInfoHandler
+    discoInfoHandler_->setClient(client_);
+    discoInfoHandler_->setHttpFileUploadManager(httpFileUploadManager_);
+    discoInfoHandler_->initialize();
+
+    // init and setup mucManager
     mucManager_->setClient(client_);
     mucManager_->initialize();
 
@@ -213,70 +201,6 @@ void Shmoose::sendFile(QString const &toJid, QString const &file)
     if (httpFileUploadManager_->requestToUploadFileForJid(file, toJid) == false)
     {
         qDebug() << "Shmoose::sendFile failed";
-    }
-}
-
-void Shmoose::handleDiscoServiceWalker(const Swift::JID & jid, boost::shared_ptr<Swift::DiscoInfo> info)
-{
-#if 0
-    qDebug() << "Shmoose::handleDiscoWalkerService for '" << QString::fromStdString(jid.toString()) << "'.";
-    for(auto feature : info->getFeatures())
-    {
-        qDebug() << "Shmoose::handleDiscoWalkerService feature '" << QString::fromStdString(feature) << "'.";
-    }
-#endif
-    const std::string httpUpload = "urn:xmpp:http:upload";
-
-    if (info->hasFeature(httpUpload))
-    {
-        qDebug() << "has feature urn:xmpp:http:upload";
-        httpFileUploadManager_->setServerHasFeatureHttpUpload(true);
-        httpFileUploadManager_->setUploadServerJid(jid);
-
-        foreach (Swift::Form::ref form, info->getExtensions())
-        {
-            if (form)
-            {
-                if ((*form).getFormType() == httpUpload)
-                {
-                    Swift::FormField::ref formField = (*form).getField("max-file-size");
-                    if (formField)
-                    {
-                        unsigned int maxFileSize = std::stoi((*formField).getTextSingleValue());
-                        //qDebug() << QString::fromStdString((*formField).getName()) << " val: " << maxFileSize;
-                        httpFileUploadManager_->setMaxFileSize(maxFileSize);
-                    }
-                }
-            }
-        }
-    }
-}
-
-void Shmoose::cleanupDiscoServiceWalker()
-{
-    for(auto walker : danceFloor_)
-    {
-        walker->endWalk();
-    }
-
-    danceFloor_.clear();
-}
-
-
-void Shmoose::handleServerDiscoItemsResponse(boost::shared_ptr<Swift::DiscoItems> items, Swift::ErrorPayload::ref error)
-{
-    //qDebug() << "Shmoose::handleServerDiscoItemsResponse";
-    if (!error)
-    {
-        for(auto item : items->getItems())
-        {
-            //qDebug() << "Item '" << QString::fromStdString(item.getJID().toString()) << "'.";
-            boost::shared_ptr<Swift::DiscoServiceWalker> itemInfo(
-                        new Swift::DiscoServiceWalker(Swift::JID(client_->getJID().getDomain()), client_->getIQRouter()));
-            itemInfo->onServiceFound.connect(boost::bind(&Shmoose::handleDiscoServiceWalker, this, _1, _2));
-            itemInfo->beginWalk();
-            danceFloor_.append(itemInfo);
-        }
     }
 }
 
