@@ -3,8 +3,8 @@
 
 #include <QDebug>
 
-DiscoInfoHandler::DiscoInfoHandler(QObject *parent) : QObject(parent),
-    httpFileUploadManager_(NULL), client_(NULL), discoItemReq_(NULL), danceFloor_()
+DiscoInfoHandler::DiscoInfoHandler(HttpFileUploadManager *httpFileUploadManager, QObject *parent) : QObject(parent),
+    httpFileUploadManager_(httpFileUploadManager), client_(NULL), discoItemReq_(NULL), danceFloor_()
 {
 
 }
@@ -14,29 +14,24 @@ DiscoInfoHandler::~DiscoInfoHandler()
     cleanupDiscoServiceWalker();
 }
 
-void DiscoInfoHandler::setClient(Swift::Client* client)
+void DiscoInfoHandler::setupWithClient(Swift::Client* client)
 {
-    client_ = client;
-}
+    if (client != NULL)
+    {
+        client_ = client;
 
-void DiscoInfoHandler::setHttpFileUploadManager(HttpFileUploadManager* httpFileUploadManager)
-{
-    httpFileUploadManager_ = httpFileUploadManager;
-}
+        // request the discoInfo from server
+        boost::shared_ptr<Swift::DiscoServiceWalker> topLevelInfo(
+                    new Swift::DiscoServiceWalker(Swift::JID(client_->getJID().getDomain()), client_->getIQRouter()));
+        topLevelInfo->onServiceFound.connect(boost::bind(&DiscoInfoHandler::handleDiscoServiceWalker, this, _1, _2));
+        topLevelInfo->beginWalk();
+        danceFloor_.append(topLevelInfo);
 
-void DiscoInfoHandler::initialize()
-{
-    // request the discoInfo from server
-    boost::shared_ptr<Swift::DiscoServiceWalker> topLevelInfo(
-                new Swift::DiscoServiceWalker(Swift::JID(client_->getJID().getDomain()), client_->getIQRouter()));
-    topLevelInfo->onServiceFound.connect(boost::bind(&DiscoInfoHandler::handleDiscoServiceWalker, this, _1, _2));
-    topLevelInfo->beginWalk();
-    danceFloor_.append(topLevelInfo);
-
-    // find additional items on the server
-    discoItemReq_ = Swift::GetDiscoItemsRequest::create(Swift::JID(client_->getJID().getDomain()), client_->getIQRouter());
-    discoItemReq_->onResponse.connect(boost::bind(&DiscoInfoHandler::handleServerDiscoItemsResponse, this, _1, _2));
-    discoItemReq_->send();
+        // find additional items on the server
+        discoItemReq_ = Swift::GetDiscoItemsRequest::create(Swift::JID(client_->getJID().getDomain()), client_->getIQRouter());
+        discoItemReq_->onResponse.connect(boost::bind(&DiscoInfoHandler::handleServerDiscoItemsResponse, this, _1, _2));
+        discoItemReq_->send();
+    }
 }
 
 void DiscoInfoHandler::handleDiscoServiceWalker(const Swift::JID & jid, boost::shared_ptr<Swift::DiscoInfo> info)

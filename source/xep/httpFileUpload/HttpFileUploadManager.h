@@ -17,7 +17,7 @@ public:
     bool requestToUploadFileForJid(QString const &file, const QString &jid);
 	QString getStatus();
 
-	void setClient(Swift::Client* client);
+	void setupWithClient(Swift::Client* client);
 
 	void setServerHasFeatureHttpUpload(bool hasFeature);
 	bool getServerHasFeatureHttpUpload();

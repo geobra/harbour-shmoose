@@ -7,37 +7,27 @@
 #include <QUrl>
 #include <QDebug>
 
-MessageHandler::MessageHandler(QObject *parent) : QObject(parent),
-    client_(NULL), persistence_(NULL),
+MessageHandler::MessageHandler(Persistence *persistence, QObject *parent) : QObject(parent),
+    client_(NULL), persistence_(persistence),
     downloadManager_(new DownloadManager(this)),
-    chatMarkers_(new ChatMarkers(this)),
+    chatMarkers_(new ChatMarkers(persistence_, this)),
     appIsActive_(true), unAckedMessageIds_()
 {
 
 }
 
-void MessageHandler::setClient(Swift::Client* client)
-{
-    client_ = client;
-}
-
-void MessageHandler::setPersistence(Persistence* persistence)
-{
-    persistence_ = persistence;
-}
-
-void MessageHandler::initialize()
-{
-    if (client_ != NULL && persistence_ != NULL)
+void MessageHandler::setupWithClient(Swift::Client* client)
+{  
+    if (client != NULL)
     {
+        client_ = client;
+
         client_->onMessageReceived.connect(boost::bind(&MessageHandler::handleMessageReceived, this, _1));
 
         // xep 198 stream management and roster operations
         client_->onStanzaAcked.connect(boost::bind(&MessageHandler::handleStanzaAcked, this, _1));
 
-        chatMarkers_->setClient(client_);
-        chatMarkers_->setPersistence(persistence_);
-        chatMarkers_->initialize();
+        chatMarkers_->setupWithClient(client_);
     }
 }
 

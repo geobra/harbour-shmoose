@@ -13,7 +13,7 @@ class XmppPingController
 public:
 	XmppPingController();
 
-	void setClient(Swift::Client* client);
+    void setupWithClient(Swift::Client* client);
 	void doPing();
 
 private:

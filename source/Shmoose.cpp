@@ -38,10 +38,10 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     rosterController_(new RosterController(this)),
     persistence_(new Persistence(this)),
     connectionHandler_(new ConnectionHandler(this)),
-    messageHandler_(new MessageHandler(this)),
+    messageHandler_(new MessageHandler(persistence_, this)),
     httpFileUploadManager_(new HttpFileUploadManager(this)),
     mucManager_(new MucManager(this)),
-    discoInfoHandler_(new DiscoInfoHandler(this)),
+    discoInfoHandler_(new DiscoInfoHandler(httpFileUploadManager_, this)),
     jid_(""), password_(""),
     version_("0.5.0")
 {
@@ -105,14 +105,8 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     client_ = new Swift::Client(Swift::JID(completeJid.toStdString()), pass.toStdString(), netFactories_);
     client_->setAlwaysTrustCertificates();
 
-    // ConnectionHandler
-    connectionHandler_->setClient(client_);
-    connectionHandler_->setupConnections();
-
-    // MessageHandler
-    messageHandler_->setClient(client_);
-    messageHandler_->setPersistence(persistence_);
-    messageHandler_->initialize();
+    connectionHandler_->setupWithClient(client_);
+    messageHandler_->setupWithClient(client_);
 
     tracer_ = new Swift::ClientXMLTracer(client_);
 
@@ -156,21 +150,17 @@ void Shmoose::mainDisconnect()
 void Shmoose::intialSetupOnFirstConnection()
 {
     // Request the roster
-    rosterController_->setClient(client_);
-    rosterController_->initialize();
+    rosterController_->setupWithClient(client_);
     rosterController_->requestRosterFromClient(client_);
 
     // pass the client pointer to the httpFileUploadManager
-    httpFileUploadManager_->setClient(client_);
+    httpFileUploadManager_->setupWithClient(client_);
 
     // init and setup discoInfoHandler
-    discoInfoHandler_->setClient(client_);
-    discoInfoHandler_->setHttpFileUploadManager(httpFileUploadManager_);
-    discoInfoHandler_->initialize();
+    discoInfoHandler_->setupWithClient(client_);
 
     // init and setup mucManager
-    mucManager_->setClient(client_);
-    mucManager_->initialize();
+    mucManager_->setupWithClient(client_);
 
     // Save account data
     QSettings settings;

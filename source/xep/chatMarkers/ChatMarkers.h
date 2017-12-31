@@ -11,10 +11,8 @@ class ChatMarkers : public QObject
 {
     Q_OBJECT
 public:
-    explicit ChatMarkers(QObject *parent = 0);
-    void setClient(Swift::Client *client);
-    void setPersistence(Persistence* persistence);
-    void initialize();
+    explicit ChatMarkers(Persistence* persistence, QObject *parent = 0);
+    void setupWithClient(Swift::Client *client);
 
     static QString getMarkableString();
     QString getDisplayedStringForId(QString displayedId);

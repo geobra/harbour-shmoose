@@ -12,11 +12,9 @@ class MessageHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit MessageHandler(QObject *parent = 0);
+    explicit MessageHandler(Persistence* persistence, QObject *parent = 0);
 
-    void setClient(Swift::Client* client);
-    void setPersistence(Persistence* persistence);
-    void initialize();
+    void setupWithClient(Swift::Client* client);
 
     void sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup);
     void sendDisplayedForJid(const QString &jid);

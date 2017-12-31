@@ -32,20 +32,17 @@ ConnectionHandler::~ConnectionHandler()
 #endif
 }
 
-void ConnectionHandler::setupConnections()
+void ConnectionHandler::setupWithClient(Swift::Client* client)
 {
-    if (client_ != NULL)
+    if (client != NULL)
     {
+        client_ = client;
+
         client_->onConnected.connect(boost::bind(&ConnectionHandler::handleConnected, this));
         client_->onDisconnected.connect(boost::bind(&ConnectionHandler::handleDisconnected, this, _1));
+
+        xmppPingController_->setupWithClient(client_);
     }
-}
-
-void ConnectionHandler::setClient(Swift::Client* client)
-{
-    client_ = client;
-
-    xmppPingController_->setClient(client_);
 }
 
 void ConnectionHandler::handleConnected()

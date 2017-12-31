@@ -10,7 +10,7 @@ XmppPingController::XmppPingController() : client_(NULL)
 {
 }
 
-void XmppPingController::setClient(Swift::Client* client)
+void XmppPingController::setupWithClient(Swift::Client* client)
 {
 	client_ = client;
 }

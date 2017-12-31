@@ -24,23 +24,18 @@ RosterController::RosterController(QObject *parent) : QObject(parent),
     }
 }
 
-void RosterController::setClient(Swift::Client *client)
+void RosterController::setupWithClient(Swift::Client *client)
 {
-    client_ = client;
-}
-
-void RosterController::initialize()
-{
-    if (client_ != NULL)
+    if (client != NULL)
     {
+        client_ = client;
+
         Swift::XMPPRoster *xmppRoster = client_->getRoster();
         xmppRoster->onInitialRosterPopulated.connect(boost::bind(&RosterController::bindJidUpdateMethodes, this));
 
         client_->onMessageReceived.connect(boost::bind(&RosterController::handleMessageReceived, this, _1));
 
-        presenceHandler_->setClient(client_);
-        presenceHandler_->setRosterController(this);
-        presenceHandler_->initialize();
+        presenceHandler_->setupWithClient(client_);
     }
 }
 

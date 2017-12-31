@@ -10,12 +10,8 @@ class PresenceHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit PresenceHandler(QObject *parent = 0);
-
-    void setClient(Swift::Client* client);
-    void setRosterController(RosterController* rosterController);
-
-    void initialize();
+    explicit PresenceHandler(RosterController* rosterController);
+    void setupWithClient(Swift::Client* client);
 
 signals:
 

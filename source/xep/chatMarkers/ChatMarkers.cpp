@@ -9,23 +9,18 @@
 
 const QString ChatMarkers::chatMarkersIdentifier = "urn:xmpp:chat-markers:0";
 
-ChatMarkers::ChatMarkers(QObject *parent) : QObject(parent)
+ChatMarkers::ChatMarkers(Persistence *persistence, QObject *parent) : QObject(parent),
+    client_(NULL), persistence_(persistence)
 {
 }
 
-void ChatMarkers::setClient(Swift::Client *client)
+void ChatMarkers::setupWithClient(Swift::Client *client)
 {
-    client_ = client;
-}
-
-void ChatMarkers::setPersistence(Persistence* persistence)
-{
-    persistence_ = persistence;
-}
-
-void ChatMarkers::initialize()
-{
-    client_->onMessageReceived.connect(boost::bind(&ChatMarkers::handleMessageReceived, this, _1));
+    if (client != NULL)
+    {
+        client_ = client;
+        client_->onMessageReceived.connect(boost::bind(&ChatMarkers::handleMessageReceived, this, _1));
+    }
 }
 
 void ChatMarkers::handleMessageReceived(Swift::Message::ref message)

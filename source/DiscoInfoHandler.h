@@ -10,12 +10,10 @@ class DiscoInfoHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit DiscoInfoHandler(QObject *parent = 0);
+    explicit DiscoInfoHandler(HttpFileUploadManager* httpFileUploadManager, QObject *parent = 0);
     ~DiscoInfoHandler();
 
-    void setClient(Swift::Client* client);
-    void setHttpFileUploadManager(HttpFileUploadManager* httpFileUploadManager);
-    void initialize();
+    void setupWithClient(Swift::Client* client);
 
 signals:
 

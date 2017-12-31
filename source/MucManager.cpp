@@ -13,19 +13,19 @@ MucManager::~MucManager()
     delete mucBookmarkManager_;
 }
 
-void MucManager::setClient(Swift::Client* client)
+void MucManager::setupWithClient(Swift::Client* client)
 {
-    client_ = client;
-}
+    if (client != NULL)
+    {
+        client_ = client;
 
-void MucManager::initialize()
-{
-    mucBookmarkManager_ = new Swift::MUCBookmarkManager(client_->getIQRouter());
-    mucBookmarkManager_->onBookmarksReady.connect(boost::bind(&MucManager::handleBookmarksReady, this));
-    mucBookmarkManager_->onBookmarkAdded.connect(boost::bind(&MucManager::handleBookmarkAdded, this, _1));
-    mucBookmarkManager_->onBookmarkRemoved.connect(boost::bind(&MucManager::handleBookmarkRemoved, this, _1));
+        mucBookmarkManager_ = new Swift::MUCBookmarkManager(client_->getIQRouter());
+        mucBookmarkManager_->onBookmarksReady.connect(boost::bind(&MucManager::handleBookmarksReady, this));
+        mucBookmarkManager_->onBookmarkAdded.connect(boost::bind(&MucManager::handleBookmarkAdded, this, _1));
+        mucBookmarkManager_->onBookmarkRemoved.connect(boost::bind(&MucManager::handleBookmarkRemoved, this, _1));
 
-    client_->onMessageReceived.connect(boost::bind(&MucManager::handleMessageReceived, this, _1));
+        client_->onMessageReceived.connect(boost::bind(&MucManager::handleMessageReceived, this, _1));
+    }
 }
 
 void MucManager::handleMessageReceived(Swift::Message::ref message)

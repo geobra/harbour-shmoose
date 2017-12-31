@@ -1,26 +1,18 @@
 #include "PresenceHandler.h"
 #include "RosterContoller.h"
 
-PresenceHandler::PresenceHandler(QObject *parent) : QObject(parent),
-    client_(NULL), rosterController_(NULL)
+PresenceHandler::PresenceHandler(RosterController *rosterController) : QObject(rosterController),
+    client_(NULL), rosterController_(rosterController)
 {
 
 }
 
-void PresenceHandler::setClient(Swift::Client* client)
+void PresenceHandler::setupWithClient(Swift::Client* client)
 {
-    client_ = client;
-}
-
-void PresenceHandler::setRosterController(RosterController* rosterController)
-{
-    rosterController_ = rosterController;
-}
-
-void PresenceHandler::initialize()
-{
-    if (client_ != NULL)
+    if (client != NULL)
     {
+        client_ = client;
+
         client_->onPresenceReceived.connect(boost::bind(&PresenceHandler::handlePresenceReceived, this, _1));
         client_->onPresenceChange.connect(boost::bind(&PresenceHandler::handlePresenceChanged, this, _1));
     }

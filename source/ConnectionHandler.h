@@ -15,8 +15,7 @@ public:
     explicit ConnectionHandler(QObject *parent = 0);
     ~ConnectionHandler();
 
-    void setClient(Swift::Client* client);
-    void setupConnections();
+    void setupWithClient(Swift::Client* client);
     void setHasInetConnection(bool connected);
 
     bool isConnected();

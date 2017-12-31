@@ -14,8 +14,7 @@ public:
     explicit MucManager(QObject *parent = 0);
     ~MucManager();
 
-    void setClient(Swift::Client* client);
-    void initialize();
+    void setupWithClient(Swift::Client* client);
 
     void addRoom(Swift::JID &roomJid, QString const &roomName);
     void removeRoom(QString const &jroomJid);

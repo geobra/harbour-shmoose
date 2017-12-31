@@ -26,7 +26,7 @@ HttpFileUploadManager::HttpFileUploadManager(QObject *parent) : QObject(parent),
     busy_ = (! this->createAttachmentPath());
 }
 
-void HttpFileUploadManager::setClient(Swift::Client* client)
+void HttpFileUploadManager::setupWithClient(Swift::Client* client)
 {
 	client_ = client;
 }
@@ -97,17 +97,20 @@ unsigned int HttpFileUploadManager::getMaxFileSize()
 
 void HttpFileUploadManager::requestHttpUploadSlot()
 {
-	QString basename = QFileInfo(file_->fileName()).baseName() + "." + QFileInfo(file_->fileName()).completeSuffix();
-	std::string uploadRequest = "<request xmlns='urn:xmpp:http:upload'>"
-		 + std::string("<filename>") + basename.toStdString() + std::string("</filename>")
-		 + std::string("<size>") + std::to_string(file_->size()) + std::string("</size></request>");
+    if (client_ != NULL)
+    {
+        QString basename = QFileInfo(file_->fileName()).baseName() + "." + QFileInfo(file_->fileName()).completeSuffix();
+        std::string uploadRequest = "<request xmlns='urn:xmpp:http:upload'>"
+             + std::string("<filename>") + basename.toStdString() + std::string("</filename>")
+             + std::string("<size>") + std::to_string(file_->size()) + std::string("</size></request>");
 
-	Swift::RawRequest::ref httpUploadRequest = Swift::RawRequest::create(Swift::IQ::Type::Get,
-																		 uploadServerJid_,
-																		 uploadRequest,
-																		 client_->getIQRouter());
-	httpUploadRequest->onResponse.connect(boost::bind(&HttpFileUploadManager::handleHttpUploadResponse, this, _1));
-	httpUploadRequest->send();
+        Swift::RawRequest::ref httpUploadRequest = Swift::RawRequest::create(Swift::IQ::Type::Get,
+                                                                             uploadServerJid_,
+                                                                             uploadRequest,
+                                                                             client_->getIQRouter());
+        httpUploadRequest->onResponse.connect(boost::bind(&HttpFileUploadManager::handleHttpUploadResponse, this, _1));
+        httpUploadRequest->send();
+    }
 }
 
 void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)

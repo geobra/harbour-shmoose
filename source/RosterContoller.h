@@ -23,8 +23,7 @@ class RosterController : public QObject
 public:
 	RosterController(QObject *parent = 0);
 
-    void setClient(Swift::Client *client);
-    void initialize();
+    void setupWithClient(Swift::Client *client);
 
     Q_INVOKABLE void addContact(const QString& jid, const QString& name);
     Q_INVOKABLE void removeContact(const QString& jid);
