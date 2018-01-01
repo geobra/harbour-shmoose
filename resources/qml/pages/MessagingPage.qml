@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Window 2.0;
 import Sailfish.Silica 1.0
+import Sailfish.Pickers 1.0
 import harbour.shmoose 1.0
 
 Page {
@@ -281,9 +282,7 @@ Page {
             onClicked: {
                 if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0) {
                     sendmsgview.attachmentPath = ""
-                    fileModel.searchPath = "/home/nemo/Pictures"
-                    pageStack.push(pageImagePicker)
-                    pageImagePicker.selected.connect(processAttachment)
+                    pageStack.push(silicaImagePickerPage)
                 } else {
                     //console.log(sendmsgview.attachmentPath)
                     var msgToSend = editbox.text;
@@ -302,6 +301,15 @@ Page {
                 //console.log(path)
                 sendmsgview.attachmentPath = path
                 sendButton.icon.source = getSendButtonImage()
+            }
+        }
+    }
+
+    Component {
+        id: silicaImagePickerPage
+        ImagePickerPage {
+            onSelectedContentPropertiesChanged: {
+                sendButton.processAttachment(selectedContentProperties.filePath)
             }
         }
     }

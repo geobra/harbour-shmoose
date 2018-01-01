@@ -18,7 +18,6 @@
 #include "Persistence.h"
 #include "MessageController.h"
 #include "SessionController.h"
-#include "FileModel.h"
 #include "System.h"
 
 int main(int argc, char *argv[])
@@ -59,11 +58,8 @@ int main(int argc, char *argv[])
     Swift::BoostNetworkFactories networkFactories(&eventLoop);
 	Shmoose shmoose(&networkFactories);
 
-    FileModel fileModel;
-
 #ifdef SFOS
 	view->rootContext()->setContextProperty("shmoose", &shmoose);
-    view->rootContext()->setContextProperty("fileModel", &fileModel);
 
     view->setSource(SailfishApp::pathTo("qml/main.qml"));
 	view->showFullScreen();

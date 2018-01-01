@@ -92,14 +92,6 @@
     </message>
 </context>
 <context>
-    <name>ImagePickerPage</name>
-    <message>
-        <location filename="../qml/pages/ImagePickerPage.qml" line="42"/>
-        <source>Select picture</source>
-        <translation>Bild auswählen</translation>
-    </message>
-</context>
-<context>
     <name>JoinRoomDialog</name>
     <message>
         <location filename="../qml/pages/JoinRoomDialog.qml" line="13"/>

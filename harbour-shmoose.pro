@@ -46,7 +46,6 @@ SOURCES += source/main.cpp \
 	source/xep/httpFileUpload/HttpFileuploader.cpp \
 	source/xep/httpFileUpload/HttpFileUploadManager.cpp \
 	source/xep/httpFileUpload/DownloadManager.cpp \
-	source/FileModel.cpp \
 	source/ImageProcessing.cpp \
 	source/System.cpp \
         source/xep/xmppPing/XmppPingController.cpp \
@@ -72,7 +71,6 @@ HEADERS += source/Shmoose.h \
 	source/xep/httpFileUpload/HttpFileUploadManager.h \
 	source/xep/httpFileUpload/DownloadManager.h \
 	source/xep/xmppPing/PingRequest.h \
-	source/FileModel.h \
 	source/ImageProcessing.h \
 	source/System.h \
         source/xep/xmppPing/XmppPingController.h \
