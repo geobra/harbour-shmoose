@@ -293,7 +293,7 @@ void Shmoose::joinRoom(QString const &roomJid, QString const &roomName)
     }
     else
     {
-        emit signalShowMessage("Join room", "Jid not valid!");
+        emit signalShowMessage("Join room", "JID not valid!");
     }
 }
 

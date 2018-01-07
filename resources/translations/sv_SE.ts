@@ -77,8 +77,8 @@
     </message>
     <message>
         <location filename="../qml/pages/CreateContactDialog.qml" line="20"/>
-        <source>Jid</source>
-        <translation>Jid</translation>
+        <source>JID</source>
+        <translation>JID</translation>
     </message>
     <message>
         <location filename="../qml/pages/CreateContactDialog.qml" line="26"/>
@@ -150,7 +150,7 @@
     </message>
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="29"/>
-        <source>Jid</source>
+        <source>JID</source>
         <translation>Jabber-ID</translation>
     </message>
     <message>

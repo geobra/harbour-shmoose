@@ -34,7 +34,7 @@ Page {
             TextField {
                 id: jidTextField
                 placeholderText: qsTr("jid@server.com")
-                label: qsTr("Jid")
+                label: qsTr("JID")
                 text: shmoose.getJid()
                 width: parent.width
 

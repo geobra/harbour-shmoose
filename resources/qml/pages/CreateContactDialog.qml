@@ -17,7 +17,7 @@ Dialog {
             id: jidField
             width: parent.width
             placeholderText: qsTr("id@domain.org")
-            label: qsTr("Jid")
+            label: qsTr("JID")
         }
 
         TextField {
