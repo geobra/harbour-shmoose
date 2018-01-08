@@ -196,12 +196,10 @@ ApplicationWindow {
             if (ethernet.connected)
             {
                 console.log("ethernet connected")
-                textsecure.connectEvent()
             }
             else
             {
                 console.log("ethernet DISconnected")
-                textsecure.disconnectEvent()
             }
             mainWindow.hasInetConnection = mainWindow.getHasInetConnection()
             shmoose.setHasInetConnection(mainWindow.hasInetConnection)
