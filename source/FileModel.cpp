@@ -46,7 +46,7 @@ int FileModel::rowCount(const QModelIndex &parent) const
     return fileList.size();
 }
 
-void FileModel::searchFiles(QString path)
+void FileModel::searchFiles(QString const & path)
 {
     QDir dir(path);
     QStringList sl = ImageProcessing::getKnownImageTypes();
@@ -81,10 +81,9 @@ QVariant FileModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-QString FileModel::getSearchPath()
+QStringList FileModel::getSearchPath()
 {
-    QString res = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-    return res;
+    return m_searchPath;
 }
 
 void FileModel::dump()
@@ -95,17 +94,18 @@ void FileModel::dump()
     }
 }
 
-void FileModel::setSearchPath(QString path)
+void FileModel::setSearchPath(QStringList paths)
 //void FileModel::setSearchPath()
 {
+    m_searchPath = paths;
     beginResetModel();
     qDeleteAll(fileList);
     fileList.clear();
     endResetModel();
 
-    //Let's make this harbour compatible
-    //searchFiles(path);
-    searchFiles(getSearchPath());
+    for(auto const & path : m_searchPath) {
+        searchFiles(path);
+    }
 
     // sort the list by the image time stamp
     qSort(fileList.begin(), fileList.end(), [] (const FileInfo* a, const FileInfo* b) -> bool {return a->timeStamp > b->timeStamp; });
