@@ -57,7 +57,8 @@ SOURCES += source/main.cpp \
         source/ConnectionHandler.cpp \
     source/MessageHandler.cpp \
     source/PresenceHandler.cpp \
-    source/DiscoInfoHandler.cpp
+    source/DiscoInfoHandler.cpp \
+    source/xep/omemo/Omemo.cpp
 
 HEADERS += source/Shmoose.h \
 	source/RosterContoller.h \
@@ -83,7 +84,8 @@ HEADERS += source/Shmoose.h \
         source/ConnectionHandler.h \
     source/MessageHandler.h \
     source/PresenceHandler.h \
-    source/DiscoInfoHandler.h
+    source/DiscoInfoHandler.h \
+    source/xep/omemo/Omemo.h
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \
