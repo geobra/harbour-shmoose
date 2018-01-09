@@ -342,7 +342,7 @@ void RosterController::addContact(const QString& jid, const QString& name)
     }
     else
     {
-        emit signalShowMessage("Add Contact", "Jid not valid!");
+        emit signalShowMessage("Add Contact", "JID not valid!");
     }
 }
 
