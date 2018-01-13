@@ -126,17 +126,17 @@ void MucManager::addRoom(Swift::JID &roomJid, QString const &roomName)
     std::string nickName = getNickName().toStdString();
 
     // create MUC
-    boost::shared_ptr<Swift::MUC> muc = client_->getMUCManager()->createMUC(roomJid);
+    std::shared_ptr<Swift::MUC> muc = client_->getMUCManager()->createMUC(roomJid);
     muc->onJoinComplete.connect(boost::bind(&MucManager::handleJoinComplete, this, _1));
     muc->onJoinFailed.connect(boost::bind(&MucManager::handleJoinFailed, this, _1));
 
     // create bookmark
-    boost::shared_ptr<Swift::MUCBookmark> mucBookmark(new Swift::MUCBookmark(roomJid, roomName.toStdString()));
+    std::shared_ptr<Swift::MUCBookmark> mucBookmark(new Swift::MUCBookmark(roomJid, roomName.toStdString()));
     mucBookmark->setNick(nickName);
     mucBookmark->setAutojoin(true);
 
     // save MucCollection
-    boost::shared_ptr<MucCollection> mucCollection(new MucCollection(muc, mucBookmark, nickName));
+    std::shared_ptr<MucCollection> mucCollection(new MucCollection(muc, mucBookmark, nickName));
     mucCollection_.push_back(mucCollection);
 
     // try to join. onJoinComplete, add to bookmark
@@ -147,11 +147,11 @@ void MucManager::handleJoinComplete(const std::string &joinedName)
 {
     std::cout << "join complete: " << joinedName;
 
-    for(std::vector<boost::shared_ptr<MucCollection>>::iterator it = mucCollection_.begin(); it != mucCollection_.end(); ++it)
+    for(std::vector<std::shared_ptr<MucCollection>>::iterator it = mucCollection_.begin(); it != mucCollection_.end(); ++it)
     {
         if ((*it)->getNickname().compare(joinedName) == 0)
         {
-            boost::shared_ptr<Swift::MUCBookmark> bookmark = (*it)->getBookmark();
+            std::shared_ptr<Swift::MUCBookmark> bookmark = (*it)->getBookmark();
             if (bookmark)
             {
                 mucBookmarkManager_->addBookmark(*bookmark);

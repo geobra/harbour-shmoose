@@ -6,17 +6,17 @@
 class MucCollection
 {
 public:
-    MucCollection(boost::shared_ptr<Swift::MUC> muc, boost::shared_ptr<Swift::MUCBookmark> bookmark, std::string joinName);
+    MucCollection(std::shared_ptr<Swift::MUC> muc, std::shared_ptr<Swift::MUCBookmark> bookmark, std::string joinName);
 
     std::string getNickname() const;
-    boost::shared_ptr<Swift::MUC> getMuc() const;
-    boost::shared_ptr<Swift::MUCBookmark> getBookmark() const;
+    std::shared_ptr<Swift::MUC> getMuc() const;
+    std::shared_ptr<Swift::MUCBookmark> getBookmark() const;
 
 private:
     MucCollection();
 
-    boost::shared_ptr<Swift::MUC> muc_;
-    boost::shared_ptr<Swift::MUCBookmark> bookmark_;
+    std::shared_ptr<Swift::MUC> muc_;
+    std::shared_ptr<Swift::MUCBookmark> bookmark_;
     std::string joinName_;
 
 };

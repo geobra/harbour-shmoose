@@ -28,7 +28,7 @@ signals:
 private:
     Swift::Client* client_;
     Swift::MUCBookmarkManager *mucBookmarkManager_;
-    std::vector<boost::shared_ptr<MucCollection>> mucCollection_;
+    std::vector<std::shared_ptr<MucCollection>> mucCollection_;
 
     void handleBookmarksReady();
     void handleBookmarkAdded(Swift::MUCBookmark bookmark);

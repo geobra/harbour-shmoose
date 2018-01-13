@@ -329,7 +329,7 @@ void RosterController::addContact(const QString& jid, const QString& name)
     {
         Swift::IDGenerator idGenerator;
         std::string msgId = idGenerator.generateID();
-        boost::shared_ptr<Swift::RosterPayload> payload(new Swift::RosterPayload);
+        std::shared_ptr<Swift::RosterPayload> payload(new Swift::RosterPayload);
 
         Swift::RosterItemPayload riPayload;
         riPayload.setJID(newContactJid);
@@ -352,7 +352,7 @@ void RosterController::removeContact(const QString& jid)
 
     Swift::IDGenerator idGenerator;
     std::string msgId = idGenerator.generateID();
-    boost::shared_ptr<Swift::RosterPayload> payload(new Swift::RosterPayload);
+    std::shared_ptr<Swift::RosterPayload> payload(new Swift::RosterPayload);
     payload->addItem(Swift::RosterItemPayload(Swift::JID(jid.toStdString()), "", Swift::RosterItemPayload::Remove));
     Swift::IQRouter *iqRouter = client_->getIQRouter();
     iqRouter->sendIQ(Swift::IQ::createRequest(Swift::IQ::Set, Swift::JID(), msgId, payload));

@@ -21,6 +21,8 @@ INCLUDEPATH += source/xep/httpFileUpload
 INCLUDEPATH += source/xep/xmppPing
 INCLUDEPATH += source/xep/chatMarkers
 
+LIBS += -lboost_signals
+
 QMAKE_CXXFLAGS += $${SWIFTCXX} -std=c++11
 linux-g++ {
     QMAKE_CXXFLAGS += -Wno-deprecated-declarations -Wno-placement-new

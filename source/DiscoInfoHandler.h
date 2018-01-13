@@ -20,16 +20,16 @@ signals:
 public slots:
 
 private:
-    void handleServerDiscoInfoResponse(boost::shared_ptr<Swift::DiscoInfo> info, Swift::ErrorPayload::ref error);
-    void handleDiscoServiceWalker(const Swift::JID & jid, boost::shared_ptr<Swift::DiscoInfo> info);
+    void handleServerDiscoInfoResponse(std::shared_ptr<Swift::DiscoInfo> info, Swift::ErrorPayload::ref error);
+    void handleDiscoServiceWalker(const Swift::JID & jid, std::shared_ptr<Swift::DiscoInfo> info);
     void cleanupDiscoServiceWalker();
-    void handleServerDiscoItemsResponse(boost::shared_ptr<Swift::DiscoItems> items, Swift::ErrorPayload::ref error);
+    void handleServerDiscoItemsResponse(std::shared_ptr<Swift::DiscoItems> items, Swift::ErrorPayload::ref error);
 
     HttpFileUploadManager* httpFileUploadManager_;
     Swift::Client* client_;
 
     Swift::GetDiscoItemsRequest::ref discoItemReq_;
-    QList<boost::shared_ptr<Swift::DiscoServiceWalker> > danceFloor_;
+    QList<std::shared_ptr<Swift::DiscoServiceWalker> > danceFloor_;
 };
 
 #endif // DISCOINFOHANDLER_H

@@ -21,7 +21,7 @@ void DiscoInfoHandler::setupWithClient(Swift::Client* client)
         client_ = client;
 
         // request the discoInfo from server
-        boost::shared_ptr<Swift::DiscoServiceWalker> topLevelInfo(
+        std::shared_ptr<Swift::DiscoServiceWalker> topLevelInfo(
                     new Swift::DiscoServiceWalker(Swift::JID(client_->getJID().getDomain()), client_->getIQRouter()));
         topLevelInfo->onServiceFound.connect(boost::bind(&DiscoInfoHandler::handleDiscoServiceWalker, this, _1, _2));
         topLevelInfo->beginWalk();
@@ -34,7 +34,7 @@ void DiscoInfoHandler::setupWithClient(Swift::Client* client)
     }
 }
 
-void DiscoInfoHandler::handleDiscoServiceWalker(const Swift::JID & jid, boost::shared_ptr<Swift::DiscoInfo> info)
+void DiscoInfoHandler::handleDiscoServiceWalker(const Swift::JID & jid, std::shared_ptr<Swift::DiscoInfo> info)
 {
 #if 0
     qDebug() << "Shmoose::handleDiscoWalkerService for '" << QString::fromStdString(jid.toString()) << "'.";
@@ -80,7 +80,7 @@ void DiscoInfoHandler::cleanupDiscoServiceWalker()
     danceFloor_.clear();
 }
 
-void DiscoInfoHandler::handleServerDiscoItemsResponse(boost::shared_ptr<Swift::DiscoItems> items, Swift::ErrorPayload::ref error)
+void DiscoInfoHandler::handleServerDiscoItemsResponse(std::shared_ptr<Swift::DiscoItems> items, Swift::ErrorPayload::ref error)
 {
     //qDebug() << "Shmoose::handleServerDiscoItemsResponse";
     if (!error)
@@ -88,7 +88,7 @@ void DiscoInfoHandler::handleServerDiscoItemsResponse(boost::shared_ptr<Swift::D
         for(auto item : items->getItems())
         {
             //qDebug() << "Item '" << QString::fromStdString(item.getJID().toString()) << "'.";
-            boost::shared_ptr<Swift::DiscoServiceWalker> itemInfo(
+            std::shared_ptr<Swift::DiscoServiceWalker> itemInfo(
                         new Swift::DiscoServiceWalker(Swift::JID(client_->getJID().getDomain()), client_->getIQRouter()));
             itemInfo->onServiceFound.connect(boost::bind(&DiscoInfoHandler::handleDiscoServiceWalker, this, _1, _2));
             itemInfo->beginWalk();
