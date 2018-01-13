@@ -15,21 +15,36 @@ QT += qml quick core sql xml concurrent
 
 INCLUDEPATH += $${SWIFT3PATH}/3rdParty/Boost/src
 INCLUDEPATH += $${SWIFT3PATH}/
+INCLUDEPATH += lib/libomemo/src
+INCLUDEPATH += lib/axc/src
+INCLUDEPATH += lib/axc/lib/libsignal-protocol-c/src/
+
 INCLUDEPATH += source
 INCLUDEPATH += source/persistence
 INCLUDEPATH += source/xep/httpFileUpload
 INCLUDEPATH += source/xep/xmppPing
 INCLUDEPATH += source/xep/chatMarkers
+INCLUDEPATH += source/xep/omemo
 
 QMAKE_CXXFLAGS += $${SWIFTCXX} -std=c++11
+QMAKE_CXXFLAGS += $$system("pkg-config --cflags glib-2.0")
+
 linux-g++ {
     QMAKE_CXXFLAGS += -Wno-deprecated-declarations -Wno-placement-new
 }
+
 LIBS += -L$${SWIFT3PATH}/Swiften -L$${SWIFT3PATH}/3rdParty/Boost $${SWIFTLIB}
 
 contains(DEFINES, SFOS) {
     LIBS += -liphb
 }
+
+LIBS += -lgcrypt
+LIBS += $$_PRO_FILE_PWD_/lib/axc/build/libaxc-nt.a
+LIBS += $$_PRO_FILE_PWD_/lib/axc/lib/libsignal-protocol-c/build/src/libsignal-protocol-c.a
+LIBS += $$_PRO_FILE_PWD_/lib/libomemo/build/libomemo-conversations.a
+
+QMAKE_LFLAGS += $$system("pkg-config --libs glib-2.0 sqlite3 mxml")
 
 DEFINES += BOOST_SIGNALS_NO_DEPRECATION_WARNING
 

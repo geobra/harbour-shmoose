@@ -16,6 +16,7 @@ class Persistence;
 class HttpFileUploadManager;
 class MucManager;
 class DiscoInfoHandler;
+class Omemo;
 
 class Shmoose : public QObject
 {
@@ -91,6 +92,7 @@ private:
 	HttpFileUploadManager* httpFileUploadManager_;
     MucManager *mucManager_;
     DiscoInfoHandler* discoInfoHandler_;
+    Omemo* omemo_;
 
 	QString jid_;
 	QString password_;

@@ -28,7 +28,7 @@
 #include "HttpFileUploadManager.h"
 #include "MucManager.h"
 #include "DiscoInfoHandler.h"
-
+#include "Omemo.h"
 
 #include "System.h"
 
@@ -42,6 +42,7 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     httpFileUploadManager_(new HttpFileUploadManager(this)),
     mucManager_(new MucManager(this)),
     discoInfoHandler_(new DiscoInfoHandler(httpFileUploadManager_, this)),
+    omemo_(new Omemo(this)),
     jid_(""), password_(""),
     version_("0.5.0")
 {
@@ -151,16 +152,19 @@ void Shmoose::intialSetupOnFirstConnection()
 {
     // Request the roster
     rosterController_->setupWithClient(client_);
-    rosterController_->requestRosterFromClient(client_);
+    //rosterController_->requestRosterFromClient(client_);
 
     // pass the client pointer to the httpFileUploadManager
     httpFileUploadManager_->setupWithClient(client_);
 
     // init and setup discoInfoHandler
-    discoInfoHandler_->setupWithClient(client_);
+    //discoInfoHandler_->setupWithClient(client_);
 
     // init and setup mucManager
-    mucManager_->setupWithClient(client_);
+    //mucManager_->setupWithClient(client_);
+
+    // omemo encryption
+    omemo_->setupWithClient(client_);
 
     // Save account data
     QSettings settings;
