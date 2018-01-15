@@ -233,8 +233,8 @@ Page {
             left: parent.left;
             right: parent.right;
             bottom: sendmsgview.top;
+            bottomMargin: Theme.paddingMedium
         }
-
     }
 
     Row {
@@ -248,6 +248,12 @@ Page {
             bottom: parent.bottom;
         }
 
+        // We need to limit the height because otherwise there'll be no way
+        // to scroll through the messages list. This may be a bug or a feature
+        //
+        // See https://github.com/geobra/harbour-shmoose/issues/35 for more details
+        height: Math.min(implicitHeight, parent.height / 2)
+
         TextArea {
             id: editbox;
             placeholderText: qsTr("Enter message...");
@@ -256,8 +262,6 @@ Page {
                 family: Theme.fontFamily
                 pixelSize: Theme.fontSizeMedium
             }
-
-            height: editbox.activeFocus ? font.pixelSize * 6 : font.pixelSize * 4
 
             onTextChanged: {
                 sendButton.icon.source = getSendButtonImage()
@@ -274,7 +278,10 @@ Page {
                 }
             }
 
-            anchors.bottom: parent.bottom
+            anchors {
+                bottom: parent.bottom
+                bottomMargin: Theme.paddingLarge
+            }
 
             icon.source: getSendButtonImage()
             width: 100
