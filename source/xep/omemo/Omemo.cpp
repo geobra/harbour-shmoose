@@ -11,8 +11,10 @@
 #include "System.h"
 
 #include <gcrypt.h>
+#include <mxml.h>
 
 #include <QDir>
+#include <QDomDocument>
 #include <QDebug>
 
 #define LURCH_DB_SUFFIX "_db.sqlite"
@@ -48,7 +50,17 @@ void Omemo::setupWithClient(Swift::Client *client)
         // FIXME connect msg send, msg receive, pep device list update
         client_->onMessageReceived.connect(boost::bind(&Omemo::handleMessageReceived, this, _1));
 
+        // FIXME for device list updates
+        // lurch_pep_devicelist_event_handler
+
+        // FIXME catches to be sent messages and encrypts
+        //lurch_xml_sent_cb => lurch_message_encrypt_im || lurch_message_encrypt_groupchat
+
+        // FIXME handles presence and message decryption
+        // lurch_xml_received_cb
+
         // request own device list
+        // similar to lurch_account_connect_cb()
         requestDeviceList(client_->getJID().toBare());
     }
 }
@@ -89,6 +101,22 @@ void Omemo::handleDeviceListResponse(const std::string& str)
     }
 }
 
+void Omemo::publishPepRawXml(const Swift::JID& jid, const QString& rawXml)
+{
+    // gen the payload
+    const std::string pubsubXml = "<pubsub xmlns='http://jabber.org/protocol/pubsub'>" + rawXml.toStdString() + "</pubsub>";
+
+    Swift::RawRequest::ref publishPep = Swift::RawRequest::create(Swift::IQ::Set,
+                                                                            jid.toBare(),
+                                                                            pubsubXml,
+                                                                            client_->getIQRouter());
+    // FIXME create responder to catch the errors
+    //requestDeviceList->onResponse.connect(boost::bind(&Omemo::handleDeviceListResponse, this, _1));
+
+    publishPep->send();
+}
+
+
 void Omemo::handleMessageReceived(Swift::Message::ref message)
 {
     std::cout << "OMEMO: handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
@@ -100,22 +128,29 @@ void Omemo::handleMessageReceived(Swift::Message::ref message)
  */
 void Omemo::lurch_pep_own_devicelist_request_handler(const std::string &items_p) {
 
-    /*
- <pubsub xmlns="http://jabber.org/protocol/pubsub">
-  <items node="eu.siacs.conversations.axolotl.devicelist">
-   <item id="COFFEEBABE">
-    <list xmlns="eu.siacs.conversations.axolotl">
-     <device id="1234567890"></device>
-    </list>
-   </item>
-  </items>
- </pubsub>
-     */
+#if 0
+ char * response = "<pubsub xmlns=\"http://jabber.org/protocol/pubsub\"> \
+  <items node=\"eu.siacs.conversations.axolotl.devicelist\"> \
+   <item id=\"COFFEEBABE\"> \
+    <list xmlns=\"eu.siacs.conversations.axolotl\"> \
+     <device id=\"1234567890\"></device> \
+    </list> \
+   </item> \
+  </items> \
+ </pubsub>";
+
+         char * strippedXmlCStr = "<items node=\"eu.siacs.conversations.axolotl.devicelist\"> \
+           <item id=\"COFFEEBABE\"> \
+            <list xmlns=\"eu.siacs.conversations.axolotl\"> \
+             <device id=\"1234567890\"></device> \
+            </list> \
+           </item> \
+          </items>";
+#endif
 
     int ret_val = 0;
     char * err_msg_dbg = nullptr;
 
-    char * uname = nullptr;
     int install = 0;
     axc_context * axc_ctx_p = nullptr;
     uint32_t own_id = 0;
@@ -124,7 +159,8 @@ void Omemo::lurch_pep_own_devicelist_request_handler(const std::string &items_p)
     char * dl_xml = nullptr;
 
     std::string bareJid = client_->getJID().toBare().toString();
-    uname = const_cast<char*>(bareJid.c_str());
+    QByteArray JidArray = QString::fromStdString(bareJid).toLocal8Bit();
+    char* uname = JidArray.data();
 
     //install = (purple_account_get_bool(acc_p, LURCH_ACC_SETTING_INITIALIZED, FALSE)) ? 0 : 1;
     // FIXME
@@ -152,6 +188,7 @@ void Omemo::lurch_pep_own_devicelist_request_handler(const std::string &items_p)
     }
 
     if (items_p.empty()) { // FIXME this function wont be called on an empty device list
+    //if (true) {
         purple_debug_info("lurch", "%s: %s\n", __func__, "no devicelist yet, creating it");
         ret_val = omemo_devicelist_create(uname, &dl_p);
         if (ret_val) {
@@ -165,7 +202,30 @@ void Omemo::lurch_pep_own_devicelist_request_handler(const std::string &items_p)
         }
     } else {
         purple_debug_info("lurch", "%s: %s\n", __func__, "comparing received devicelist with cached one");
-        ret_val = omemo_devicelist_import(const_cast<char*>(items_p.c_str()), uname, &dl_p);
+        QString strippedXml = getItemsChildFromPubSubXml(QString::fromStdString(items_p));
+
+        QByteArray xmlArray = strippedXml.toLocal8Bit();
+        char* strippedXmlCStr = xmlArray.data();
+
+        fprintf(stderr, "items: %s\n", strippedXmlCStr);
+#if 0
+        mxml_node_t * items_node_p = mxmlLoadString(nullptr, strippedXmlCStr, MXML_NO_CALLBACK);
+        if (items_node_p == NULL)
+            qDebug() << "items is NULL";
+        ret_val = strncmp(mxmlGetElement(items_node_p), "items", strlen("items"));
+        qDebug() << "items: " << ret_val;
+
+        mxml_node_t * item_node_p = mxmlGetFirstChild(items_node_p);
+        //mxml_node_t * item_node_p = mxmlGetNextSibling(items_node_p);
+        if (item_node_p == NULL)
+            qDebug() << "item is NULL";
+        ret_val = strncmp(mxmlGetElement(item_node_p), "item", strlen("item"));
+        qDebug() << "item: " << ret_val;
+#endif
+        // FIXME crashes in this call
+        // no answer from libomemo owner until now
+        // TODO improve own fix an make pull request
+        ret_val = omemo_devicelist_import(strippedXmlCStr, uname, &dl_p);
         if (ret_val) {
             err_msg_dbg = g_strdup_printf("failed to import received devicelist");
             goto cleanup;
@@ -201,10 +261,18 @@ void Omemo::lurch_pep_own_devicelist_request_handler(const std::string &items_p)
             goto cleanup;
         }
 
-        // FIXME
-        //publish_node_dl_p = xmlnode_from_str(dl_xml, -1);
-        //jabber_pep_publish(js_p, publish_node_dl_p);
-        std::cout << "pubish pep (response own device list): " << dl_xml;
+        publishPepRawXml(client_->getJID(), QString(dl_xml));
+
+        //std::cout << "pubish pep (response own device list): " << dl_xml;
+        /*
+         * <publish node="eu.siacs.conversations.axolotl.devicelist">
+         *   <item>
+         *     <list xmlns="eu.siacs.conversations.axolotl">
+         *        <device id="1394567069" />
+         *     </list>
+         *    </item>
+         * </publish>
+         */
 
         purple_debug_info("lurch", "%s: \n%s:\n", __func__, "...done");
     }
@@ -364,7 +432,8 @@ cleanup:
  */
 char * Omemo::lurch_uname_get_db_fn(const char * uname, char * which)
 {
-  return g_strconcat(System::getOmemoPath().toStdString().c_str(), "/", uname, "_", which, LURCH_DB_SUFFIX, NULL);
+    std::string omemoPath = System::getOmemoPath().toStdString();
+    return g_strconcat(omemoPath.c_str(), "/", uname, "_", which, LURCH_DB_SUFFIX, NULL);
 }
 
 /**
@@ -377,7 +446,6 @@ int Omemo::lurch_bundle_publish_own(/*JabberStream * js_p*/) {
     int ret_val = 0;
     char * err_msg_dbg = nullptr;
 
-    char * uname = nullptr;
     axc_context * axc_ctx_p = nullptr;
     axc_bundle * axcbundle_p = nullptr;
     omemo_bundle * omemobundle_p = nullptr;
@@ -387,7 +455,9 @@ int Omemo::lurch_bundle_publish_own(/*JabberStream * js_p*/) {
     //xmlnode * publish_node_bundle_p = nullptr;
 
     std::string bareJid = client_->getJID().toBare().toString();
-    uname = const_cast<char*>(bareJid.c_str());
+    QByteArray barJidArray = QString::fromStdString(bareJid).toLocal8Bit();
+    char* uname = barJidArray.data();
+
 
     ret_val = lurch_axc_get_init_ctx(uname, &axc_ctx_p);
     if (ret_val) {
@@ -461,10 +531,37 @@ int Omemo::lurch_bundle_publish_own(/*JabberStream * js_p*/) {
         goto cleanup;
     }
 
-    // FIXME
     //publish_node_bundle_p = xmlnode_from_str(bundle_xml, -1);
     //jabber_pep_publish(js_p, publish_node_bundle_p);
-    std::cout << "publish pep (bundle): " << bundle_xml;
+    //std::cout << "publish pep (bundle): " << bundle_xml;
+
+    publishPepRawXml(client_->getJID(), QString(bundle_xml));
+
+    /*
+     * <publish node="eu.siacs.conversations.axolotl.bundles:1394567069">
+     *   <item>
+     *     <bundle xmlns="eu.siacs.conversations.axolotl">
+     *       <signedPreKeyPublic signedPreKeyId="0">
+     *         BVR1y9qOhyZXjDyG3agwNVZ9cAAa0EkkvtHIAec5ggBB
+     *       </signedPreKeyPublic>
+     *       <signedPreKeySignature>
+     *         j//Z4tVTpC1xCb4guO+ADio7aaR3Vay2jL2FVZnry6yA2Rn8o9R6yyOq8W7/cKqiJMXDqyNS2AdKJ2Aho2uSjA==
+     *       </signedPreKeySignature>
+     *       <identityKey>
+     *         BUFpuM6vO4PXetzYWojojqJ/zTmmtJXm8CGery99gKIO
+     *       </identityKey>
+     *       <prekeys>
+     *         <preKeyPublic preKeyId="1">
+     *           BZsyrh4JjrtfqI8wNQNtLtZeKD05nS72lEDKc03Hwbxw
+     *         </preKeyPublic>
+     *         <preKeyPublic preKeyId="2">
+     *           Bb6l5Eyw+syqnqtfCd/bqtMOdqgLshhagV5McHDHbusB
+     *         </preKeyPublic>
+     *         <preKeyPublic preKeyId="3">
+     *           BZUEqj4SznQw5RUsRYqBiGXdJjqtHymHu9eMyIV9bcwF
+     *         </preKeyPublic>
+     *         ...
+     */
 
     purple_debug_info("lurch", "%s: published own bundle for %s\n", __func__, uname);
 
@@ -567,6 +664,29 @@ cleanup:
     free(temp);
 
     return ret_val;
+}
+
+/*
+ * Strips the <pubsub ..> root element and returns the xml starting with next node, which must be a
+ *              <itmes ..> tag
+ */
+QString Omemo::getItemsChildFromPubSubXml(const QString &xml)
+{
+    QString returnXml = "";
+
+    QDomDocument d;
+    d.setContent(xml);
+
+    QDomElement element = d.documentElement();
+    QDomNode n = element.firstChildElement("items");
+    if (! n.isNull())
+    {
+        QDomDocument dd("");
+        dd.appendChild(n);
+        returnXml = dd.toString();
+    }
+
+    return returnXml;
 }
 
 /*

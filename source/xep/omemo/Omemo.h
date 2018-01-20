@@ -28,8 +28,12 @@ public slots:
 
 private:
     void requestDeviceList(const Swift::JID &jid);
-    void handleMessageReceived(Swift::Message::ref message);
     void handleDeviceListResponse(const std::string &str);
+    void publishPepRawXml(const Swift::JID& jid, const QString& rawXml);
+
+    void handleMessageReceived(Swift::Message::ref message);
+
+    QString getItemsChildFromPubSubXml(const QString &xml);
 
     int lurch_axc_prepare(char * uname);
     int lurch_axc_get_init_ctx(char * uname, axc_context ** ctx_pp);
