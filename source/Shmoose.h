@@ -2,6 +2,7 @@
 #define SHMOOSE_H
 
 #include "Persistence.h"
+#include "Settings.h"
 
 #include <QObject>
 #include <QStringList>
@@ -24,6 +25,7 @@ class Shmoose : public QObject
 	Q_PROPERTY(RosterController* rosterController READ getRosterController NOTIFY rosterControllerChanged)
 	Q_PROPERTY(Persistence* persistence READ getPersistence NOTIFY persistenceChanged)
     Q_PROPERTY(bool connectionState READ connectionState NOTIFY connectionStateChanged)
+    Q_PROPERTY(Settings* settings READ getSettings NOTIFY settingsChanged)
 
 public:
 	Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent = 0);
@@ -33,11 +35,6 @@ public:
 	Q_INVOKABLE void mainConnect(const QString &jid, const QString &pass);
 	Q_INVOKABLE void setCurrentChatPartner(QString const &jid);
     Q_INVOKABLE QString getCurrentChatPartner();
-
-	Q_INVOKABLE bool checkSaveCredentials();
-	Q_INVOKABLE void saveCredentials(bool save);
-	Q_INVOKABLE QString getJid();
-	Q_INVOKABLE QString getPassword();
 
 	Q_INVOKABLE QString getAttachmentPath();
     Q_INVOKABLE void setHasInetConnection(bool connected_);
@@ -63,6 +60,7 @@ private slots:
 signals:
 	void rosterControllerChanged();
 	void persistenceChanged();
+    void settingsChanged();
 
     void connectionStateChanged();
 
@@ -77,6 +75,7 @@ private:
 
     RosterController* getRosterController();
     Persistence* getPersistence();
+    Settings* getSettings();
 
 	Swift::Client* client_;
 	Swift::ClientXMLTracer* tracer_;
@@ -85,6 +84,7 @@ private:
 
 	RosterController* rosterController_;
 	Persistence* persistence_;
+    Settings* settings_;
 
     ConnectionHandler* connectionHandler_;
     MessageHandler* messageHandler_;

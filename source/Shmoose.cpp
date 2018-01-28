@@ -6,7 +6,6 @@
 
 #include <QtConcurrent>
 #include <QDateTime>
-#include <QSettings>
 #include <QUrl>
 
 #include <QTimer>
@@ -37,6 +36,7 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     netFactories_(networkFactories),
     rosterController_(new RosterController(this)),
     persistence_(new Persistence(this)),
+    settings_(new Settings(this)),
     connectionHandler_(new ConnectionHandler(this)),
     messageHandler_(new MessageHandler(persistence_, this)),
     httpFileUploadManager_(new HttpFileUploadManager(this)),
@@ -132,7 +132,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     client_->connect();
 
     // for saving on connection success
-    if (checkSaveCredentials() == true)
+    if (settings_->getSaveCredentials() == true)
     {
         jid_ = jid;
         password_ = pass;
@@ -163,9 +163,8 @@ void Shmoose::intialSetupOnFirstConnection()
     mucManager_->setupWithClient(client_);
 
     // Save account data
-    QSettings settings;
-    settings.setValue("authentication/jid", jid_);
-    settings.setValue("authentication/password", password_);
+    settings_->setJid(jid_);
+    settings_->setPassword(password_);
 }
 
 void Shmoose::setCurrentChatPartner(QString const &jid)
@@ -214,52 +213,14 @@ Persistence* Shmoose::getPersistence()
     return persistence_;
 }
 
+Settings* Shmoose::getSettings()
+{
+    return settings_;
+}
+
 bool Shmoose::connectionState() const
 {
     return connectionHandler_->isConnected();
-}
-
-bool Shmoose::checkSaveCredentials()
-{
-    bool save = false;
-
-    QSettings settings;
-    save = settings.value("authentication/saveCredentials", false).toBool();
-
-    return save;
-}
-
-void Shmoose::saveCredentials(bool save)
-{
-    QSettings settings;
-    settings.setValue("authentication/saveCredentials", save);
-}
-
-
-QString Shmoose::getJid()
-{
-    QString returnValue = "";
-
-    QSettings settings;
-    if(settings.value("authentication/jid").toString() != "NOT_SET")
-    {
-        returnValue = settings.value("authentication/jid").toString();
-    }
-
-    return returnValue;
-}
-
-QString Shmoose::getPassword()
-{
-    QString returnValue = "";
-
-    QSettings settings;
-    if(settings.value("authentication/password").toString() != "NOT_SET")
-    {
-        returnValue = settings.value("authentication/password").toString();
-    }
-
-    return returnValue;
 }
 
 QString Shmoose::getAttachmentPath()

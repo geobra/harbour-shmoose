@@ -25,7 +25,7 @@ Page {
                 anchors.horizontalCenter: parent.horizontalCenter;
             }
             Label {
-                text: shmoose.getJid();
+                text: shmoose.settings.Jid;
                 font.pixelSize: Theme.fontSizeLarge;
                 anchors {
                     left: parent.left;
