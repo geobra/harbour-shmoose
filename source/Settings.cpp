@@ -1,6 +1,9 @@
 #include "Settings.h"
 
 #include <QSettings>
+#include <QString>
+#include <QStringList>
+#include <QStandardPaths>
 
 Settings::Settings(QObject *parent) : QObject(parent)
 {
@@ -65,8 +68,27 @@ void Settings::setSaveCredentials(bool SaveCredentials)
     emit saveCredentialsChanged(SaveCredentials);
 }
 
-//QStringList Settings::getImagePaths() const;
-//void Settings::setImagePaths(QStringList ImagePaths);
+QStringList Settings::getImagePaths() const
+{
+    QSettings settings;
+    QStringList searchPaths = settings.value("storage/imagePaths").toStringList();
+
+    if(searchPaths.size() == 0)
+    {
+        searchPaths.append(QStandardPaths::writableLocation(QStandardPaths::PicturesLocation));
+    }
+
+    return searchPaths;
+}
+
+void Settings::setImagePaths(QStringList const & ImagePaths)
+{
+    QSettings settings;
+
+    settings.setValue("storage/imagePaths", QVariant::fromValue(ImagePaths));
+
+    emit imagePathsChanged(ImagePaths);
+}
 
 
 
