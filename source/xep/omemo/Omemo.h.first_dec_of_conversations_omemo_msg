@@ -25,7 +25,7 @@ public:
 signals:
 
 public slots:
-    void shotAfterDelay();
+    void sendEncMsg();
 
 private:
 
@@ -41,7 +41,6 @@ private:
       GHashTable * sess_handled_p;
     } lurch_queued_msg;
 
-    void cleanupDeviceList();
     void requestDeviceList(const Swift::JID &jid);
     void handleDeviceListResponse(const std::string &str);
 
@@ -54,11 +53,9 @@ private:
     void handleDataReceived(Swift::SafeByteArray data);
 
     bool isEncryptedMessage(const QString& xmlNode);
-    void sendEncryptedMessage(const QString& to, const QString &encryptedPayload);
 
-    QString getFirstNodeNameOfXml(const QString &xml);
-    QString getChildFromNode(const QString &childElement, const QString &xml);
-    QString getValueForElementInNode(const QString& node, const QString& xmlNode, const QString& elementString);
+    QString getItemsChildFromPubSubXml(const QString &xml);
+    QString getValueForElementInMessage(const QString& xmlNode, const QString& elementString);
 
     int lurch_axc_prepare(char * uname);
     int lurch_axc_get_init_ctx(char * uname, axc_context ** ctx_pp);
@@ -67,13 +64,6 @@ private:
     void lurch_pep_devicelist_event_handler(const char * from, const std::string &items_p);
     int lurch_bundle_publish_own();
     int lurch_devicelist_process(char * uname, omemo_devicelist * dl_in_p /*, JabberStream * js_p*/);
-
-    int lurch_bundle_create_session(const char * uname, const char * from, const char* items_p, axc_context * axc_ctx_p);
-    void lurch_bundle_request_cb(const char * from, const char * id, const char * items_p, gpointer data_p);
-
-    char * lurch_queue_make_key_string_s(const char * name, const char * device_id);
-    int lurch_queued_msg_is_handled(const lurch_queued_msg * qmsg_p);
-    void lurch_queued_msg_destroy(lurch_queued_msg * qmsg_p);
 
     void lurch_message_encrypt_im(const QString& receiver, const QString &message);
     GList* lurch_addr_list_add(GList * addrs_p, const omemo_devicelist * dl_p, const uint32_t * exclude_id_p);
@@ -92,17 +82,13 @@ private:
     void purple_debug_info(const char *category, const char *format,...);
 
     Swift::Client* client_;
+    Swift::JID actualBareJid_;
 
     omemo_crypto_provider crypto_ = {
         .random_bytes_func = omemo_default_crypto_random_bytes,
         .aes_gcm_encrypt_func = omemo_default_crypto_aes_gcm_encrypt,
         .aes_gcm_decrypt_func = omemo_default_crypto_aes_gcm_decrypt
     };
-
-    QString lastNodeName_;
-    QString lastType_;
-    QString lastFrom_;
-    QString lastId_;
 
     int uninstall;
 };
