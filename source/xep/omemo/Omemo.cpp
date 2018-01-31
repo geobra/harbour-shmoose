@@ -662,14 +662,23 @@ void Omemo::lurch_bundle_request_cb(const char * from, const char * id, const ch
 
     // FIXME implement the queue...
     //lurch_queued_msg * qmsg_p = (lurch_queued_msg *) data_p;
+    QString mapKey = QString(from) + '#' + QString(id).split('#').at(1);
+
+    qDebug() << "mapkey: " << mapKey;
+
+    lurch_queued_msg * qmsg_p = qeuedMessages_.value(mapKey, nullptr);
+    if (qmsg_p != nullptr)
+    {
+        qeuedMessages_.remove(mapKey);
+        // FIXME goto cleanup if not found?
+    }
 
     //uname = lurch_uname_strip(purple_account_get_username(purple_connection_get_account(js_p->gc)));
     std::string bareJid = client_->getJID().toBare().toString();
     QByteArray JidArray = QString::fromStdString(bareJid).toLocal8Bit();
     char* uname = JidArray.data();
 
-    // FIXME implement the queue...
-    //recipient = omemo_message_get_recipient_name_bare(qmsg_p->om_msg_p);
+    recipient = omemo_message_get_recipient_name_bare(qmsg_p->om_msg_p);
 
     if (!from) {
         // own user
@@ -734,14 +743,13 @@ void Omemo::lurch_bundle_request_cb(const char * from, const char * id, const ch
         goto cleanup;
     }
 
-    // FIXME implement the queue...
-#if 0
     (void) g_hash_table_replace(qmsg_p->sess_handled_p, addr_key, addr_key);
 
     if (lurch_queued_msg_is_handled(qmsg_p)) {
         msg_handled = 1;
     }
 
+    // FIXME never go into this?!
     if (msg_handled) {
         ret_val = lurch_msg_encrypt_for_addrs(qmsg_p->om_msg_p, qmsg_p->recipient_addr_l_p, axc_ctx_p);
         if (ret_val) {
@@ -771,7 +779,6 @@ void Omemo::lurch_bundle_request_cb(const char * from, const char * id, const ch
 
         lurch_queued_msg_destroy(qmsg_p);
     }
-#endif
 
 cleanup:
     if (err_msg_conv) {
@@ -870,7 +877,14 @@ cleanup:
     return ret_val;
 #endif
 
-    // FIXME how to connect the pointer to the waiting message with the connected method of incoming bundles
+    // FIXME test that passing of queued messages
+    if (qmsg_p != nullptr)
+    {
+        QString mapKey = QString(to) + '#' + QString::number(device_id);
+        qDebug() << "mapKey save: " << mapKey;
+        qeuedMessages_.insert(mapKey , qmsg_p);
+    }
+
     requestBundle(device_id, Swift::JID(to));
 }
 
@@ -1829,7 +1843,7 @@ void Omemo::shotAfterDelay()
     //qDebug() << "requst device list for sjde ";
     //requestDeviceList(Swift::JID("x@y.com"));
     //qDebug() << "try to send enc ";
-    //lurch_message_encrypt_im("x@y.com", "enc omemo msg1");
+    //lurch_message_encrypt_im("x@y.com", "enc omemo msg1 bla bla");
 }
 
 void Omemo::requestDeviceList(const Swift::JID& jid)

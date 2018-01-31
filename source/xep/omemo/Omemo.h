@@ -13,6 +13,9 @@ extern "C" {
 #include <QObject>
 #include <Swiften/Swiften.h>
 
+#include <QString>
+#include <QMap>
+
 class Omemo : public QObject
 {
     Q_OBJECT
@@ -103,6 +106,8 @@ private:
     QString lastType_;
     QString lastFrom_;
     QString lastId_;
+
+    QMap<QString, lurch_queued_msg*> qeuedMessages_;
 
     int uninstall;
 };
