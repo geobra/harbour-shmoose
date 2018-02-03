@@ -29,13 +29,10 @@ signals:
 
 public slots:
     void shotAfterDelay();
+    void shotAfterDelay2();
+    void shotAfterDelay3();
 
 private:
-
-    typedef struct lurch_addr {
-      char * jid;
-      uint32_t device_id;
-    } lurch_addr;
 
     typedef struct lurch_queued_msg {
       omemo_message * om_msg_p;
@@ -43,6 +40,11 @@ private:
       GList * no_sess_l_p;
       GHashTable * sess_handled_p;
     } lurch_queued_msg;
+
+    typedef struct lurch_addr {
+      char * jid;
+      uint32_t device_id;
+    } lurch_addr;
 
     void cleanupDeviceList();
     void requestDeviceList(const Swift::JID &jid);
@@ -86,6 +88,8 @@ private:
     int lurch_msg_encrypt_for_addrs(omemo_message * om_msg_p, GList * addr_l_p, axc_context * axc_ctx_p);
     int lurch_queued_msg_create(omemo_message * om_msg_p, GList * recipient_addr_l_p, GList * no_sess_l_p, lurch_queued_msg ** qmsg_pp);
     int lurch_bundle_request_do(const char * to, uint32_t device_id, lurch_queued_msg * qmsg_p);
+    void lurch_pep_bundle_for_keytransport(const char * from, const char* items_p);
+    uint32_t lurch_bundle_name_get_device_id(const char * bundle_node_name);
 
     int lurch_key_encrypt(const lurch_addr * recipient_addr_p, const uint8_t * key_p, size_t key_len, axc_context * axc_ctx_p, axc_buf ** key_ct_buf_pp);
 
@@ -108,6 +112,7 @@ private:
     QString lastId_;
 
     QMap<QString, lurch_queued_msg*> qeuedMessages_;
+    QStringList keyTransportMessageReceivers_;
 
     int uninstall;
 };

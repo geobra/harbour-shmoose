@@ -16,6 +16,7 @@
 #include <QDir>
 #include <QDomDocument>
 #include <QTimer>
+#include <QRegularExpression>
 
 #include <QDebug>
 
@@ -37,7 +38,8 @@ GHashTable * chat_users_ht_p = nullptr;
 
 
 Omemo::Omemo(QObject *parent) : QObject(parent),
-    client_(NULL), uninstall(0), lastNodeName_(""), lastType_(""), lastFrom_(""), lastId_("")
+    client_(NULL), uninstall(0), lastNodeName_(""), lastType_(""), lastFrom_(""), lastId_(""),
+    qeuedMessages_(), keyTransportMessageReceivers_()
 {
     // create omemo path if needed
     QString omemoLocation = System::getOmemoPath();
@@ -526,13 +528,31 @@ cleanup:
         purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
         free(err_msg_dbg);
     }
-
+    //free(uname);
     axc_context_destroy_all(axc_ctx_p);
     axc_bundle_destroy(axcbundle_p);
     omemo_bundle_destroy(omemobundle_p);
     free(bundle_xml);
 
     return ret_val;
+}
+
+/**
+ * Parses the device ID from a received bundle update.
+ *
+ * @param bundle_node_ns The node name.
+ * @return The ID.
+ */
+uint32_t Omemo::lurch_bundle_name_get_device_id(const char * bundle_node_name) {
+  char ** split = nullptr;
+  uint32_t id = 0;
+
+  split = g_strsplit(bundle_node_name, ":", -1);
+  id = strtol(split[5], nullptr, 0);
+
+  g_strfreev(split);
+
+  return id;
 }
 
 /**
@@ -643,7 +663,10 @@ cleanup:
  * Implements JabberIqCallback.
  * Callback for a bundle request.
  */
-void Omemo::lurch_bundle_request_cb(const char * from, const char * id, const char * items_p, gpointer data_p) {
+void Omemo::lurch_bundle_request_cb(const char * from, 
+				const char * id, 
+				const char * items_p, 
+				gpointer data_p) {
     int ret_val = 0;
     char * err_msg_conv = nullptr;
     char * err_msg_dbg = nullptr;
@@ -660,17 +683,15 @@ void Omemo::lurch_bundle_request_cb(const char * from, const char * id, const ch
     char * msg_xml = nullptr;
     //xmlnode * msg_node_p = nullptr;
 
-    // FIXME implement the queue...
+    // FIXME queue in map could be overriden if two msg are sent really quick...
     //lurch_queued_msg * qmsg_p = (lurch_queued_msg *) data_p;
     QString mapKey = QString(from) + '#' + QString(id).split('#').at(1);
 
     qDebug() << "mapkey: " << mapKey;
 
     lurch_queued_msg * qmsg_p = qeuedMessages_.value(mapKey, nullptr);
-    if (qmsg_p != nullptr)
-    {
+    if (qmsg_p != nullptr) {
         qeuedMessages_.remove(mapKey);
-        // FIXME goto cleanup if not found?
     }
 
     //uname = lurch_uname_strip(purple_account_get_username(purple_connection_get_account(js_p->gc)));
@@ -678,7 +699,9 @@ void Omemo::lurch_bundle_request_cb(const char * from, const char * id, const ch
     QByteArray JidArray = QString::fromStdString(bareJid).toLocal8Bit();
     char* uname = JidArray.data();
 
-    recipient = omemo_message_get_recipient_name_bare(qmsg_p->om_msg_p);
+    if (qmsg_p != nullptr) {
+        recipient = omemo_message_get_recipient_name_bare(qmsg_p->om_msg_p);
+    }
 
     if (!from) {
         // own user
@@ -743,41 +766,43 @@ void Omemo::lurch_bundle_request_cb(const char * from, const char * id, const ch
         goto cleanup;
     }
 
-    (void) g_hash_table_replace(qmsg_p->sess_handled_p, addr_key, addr_key);
+    if (qmsg_p != nullptr) {
+        (void) g_hash_table_replace(qmsg_p->sess_handled_p, addr_key, addr_key);
 
-    if (lurch_queued_msg_is_handled(qmsg_p)) {
-        msg_handled = 1;
-    }
-
-    // FIXME never go into this?!
-    if (msg_handled) {
-        ret_val = lurch_msg_encrypt_for_addrs(qmsg_p->om_msg_p, qmsg_p->recipient_addr_l_p, axc_ctx_p);
-        if (ret_val) {
-            err_msg_dbg = "failed to encrypt the symmetric key";
-            goto cleanup;
+        if (lurch_queued_msg_is_handled(qmsg_p)) {
+            msg_handled = 1;
         }
 
-        ret_val = omemo_message_export_encrypted(qmsg_p->om_msg_p, OMEMO_ADD_MSG_EME, &msg_xml);
-        if (ret_val) {
-            err_msg_dbg = "failed to export the message to xml";
-            goto cleanup;
+        // FIXME never go into this?!
+        if (msg_handled) {
+            ret_val = lurch_msg_encrypt_for_addrs(qmsg_p->om_msg_p, qmsg_p->recipient_addr_l_p, axc_ctx_p);
+            if (ret_val) {
+                err_msg_dbg = "failed to encrypt the symmetric key";
+                goto cleanup;
+            }
+
+            ret_val = omemo_message_export_encrypted(qmsg_p->om_msg_p, OMEMO_ADD_MSG_EME, &msg_xml);
+            if (ret_val) {
+                err_msg_dbg = "failed to export the message to xml";
+                goto cleanup;
+            }
+
+            qDebug() << "### FIXME sending enc msg: " << msg_xml;
+
+    #if 0
+            msg_node_p = xmlnode_from_str(msg_xml, -1);
+            if (!msg_node_p) {
+                err_msg_dbg = "failed to parse xml from string";
+                ret_val = LURCH_ERR;
+                goto cleanup;
+            }
+
+            purple_debug_info("lurch", "sending encrypted msg\n");
+            purple_signal_emit(purple_plugins_find_with_id("prpl-jabber"), "jabber-sending-xmlnode", js_p->gc, &msg_node_p);
+    #endif
+
+            lurch_queued_msg_destroy(qmsg_p);
         }
-
-        qDebug() << "### FIXME sending enc msg: " << msg_xml;
-
-#if 0
-        msg_node_p = xmlnode_from_str(msg_xml, -1);
-        if (!msg_node_p) {
-            err_msg_dbg = "failed to parse xml from string";
-            ret_val = LURCH_ERR;
-            goto cleanup;
-        }
-
-        purple_debug_info("lurch", "sending encrypted msg\n");
-        purple_signal_emit(purple_plugins_find_with_id("prpl-jabber"), "jabber-sending-xmlnode", js_p->gc, &msg_node_p);
-#endif
-
-        lurch_queued_msg_destroy(qmsg_p);
     }
 
 cleanup:
@@ -888,6 +913,142 @@ cleanup:
     requestBundle(device_id, Swift::JID(to));
 }
 
+/**
+ * A JabberPEPHandler function.
+ * When a prekey message containing an invalid key ID is received,
+ * the bundle of the sender is requested and a KeyTransport message is sent
+ * in response so that a session can still be established.
+ */
+
+// FIXME have a runtime look through whole function with gdb!
+void Omemo::lurch_pep_bundle_for_keytransport(const char * from, const char* items_p) {
+  int ret_val = 0;
+  char * err_msg_dbg = nullptr;
+
+  char * uname = nullptr;
+  axc_context * axc_ctx_p = nullptr;
+  uint32_t own_id = 0;
+  omemo_message * msg_p = nullptr;
+  axc_address addr = {0};
+  lurch_addr laddr = {0};
+  axc_buf * key_ct_buf_p = nullptr;
+  char * msg_xml = nullptr;
+  //xmlnode * msg_node_p = nullptr;
+  //void * jabber_handle_p = purple_plugins_find_with_id("prpl-jabber");
+
+  QString to = "";
+  QString encryptedPayload = "";
+
+  //uname = lurch_uname_strip(purple_account_get_username(purple_connection_get_account(js_p->gc)));
+  std::string bareJid = client_->getJID().toBare().toString();
+  QByteArray JidArray = QString::fromStdString(bareJid).toLocal8Bit();
+  uname = JidArray.data();
+
+  addr.name = from;
+  addr.name_len = strnlen(from, JABBER_MAX_LEN_BARE);
+  addr.device_id = 0;
+
+  QString deviceIdNode = getValueForElementInNode("items", QString::fromStdString(items_p), "node");
+  if (deviceIdNode.contains(':'))
+  {
+    addr.device_id = deviceIdNode.split(':').at(1).toInt();
+  }
+
+  purple_debug_info("lurch", "%s: %s received bundle from %s:%i\n", __func__, uname, from, addr.device_id);
+
+  laddr.jid = g_strndup(addr.name, addr.name_len);
+  laddr.device_id = addr.device_id;
+
+  ret_val = lurch_axc_get_init_ctx(uname, &axc_ctx_p);
+  if (ret_val) {
+    err_msg_dbg = g_strdup_printf("failed to init axc ctx");
+    goto cleanup;
+  }
+
+  // make sure it's gonna be a pre_key_message
+  ret_val = axc_session_delete(addr.name, addr.device_id, axc_ctx_p);
+  if (ret_val) {
+    err_msg_dbg = g_strdup_printf("failed to delete possibly existing session");
+    goto cleanup;
+  }
+
+  ret_val = lurch_bundle_create_session(uname, from, items_p, axc_ctx_p);
+  if (ret_val) {
+    err_msg_dbg = g_strdup_printf("failed to create session");
+    goto cleanup;
+  }
+
+  purple_debug_info("lurch", "%s: %s created session with %s:%i\n", __func__, uname, from, addr.device_id);
+
+  ret_val = axc_get_device_id(axc_ctx_p, &own_id);
+  if (ret_val) {
+    err_msg_dbg = g_strdup_printf("failed to get own device id");
+    goto cleanup;
+  }
+
+  ret_val = omemo_message_create(own_id, &crypto_, &msg_p);
+  if (ret_val) {
+    err_msg_dbg = g_strdup_printf("failed to create omemo msg");
+    goto cleanup;
+  }
+
+  ret_val = lurch_key_encrypt(&laddr,
+                              omemo_message_get_key(msg_p),
+                              omemo_message_get_key_len(msg_p),
+                              axc_ctx_p,
+                              &key_ct_buf_p);
+  if (ret_val) {
+    err_msg_dbg = g_strdup_printf("failed to encrypt key for %s:%i", addr.name, addr.device_id);
+    goto cleanup;
+  }
+
+  ret_val = omemo_message_add_recipient(msg_p,
+                                        addr.device_id,
+                                        axc_buf_get_data(key_ct_buf_p),
+                                        axc_buf_get_len(key_ct_buf_p));
+  if (ret_val) {
+    err_msg_dbg = g_strdup_printf("failed to add %s:%i as recipient to message", addr.name, addr.device_id);
+    goto cleanup;
+  }
+
+  ret_val = omemo_message_export_encrypted(msg_p, OMEMO_ADD_MSG_NONE, &msg_xml);
+  if (ret_val) {
+    err_msg_dbg = g_strdup_printf("failed to export encrypted msg");
+    goto cleanup;
+  }
+
+#if 0
+  msg_node_p = xmlnode_from_str(msg_xml, -1);
+  if (!msg_node_p) {
+    err_msg_dbg = g_strdup_printf("failed to create xml node from xml string");
+    goto cleanup;
+  }
+
+  purple_signal_emit(jabber_handle_p, "jabber-sending-xmlnode", js_p->gc, &msg_node_p);
+#endif
+  purple_debug_info("lurch", "%s: %s sent keytransportmsg to %s:%i\n", __func__, uname, from, addr.device_id);
+
+  // send msg_xml;
+  to = getValueForElementInNode("message", QString(msg_xml), "to");
+  encryptedPayload = getChildFromNode("encrypted", QString(msg_xml));
+  sendEncryptedMessage(to, encryptedPayload);
+
+cleanup:
+  if (err_msg_dbg) {
+    purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
+    free(err_msg_dbg);
+  }
+  free(laddr.jid);
+  //free(uname);
+  axc_context_destroy_all(axc_ctx_p);
+  omemo_message_destroy(msg_p);
+  axc_buf_free(key_ct_buf_p);
+  free(msg_xml);
+  //if (msg_node_p) {
+  //  xmlnode_free(msg_node_p);
+  //}
+}
+
 
 /**
  * Processes a devicelist by updating the database with it.
@@ -976,36 +1137,11 @@ cleanup:
     return ret_val;
 }
 
-
 /**
  * A JabberPEPHandler function.
  * Is used to handle the own devicelist and also perform install-time functions.
  */
 void Omemo::lurch_pep_own_devicelist_request_handler(const std::string &items_p) {
-
-#if 0
- char * response = "<pubsub xmlns=\"http://jabber.org/protocol/pubsub\"> \
-  <items node=\"eu.siacs.conversations.axolotl.devicelist\"> \
-   <item id=\"COFFEEBABE\"> \
-    <list xmlns=\"eu.siacs.conversations.axolotl\"> \
-     <device id=\"1234567890\"></device> \
-    </list> \
-   </item> \
-  </items> \
- </pubsub>";
-
-         char * strippedXmlCStr = "<items node=\"eu.siacs.conversations.axolotl.devicelist\"> \
-           <item id=\"COFFEEBABE\"> \
-            <list xmlns=\"eu.siacs.conversations.axolotl\"> \
-             <device id=\"1234567890\"></device> \
-            </list> \
-           </item> \
-          </items>";
-#endif
-
-         //char * strippedXmlCStr = "<items node=\"eu.siacs.conversations.axolotl.devicelist\"><item id=\"COFFEEBABE\"><list xmlns=\"eu.siacs.conversations.axolotl\"><device id=\"1234567890\"></device></list></item></items>";
-
-
     int ret_val = 0;
     char * err_msg_dbg = nullptr;
 
@@ -1103,17 +1239,6 @@ void Omemo::lurch_pep_own_devicelist_request_handler(const std::string &items_p)
 
         publishPepRawXml(client_->getJID(), QString(dl_xml));
 
-        //std::cout << "pubish pep (response own device list): " << dl_xml;
-        /*
-         * <publish node="eu.siacs.conversations.axolotl.devicelist">
-         *   <item>
-         *     <list xmlns="eu.siacs.conversations.axolotl">
-         *        <device id="1394567069" />
-         *     </list>
-         *    </item>
-         * </publish>
-         */
-
         purple_debug_info("lurch", "%s: \n%s:\n", __func__, "...done");
     }
 
@@ -1178,6 +1303,8 @@ void Omemo::lurch_pep_devicelist_event_handler(const char * from, const std::str
         err_msg_dbg = g_strdup_printf("failed to import devicelist");
         goto cleanup;
     }
+
+
 
     ret_val = lurch_devicelist_process(uname, dl_in_p);
     if(ret_val) {
@@ -1307,7 +1434,6 @@ cleanup:
  * @return 0 on success, negative on error.
  *
  */
-/*JabberStream * js_p,*/
 int Omemo::lurch_msg_finalize_encryption(axc_context * axc_ctx_p, omemo_message * om_msg_p, GList * addr_l_p, char ** msg_stanza_pp) {
     int ret_val = 0;
     char * err_msg_dbg = nullptr;
@@ -1373,7 +1499,7 @@ int Omemo::lurch_msg_finalize_encryption(axc_context * axc_ctx_p, omemo_message 
                                     qmsg_p);
 
         }
-        //*msg_stanza_pp = (void *) 0;
+        *msg_stanza_pp = nullptr;
     }
 
 cleanup:
@@ -1577,7 +1703,7 @@ cleanup:
 void Omemo::lurch_message_decrypt(const char* from, const char* type, std::string msg_stanza_pp) {
     int ret_val = 0;
     char * err_msg_dbg = nullptr;
-    int len;
+    //int len;
 
     omemo_message * msg_p = nullptr;
     char * uname = nullptr;
@@ -1602,6 +1728,7 @@ void Omemo::lurch_message_decrypt(const char* from, const char* type, std::strin
     char * recipient_bare_jid = nullptr;
     //PurpleConversation * conv_p = nullptr;
     char* tmp_msg_p = nullptr;
+    QByteArray qSender = nullptr;
 
 //    const char * type = xmlnode_get_attrib(*msg_stanza_pp, "type");
 //    const char * from = xmlnode_get_attrib(*msg_stanza_pp, "from");
@@ -1621,7 +1748,7 @@ void Omemo::lurch_message_decrypt(const char* from, const char* type, std::strin
     if (!g_strcmp0(type, "chat")) {
 
         //sender = jabber_get_bare_jid(from);
-        QByteArray qSender = QString::fromStdString((Swift::JID(from).toBare().toString())).toLocal8Bit();
+        qSender = QString::fromStdString((Swift::JID(from).toBare().toString())).toLocal8Bit();
         sender = qSender.data();
 
         ret_val = omemo_storage_chatlist_exists(sender, db_fn_omemo);
@@ -1717,12 +1844,14 @@ void Omemo::lurch_message_decrypt(const char* from, const char* type, std::strin
         }
 
         // FIXME implement request of keys!
+        keyTransportMessageReceivers_.append(sender_addr.name);
 #if 0
         jabber_pep_request_item(purple_connection_get_protocol_data(gc_p),
                                 sender_addr.name, bundle_node_name,
                                 (void *) 0,
                                 lurch_pep_bundle_for_keytransport);
 #endif
+        requestBundle(sender_addr.device_id, Swift::JID(sender_addr.name));
 
     } else if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to prekey msg");
@@ -1742,7 +1871,7 @@ void Omemo::lurch_message_decrypt(const char* from, const char* type, std::strin
         goto cleanup;
     }
 
-    // FIXME do something with encrypted msg node in xml;
+    // FIXME do something with decrypted msg node in xml;
     //plaintext_msg_node_p = xmlnode_from_str(xml, -1);
     qDebug() << "##### dec: " << xml;
 
@@ -1817,7 +1946,7 @@ void Omemo::setupWithClient(Swift::Client *client)
         client_ = client;
 
         // FIXME connect msg send, msg receive, pep device list update
-        client_->onMessageReceived.connect(boost::bind(&Omemo::handleMessageReceived, this, _1));
+        //client_->onMessageReceived.connect(boost::bind(&Omemo::handleMessageReceived, this, _1));
         client_->onDataRead.connect(boost::bind(&Omemo::handleDataReceived, this, _1));
 
         // FIXME for device list updates
@@ -1834,16 +1963,28 @@ void Omemo::setupWithClient(Swift::Client *client)
         requestDeviceList(client_->getJID().toBare());
 
         QTimer::singleShot(3000, this, SLOT(shotAfterDelay()));
+        QTimer::singleShot(6000, this, SLOT(shotAfterDelay2()));
+        //QTimer::singleShot(9000, this, SLOT(shotAfterDelay3()));
     }
 }
 
 void Omemo::shotAfterDelay()
 {
     //cleanupDeviceList();
-    //qDebug() << "requst device list for sjde ";
-    //requestDeviceList(Swift::JID("x@y.com"));
+    qDebug() << "requst device list for sjde ";
+    requestDeviceList(Swift::JID("x@y.com"));
     //qDebug() << "try to send enc ";
     //lurch_message_encrypt_im("x@y.com", "enc omemo msg1 bla bla");
+}
+
+void Omemo::shotAfterDelay2()
+{
+
+}
+
+void Omemo::shotAfterDelay3()
+{
+
 }
 
 void Omemo::requestDeviceList(const Swift::JID& jid)
@@ -1873,6 +2014,18 @@ void Omemo::handleDeviceListResponse(const std::string& str)
 {
     qDebug() << "OMEMO: handle device list Response: " << QString::fromStdString(str);
 
+    /*
+     *  <pubsub xmlns="http://jabber.org/protocol/pubsub">
+  <items node="eu.siacs.conversations.axolotl.devicelist">
+   <item id="5ED52F653A338">
+    <list xmlns="eu.siacs.conversations.axolotl">
+     <device id="24234234"></device>
+    </list>
+   </item>
+  </items>
+ </pubsub>
+     */
+
     if (QString::compare(lastType_, "result", Qt::CaseInsensitive) == 0) // else it may be an error.
     {
         // handle own device list
@@ -1900,9 +2053,6 @@ void Omemo::handleDeviceListResponse(const std::string& str)
         }
     }
 }
-
-
-
 
 void Omemo::requestBundle(unsigned int device_id, const Swift::JID& jid)
 {
@@ -1963,10 +2113,24 @@ void Omemo::handleBundleResponse(const std::string& str)
         QString deviceIdNode = getValueForElementInNode("items", QString::fromStdString(str), "node");
         if (deviceIdNode.contains(':'))
         {
-            std::string deviceId = "foo#" + deviceIdNode.split(':').at(1).toStdString() + "#bar";
-
-            // FIXME dont pass NULL but pointer to qlist!!!
-            lurch_bundle_request_cb(lastFrom.c_str(), deviceId.c_str(), stdItems.c_str(), NULL) ;
+            /* check if the bundle request was because of
+             * - a failed prekey message
+             * OR
+             * - a missing bundle to handle queued msg
+             */
+            QString fromRegEx = "\\s*" + lastFrom_ + "\\s*";
+            int index = keyTransportMessageReceivers_.indexOf(QRegularExpression(fromRegEx, QRegularExpression::CaseInsensitiveOption));
+            if (index != -1)
+            {
+                keyTransportMessageReceivers_.removeAt(index);
+                lurch_pep_bundle_for_keytransport(lastFrom.c_str(), stdItems.c_str());
+            }
+            else
+            {
+                // queued msg will be passe through qeuedMessages_
+                std::string deviceId = "foo#" + deviceIdNode.split(':').at(1).toStdString() + "#bar";
+                lurch_bundle_request_cb(lastFrom.c_str(), deviceId.c_str(), stdItems.c_str(), NULL) ;
+            }
         }
         else
         {
