@@ -74,7 +74,7 @@ private:
     int lurch_devicelist_process(char * uname, omemo_devicelist * dl_in_p /*, JabberStream * js_p*/);
 
     int lurch_bundle_create_session(const char * uname, const char * from, const char* items_p, axc_context * axc_ctx_p);
-    void lurch_bundle_request_cb(const char * from, const char * id, const char * items_p, gpointer data_p);
+    void lurch_bundle_request_cb(const char * from, const char * id, const char * items_p);
 
     char * lurch_queue_make_key_string_s(const char * name, const char * device_id);
     int lurch_queued_msg_is_handled(const lurch_queued_msg * qmsg_p);
@@ -110,6 +110,12 @@ private:
     QString lastType_;
     QString lastFrom_;
     QString lastId_;
+
+    QByteArray uname_;
+
+    char* LURCH_DB_SUFFIX;
+    char* LURCH_DB_NAME_OMEMO;
+    char* LURCH_DB_NAME_AXC;
 
     QMap<QString, lurch_queued_msg*> qeuedMessages_;
     QStringList keyTransportMessageReceivers_;
