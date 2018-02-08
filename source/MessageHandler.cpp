@@ -3,17 +3,27 @@
 #include "ImageProcessing.h"
 #include "DownloadManager.h"
 #include "ChatMarkers.h"
+#include "Omemo.h"
+#include "XmppMessageParserClient.h"
 
 #include <QUrl>
 #include <QDebug>
+#include <QDomDocument>
 
 MessageHandler::MessageHandler(Persistence *persistence, QObject *parent) : QObject(parent),
     client_(NULL), persistence_(persistence),
     downloadManager_(new DownloadManager(this)),
     chatMarkers_(new ChatMarkers(persistence_, this)),
+    omemo_(new Omemo(this)),
+    xmppMessageParserClient_(new XMPPMessageParserClient()),
     appIsActive_(true), unAckedMessageIds_()
 {
 
+}
+
+MessageHandler::~MessageHandler()
+{
+    delete xmppMessageParserClient_;
 }
 
 void MessageHandler::setupWithClient(Swift::Client* client)
@@ -28,6 +38,9 @@ void MessageHandler::setupWithClient(Swift::Client* client)
         client_->onStanzaAcked.connect(boost::bind(&MessageHandler::handleStanzaAcked, this, _1));
 
         chatMarkers_->setupWithClient(client_);
+
+        // omemo encryption
+        omemo_->setupWithClient(client_);
     }
 }
 
@@ -49,8 +62,59 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 {
     //std::cout << "handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
 
-    std::string fromJid = message->getFrom().toBare().toString();
-    boost::optional<std::string> fromBody = message->getBody();
+    Swift::Message* plainMessage = nullptr;
+    std::string fromJid = "";
+
+    // check if received message is encrypted
+    QString qMsg = getSerializedStringFromMessage(message);
+    if (isEncryptedMessage(qMsg))
+    {
+        fromJid = Omemo::getValueForElementInNode("message", qMsg, "from").toStdString();
+        std::string type = Omemo::getValueForElementInNode("message", qMsg, "type").toStdString();
+
+        if ( (! fromJid.empty()) && (! type.empty()) )
+        {
+            QString decryptedMessage = omemo_->lurch_message_decrypt(fromJid.c_str(), type.c_str(), qMsg.toStdString());
+
+            if (decryptedMessage.isEmpty())
+            {
+                // something went wrong on the decryption. use original encrypted message and go one...
+                plainMessage = &(*message);
+            }
+            else
+            {
+                decryptedMessage = "<stream xmlns='http://etherx.jabber.org/streams'>" + decryptedMessage;
+
+                // create a xmpp parser
+                Swift::FullPayloadParserFactoryCollection factories;
+                Swift::PlatformXMLParserFactory xmlParserFactory;
+                Swift::XMPPParser parser(xmppMessageParserClient_, &factories, &xmlParserFactory);
+
+                // parse the decrypted string
+                if (parser.parse(decryptedMessage.toStdString()))
+                {
+                    // catch pointer from parsed decrypted string as message pointer
+                    plainMessage = xmppMessageParserClient_->getMessagePtr();
+                    if (plainMessage == nullptr)
+                    {
+                        plainMessage = &(*message);
+                    }
+                }
+                else
+                {
+                    // failure on xml parsing. use original message
+                    plainMessage = &(*message);
+                }
+            }
+        }
+    }
+    else
+    {
+        plainMessage = &(*message);
+    }
+
+    fromJid = plainMessage->getFrom().toBare().toString();
+    boost::optional<std::string> fromBody = plainMessage->getBody();
 
     if (fromBody)
     {
@@ -71,15 +135,15 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         }
 
         bool isGroupMessage = false;
-        if (message->getType() == Swift::Message::Groupchat)
+        if (plainMessage->getType() == Swift::Message::Groupchat)
         {
             isGroupMessage = true;
         }
 
         persistence_->addMessage(isGroupMessage,
-                                 QString::fromStdString(message->getID()),
+                                 QString::fromStdString(plainMessage->getID()),
                                  QString::fromStdString(fromJid),
-                                 QString::fromStdString(message->getFrom().getResource()),
+                                 QString::fromStdString(plainMessage->getFrom().getResource()),
                                  theBody, type, 1 );
 
         // xep 0333
@@ -95,21 +159,21 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     }
 
     // XEP 0184
-    if (message->getPayload<Swift::DeliveryReceiptRequest>())
+    if (plainMessage->getPayload<Swift::DeliveryReceiptRequest>())
     {
         // send message receipt
         Swift::Message::ref receiptReply = boost::make_shared<Swift::Message>();
-        receiptReply->setFrom(message->getTo());
-        receiptReply->setTo(message->getFrom());
+        receiptReply->setFrom(plainMessage->getTo());
+        receiptReply->setTo(plainMessage->getFrom());
 
         boost::shared_ptr<Swift::DeliveryReceipt> receipt = boost::make_shared<Swift::DeliveryReceipt>();
-        receipt->setReceivedID(message->getID());
+        receipt->setReceivedID(plainMessage->getID());
         receiptReply->addPayload(receipt);
         client_->sendMessage(receiptReply);
     }
 
     // mark sent msg as received
-    Swift::DeliveryReceipt::ref rcpt = message->getPayload<Swift::DeliveryReceipt>();
+    Swift::DeliveryReceipt::ref rcpt = plainMessage->getPayload<Swift::DeliveryReceipt>();
     if (rcpt)
     {
         std::string recevideId = rcpt->getReceivedID();
@@ -159,13 +223,53 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
     // add chatMarkers stanza
     msg->addPayload(boost::make_shared<Swift::RawXMLPayload>(ChatMarkers::getMarkableString().toStdString()));
 
-    client_->sendMessage(msg);
+    if ( true /* FIXME check if msg should be sent omemo enc */ )
+    {
+        QString qMsg = getSerializedStringFromMessage(msg);
+        omemo_->lurch_message_encrypt_im(toJid, qMsg);
+    }
+    else
+    {
+        client_->sendMessage(msg);
+    }
     persistence_->addMessage( (Swift::Message::Groupchat == messagesTyp) ? true : false,
                              QString::fromStdString(msgId),
                              QString::fromStdString(receiverJid.toBare().toString()),
                              QString::fromStdString(receiverJid.getResource()),
                              message, type, 0);
     unAckedMessageIds_.push_back(QString::fromStdString(msgId));
+}
+
+QString MessageHandler::getSerializedStringFromMessage(Swift::Message::ref msg)
+{
+    Swift::FullPayloadSerializerCollection serializers_;
+    Swift::XMPPSerializer xmppSerializer(&serializers_, Swift::ClientStreamType, true);
+    Swift::SafeByteArray sba = xmppSerializer.serializeElement(msg);
+
+    return QString::fromStdString(Swift::safeByteArrayToString(sba));
+}
+
+bool MessageHandler::isEncryptedMessage(const QString& xmlNode)
+{
+    bool returnValue = false;
+
+    QDomDocument d;
+    if (d.setContent(xmlNode) == true)
+    {
+        QDomNodeList nodeList = d.elementsByTagName("message");
+        if (!nodeList.isEmpty())
+        {
+            //qDebug() << "found msg";
+            QDomNodeList encList = d.elementsByTagName("encrypted");
+            if (!encList.isEmpty())
+            {
+                //qDebug() << "found enc";
+                returnValue = true;
+            }
+        }
+    }
+
+    return returnValue;
 }
 
 void MessageHandler::sendDisplayedForJid(const QString &jid)

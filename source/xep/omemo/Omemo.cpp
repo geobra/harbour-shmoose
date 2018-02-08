@@ -1524,9 +1524,7 @@ void Omemo::lurch_message_encrypt_im(const QString& receiver, const QString& mes
     char * tempxml = nullptr;
     char* xml_node_msg = nullptr;
 
-    //FIXME
-    QString msgToSend = "<message to='" + receiver + "' id='asdfasdf324fd3456'><body>" + message + "</body></message>";
-    QByteArray msgToSendArray = msgToSend.toLocal8Bit();
+    QByteArray msgToSendArray = message.toLocal8Bit();
 
     //recipient = jabber_get_bare_jid(xmlnode_get_attrib(*msg_stanza_pp, "to"));
     QByteArray recipientBuffer = receiver.toLocal8Bit();
@@ -1658,7 +1656,7 @@ cleanup:
  * Callback for the "receiving xmlnode" signal.
  * Decrypts message, if applicable.
  */
-void Omemo::lurch_message_decrypt(const char* from, const char* type, std::string msg_stanza_pp) {
+QString Omemo::lurch_message_decrypt(const char* from, const char* type, std::string msg_stanza_pp) {
     int ret_val = 0;
     char * err_msg_dbg = nullptr;
     //int len;
@@ -1687,6 +1685,8 @@ void Omemo::lurch_message_decrypt(const char* from, const char* type, std::strin
     //PurpleConversation * conv_p = nullptr;
     char* tmp_msg_p = nullptr;
     QByteArray qSender = nullptr;
+
+    QString returnString = "";
 
 //    const char * type = xmlnode_get_attrib(*msg_stanza_pp, "type");
 //    const char * from = xmlnode_get_attrib(*msg_stanza_pp, "from");
@@ -1827,6 +1827,7 @@ void Omemo::lurch_message_decrypt(const char* from, const char* type, std::strin
     // FIXME do something with decrypted msg node in xml;
     //plaintext_msg_node_p = xmlnode_from_str(xml, -1);
     qDebug() << "##### dec: " << xml;
+    returnString = QString(xml);
 
     if (g_strcmp0(sender, uname)) {
         // FIXME return plaintext msg
@@ -1868,6 +1869,8 @@ cleanup:
     free(recipient_bare_jid);
     omemo_message_destroy(keytransport_msg_p);
     omemo_message_destroy(msg_p);
+
+    return returnString;
 }
 
 
@@ -1907,7 +1910,7 @@ void Omemo::setupWithClient(Swift::Client *client)
         // similar to lurch_account_connect_cb()
         requestDeviceList(client_->getJID().toBare());
 
-        QTimer::singleShot(3000, this, SLOT(shotAfterDelay()));
+        //QTimer::singleShot(3000, this, SLOT(shotAfterDelay()));
         //QTimer::singleShot(6000, this, SLOT(shotAfterDelay2()));
         //QTimer::singleShot(9000, this, SLOT(shotAfterDelay3()));
 
@@ -2122,29 +2125,6 @@ QString Omemo::getChildFromNode(const QString& childElement, const QString &xml)
     return returnXml;
 }
 
-bool Omemo::isEncryptedMessage(const QString& xmlNode)
-{
-    bool returnValue = false;
-
-    QDomDocument d;
-    if (d.setContent(xmlNode) == true)
-    {
-        QDomNodeList nodeList = d.elementsByTagName("message");
-        if (!nodeList.isEmpty())
-        {
-            //qDebug() << "found msg";
-            QDomNodeList encList = d.elementsByTagName("encrypted");
-            if (!encList.isEmpty())
-            {
-                //qDebug() << "found enc";
-                returnValue = true;
-            }
-        }
-    }
-
-    return returnValue;
-}
-
 QString Omemo::getValueForElementInNode(const QString& node, const QString& xmlNode, const QString& elementString)
 {
     QString returnValue = "";
@@ -2195,17 +2175,6 @@ void Omemo::handleDataReceived(Swift::SafeByteArray data)
         lastType_ = getValueForElementInNode(lastNodeName_, qData, "type");
 
         qDebug() << "node data: " << lastNodeName_ << ", " << lastFrom_ << ", " << lastId_;
-    }
-
-    if (isEncryptedMessage(qData))
-    {
-        std::string from = getValueForElementInNode("message", qData, "from").toStdString();
-        std::string type = getValueForElementInNode("message", qData, "type").toStdString();
-
-        if ( (! from.empty()) && (! type.empty()) )
-        {
-            lurch_message_decrypt(from.c_str(), type.c_str(), nodeData);
-        }
     }
 }
 

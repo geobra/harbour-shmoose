@@ -25,6 +25,11 @@ public:
 
     void setupWithClient(Swift::Client *client);
 
+    void lurch_message_encrypt_im(const QString& receiver, const QString &message);
+    QString lurch_message_decrypt(const char* from, const char* type, std::string msg_stanza_pp);
+
+    static QString getValueForElementInNode(const QString& node, const QString& xmlNode, const QString& elementString);
+
 signals:
 
 public slots:
@@ -58,12 +63,10 @@ private:
     void handleMessageReceived(Swift::Message::ref message);
     void handleDataReceived(Swift::SafeByteArray data);
 
-    bool isEncryptedMessage(const QString& xmlNode);
     void sendEncryptedMessage(const QString& to, const QString &encryptedPayload);
 
     QString getFirstNodeNameOfXml(const QString &xml);
     QString getChildFromNode(const QString &childElement, const QString &xml);
-    QString getValueForElementInNode(const QString& node, const QString& xmlNode, const QString& elementString);
 
     int lurch_axc_prepare(char * uname);
     int lurch_axc_get_init_ctx(char * uname, axc_context ** ctx_pp);
@@ -80,7 +83,6 @@ private:
     int lurch_queued_msg_is_handled(const lurch_queued_msg * qmsg_p);
     void lurch_queued_msg_destroy(lurch_queued_msg * qmsg_p);
 
-    void lurch_message_encrypt_im(const QString& receiver, const QString &message);
     GList* lurch_addr_list_add(GList * addrs_p, const omemo_devicelist * dl_p, const uint32_t * exclude_id_p);
     int lurch_msg_finalize_encryption(axc_context * axc_ctx_p, omemo_message * om_msg_p, GList * addr_l_p, char **msg_stanza_pp);
     static void lurch_addr_list_destroy_func(gpointer data);
@@ -92,8 +94,6 @@ private:
     uint32_t lurch_bundle_name_get_device_id(const char * bundle_node_name);
 
     int lurch_key_encrypt(const lurch_addr * recipient_addr_p, const uint8_t * key_p, size_t key_len, axc_context * axc_ctx_p, axc_buf ** key_ct_buf_pp);
-
-    void lurch_message_decrypt(const char* from, const char* type, std::string msg_stanza_pp);
 
     void purple_debug_error (const char *category, const char *format,...);
     void purple_debug_info(const char *category, const char *format,...);

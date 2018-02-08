@@ -92,7 +92,6 @@ private:
 	HttpFileUploadManager* httpFileUploadManager_;
     MucManager *mucManager_;
     DiscoInfoHandler* discoInfoHandler_;
-    Omemo* omemo_;
 
 	QString jid_;
 	QString password_;
