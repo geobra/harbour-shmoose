@@ -59,9 +59,11 @@ private:
     void handleBundleResponse(const std::string& str);
 
     void publishPepRawXml(const Swift::JID& jid, const QString& rawXml);
+    void publisedPepHandler(const std::string& str);
 
     void handleMessageReceived(Swift::Message::ref message);
     void handleDataReceived(Swift::SafeByteArray data);
+    void handleConnected();
 
     void sendEncryptedMessage(const QString& to, const QString &encryptedPayload);
 
@@ -110,6 +112,7 @@ private:
     QString lastType_;
     QString lastFrom_;
     QString lastId_;
+    QString requestedDeviceListForBareJid_;
 
     QByteArray uname_;
 

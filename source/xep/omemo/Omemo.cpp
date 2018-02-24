@@ -35,7 +35,7 @@ GHashTable * chat_users_ht_p = nullptr;
 
 
 Omemo::Omemo(QObject *parent) : QObject(parent),
-    client_(NULL), lastNodeName_(""), lastType_(""), lastFrom_(""), lastId_(""), uname_(),
+    client_(NULL), lastNodeName_(""), lastType_(""), lastFrom_(""), lastId_(""), requestedDeviceListForBareJid_(), uname_(),
     LURCH_DB_NAME_OMEMO(nullptr), LURCH_DB_NAME_AXC(nullptr),
     qeuedMessages_(), keyTransportMessageReceivers_(),
     uninstall(0)
@@ -1116,6 +1116,7 @@ void Omemo::lurch_pep_own_devicelist_request_handler(const std::string &items_p)
     int needs_publishing = 1;
     omemo_devicelist * dl_p = nullptr;
     char * dl_xml = nullptr;
+    char *tmp_items_p = nullptr;
 
     char* uname = uname_.data();
 
@@ -1161,10 +1162,8 @@ void Omemo::lurch_pep_own_devicelist_request_handler(const std::string &items_p)
         purple_debug_info("lurch", "%s: %s\n", __func__, "comparing received devicelist with cached one");
         QString strippedXml = getChildFromNode("items", QString::fromStdString(items_p));
 
-        QByteArray xmlArray = strippedXml.toLocal8Bit();
-        char* strippedXmlCStr = xmlArray.data();
-
-        ret_val = omemo_devicelist_import(strippedXmlCStr, uname, &dl_p);
+        tmp_items_p = strdup(items_p.c_str());
+        ret_val = omemo_devicelist_import(tmp_items_p, uname, &dl_p);
         if (ret_val) {
             err_msg_dbg = g_strdup_printf("failed to import received devicelist");
             goto cleanup;
@@ -1228,6 +1227,7 @@ cleanup:
         free(err_msg_dbg);
     }
     //g_free(uname);
+    free(tmp_items_p);
     axc_context_destroy_all(axc_ctx_p);
     omemo_devicelist_destroy(dl_p);
     free(dl_xml);
@@ -1905,10 +1905,10 @@ void Omemo::setupWithClient(Swift::Client *client)
         uname_ = QString::fromStdString(bareJid).toLocal8Bit();
 
         client_->onDataRead.connect(boost::bind(&Omemo::handleDataReceived, this, _1));
+        client_->onConnected.connect(boost::bind(&Omemo::handleConnected, this));
 
-        // request own device list
-        // similar to lurch_account_connect_cb()
-        requestDeviceList(client_->getJID().toBare());
+        // in case the connection is already setup...
+        handleConnected();
 
         //QTimer::singleShot(3000, this, SLOT(shotAfterDelay()));
         //QTimer::singleShot(6000, this, SLOT(shotAfterDelay2()));
@@ -1919,6 +1919,13 @@ void Omemo::setupWithClient(Swift::Client *client)
     }
 }
 
+void Omemo::handleConnected()
+{
+    // request own device list
+    // similar to lurch_account_connect_cb()
+    requestDeviceList(client_->getJID().toBare());
+}
+
 void Omemo::shotAfterDelay()
 {
     //cleanupDeviceList();
@@ -1926,6 +1933,7 @@ void Omemo::shotAfterDelay()
     //requestDeviceList(Swift::JID("x@y.com"));
     //qDebug() << "try to send enc ";
     //lurch_message_encrypt_im("x@y.com", "23 42");
+    //cleanupDeviceList();
 }
 
 void Omemo::shotAfterDelay2()
@@ -1955,6 +1963,8 @@ void Omemo::requestDeviceList(const Swift::JID& jid)
         Swift::RawRequest::ref requestDeviceList = Swift::RawRequest::create(Swift::IQ::Get, jid.toBare(), deviceListRequestXml, client_->getIQRouter());
         requestDeviceList->onResponse.connect(boost::bind(&Omemo::handleDeviceListResponse, this, _1));
 
+        requestedDeviceListForBareJid_ = QString::fromStdString(jid.toBare().toString());
+
         requestDeviceList->send();
 
         free(dl_ns);
@@ -1975,8 +1985,68 @@ void Omemo::handleDeviceListResponse(const std::string& str)
    </item>
   </items>
  </pubsub>
+
+    OR
+
+    <error type=\"cancel\"><item-not-found xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/></error>
      */
 
+    std::string myJid = client_->getJID().toBare().toString();
+
+    QString type = getValueForElementInNode("error", QString::fromStdString(str), "type");
+    bool isError = false;
+    if (type.compare("cancel", Qt::CaseInsensitive) == 0)
+    {
+        isError = true;
+    }
+
+    if (requestedDeviceListForBareJid_.compare(QString::fromStdString(myJid), Qt::CaseInsensitive) == 0)
+    {
+        // was a request of my device list
+        qDebug() << "handle own device list";
+
+        if ( isError )
+        {
+            // no device list found. It may be an omemo setup for this account. pass in empty string to generate a device list.
+            qDebug() << "   -> generate own device list";
+            lurch_pep_own_devicelist_request_handler("");
+        }
+        else
+        {
+            qDebug() << "   -> handle own device list";
+
+            QString items = getChildFromNode("items", QString::fromStdString(str));
+            QByteArray xmlArray = items.toLocal8Bit();
+            char* itemsCStr = xmlArray.data();
+
+            // FIXME didn't cresh when this is commented out...
+            lurch_pep_own_devicelist_request_handler(itemsCStr);
+        }
+    }
+    else
+    {
+        // was a request for someone's else device list
+        if ( isError )
+        {
+            qDebug() << "error requesting someone's device list";
+        }
+        else
+        {
+            QString strippedXml = getChildFromNode("items", QString::fromStdString(str));
+            QByteArray xmlArray = strippedXml.toLocal8Bit();
+            char* strippedXmlCStr = xmlArray.data();
+
+            qDebug() << "new device list " << strippedXml << " for sjd!";
+            std::string fromJid = requestedDeviceListForBareJid_.toStdString();
+            qDebug() << "new device list: handle for " << requestedDeviceListForBareJid_;
+            lurch_pep_devicelist_event_handler(fromJid.c_str(), strippedXmlCStr);
+        }
+    }
+
+    requestedDeviceListForBareJid_ = "";
+
+    // FIXME remove old implementation if new one proved to work...
+#if 0
     if (QString::compare(lastType_, "result", Qt::CaseInsensitive) == 0) // else it may be an error.
     {
         // handle own device list
@@ -1997,12 +2067,13 @@ void Omemo::handleDeviceListResponse(const std::string& str)
             qDebug() << "new device list " << strippedXml << " for sjd!";
             if (QString::compare(lastNodeName_, "iq", Qt::CaseInsensitive) == 0)
             {
-                std::string lastFrom = lastFrom_.toStdString();
-                qDebug() << "new device list: handle for " << lastFrom_;
-                lurch_pep_devicelist_event_handler(lastFrom.c_str(), strippedXmlCStr);
+                std::string rdlbJid = requestedDeviceListForBareJid_.toStdString();
+                qDebug() << "new device list: handle for " << requestedDeviceListForBareJid_;
+                lurch_pep_devicelist_event_handler(rdlbJid.c_str(), strippedXmlCStr);
             }
         }
     }
+#endif
 }
 
 void Omemo::requestBundle(unsigned int device_id, const Swift::JID& jid)
@@ -2156,9 +2227,14 @@ void Omemo::publishPepRawXml(const Swift::JID& jid, const QString& rawXml)
                                                                             pubsubXml,
                                                                             client_->getIQRouter());
     // FIXME create responder to catch the errors
-    //requestDeviceList->onResponse.connect(boost::bind(&Omemo::handleDeviceListResponse, this, _1));
+    publishPep->onResponse.connect(boost::bind(&Omemo::publisedPepHandler, this, _1));
 
     publishPep->send();
+}
+
+void Omemo::publisedPepHandler(const std::string& str)
+{
+    qDebug() << "OMEMO: publisedPepHandler: " << QString::fromStdString(str);
 }
 
 void Omemo::handleDataReceived(Swift::SafeByteArray data)

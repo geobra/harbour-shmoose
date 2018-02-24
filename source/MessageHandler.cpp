@@ -107,6 +107,10 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
                 }
             }
         }
+        else
+        {
+            plainMessage = &(*message);
+        }
     }
     else
     {

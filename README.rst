@@ -21,9 +21,9 @@ Feature Stack until version 1.0
 * XEP-0333: Chat Markers [done]
 * XEP-0045: Multi-User Chat [partial]
 * XEP-0198: Stream Management  [partial]
-* OMEMO Multi-End Message and Object Encryption [ ]
+* OMEMO Multi-End Message and Object Encryption [WIP]
 * Add, edit and delete roster items [partial]
-* Make database persistent [WIP]
+* Finalize database [WIP]
 
 -------------------------------------------------------------------------------
 Ready to use binaries can be found on openrepos
@@ -31,7 +31,7 @@ Ready to use binaries can be found on openrepos
 `Shmoose on openrepos <https://openrepos.net/content/schorsch/shmoose>`_
 
 -------------------------------------------------------------------------------
-Installation
+Installation on debian stable
 -------------------------------------------------------------------------------
 
 On Linux do the following:
@@ -41,25 +41,45 @@ Create a working directory::
  * mkdir src
  * cd src
 
-Fetch swift source::
+Prepare swift source::
 
  * wget https://swift.im/downloads/releases/swift-3.0/swift-3.0.tar.gz
  * tar -xzvf swift-3.0.tar.gz
- * cd swift-3.0/
+ * mv swift-3.0 swift-3.0-host
+ * cd swift-3.0-host
 
-Install all dependencies to build swiften::
+Install all dependencies and build swiften::
 
  * ./BuildTools/InstallSwiftDependencies.sh
  * ./scons Swiften -j<Number of threads>
 
 Install dependencies to build Shmoose (example for Debian)::
 
- * sudo apt-get install zlib1g-dev libssl-dev libxml2-dev libstdc++-5-dev libqt5quick5 libqt5quickparticles5 libqt5quickwidgets5 libqt5qml5 libqt5network5 libqt5gui5 libqt5core5a qt5-default libglib2.0-dev libpthread-stubs0-dev
+ * sudo apt-get install zlib1g-dev libssl-dev libxml2-dev libstdc++-6-dev libqt5quick5 libqt5quickparticles5 libqt5quickwidgets5 libqt5qml5 libqt5network5 libqt5gui5 libqt5core5a qt5-default libglib2.0-dev libpthread-stubs0-dev libsqlite3-dev gcc g++ make libgcrypt20-dev libmxml-dev cmake
 
 Get Shmoose source code::
 
  * cd ..
  * git clone https://github.com/geobra/harbour-shmoose
+
+Switch to omemo branch::
+
+ * cd harbour-shmoose/
+ * git checkout xep-0384
+
+Fetch and compile libraries for omemo::
+
+ * git submodule update --init --recursive
+ * cd lib/axc
+ * make
+ * cd lib/libsignal-protocol-c
+ * mkdir build
+ * cd build
+ * cmake ..
+ * make
+ * cd ../../../../libomemo/
+ * make
+ * cd ../..
 
 Either::
 
@@ -67,13 +87,16 @@ Either::
 
 or use command line::
 
- * cd harbour-shmoose
- * qmake
+ * mkdir build
+ * cd build
+ * qmake ..
  * make -j<Number of threads>
 
 -------------------------------------------------------------------------------
 To cross compile for Sailfish OS, do the following
 -------------------------------------------------------------------------------
+
+tbd... newer library versions are needed!
 
  * Get and install Sailfish OS mersdk (tested with version 1608)
  * Ssh into mersdk and do the following in a newly created directory

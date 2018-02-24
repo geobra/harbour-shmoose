@@ -1,9 +1,9 @@
 TARGET = harbour-shmoose
 
 # path to local compiled swift 3 lib
-SWIFT3PATH = ../swift-3.0-host
+SWIFT3PATH = $$_PRO_FILE_PWD_/../swift-3.0-host
 contains(DEFINES, SFOS) {
-    SWIFT3PATH = ../swift-3.0-arm
+    SWIFT3PATH = $$_PRO_FILE_PWD_/../swift-3.0-arm
 }
 
 # from swift-config
@@ -40,7 +40,7 @@ contains(DEFINES, SFOS) {
 }
 
 LIBS += -lgcrypt
-LIBS += $$_PRO_FILE_PWD_/lib/axc/build/libaxc-nt.a
+LIBS += $$_PRO_FILE_PWD_/lib/axc/build/libaxc.a
 LIBS += $$_PRO_FILE_PWD_/lib/axc/lib/libsignal-protocol-c/build/src/libsignal-protocol-c.a
 LIBS += $$_PRO_FILE_PWD_/lib/libomemo/build/libomemo-conversations.a
 
