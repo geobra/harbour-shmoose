@@ -65,6 +65,11 @@ private:
     void handleDataReceived(Swift::SafeByteArray data);
     void handleConnected();
 
+    void deleteDeviceId();
+    void deleteBundle();
+    void deleteOmemoDb();
+    bool isInstalled();
+
     void sendEncryptedMessage(const QString& to, const QString &encryptedPayload);
 
     QString getFirstNodeNameOfXml(const QString &xml);

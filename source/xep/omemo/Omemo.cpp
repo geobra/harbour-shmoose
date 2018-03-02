@@ -20,6 +20,7 @@
 #include <QRegularExpression>
 
 #include <QDebug>
+#include <QSettings>
 
 // see https://www.ietf.org/rfc/rfc3920.txt
 #define JABBER_MAX_LEN_NODE 1023
@@ -1121,8 +1122,7 @@ void Omemo::lurch_pep_own_devicelist_request_handler(const std::string &items_p)
     char* uname = uname_.data();
 
     //install = (purple_account_get_bool(acc_p, LURCH_ACC_SETTING_INITIALIZED, FALSE)) ? 0 : 1;
-    // FIXME
-    install = 0; // FIXME set to 0 if already installed
+    install = (isInstalled()) ? 0 : 1;
 
     if (install && !uninstall) {
         purple_debug_info("lurch", "%s: %s\n", __func__, "preparing installation...");
@@ -1145,7 +1145,7 @@ void Omemo::lurch_pep_own_devicelist_request_handler(const std::string &items_p)
         goto cleanup;
     }
 
-    if (items_p.empty()) { // FIXME check if this function will be called on non existing pep device list
+    if (items_p.empty()) {
     //if (true) {
         purple_debug_info("lurch", "%s: %s\n", __func__, "no devicelist yet, creating it");
         ret_val = omemo_devicelist_create(uname, &dl_p);
@@ -1160,7 +1160,6 @@ void Omemo::lurch_pep_own_devicelist_request_handler(const std::string &items_p)
         }
     } else {
         purple_debug_info("lurch", "%s: %s\n", __func__, "comparing received devicelist with cached one");
-        QString strippedXml = getChildFromNode("items", QString::fromStdString(items_p));
 
         tmp_items_p = strdup(items_p.c_str());
         ret_val = omemo_devicelist_import(tmp_items_p, uname, &dl_p);
@@ -1908,7 +1907,7 @@ void Omemo::setupWithClient(Swift::Client *client)
         client_->onConnected.connect(boost::bind(&Omemo::handleConnected, this));
 
         // in case the connection is already setup...
-        handleConnected();
+        //handleConnected();
 
         //QTimer::singleShot(3000, this, SLOT(shotAfterDelay()));
         //QTimer::singleShot(6000, this, SLOT(shotAfterDelay2()));
@@ -1921,9 +1920,33 @@ void Omemo::setupWithClient(Swift::Client *client)
 
 void Omemo::handleConnected()
 {
-    // request own device list
-    // similar to lurch_account_connect_cb()
-    requestDeviceList(client_->getJID().toBare());
+    QSettings settings;
+    QString settingsPath = "omemo/" + uname_ + "/activated";
+
+    // FIXME create omemo toggle in settings page
+    //settings.setValue(settingsPath, true);
+
+    bool omemoActivated = settings.value(settingsPath, false).toBool();
+
+    if ( omemoActivated == true )
+    {
+        // request own device list
+        // similar to lurch_account_connect_cb()
+        requestDeviceList(client_->getJID().toBare());
+
+        // FIXME check if device list (initial or update) is working
+        //requestDeviceList("bar@stretch.internal");
+    }
+    else
+    {
+        if (isInstalled() == true)
+        {
+            //  5.8 Removing OMEMO support: MUST remove itself from the devicelist and SHOULD remove its bundle
+            //deleteBundle();
+            deleteDeviceId();
+            deleteOmemoDb();
+        }
+    }
 }
 
 void Omemo::shotAfterDelay()
@@ -1938,6 +1961,19 @@ void Omemo::shotAfterDelay()
 
 void Omemo::shotAfterDelay2()
 {
+
+#if 0
+    const std::string pubsubXml = "<pubsub xmlns=\"http://jabber.org/protocol/pubsub#owner\"><configure node=\"eu.siacs.conversations.axolotl.devicelist\"/></pubsub>";
+
+    Swift::RawRequest::ref publishPep = Swift::RawRequest::create(Swift::IQ::Get,
+                                                                            client_->getJID().toBare(),
+                                                                            pubsubXml,
+                                                                            client_->getIQRouter());
+    // FIXME create responder to catch the errors
+    //publishPep->onResponse.connect(boost::bind(&Omemo::publisedPepHandler, this, _1));
+
+    publishPep->send();
+#endif
 
 }
 
@@ -2037,9 +2073,21 @@ void Omemo::handleDeviceListResponse(const std::string& str)
             char* strippedXmlCStr = xmlArray.data();
 
             qDebug() << "new device list " << strippedXml << " for sjd!";
-            std::string fromJid = requestedDeviceListForBareJid_.toStdString();
-            qDebug() << "new device list: handle for " << requestedDeviceListForBareJid_;
-            lurch_pep_devicelist_event_handler(fromJid.c_str(), strippedXmlCStr);
+            std::string fromJid = lastFrom_.toStdString();
+            if (fromJid.empty())
+            {
+                fromJid = requestedDeviceListForBareJid_.toStdString();
+            }
+
+            if (fromJid.empty())
+            {
+                qDebug() << "Error! Dont know whom this deviceList belongs to.";
+            }
+            else
+            {
+                qDebug() << "new device list: handle for " << requestedDeviceListForBareJid_;
+                lurch_pep_devicelist_event_handler(fromJid.c_str(), strippedXmlCStr);
+            }
         }
     }
 
@@ -2257,4 +2305,77 @@ void Omemo::handleDataReceived(Swift::SafeByteArray data)
 void Omemo::handleMessageReceived(Swift::Message::ref message)
 {
     std::cout << "OMEMO: handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
+}
+
+bool Omemo::isInstalled()
+{
+    bool returnValue = false;
+
+    char * omemo_file = lurch_uname_get_db_fn(uname_, LURCH_DB_NAME_OMEMO);
+    QFileInfo check_file(omemo_file);
+
+    if (check_file.exists() && check_file.isFile())
+    {
+        returnValue = true;
+    }
+    else
+    {
+        returnValue = false;
+    }
+
+    g_free(omemo_file);
+
+    return returnValue;
+}
+
+void Omemo::deleteBundle()
+{
+    // FIXME always, an error 400 is returned?!
+
+    uint32_t own_id = 0;
+    int ret_val = 0;
+    axc_context * axc_ctx_p = nullptr;
+
+    ret_val = lurch_axc_get_init_ctx(uname_.data(), &axc_ctx_p);
+    if (! ret_val)
+    {
+        ret_val = axc_get_device_id(axc_ctx_p, &own_id);
+        if (! ret_val)
+        {
+            QString node = "eu.siacs.conversations.axolotl.bundles:";
+
+            QString payload = "<delete node=\"" + node + QString::number(own_id) + "\"/>";
+
+            publishPepRawXml(uname_.data(), payload);
+        }
+        else
+        {
+            qDebug() << "failed to get device id: " << QString::number(own_id) << " (" << QString::number(ret_val) << ")";
+        }
+    }
+    else
+    {
+        qDebug() << "failed to init ctx: " << QString::number(ret_val);
+    }
+}
+
+void Omemo::deleteOmemoDb()
+{
+    char * omemo_file = lurch_uname_get_db_fn(uname_, LURCH_DB_NAME_OMEMO);
+    char * axc_file = lurch_uname_get_db_fn(uname_, LURCH_DB_NAME_AXC);
+
+    QFile fileOmemo (omemo_file);
+    fileOmemo.remove();
+
+    QFile fileAxc (axc_file);
+    fileAxc.remove();
+
+
+    g_free(omemo_file);
+    g_free(axc_file);
+}
+
+void Omemo::deleteDeviceId()
+{
+    cleanupDeviceList(); // FIXME only own ID
 }
