@@ -59,6 +59,7 @@ Page {
         model: [
             { "title" : qsTr("Contacts"),      "icon" : "image://theme/icon-m-people",         "page" : pageContacts },
             { "title" : qsTr("Conversations"), "icon" : "image://theme/icon-m-chat",           "page" : pageConversations },
+            { "title" : qsTr("Settings"),      "icon" : "image://theme/icon-m-developer-mode", "page" : pageSettings },
             { "title" : qsTr("About"),         "icon" : "image://theme/icon-m-about",          "page" : pageAbout },
         ];
         delegate: BackgroundItem {
