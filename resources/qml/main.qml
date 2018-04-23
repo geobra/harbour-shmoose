@@ -40,11 +40,16 @@ ApplicationWindow {
     Component { id: pagePreferences; PreferencesPage { } }
     Component { id: pageAccount; AccountPage { } }
     Component { id: pageMessaging; MessagingPage { } }
+    Component { id: imagePicker; ImagePickerPage { } }
     Component { id: pageSettings; SettingsPage { } }
     Component { id: pageAbout; AboutPage { } }
     Component { id: dialogCreateContact; CreateContactDialog { } }
     Component { id: dialogJoinRoom; JoinRoomDialog { } }
     Component { id: dialogOk; OkDialog { } }
+
+    ImagePickerPage {
+        id: pageImagePicker
+    }
 
     Component {
         id: messageNotification
@@ -192,12 +197,10 @@ ApplicationWindow {
             if (ethernet.connected)
             {
                 console.log("ethernet connected")
-                textsecure.connectEvent()
             }
             else
             {
                 console.log("ethernet DISconnected")
-                textsecure.disconnectEvent()
             }
             mainWindow.hasInetConnection = mainWindow.getHasInetConnection()
             shmoose.setHasInetConnection(mainWindow.hasInetConnection)
