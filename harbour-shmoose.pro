@@ -93,7 +93,7 @@ lupdate_only {
 
 TRANSLATIONS = resources/translations/de_DE.ts \
                resources/translations/en_GB.ts \
-               resources/translations/es.BO.ts
+               resources/translations/es_BO.ts
 
 RESOURCES += shmoose.qrc
 
