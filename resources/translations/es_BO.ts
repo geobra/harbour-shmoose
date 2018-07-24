@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="13"/>
         <source>Shmoose - Xmpp Client</source>
-        <translation>Shmoose un cliente no oficial de XMPP</translation>
+        <translation>Shmoose un cliente de XMPP</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="33"/>
