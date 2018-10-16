@@ -18,7 +18,7 @@ public:
     QString getJid() const;
     QString getPassword() const;
     bool getSaveCredentials() const;
-    QStringList getImagePaths() const;
+    QStringList getImagePaths();
 
 signals:
     void jidChanged(QString Jid);

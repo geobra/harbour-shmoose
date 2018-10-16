@@ -68,14 +68,19 @@ void Settings::setSaveCredentials(bool SaveCredentials)
     emit saveCredentialsChanged(SaveCredentials);
 }
 
-QStringList Settings::getImagePaths() const
+QStringList Settings::getImagePaths()
 {
     QSettings settings;
-    QStringList searchPaths = settings.value("storage/imagePaths").toStringList();
+    QStringList searchPaths;
 
-    if(searchPaths.size() == 0)
+    if(!settings.contains("storage/imagePaths"))
     {
         searchPaths.append(QStandardPaths::writableLocation(QStandardPaths::PicturesLocation));
+        setImagePaths(searchPaths);
+    }
+    else
+    {
+        searchPaths = settings.value("storage/imagePaths").toStringList();
     }
 
     return searchPaths;
