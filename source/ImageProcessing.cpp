@@ -1,6 +1,7 @@
 #include "ImageProcessing.h"
 
 #include <QImage>
+#include <QImageReader>
 #include <QBuffer>
 
 #include <QDebug>
@@ -20,7 +21,9 @@ bool ImageProcessing::prepareImageForSending(QString source, QString target, uns
     QBuffer buffer(&bytes);
     if (buffer.open(QIODevice::WriteOnly) == true)
     {
-        QImage img(source);
+        QImageReader imgreader(source);
+        imgreader.setAutoTransform(true);
+        QImage img = imgreader.read();
         if (img.save(&buffer, "JPG") == true)
         {
             qDebug() << "buffer size: " << buffer.size();
