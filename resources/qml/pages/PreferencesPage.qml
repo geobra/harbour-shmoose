@@ -14,14 +14,14 @@ Page {
             id: column
             width: parent.width
 
-            PageHeader { title: "Settings" }
+            PageHeader { title: qsTr("Settings") }
 
-            SectionHeader { text: "Privacy" }
+            SectionHeader { text: qsTr("Privacy") }
 
             TextSwitch {
                 id: readNotificationSwitch
                 checked: shmoose.settings.SendReadNotifications
-                text: "Send Read Notifications"
+                text: qsTr("Send Read Notifications")
                 onClicked: {
                     shmoose.settings.SendReadNotifications = readNotificationSwitch.checked;
                 }
