@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <Swiften/Swiften.h>
+#include "Settings.h"
 
 class DownloadManager;
 class Persistence;
@@ -12,7 +13,7 @@ class MessageHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit MessageHandler(Persistence* persistence, QObject *parent = 0);
+    explicit MessageHandler(Persistence* persistence, Settings * settings, QObject *parent = 0);
 
     void setupWithClient(Swift::Client* client);
 
@@ -27,6 +28,7 @@ public slots:
 private:
     Swift::Client* client_;
     Persistence* persistence_;
+    Settings* settings_;
 
     DownloadManager* downloadManager_;
     ChatMarkers* chatMarkers_;

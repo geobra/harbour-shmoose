@@ -7,8 +7,8 @@
 #include <QUrl>
 #include <QDebug>
 
-MessageHandler::MessageHandler(Persistence *persistence, QObject *parent) : QObject(parent),
-    client_(NULL), persistence_(persistence),
+MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, QObject *parent) : QObject(parent),
+    client_(NULL), persistence_(persistence), settings_(settings),
     downloadManager_(new DownloadManager(this)),
     chatMarkers_(new ChatMarkers(persistence_, this)),
     appIsActive_(true), unAckedMessageIds_()
@@ -90,7 +90,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
              (appIsActive_ == true)                                                     // but only if app is active
              )
         {
-            chatMarkers_->sendDisplayedForJid(currentChatPartner);
+            this->sendDisplayedForJid(currentChatPartner);
         }
     }
 
@@ -170,7 +170,10 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
 
 void MessageHandler::sendDisplayedForJid(const QString &jid)
 {
-    chatMarkers_->sendDisplayedForJid(jid);
+    if(settings_->getSendReadNotifications())
+    {
+        chatMarkers_->sendDisplayedForJid(jid);
+    }
 }
 
 void MessageHandler::slotAppGetsActive(bool active)

@@ -35,7 +35,7 @@ Page {
                 id: jidTextField
                 placeholderText: qsTr("jid@server.com")
                 label: qsTr("JID")
-                text: shmoose.getJid()
+                text: shmoose.settings.Jid
                 width: parent.width
 
                 onTextChanged: {
@@ -48,7 +48,7 @@ Page {
                 placeholderText: qsTr("password")
                 echoMode: TextInput.Password
                 label: qsTr("Password")
-                text: shmoose.getPassword()
+                text: shmoose.settings.Password
                 width: parent.width
 
                 onTextChanged: {
@@ -60,9 +60,9 @@ Page {
                 width: parent.width
                 Switch {
                     id: saveCredentials
-                    checked: shmoose.checkSaveCredentials()
+                    checked: shmoose.settings.SaveCredentials
                     onClicked: {
-                        shmoose.saveCredentials(saveCredentials.checked);
+                        shmoose.settings.SaveCredentials = saveCredentials.checked;
                     }
                 }
                 Label {
