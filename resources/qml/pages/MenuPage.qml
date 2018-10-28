@@ -25,7 +25,7 @@ Page {
                 anchors.horizontalCenter: parent.horizontalCenter;
             }
             Label {
-                text: shmoose.getJid();
+                text: shmoose.settings.Jid;
                 font.pixelSize: Theme.fontSizeLarge;
                 anchors {
                     left: parent.left;
@@ -59,6 +59,7 @@ Page {
         model: [
             { "title" : qsTr("Contacts"),      "icon" : "image://theme/icon-m-people",         "page" : pageContacts },
             { "title" : qsTr("Conversations"), "icon" : "image://theme/icon-m-chat",           "page" : pageConversations },
+            { "title" : qsTr("Settings"),      "icon" : "image://theme/icon-m-wizard",         "page" : pagePreferences },
             { "title" : qsTr("About"),         "icon" : "image://theme/icon-m-about",          "page" : pageAbout },
         ];
         delegate: BackgroundItem {

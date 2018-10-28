@@ -4,4 +4,30 @@ import Sailfish.Silica 1.0
 Page {
     id: page;
 
+    SilicaFlickable {
+        anchors.fill: parent
+        contentHeight: column.height
+
+        VerticalScrollDecorator {}
+
+        Column {
+            id: column
+            width: parent.width
+
+            PageHeader { title: qsTr("Settings") }
+
+            SectionHeader { text: qsTr("Privacy") }
+
+            TextSwitch {
+                id: readNotificationSwitch
+                checked: shmoose.settings.SendReadNotifications
+                text: qsTr("Send Read Notifications")
+                onClicked: {
+                    shmoose.settings.SendReadNotifications = readNotificationSwitch.checked;
+                }
+            }
+        }
+
+    }
+
 }
