@@ -15,6 +15,7 @@ public:
     ~MucManager();
 
     void setupWithClient(Swift::Client* client);
+    void handleConnected();
 
     void addRoom(Swift::JID &roomJid, QString const &roomName);
     void removeRoom(QString const &jroomJid);
@@ -36,6 +37,7 @@ private:
 
     void handleJoinFailed(Swift::ErrorPayload::ref error);
     void handleJoinComplete(const std::string &joinedName);
+    void handleUserLeft(Swift::MUC::LeavingType lt);
 
     void handleMessageReceived(Swift::Message::ref message);
 
@@ -43,6 +45,7 @@ private:
     void sendUnavailableToRoom(Swift::MUCBookmark bookmark);
 
     QString getNickName();
+    bool triggerNewMucSignal_;
 };
 
 #endif // MUCMANAGER_H

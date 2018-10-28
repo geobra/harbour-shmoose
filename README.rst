@@ -81,12 +81,13 @@ To cross compile for Sailfish OS, do the following
 Fetch swift source::
 
  * wget https://swift.im/downloads/releases/swift-3.0/swift-3.0.tar.gz
- * tar -xzvf swift-3.0.tar.gz
- * cd swift-3.0/
+ * mkdir swift-3.0-arm
+ * cd swift-3.0-arm
+ * tar --strip-components=1 -xzvf ../swift-3.0.tar.gz
 
 Install all dependencies to build swiften::
 
- * sb2 -t SailfishOS-armv7hl -m sdk-install -R zypper in openssl-devel libiphb-devel
+ * sb2 -t SailfishOS-armv7hl -m sdk-install -R zypper in openssl-devel libiphb-devel libxml2-devel
 
 Patch SConstruct file to do a PIC build of the library archive
 
@@ -100,7 +101,7 @@ Build Swiften Library::
 
  * sb2 -t SailfishOS-armv7hl /bin/bash ./scons Swiften
 
-Get Smooshe source code::
+Get Shmoose source code::
 
  * cd ..
  * git clone https://github.com/geobra/harbour-shmoose

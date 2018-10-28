@@ -47,6 +47,9 @@ install -d %{buildroot}%{_datadir}/icons/hicolor/86x86/apps
 install -m 0444 -t %{buildroot}%{_datadir}/icons/hicolor/86x86/apps/ resources/icons/86x86/%{name}.png
 install -p %(pwd)/resources/harbour-shmoose.desktop %{buildroot}%{_datadir}/applications/%{name}.desktop
 install -p %(pwd)/resources/harbour-shmoose-message.conf %{buildroot}%{_datadir}/lipstick/notificationcategories/%{name}-message.conf
+
+strip %{buildroot}%{_bindir}/%{name}
+
 # >> install post
 # << install post
 

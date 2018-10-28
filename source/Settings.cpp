@@ -68,6 +68,23 @@ void Settings::setSaveCredentials(bool SaveCredentials)
     emit saveCredentialsChanged(SaveCredentials);
 }
 
+bool Settings::getSendReadNotifications() const
+{
+    bool save = true;
+
+    QSettings settings;
+    save = settings.value("privacy/sendReadNotifications", true).toBool();
+
+    return save;
+}
+
+void Settings::setSendReadNotifications(bool SendReadNotifications)
+{
+    QSettings settings;
+    settings.setValue("privacy/sendReadNotifications", SendReadNotifications);
+    emit saveCredentialsChanged(SendReadNotifications);
+}
+
 QStringList Settings::getImagePaths()
 {
     QSettings settings;
@@ -94,8 +111,6 @@ void Settings::setImagePaths(QStringList const & ImagePaths)
 
     emit imagePathsChanged(ImagePaths);
 }
-
-
 
 
 

@@ -24,7 +24,7 @@
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="124"/>
         <source>Join room by address</source>
-        <translation>Unirse a una sala</translation>
+        <translation>Entrar a una sala</translation>
     </message>
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="131"/>
@@ -96,7 +96,7 @@
     <message>
         <location filename="../qml/pages/ImagePickerPage.qml" line="42"/>
         <source>Select picture</source>
-        <translation>Elegir una foto</translation>
+        <translation>Elegir foto</translation>
     </message>
 </context>
 <context>
@@ -104,7 +104,7 @@
     <message>
         <location filename="../qml/pages/JoinRoomDialog.qml" line="13"/>
         <source>Join Room by address</source>
-        <translation>Unirse a una sala</translation>
+        <translation>Entrar a una sala</translation>
     </message>
     <message>
         <location filename="../qml/pages/JoinRoomDialog.qml" line="19"/>
@@ -124,14 +124,14 @@
     <message>
         <location filename="../qml/pages/JoinRoomDialog.qml" line="27"/>
         <source>Room name</source>
-        <translation>Nombre de la sala</translation>
+        <translation>Nombre de sala</translation>
     </message>
 </context>
 <context>
     <name>LoginPage</name>
     <message>
         <source>Login</source>
-        <translation type="vanished">Bienvenidos a Shmoose</translation>
+        <translation>Bienvenidos a Shmoose</translation>
     </message>
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="16"/>
@@ -208,7 +208,7 @@
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="253"/>
         <source>Enter message...</source>
-        <translation>Escribir mensaje...</translation>
+        <translation>Escribir texto...</translation>
     </message>
 </context>
 </TS>

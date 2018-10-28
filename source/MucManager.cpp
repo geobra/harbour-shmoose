@@ -3,7 +3,7 @@
 #include <iostream>
 
 MucManager::MucManager(QObject *parent) :
-    QObject(parent), client_(NULL), mucBookmarkManager_(NULL)
+    QObject(parent), client_(NULL), mucBookmarkManager_(NULL), triggerNewMucSignal_(true)
 {
 }
 
@@ -25,7 +25,22 @@ void MucManager::setupWithClient(Swift::Client* client)
         mucBookmarkManager_->onBookmarkRemoved.connect(boost::bind(&MucManager::handleBookmarkRemoved, this, _1));
 
         client_->onMessageReceived.connect(boost::bind(&MucManager::handleMessageReceived, this, _1));
+
+        client_->onConnected.connect(boost::bind(&MucManager::handleConnected, this));
     }
+}
+
+void MucManager::handleConnected()
+{
+    std::cout << "##################### MucManager::handleConnected() -> rejoin rooms ######################" << std::endl;
+
+    // This is only needed on a reconnt after an network loss.
+    // It will rejoin to the rooms from the bookmarks.
+    // It does nothing on a first connection.
+
+    triggerNewMucSignal_ = false;
+    handleBookmarksReady();
+    triggerNewMucSignal_ = true;
 }
 
 void MucManager::handleMessageReceived(Swift::Message::ref message)
@@ -45,17 +60,20 @@ void MucManager::handleMessageReceived(Swift::Message::ref message)
 
 void MucManager::handleBookmarksReady()
 {
-    //std::cout << "##################### handleBookmarksReady ######################" << std::endl;
+    std::cout << "##################### handleBookmarksReady ######################" << std::endl;
     std::vector<Swift::MUCBookmark> bookmarks = mucBookmarkManager_->getBookmarks();
 
     for(std::vector<Swift::MUCBookmark>::iterator it = bookmarks.begin(); it != bookmarks.end(); ++it)
     {
         Swift::JID roomJid((*it).getRoom());
-        //std::cout << "rooms: jid:" << roomJid << ", name: " << (*it).getName() << std::endl;
+        std::cout << "rooms: jid:" << roomJid << ", name: " << (*it).getName() << std::endl;
 
         if (roomJid.isValid())
         {
-            emit newGroupForContactsList( QString::fromStdString(roomJid.toBare().toString()) , QString::fromStdString((*it).getName()));
+            if (triggerNewMucSignal_ == true)
+            {
+                emit newGroupForContactsList( QString::fromStdString(roomJid.toBare().toString()) , QString::fromStdString((*it).getName()));
+            }
 
             // maybee join room
             joinRoomIfConfigured(*it);
@@ -169,6 +187,11 @@ void MucManager::handleJoinFailed(Swift::ErrorPayload::ref error)
         //std::cout << "join error: " << joinError.getText() << std::endl;
         signalShowMessage("Error joining room", QString::fromStdString(joinError.getText()));
     }
+}
+
+void MucManager::handleUserLeft(Swift::MUC::LeavingType lt)
+{
+    std::cout << "##################### MucManager::handleUserLeft:" << lt << std::endl;
 }
 
 void MucManager::removeRoom(QString const &roomJid)
