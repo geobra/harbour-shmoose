@@ -31,7 +31,7 @@ Page {
 
             Button {
                 text: "Attachement search paths"
-                onClicked: pageStack.push(Qt.resolvedUrl("AttachementPathSelectorPage.qml"))
+                onClicked: pageStack.push(Qt.resolvedUrl("AttachementPathSelectorPage.qml"), { "currentPath" : StandardPaths.pictures })
              }
 
         }
