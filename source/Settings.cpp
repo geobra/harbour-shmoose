@@ -112,5 +112,21 @@ void Settings::setImagePaths(QStringList const & ImagePaths)
     emit imagePathsChanged(ImagePaths);
 }
 
+void Settings::removeImagePath(QString const & Path)
+{
+    QSettings settings;
+    QStringList searchPaths;
 
+    if(settings.contains("storage/imagePaths"))
+    {
+        searchPaths = settings.value("storage/imagePaths").toStringList();
+
+        int idx = searchPaths.indexOf(Path);
+        if(idx >= 0)
+        {
+            searchPaths.removeAt(idx);
+            setImagePaths(searchPaths);
+        }
+    }
+}
 

@@ -26,15 +26,22 @@ Page {
         model: shmoose.settings.ImagePaths
 
         delegate: ListItem {
+            id: pathItem
             width: parent.width
 
             Label { text: modelData }
 
+            RemorseItem { id: remorse }
+
+            function showRemorseItem() {
+                remorse.execute(pathItem, qsTr("Deleting"), function() { shmoose.settings.removeImagePath(modelData) } )
+            }
+
             menu: ContextMenu {
                 MenuItem {
-                    text: "Remove"
+                    text: qsTr("Remove")
                     onClicked: {
-                        // TODO
+                        showRemorseItem()
                     }
                 }
             }

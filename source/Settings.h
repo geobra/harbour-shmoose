@@ -35,6 +35,7 @@ public slots:
     void setSaveCredentials(bool SaveCredentials);
     void setSendReadNotifications(bool SendReadNotifications);
     void setImagePaths(QStringList const & ImagePaths);
+    void removeImagePath(QString const & Path);
 
 };
 
