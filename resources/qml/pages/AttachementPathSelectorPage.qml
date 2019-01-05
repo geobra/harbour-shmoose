@@ -5,53 +5,50 @@ Dialog {
     id: page;
 
     property string currentPath
+    DialogHeader {
+        id: header
+        width: parent.width
+    }
 
-//    Dialog {
-//        anchors.fill: parent
-//        acceptDestinationAction: PageStackAction.Pop
+    SectionHeader {
+            id: currentPathLabel
+            text: currentPath
 
-    Column {
-        anchors.fill: parent
+            anchors.top: header.bottom
+    }
 
-        DialogHeader {
-            id: header
+    SilicaListView {
+        id: folderContents
+        anchors.top: currentPathLabel.bottom
+        anchors.bottom: parent.bottom
+        width: parent.width
+
+        clip: true
+
+        model: ListModel {
+            ListElement { fruit: "jackfruit" }
+            ListElement { fruit: "orange" }
+            ListElement { fruit: "lemon" }
+            ListElement { fruit: "lychee" }
+            ListElement { fruit: "apricots" }
+            ListElement { fruit: "apple" }
+            ListElement { fruit: "clementine" }
+            ListElement { fruit: "lime" }
+            ListElement { fruit: "melon" }
+            ListElement { fruit: "cherry" }
+            ListElement { fruit: "pear" }
+            ListElement { fruit: "banana" }
+            ListElement { fruit: "blueberry" }
+            ListElement { fruit: "raspberry" }
+            ListElement { fruit: "blackberry" }
         }
 
-        SectionHeader {
-                id: currentPathLabel
-                text: currentPath
-                //text: qsTr("blah")
-        }
+        VerticalScrollDecorator {}
 
-        SilicaListView {
-            id: folderContents
-            anchors.top: currentPathLabel.bottom
-            anchors.bottom: parent.bottom
+        delegate: ListItem {
+            width: folderContents.width
 
-            model: ListModel {
-                ListElement { fruit: "jackfruit" }
-                ListElement { fruit: "orange" }
-                ListElement { fruit: "lemon" }
-                ListElement { fruit: "lychee" }
-                ListElement { fruit: "apricots" }
-                ListElement { fruit: "apple" }
-                ListElement { fruit: "clementine" }
-                ListElement { fruit: "lime" }
-                ListElement { fruit: "melon" }
-                ListElement { fruit: "cherry" }
-                ListElement { fruit: "pear" }
-                ListElement { fruit: "banana" }
-                ListElement { fruit: "blueberry" }
-                ListElement { fruit: "raspberry" }
-                ListElement { fruit: "blackberry" }
-            }
-
-            delegate: ListItem {
-                width: folderContents.width
-                height: Theme.itemSizeSmall
-
-                Label { text: fruit }
-            }
+            Label { text: fruit }
         }
     }
 
