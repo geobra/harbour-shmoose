@@ -27,15 +27,12 @@ Page {
                 }
             }
 
-            SectionHeader { text: "Attachements" }
+            SectionHeader { text: "Attachments" }
 
             Button {
-                text: "Attachement search paths"
-                onClicked: pageStack.push(Qt.resolvedUrl("AttachementPathSelectorPage.qml"), { "currentPath" : StandardPaths.pictures })
-             }
-
+                text: qsTr("Edit attachment search paths")
+                onClicked: pageStack.push(Qt.resolvedUrl("AttachmentPathsPage.qml"))
+            }
         }
-
     }
-
 }
