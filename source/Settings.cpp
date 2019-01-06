@@ -130,3 +130,22 @@ void Settings::removeImagePath(QString const & Path)
     }
 }
 
+void Settings::addImagePath(QUrl const & Path)
+{
+    QSettings settings;
+    QStringList searchPaths;
+
+    if(settings.contains("storage/imagePaths"))
+    {
+        searchPaths = settings.value("storage/imagePaths").toStringList();
+    }
+
+    if(!searchPaths.contains(Path.path()))
+    {
+        searchPaths.append(Path.path());
+
+        setImagePaths(searchPaths);
+    }
+}
+
+

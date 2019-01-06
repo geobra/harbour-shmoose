@@ -2,6 +2,7 @@
 #define SETTINGS_H
 
 #include <QObject>
+#include <QUrl>
 
 class Settings : public QObject
 {
@@ -36,6 +37,7 @@ public slots:
     void setSendReadNotifications(bool SendReadNotifications);
     void setImagePaths(QStringList const & ImagePaths);
     void removeImagePath(QString const & Path);
+    void addImagePath(QUrl const & Path);
 
 };
 
