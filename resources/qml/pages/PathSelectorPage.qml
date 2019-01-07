@@ -8,7 +8,6 @@ Dialog {
     property url currentPath
 
     onAccepted: {
-        console.log("Adding " + currentPath + " to image search paths")
         shmoose.settings.addImagePath(currentPath)
     }
 
@@ -19,36 +18,42 @@ Dialog {
         width: parent.width
     }
 
-    Row {
-        id: controlsRow
+
+    Button {
+        id: oneUpButton
+        text: "⇧"
+        width: Theme.itemSizeExtraSmall
+        x: Theme.horizontalPageMargin
 
         anchors.top: header.bottom
-        width: parent.width
 
-        Button {
-            id: oneUpButton
-            text: "⇧"
-            width: Theme.itemSizeExtraSmall
+        enabled: currentPath != "file:///"
+        onClicked: currentPath = fsModel.parentFolder
+    }
 
-            enabled: currentPath != "file:///"
-            onClicked: currentPath = fsModel.parentFolder
-        }
+    Label {
+            id: currentPathLabel
+            text: currentPath.toString().replace(/file:\/\//, "")
 
-        Label {
-                id: currentPathLabel
-                text: currentPath.toString().replace(/file:\/\//, "")
-                anchors.verticalCenter: parent.verticalCenter
+            anchors {
+                top: header.bottom
+                left: oneUpButton.right
+                right: parent.right
+                verticalCenter: oneUpButton.verticalCenter
+            }
 
-                horizontalAlignment: Text.AlignRight
-                font.pixelSize: Theme.fontSizeSmall
-                color: Theme.highlightColor
-                height: Theme.itemSizeExtraSmall
-        }
+            padding: Theme.horizontalPageMargin
+
+            horizontalAlignment: Text.AlignRight
+            font.pixelSize: Theme.fontSizeSmall
+            color: Theme.highlightColor
+            height: Theme.itemSizeExtraSmall
+            truncationMode: TruncationMode.Fade
     }
 
     SilicaListView {
         id: folderContents
-        anchors.top: controlsRow.bottom
+        anchors.top: oneUpButton.bottom
         anchors.bottom: parent.bottom
         width: parent.width
 
