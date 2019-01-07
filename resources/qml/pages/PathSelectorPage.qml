@@ -9,7 +9,7 @@ Dialog {
 
     onAccepted: {
         console.log("Adding " + currentPath + " to image search paths")
-        shmoose.settings.addImagePath(currentPath.toString())
+        shmoose.settings.addImagePath(currentPath)
     }
 
     acceptDestinationAction: PageStackAction.Pop
@@ -23,6 +23,7 @@ Dialog {
         id: controlsRow
 
         anchors.top: header.bottom
+        width: parent.width
 
         Button {
             id: oneUpButton
@@ -35,8 +36,8 @@ Dialog {
 
         Label {
                 id: currentPathLabel
-                text: currentPath
-                anchors.verticalCenter: oneUpButton.verticalCenter
+                text: currentPath.toString().replace(/file:\/\//, "")
+                anchors.verticalCenter: parent.verticalCenter
 
                 horizontalAlignment: Text.AlignRight
                 font.pixelSize: Theme.fontSizeSmall
@@ -72,7 +73,7 @@ Dialog {
 
             Label { text: fileName }
 
-            onClicked: currentPath += "/" + fileName
+            onClicked: currentPath = decodeURIComponent(currentPath.toString().replace(/(\/)?$/, "/" + fileName))
         }
     }
 
