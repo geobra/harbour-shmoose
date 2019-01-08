@@ -26,8 +26,13 @@ Page {
                     shmoose.settings.SendReadNotifications = readNotificationSwitch.checked;
                 }
             }
+
+            SectionHeader { text: qsTr("Attachments") }
+
+            Button {
+                text: qsTr("Edit attachment search paths")
+                onClicked: pageStack.push(Qt.resolvedUrl("AttachmentPathsPage.qml"))
+            }
         }
-
     }
-
 }
