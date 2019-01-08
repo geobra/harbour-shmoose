@@ -262,6 +262,11 @@
         <translation>Lesebestätigungen senden</translation>
     </message>
     <message>
+        <location filename="../qml/pages/PreferencesPage.qml" line="30"/>
+        <source>Attachments</source>
+        <translation>Anhänge</translation>
+    </message>
+    <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="33"/>
         <source>Edit attachment search paths</source>
         <translation>Suchpfade für Anhänge ändern</translation>

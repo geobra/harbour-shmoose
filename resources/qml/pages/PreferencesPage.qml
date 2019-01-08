@@ -27,7 +27,7 @@ Page {
                 }
             }
 
-            SectionHeader { text: "Attachments" }
+            SectionHeader { text: qsTr("Attachments") }
 
             Button {
                 text: qsTr("Edit attachment search paths")
