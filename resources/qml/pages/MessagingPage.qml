@@ -281,7 +281,7 @@ Page {
             onClicked: {
                 if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0) {
                     sendmsgview.attachmentPath = ""
-                    fileModel.searchPath = "/home/nemo/Pictures"
+                    fileModel.searchPath = shmoose.settings.ImagePaths
                     pageStack.push(pageImagePicker)
                     pageImagePicker.selected.connect(processAttachment)
                 } else {

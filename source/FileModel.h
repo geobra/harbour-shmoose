@@ -49,7 +49,7 @@ public:
 class FileModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(QString searchPath READ getSearchPath WRITE setSearchPath FINAL)
+    Q_PROPERTY(QStringList searchPath READ getSearchPath WRITE setSearchPath FINAL)
 
 public:
     enum FileModelRoles {
@@ -60,13 +60,14 @@ public:
     explicit FileModel(QObject *parent = 0);
     int rowCount(const QModelIndex & parent = QModelIndex()) const;
     QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
-    QString getSearchPath();
-    void setSearchPath(QString path);
+    QStringList getSearchPath();
+    void setSearchPath(QStringList path);
     //void setSearchPath();
 
 private:
     QList<FileInfo *> fileList;
-    void searchFiles(QString path);
+    QStringList m_searchPath;
+    void searchFiles(QString const & path);
 
     void dump();
 

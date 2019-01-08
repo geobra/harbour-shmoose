@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="de_DE">
+<TS version="2.1" language="de_DE">
 <context>
     <name>AboutPage</name>
     <message>
@@ -17,6 +17,29 @@
         <location filename="../qml/pages/AboutPage.qml" line="34"/>
         <source>Contributions:</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AttachmentPathsPage</name>
+    <message>
+        <location filename="../qml/pages/AttachmentPathsPage.qml" line="12"/>
+        <source>Add Path</source>
+        <translation>Pfad hinzufügen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AttachmentPathsPage.qml" line="23"/>
+        <source>Attachment Search Paths</source>
+        <translation>Suchpfade für Anhänge</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AttachmentPathsPage.qml" line="37"/>
+        <source>Deleting</source>
+        <translation>Wird gelöscht</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AttachmentPathsPage.qml" line="42"/>
+        <source>Remove</source>
+        <translation>Entfernen</translation>
     </message>
 </context>
 <context>
@@ -237,6 +260,16 @@
         <location filename="../qml/pages/PreferencesPage.qml" line="24"/>
         <source>Send Read Notifications</source>
         <translation>Lesebestätigungen senden</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/PreferencesPage.qml" line="30"/>
+        <source>Attachments</source>
+        <translation>Anhänge</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/PreferencesPage.qml" line="33"/>
+        <source>Edit attachment search paths</source>
+        <translation>Suchpfade für Anhänge ändern</translation>
     </message>
 </context>
 </TS>
