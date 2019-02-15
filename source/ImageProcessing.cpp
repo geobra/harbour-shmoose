@@ -22,7 +22,9 @@ bool ImageProcessing::prepareImageForSending(QString source, QString target, uns
     if (buffer.open(QIODevice::WriteOnly) == true)
     {
         QImageReader imgreader(source);
+        #if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
         imgreader.setAutoTransform(true);
+        #endif
         QImage img = imgreader.read();
         if (img.save(&buffer, "JPG") == true)
         {

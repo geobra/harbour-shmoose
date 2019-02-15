@@ -22,7 +22,7 @@ INCLUDEPATH += source/xep/xmppPing
 INCLUDEPATH += source/xep/chatMarkers
 
 QMAKE_CXXFLAGS += $${SWIFTCXX} -std=c++11
-linux-g++ {
+! contains(DEFINES, SFOS) {
     QMAKE_CXXFLAGS += -Wno-deprecated-declarations -Wno-placement-new
 }
 LIBS += -L$${SWIFT3PATH}/Swiften -L$${SWIFT3PATH}/3rdParty/Boost $${SWIFTLIB}

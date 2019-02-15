@@ -2,6 +2,7 @@
 #define MESSAGEHANDLER_H
 
 #include <QObject>
+#include <QStringList>
 #include <Swiften/Swiften.h>
 #include "Settings.h"
 
