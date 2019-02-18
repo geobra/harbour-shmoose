@@ -23,22 +23,24 @@
 
 int main(int argc, char *argv[])
 {
-	qmlRegisterType<RosterController>( "harbour.shmoose", 1, 0, "RosterController");
-	qmlRegisterType<RosterItem>( "harbour.shmoose", 1, 0, "RosterItem");
+    qmlRegisterType<RosterController>( "harbour.shmoose", 1, 0, "RosterController");
+    qmlRegisterType<RosterItem>( "harbour.shmoose", 1, 0, "RosterItem");
 
-	qRegisterMetaType<Persistence*>("Persistence*");
-	qRegisterMetaType<MessageController*>("MessageController*");
-	qRegisterMetaType<MessageController*>("SessionController*");
+    qRegisterMetaType<Settings*>("Settings*");
+
+    qRegisterMetaType<Persistence*>("Persistence*");
+    qRegisterMetaType<MessageController*>("MessageController*");
+    qRegisterMetaType<MessageController*>("SessionController*");
 
     // app
     QGuiApplication *pApp = NULL;
 
 #ifdef SFOS
-	QGuiApplication *app = SailfishApp::application(argc, argv);
-	QQuickView *view = SailfishApp::createView();
+    QGuiApplication *app = SailfishApp::application(argc, argv);
+    QQuickView *view = SailfishApp::createView();
     pApp = app;
 #else
-	QGuiApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
     pApp = &app;
 #endif
 
@@ -57,25 +59,25 @@ int main(int argc, char *argv[])
     // eventloop
     Swift::QtEventLoop eventLoop;
     Swift::BoostNetworkFactories networkFactories(&eventLoop);
-	Shmoose shmoose(&networkFactories);
+    Shmoose shmoose(&networkFactories);
 
     FileModel fileModel;
 
 #ifdef SFOS
-	view->rootContext()->setContextProperty("shmoose", &shmoose);
+    view->rootContext()->setContextProperty("shmoose", &shmoose);
     view->rootContext()->setContextProperty("fileModel", &fileModel);
 
     view->setSource(SailfishApp::pathTo("qml/main.qml"));
-	view->showFullScreen();
+    view->showFullScreen();
 #else
-	QQmlApplicationEngine engine;
-	engine.rootContext()->setContextProperty("shmoose", &shmoose);
-	engine.load(QUrl("qrc:/main.qml"));
+    QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty("shmoose", &shmoose);
+    engine.load(QUrl("qrc:/main.qml"));
 
-	QObject *topLevel = engine.rootObjects().value(0);
-	QQuickWindow *window = qobject_cast<QQuickWindow*>(topLevel);
+    QObject *topLevel = engine.rootObjects().value(0);
+    QQuickWindow *window = qobject_cast<QQuickWindow*>(topLevel);
 
-	window->show();
+    window->show();
 #endif
 
     return pApp->exec();
