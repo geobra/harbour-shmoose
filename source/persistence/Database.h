@@ -6,15 +6,15 @@
 
 class Database : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
     explicit Database(QObject *parent = 0);
     bool open(QString const &jid);
-	bool isValid();
-	QSqlDatabase* getPointer();
+    bool isValid();
+    QSqlDatabase* getPointer();
 
-	void dumpDataToStdOut() const;
+    void dumpDataToStdOut() const;
 
     static const QString sqlMsgName_;
     static const QString sqlMsgMessage_;
@@ -36,8 +36,8 @@ signals:
 public slots:
 
 private:
-	bool databaseValid_;
-	QSqlDatabase database_;
+    bool databaseValid_;
+    QSqlDatabase database_;
 };
 
 #endif // DATABASE_H

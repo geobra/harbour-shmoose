@@ -161,10 +161,10 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
 
     client_->sendMessage(msg);
     persistence_->addMessage( (Swift::Message::Groupchat == messagesTyp) ? true : false,
-                             QString::fromStdString(msgId),
-                             QString::fromStdString(receiverJid.toBare().toString()),
-                             QString::fromStdString(receiverJid.getResource()),
-                             message, type, 0);
+                              QString::fromStdString(msgId),
+                              QString::fromStdString(receiverJid.toBare().toString()),
+                              QString::fromStdString(receiverJid.getResource()),
+                              message, type, 0);
     unAckedMessageIds_.push_back(QString::fromStdString(msgId));
 }
 

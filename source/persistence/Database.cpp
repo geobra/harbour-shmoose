@@ -72,7 +72,7 @@ bool Database::open(QString const &jid)
             QSqlQuery query;
 
             if (! database_.tables().contains( sqlMsgName_ ))
-            {                
+            {
                 QString sqlCreateCommand = "create table " + sqlMsgName_ + " (" + sqlId_ + " TEXT, " + sqlJid_ + " TEXT, "
                         + sqlResource_ + " TEXT, " + sqlMsgMessage_ + " TEXT, " + sqlMsgDirection_ + " INTEGER, "
                         + sqlTimestamp_ + " INTEGER, " + sqlMsgType_ + " STRING, " + sqlMsgState_ + " INTEGER)";
@@ -102,19 +102,19 @@ bool Database::open(QString const &jid)
 
 QSqlDatabase* Database::getPointer()
 {
-	return &database_;
+    return &database_;
 }
 
 bool Database::isValid()
 {
-	return databaseValid_;
+    return databaseValid_;
 }
 
 void Database::dumpDataToStdOut() const
 {
 
-	QSqlQuery query("select * from messages", database_);
-	QSqlRecord rec = query.record();
+    QSqlQuery query("select * from messages", database_);
+    QSqlRecord rec = query.record();
 
     const unsigned int idCol = rec.indexOf(Database::sqlId_);
     const unsigned int jidCol = rec.indexOf(Database::sqlJid_);
@@ -127,37 +127,37 @@ void Database::dumpDataToStdOut() const
 
 
     qDebug() << "id:\t\tjid:\tresource:\tmessage:\tdirection\ttimestamp,\ttype,\tsent,\treceived:";
-	qDebug() << "---------------------------------------------------------------------------------------";
-	while (query.next())
-	{
-		qDebug() << query.value(idCol).toString() << "\t"
-				 << query.value(jidCol).toString() << "\t"
+    qDebug() << "---------------------------------------------------------------------------------------";
+    while (query.next())
+    {
+        qDebug() << query.value(idCol).toString() << "\t"
+                 << query.value(jidCol).toString() << "\t"
                  << query.value(resourceCol).toString() << "\t"
-				 << query.value(messageCol).toString() << "\t"
-				 << query.value(directionCol).toString() << "\t"
-				 << query.value(timeStampCol).toInt() << "\t"
-				 << query.value(typeCol).toString() << "\t"
+                 << query.value(messageCol).toString() << "\t"
+                 << query.value(directionCol).toString() << "\t"
+                 << query.value(timeStampCol).toInt() << "\t"
+                 << query.value(typeCol).toString() << "\t"
                  << query.value(messageState).toBool() << "\t";
-	}
+    }
 
 #if 0
-	QSqlQuery query("select * from sessions", database_);
-	QSqlRecord rec = query.record();
+    QSqlQuery query("select * from sessions", database_);
+    QSqlRecord rec = query.record();
 
-	const unsigned int jidCol = rec.indexOf("jid");
-	const unsigned int messageCol = rec.indexOf("lastmessage");
-	const unsigned int tsCol = rec.indexOf("timestamp");
-	const unsigned int unreadMsgCol = rec.indexOf("unreadmessages");
+    const unsigned int jidCol = rec.indexOf("jid");
+    const unsigned int messageCol = rec.indexOf("lastmessage");
+    const unsigned int tsCol = rec.indexOf("timestamp");
+    const unsigned int unreadMsgCol = rec.indexOf("unreadmessages");
 
-	qDebug() << "id:\tjid:\tlastmessage:\ttimestamp\tunreadmessages:";
-	qDebug() << "---------------------------------------------------------------------------------------";
-	while (query.next())
-	{
-		qDebug()
-				 << query.value(jidCol).toString() << "\t"
-				 << query.value(messageCol).toString() << "\t"
-				 << query.value(tsCol).toInt() << "\t"
-				 << query.value(unreadMsgCol).toInt() << "\t";
-	}
+    qDebug() << "id:\tjid:\tlastmessage:\ttimestamp\tunreadmessages:";
+    qDebug() << "---------------------------------------------------------------------------------------";
+    while (query.next())
+    {
+        qDebug()
+                << query.value(jidCol).toString() << "\t"
+                << query.value(messageCol).toString() << "\t"
+                << query.value(tsCol).toInt() << "\t"
+                << query.value(unreadMsgCol).toInt() << "\t";
+    }
 #endif
 }

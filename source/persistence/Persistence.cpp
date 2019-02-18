@@ -17,7 +17,7 @@ Persistence::Persistence(QObject *parent)
 
 Persistence::~Persistence()
 {
-	// db_ has this as parent and gets free'd implicit from this;
+    // db_ has this as parent and gets free'd implicit from this;
 }
 
 void Persistence::openDatabaseForJid(QString const &jid)
@@ -105,15 +105,15 @@ QPair<QString, int> Persistence::getNewestReceivedMessageIdAndStateOfJid(QString
 
 bool Persistence::isValid()
 {
-	return persistenceValid_;
+    return persistenceValid_;
 }
 
 MessageController* Persistence::getMessageController()
 {
-	return messageController_;
+    return messageController_;
 }
 
 SessionController* Persistence::getSessionController()
 {
-	return sessionController_;
+    return sessionController_;
 }

@@ -12,16 +12,16 @@ extern "C" {
 
 class IpHeartBeatWatcher : public QThread
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	IpHeartBeatWatcher(QObject *parent = 0);
+    IpHeartBeatWatcher(QObject *parent = 0);
     ~IpHeartBeatWatcher();
 
     void run();
     void stopWatching();
 
 signals:
-	void triggered();
+    void triggered();
 
 private:
     bool doWatch_;

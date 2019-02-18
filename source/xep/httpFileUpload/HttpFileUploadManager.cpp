@@ -14,29 +14,29 @@
 #include <QDebug>
 
 HttpFileUploadManager::HttpFileUploadManager(QObject *parent) : QObject(parent),
-	httpUpload_(new HttpFileUploader(this)),
-	serverHasFeatureHttpUpload_(false), maxFileSize_(0),
-	file_(new QFile(this)), jid_(""), client_(NULL),
-	uploadServerJid_(""), statusString_(""), getUrl_(""), busy_(false)
+    httpUpload_(new HttpFileUploader(this)),
+    serverHasFeatureHttpUpload_(false), maxFileSize_(0),
+    file_(new QFile(this)), jid_(""), client_(NULL),
+    uploadServerJid_(""), statusString_(""), getUrl_(""), busy_(false)
 {
-	connect(httpUpload_, SIGNAL(updateStatus(QString)), this, SLOT(updateStatusString(QString)));
-	connect(httpUpload_, SIGNAL(uploadSuccess()), this, SLOT(successReceived()));
-	connect(httpUpload_, SIGNAL(errorOccurred()), this, SLOT(errorReceived()));
+    connect(httpUpload_, SIGNAL(updateStatus(QString)), this, SLOT(updateStatusString(QString)));
+    connect(httpUpload_, SIGNAL(uploadSuccess()), this, SLOT(successReceived()));
+    connect(httpUpload_, SIGNAL(errorOccurred()), this, SLOT(errorReceived()));
 
     busy_ = (! this->createAttachmentPath());
 }
 
 void HttpFileUploadManager::setupWithClient(Swift::Client* client)
 {
-	client_ = client;
+    client_ = client;
 }
 
 bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const QString &jid)
 {
-	bool returnValue = false;
+    bool returnValue = false;
 
-	if (busy_ == false && client_ != NULL && serverHasFeatureHttpUpload_ == true)
-	{
+    if (busy_ == false && client_ != NULL && serverHasFeatureHttpUpload_ == true)
+    {
         QString preparedImageForSending = createTargetImageName(file);
 
         if (ImageProcessing::prepareImageForSending(file, preparedImageForSending, getMaxFileSize()))
@@ -51,48 +51,48 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
         }
     }
 
-	return returnValue;
+    return returnValue;
 }
 
 void HttpFileUploadManager::updateStatusString(QString string)
 {
-	statusString_ = string;
+    statusString_ = string;
 }
 
 QString HttpFileUploadManager::getStatus()
 {
-	return statusString_;
+    return statusString_;
 }
 
 void HttpFileUploadManager::setServerHasFeatureHttpUpload(bool hasFeature)
 {
-	serverHasFeatureHttpUpload_ = hasFeature;
+    serverHasFeatureHttpUpload_ = hasFeature;
 }
 
 
 bool HttpFileUploadManager::getServerHasFeatureHttpUpload()
 {
-	return serverHasFeatureHttpUpload_;
+    return serverHasFeatureHttpUpload_;
 }
 
 void HttpFileUploadManager::setUploadServerJid(Swift::JID const & uploadServerJid)
 {
-	uploadServerJid_ = uploadServerJid;
+    uploadServerJid_ = uploadServerJid;
 }
 
 Swift::JID HttpFileUploadManager::getUploadServerJid()
 {
-	return uploadServerJid_;
+    return uploadServerJid_;
 }
 
 void HttpFileUploadManager::setMaxFileSize(unsigned int maxFileSize)
 {
-	maxFileSize_ = maxFileSize;
+    maxFileSize_ = maxFileSize;
 }
 
 unsigned int HttpFileUploadManager::getMaxFileSize()
 {
-	return maxFileSize_;
+    return maxFileSize_;
 }
 
 void HttpFileUploadManager::requestHttpUploadSlot()
@@ -101,8 +101,8 @@ void HttpFileUploadManager::requestHttpUploadSlot()
     {
         QString basename = QFileInfo(file_->fileName()).baseName() + "." + QFileInfo(file_->fileName()).completeSuffix();
         std::string uploadRequest = "<request xmlns='urn:xmpp:http:upload'>"
-             + std::string("<filename>") + basename.toStdString() + std::string("</filename>")
-             + std::string("<size>") + std::to_string(file_->size()) + std::string("</size></request>");
+                + std::string("<filename>") + basename.toStdString() + std::string("</filename>")
+                + std::string("<size>") + std::to_string(file_->size()) + std::string("</size></request>");
 
         Swift::RawRequest::ref httpUploadRequest = Swift::RawRequest::create(Swift::IQ::Type::Get,
                                                                              uploadServerJid_,
@@ -115,32 +115,32 @@ void HttpFileUploadManager::requestHttpUploadSlot()
 
 void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
 {
-	//qDebug() << "HttpFileUploadManager::handleHttpUploadResponse: " << QString::fromStdString(response);
+    //qDebug() << "HttpFileUploadManager::handleHttpUploadResponse: " << QString::fromStdString(response);
 
-	QXmlSimpleReader* parser = new QXmlSimpleReader();
-	XmlHttpUploadContentHandler* handler = new XmlHttpUploadContentHandler();
+    QXmlSimpleReader* parser = new QXmlSimpleReader();
+    XmlHttpUploadContentHandler* handler = new XmlHttpUploadContentHandler();
 
-	parser->setContentHandler(handler);
+    parser->setContentHandler(handler);
 
-	QXmlInputSource xmlSource;
-	xmlSource.setData(QString::fromStdString(response));
+    QXmlInputSource xmlSource;
+    xmlSource.setData(QString::fromStdString(response));
 
-	if(parser->parse(xmlSource))
-	{
-		qDebug() << "get: " << handler->getGetUrl();
-		qDebug() << "put: " << handler->getPutUrl();
+    if(parser->parse(xmlSource))
+    {
+        qDebug() << "get: " << handler->getGetUrl();
+        qDebug() << "put: " << handler->getPutUrl();
 
-		if (QUrl(handler->getPutUrl()).isValid() == true && QUrl(handler->getGetUrl()).isValid() == true)
-		{
-			getUrl_ = handler->getGetUrl();
+        if (QUrl(handler->getPutUrl()).isValid() == true && QUrl(handler->getGetUrl()).isValid() == true)
+        {
+            getUrl_ = handler->getGetUrl();
 
-			httpUpload_->upload(handler->getPutUrl(), file_);
-		}
-	}
-	else
-	{
-		qDebug() << "xml response parsing failed...";
-	}
+            httpUpload_->upload(handler->getPutUrl(), file_);
+        }
+    }
+    else
+    {
+        qDebug() << "xml response parsing failed...";
+    }
 
     delete (handler);
     delete (parser);
@@ -148,13 +148,13 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
 
 void HttpFileUploadManager::successReceived()
 {
-	busy_ = false;
+    busy_ = false;
     emit fileUploadedForJidToUrl(jid_, getUrl_, "image");
 }
 
 void HttpFileUploadManager::errorReceived()
 {
-	busy_ = false;
+    busy_ = false;
 }
 
 bool HttpFileUploadManager::createAttachmentPath()

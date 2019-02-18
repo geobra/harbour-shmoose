@@ -58,99 +58,99 @@
 
 DownloadManager::DownloadManager(QObject *parent) : QObject(parent)
 {
-	connect(&manager, SIGNAL(finished(QNetworkReply*)), SLOT(downloadFinished(QNetworkReply*)));
+    connect(&manager, SIGNAL(finished(QNetworkReply*)), SLOT(downloadFinished(QNetworkReply*)));
 }
 
 void DownloadManager::doDownload(const QUrl &url)
 {
-	QNetworkRequest request(url);
-	QNetworkReply *reply = manager.get(request);
+    QNetworkRequest request(url);
+    QNetworkReply *reply = manager.get(request);
 
-	connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrors(QList<QSslError>)));
+    connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrors(QList<QSslError>)));
 
-	currentDownloads.append(reply);
+    currentDownloads.append(reply);
 }
 
 QString DownloadManager::saveFileName(const QUrl &url)
 {
-	QString path = url.path();
-	QString basename = QFileInfo(path).fileName();
+    QString path = url.path();
+    QString basename = QFileInfo(path).fileName();
 
-	if (basename.isEmpty())
-	{
-		basename = "download";
-	}
+    if (basename.isEmpty())
+    {
+        basename = "download";
+    }
 
     basename = System::getAttachmentPath() + QDir::separator() + basename;
 
-	if (QFile::exists(basename))
-	{
-		// already exists, don't overwrite
-		int i = 0;
-		basename += '.';
-		while (QFile::exists(basename + QString::number(i)))
-		{
-			++i;
-		}
+    if (QFile::exists(basename))
+    {
+        // already exists, don't overwrite
+        int i = 0;
+        basename += '.';
+        while (QFile::exists(basename + QString::number(i)))
+        {
+            ++i;
+        }
 
-		basename += QString::number(i);
-	}
+        basename += QString::number(i);
+    }
 
-	return basename;
+    return basename;
 }
 
 bool DownloadManager::saveToDisk(const QString &filename, QIODevice *data)
 {
-	QFile file(filename);
-	if (!file.open(QIODevice::WriteOnly))
-	{
-		fprintf(stderr, "Could not open %s for writing: %s\n",
-				qPrintable(filename),
-				qPrintable(file.errorString()));
-		return false;
-	}
+    QFile file(filename);
+    if (!file.open(QIODevice::WriteOnly))
+    {
+        fprintf(stderr, "Could not open %s for writing: %s\n",
+                qPrintable(filename),
+                qPrintable(file.errorString()));
+        return false;
+    }
 
-	file.write(data->readAll());
-	file.close();
+    file.write(data->readAll());
+    file.close();
 
-	return true;
+    return true;
 }
 
 void DownloadManager::sslErrors(const QList<QSslError> &sslErrors)
 {
-	foreach (const QSslError &error, sslErrors)
-	{
-		fprintf(stderr, "SSL error: %s\n", qPrintable(error.errorString()));
-	}
+    foreach (const QSslError &error, sslErrors)
+    {
+        fprintf(stderr, "SSL error: %s\n", qPrintable(error.errorString()));
+    }
 }
 
 
 void DownloadManager::downloadFinished(QNetworkReply *reply)
 {
-	QUrl url = reply->url();
-	if (reply->error())
-	{
-		fprintf(stderr, "Download of %s failed: %s\n",
-				url.toEncoded().constData(),
-				qPrintable(reply->errorString()));
-	}
-	else
-	{
-		QString filename = saveFileName(url);
-		if (saveToDisk(filename, reply))
-		{
-			printf("Download of %s succeeded (saved to %s)\n",
-				   url.toEncoded().constData(), qPrintable(filename));
-		}
-	}
+    QUrl url = reply->url();
+    if (reply->error())
+    {
+        fprintf(stderr, "Download of %s failed: %s\n",
+                url.toEncoded().constData(),
+                qPrintable(reply->errorString()));
+    }
+    else
+    {
+        QString filename = saveFileName(url);
+        if (saveToDisk(filename, reply))
+        {
+            printf("Download of %s succeeded (saved to %s)\n",
+                   url.toEncoded().constData(), qPrintable(filename));
+        }
+    }
 
-	currentDownloads.removeAll(reply);
-	reply->deleteLater();
+    currentDownloads.removeAll(reply);
+    reply->deleteLater();
 
-	if (currentDownloads.isEmpty())
-	{
-		// all downloads finished
-		qDebug() << "finished all downloads";
-	}
+    if (currentDownloads.isEmpty())
+    {
+        // all downloads finished
+        qDebug() << "finished all downloads";
+    }
 }
 

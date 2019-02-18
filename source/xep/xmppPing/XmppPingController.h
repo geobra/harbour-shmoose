@@ -5,21 +5,21 @@
 
 namespace Swift
 {
-	class Client;
+class Client;
 }
 
 class XmppPingController
 {
 public:
-	XmppPingController();
+    XmppPingController();
 
     void setupWithClient(Swift::Client* client);
-	void doPing();
+    void doPing();
 
 private:
-	void handlePingResponse(const std::string response);
+    void handlePingResponse(const std::string response);
 
-	Swift::Client* client_;
+    Swift::Client* client_;
 
 };
 

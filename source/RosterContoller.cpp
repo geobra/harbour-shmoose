@@ -92,7 +92,7 @@ void RosterController::handleUpdateFromPresence(const Swift::JID &jid, const QSt
 
             if (! status.isEmpty())
             {
-                (*it)->setStatus(status);                
+                (*it)->setStatus(status);
             }
 
             break;
@@ -155,24 +155,24 @@ void RosterController::requestRosterFromClient(Swift::Client *client)
 
 void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
 {
-	if (error)
-	{
-		std::cerr << "Error receiving roster. Continuing anyway.";
-	}
-	else
-	{
+    if (error)
+    {
+        std::cerr << "Error receiving roster. Continuing anyway.";
+    }
+    else
+    {
         bool somethingChanged = false;
 
         Swift::VCardManager *vCardManager = client_->getVCardManager();
         vCardManager->onVCardChanged.connect(boost::bind(&RosterController::handleVCardChanged, this, _1, _2));
 
-		Swift::XMPPRoster* roster = client_->getRoster();
-		std::vector<Swift::XMPPRosterItem> rosterItems = roster->getItems();
+        Swift::XMPPRoster* roster = client_->getRoster();
+        std::vector<Swift::XMPPRosterItem> rosterItems = roster->getItems();
 
-		std::vector<Swift::XMPPRosterItem>::iterator it;
+        std::vector<Swift::XMPPRosterItem>::iterator it;
 
-		for(it = rosterItems.begin(); it < rosterItems.end(); it++ )
-		{
+        for(it = rosterItems.begin(); it < rosterItems.end(); it++ )
+        {
             vCardManager->requestVCard((*it).getJID());
 
             rosterList_.append(new RosterItem(QString::fromStdString((*it).getJID().toBare().toString()),
@@ -180,14 +180,14 @@ void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
                                               (RosterItem::Subscription)(*it).getSubscription(), false, this));
 
             somethingChanged = true;
-		}
+        }
 
         if (somethingChanged)
         {
             sortRosterList();
             emit rosterListChanged();
         }
-	}
+    }
 }
 
 void RosterController::handleVCardChanged(const Swift::JID &jid, const Swift::VCard::ref &vCard)
@@ -294,7 +294,7 @@ bool RosterController::checkHashDiffers(QString const &jid, QString const &newHa
                 returnValue = true;
             }
 
-             //std::cout << "old hash: " << line.toStdString() << ". new: " << newHash.toStdString() << "bool: " << returnValue << std::endl;
+            //std::cout << "old hash: " << line.toStdString() << ". new: " << newHash.toStdString() << "bool: " << returnValue << std::endl;
 
             file.close();
         }
@@ -380,7 +380,7 @@ void RosterController::sendUnavailableAndUnsubscribeToJid(const QString& jid)
 
 QQmlListProperty<RosterItem> RosterController::getRosterList()
 {
-	return QQmlListProperty<RosterItem>(this, rosterList_);
+    return QQmlListProperty<RosterItem>(this, rosterList_);
 }
 
 void RosterController::addGroupAsContact(QString groupJid, QString groupName)

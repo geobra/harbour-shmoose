@@ -10,53 +10,53 @@ class HttpFileUploader;
 
 class HttpFileUploadManager : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	explicit HttpFileUploadManager(QObject *parent = 0);
+    explicit HttpFileUploadManager(QObject *parent = 0);
 
     bool requestToUploadFileForJid(QString const &file, const QString &jid);
-	QString getStatus();
+    QString getStatus();
 
-	void setupWithClient(Swift::Client* client);
+    void setupWithClient(Swift::Client* client);
 
-	void setServerHasFeatureHttpUpload(bool hasFeature);
-	bool getServerHasFeatureHttpUpload();
+    void setServerHasFeatureHttpUpload(bool hasFeature);
+    bool getServerHasFeatureHttpUpload();
 
-	void setUploadServerJid(Swift::JID const & uploadServerJid);
-	Swift::JID getUploadServerJid();
+    void setUploadServerJid(Swift::JID const & uploadServerJid);
+    Swift::JID getUploadServerJid();
 
-	void setMaxFileSize(unsigned int maxFileSize);
-	unsigned int getMaxFileSize();
+    void setMaxFileSize(unsigned int maxFileSize);
+    unsigned int getMaxFileSize();
 
 signals:
     void fileUploadedForJidToUrl(QString, QString, QString);
 
 public slots:
-	void updateStatusString(QString string);
-	void successReceived();
-	void errorReceived();
+    void updateStatusString(QString string);
+    void successReceived();
+    void errorReceived();
 
 private:
-	HttpFileUploader* httpUpload_;
-	void requestHttpUploadSlot();
-	void handleHttpUploadResponse(const std::string response);
+    HttpFileUploader* httpUpload_;
+    void requestHttpUploadSlot();
+    void handleHttpUploadResponse(const std::string response);
 
     bool createAttachmentPath();
     QString createTargetImageName(QString source);
 
-	bool serverHasFeatureHttpUpload_;
-	unsigned int maxFileSize_;
+    bool serverHasFeatureHttpUpload_;
+    unsigned int maxFileSize_;
 
-	QFile* file_;
-	QString jid_;
+    QFile* file_;
+    QString jid_;
 
-	Swift::Client* client_;
-	Swift::JID uploadServerJid_;
+    Swift::Client* client_;
+    Swift::JID uploadServerJid_;
 
-	QString statusString_;
-	QString getUrl_;
+    QString statusString_;
+    QString getUrl_;
 
-	bool busy_;
+    bool busy_;
 };
 
 #endif // HTTPFILEUPLOADMANAGER_H

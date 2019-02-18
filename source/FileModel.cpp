@@ -34,10 +34,10 @@ FileModel::FileModel(QObject *parent) :
 
 QHash<int, QByteArray> FileModel::roleNames() const {
     QHash<int, QByteArray> roles = QAbstractListModel::roleNames();
-        roles.insert(NameRole, QByteArray("name"));
-        roles.insert(PathRole, QByteArray("path"));
-        roles.insert(SizeRole, QByteArray("size"));
-        return roles;
+    roles.insert(NameRole, QByteArray("name"));
+    roles.insert(PathRole, QByteArray("path"));
+    roles.insert(SizeRole, QByteArray("size"));
+    return roles;
 }
 
 int FileModel::rowCount(const QModelIndex &parent) const

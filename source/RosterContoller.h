@@ -11,8 +11,8 @@ class PresenceHandler;
 
 class RosterController : public QObject
 {
-	Q_OBJECT
-	Q_PROPERTY(QQmlListProperty<RosterItem> rosterList READ getRosterList NOTIFY rosterListChanged)
+    Q_OBJECT
+    Q_PROPERTY(QQmlListProperty<RosterItem> rosterList READ getRosterList NOTIFY rosterListChanged)
 
     enum itemAttribute
     {
@@ -21,7 +21,7 @@ class RosterController : public QObject
     };
 
 public:
-	RosterController(QObject *parent = 0);
+    RosterController(QObject *parent = 0);
 
     void setupWithClient(Swift::Client *client);
 
@@ -32,15 +32,15 @@ public:
     Q_INVOKABLE QString getAvatarImagePathForJid(QString const &jid);
     Q_INVOKABLE QString getNameForJid(QString const &jid);
 
-	void requestRosterFromClient(Swift::Client *client);
-	QQmlListProperty<RosterItem> getRosterList();
+    void requestRosterFromClient(Swift::Client *client);
+    QQmlListProperty<RosterItem> getRosterList();
 
     void handleUpdateFromPresence(const Swift::JID &jid, const QString &status, const RosterItem::Availability& availability);
 
     void updateNameForJid(const Swift::JID &jid, const std::string &name);
 
 signals:
-	void rosterListChanged();
+    void rosterListChanged();
     void signalShowMessage(QString headline, QString body);
 
 public slots:
@@ -48,7 +48,7 @@ public slots:
     void removeGroupFromContacts(QString groupJid);
 
 private:
-	void handleRosterReceived(Swift::ErrorPayload::ref error);
+    void handleRosterReceived(Swift::ErrorPayload::ref error);
     void handleJidAdded(const Swift::JID &jid);
     void handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string > &);
     void handleJidRemoved(const Swift::JID &jid);
@@ -66,8 +66,8 @@ private:
 
     QString getTypeForJid(itemAttribute const &attribute, QString const &jid);
 
-	Swift::Client* client_;
-	QList<RosterItem*> rosterList_;
+    Swift::Client* client_;
+    QList<RosterItem*> rosterList_;
 
     PresenceHandler* presenceHandler_;
 };

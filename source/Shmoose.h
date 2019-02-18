@@ -20,23 +20,23 @@ class DiscoInfoHandler;
 
 class Shmoose : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 
-	Q_PROPERTY(RosterController* rosterController READ getRosterController NOTIFY rosterControllerChanged)
-	Q_PROPERTY(Persistence* persistence READ getPersistence NOTIFY persistenceChanged)
+    Q_PROPERTY(RosterController* rosterController READ getRosterController NOTIFY rosterControllerChanged)
+    Q_PROPERTY(Persistence* persistence READ getPersistence NOTIFY persistenceChanged)
     Q_PROPERTY(bool connectionState READ connectionState NOTIFY connectionStateChanged)
     Q_PROPERTY(Settings* settings READ getSettings NOTIFY settingsChanged)
 
 public:
-	Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent = 0);
-	~Shmoose();
+    Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent = 0);
+    ~Shmoose();
 
-	Q_INVOKABLE void mainDisconnect();
-	Q_INVOKABLE void mainConnect(const QString &jid, const QString &pass);
-	Q_INVOKABLE void setCurrentChatPartner(QString const &jid);
+    Q_INVOKABLE void mainDisconnect();
+    Q_INVOKABLE void mainConnect(const QString &jid, const QString &pass);
+    Q_INVOKABLE void setCurrentChatPartner(QString const &jid);
     Q_INVOKABLE QString getCurrentChatPartner();
 
-	Q_INVOKABLE QString getAttachmentPath();
+    Q_INVOKABLE QString getAttachmentPath();
     Q_INVOKABLE void setHasInetConnection(bool connected_);
     Q_INVOKABLE void setAppIsActive(bool active);
 
@@ -45,11 +45,11 @@ public:
 
     Q_INVOKABLE QString getVersion();
 
-	bool connectionState() const;
+    bool connectionState() const;
 
 public slots:
-	void sendMessage(QString const &toJid, QString const &message, const QString &type);
-	void sendFile(QString const &toJid, QString const &file);
+    void sendMessage(QString const &toJid, QString const &message, const QString &type);
+    void sendFile(QString const &toJid, QString const &file);
 
 private slots:
     void sendReadNotification(bool active);
@@ -58,8 +58,8 @@ private slots:
     void slotAboutToQuit();
 
 signals:
-	void rosterControllerChanged();
-	void persistenceChanged();
+    void rosterControllerChanged();
+    void persistenceChanged();
     void settingsChanged();
 
     void connectionStateChanged();
@@ -70,30 +70,30 @@ signals:
     void signalAppGetsActive(bool active);
 
 private:
-	void requestHttpUploadSlot();
-	void handleHttpUploadResponse(const std::string response);
+    void requestHttpUploadSlot();
+    void handleHttpUploadResponse(const std::string response);
 
     RosterController* getRosterController();
     Persistence* getPersistence();
     Settings* getSettings();
 
-	Swift::Client* client_;
-	Swift::ClientXMLTracer* tracer_;
-	Swift::SoftwareVersionResponder* softwareVersionResponder_;
-	Swift::NetworkFactories *netFactories_;
+    Swift::Client* client_;
+    Swift::ClientXMLTracer* tracer_;
+    Swift::SoftwareVersionResponder* softwareVersionResponder_;
+    Swift::NetworkFactories *netFactories_;
 
-	RosterController* rosterController_;
-	Persistence* persistence_;
+    RosterController* rosterController_;
+    Persistence* persistence_;
     Settings* settings_;
 
     ConnectionHandler* connectionHandler_;
     MessageHandler* messageHandler_;
-	HttpFileUploadManager* httpFileUploadManager_;
+    HttpFileUploadManager* httpFileUploadManager_;
     MucManager *mucManager_;
     DiscoInfoHandler* discoInfoHandler_;
 
-	QString jid_;
-	QString password_;
+    QString jid_;
+    QString password_;
 
     const QString version_;
 };

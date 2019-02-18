@@ -33,33 +33,33 @@ QString RosterItem::getName()
 
 void RosterItem::setName(const QString &name)
 {
-	name_ = name;
+    name_ = name;
 
-	emit nameChanged();
+    emit nameChanged();
 }
 
 QString RosterItem::getJid()
 {
-	return jid_;
+    return jid_;
 }
 
 void RosterItem::setJid(const QString &jid)
 {
-	jid_ = jid;
+    jid_ = jid;
 
-	emit jidChanged();
+    emit jidChanged();
 }
 
 RosterItem::Subscription RosterItem::getSubscription()
 {
-	return subscription_;
+    return subscription_;
 }
 
 void RosterItem::setSubscription(const Subscription &subscription)
 {
-	subscription_ = subscription;
+    subscription_ = subscription;
 
-	emit subscriptionChanged();
+    emit subscriptionChanged();
 }
 
 RosterItem::Availability RosterItem::getAvailability()

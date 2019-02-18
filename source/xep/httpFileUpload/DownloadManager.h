@@ -55,22 +55,22 @@
 
 class DownloadManager : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
     DownloadManager(QObject *parent = 0);
-	void doDownload(const QUrl &url);
+    void doDownload(const QUrl &url);
 
 public slots:
-	void downloadFinished(QNetworkReply *reply);
-	void sslErrors(const QList<QSslError> &errors);
+    void downloadFinished(QNetworkReply *reply);
+    void sslErrors(const QList<QSslError> &errors);
 
 private:
-	QString saveFileName(const QUrl &url);
-	bool saveToDisk(const QString &filename, QIODevice *data);
+    QString saveFileName(const QUrl &url);
+    bool saveToDisk(const QString &filename, QIODevice *data);
 
-	QNetworkAccessManager manager;
-	QList<QNetworkReply *> currentDownloads;
+    QNetworkAccessManager manager;
+    QList<QNetworkReply *> currentDownloads;
 
 };
 
