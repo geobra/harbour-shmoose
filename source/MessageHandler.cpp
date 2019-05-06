@@ -3,13 +3,16 @@
 #include "ImageProcessing.h"
 #include "DownloadManager.h"
 #include "ChatMarkers.h"
+#include <Swiften/Elements/CarbonsReceived.h>
+#include <Swiften/Elements/CarbonsSent.h>
+#include <Swiften/Elements/Forwarded.h>
 
 #include <QUrl>
 #include <QDebug>
 
 MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, QObject *parent) : QObject(parent),
     client_(NULL), persistence_(persistence), settings_(settings),
-    downloadManager_(new DownloadManager(this)),
+    downloadManager_(new DownloadManager(settings, this)),
     chatMarkers_(new ChatMarkers(persistence_, this)),
     appIsActive_(true), unAckedMessageIds_()
 {
@@ -50,13 +53,37 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     //std::cout << "handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
 
     std::string fromJid = message->getFrom().toBare().toString();
+
+    Swift::JID toJID;
+    bool sentCarbon = false;
+    if (settings_->getJid().compare(QString::fromStdString(fromJid)) == 0) {
+        Swift::CarbonsReceived::ref carbonsReceived;
+        Swift::CarbonsSent::ref carbonsSent;
+        Swift::Forwarded::ref forwarded;
+        Swift::Message::ref forwardedMessage;
+        if ((carbonsReceived = message->getPayload<Swift::CarbonsReceived>()) &&
+            (forwarded = carbonsReceived->getForwarded()) &&
+            (forwardedMessage = std::dynamic_pointer_cast<Swift::Message>(forwarded->getStanza()))) {
+	    //qDebug() << "ReceivedCarbon message";
+            message = forwardedMessage;
+	    fromJid = message->getFrom().toBare().toString();
+        }
+        else if ((carbonsSent = message->getPayload<Swift::CarbonsSent>()) &&
+                 (forwarded = carbonsSent->getForwarded()) &&
+                 (forwardedMessage = std::dynamic_pointer_cast<Swift::Message>(forwarded->getStanza()))) {
+	    //qDebug() << "SentCarbon message";
+            message = forwardedMessage;
+            toJID = forwardedMessage->getTo();
+	    sentCarbon = true;
+        }
+    }
+    
     boost::optional<std::string> fromBody = message->getBody();
 
     if (fromBody)
     {
         std::string body = *fromBody;
         QString theBody = QString::fromStdString(body);
-
         QString type = "txt";
 
         if (QUrl(theBody).isValid()) // it's an url
@@ -76,12 +103,19 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             isGroupMessage = true;
         }
 
-        persistence_->addMessage(isGroupMessage,
+	if (!sentCarbon) {
+		persistence_->addMessage(isGroupMessage,
                                  QString::fromStdString(message->getID()),
                                  QString::fromStdString(fromJid),
                                  QString::fromStdString(message->getFrom().getResource()),
                                  theBody, type, 1 );
-
+	} else {
+		persistence_->addMessage(isGroupMessage,
+                              QString::fromStdString(message->getID()),
+                              QString::fromStdString(toJID.toBare().toString()),
+                              QString::fromStdString(toJID.getResource()),
+                              theBody, type, 0);
+	}
         // xep 0333
         QString currentChatPartner = persistence_->getCurrentChatPartner();
         qDebug() << "fromJid: " << QString::fromStdString(fromJid) << "current: " << currentChatPartner << ", isGroup: " << isGroupMessage << ", appActive? " << appIsActive_;
@@ -93,16 +127,16 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             this->sendDisplayedForJid(currentChatPartner);
         }
     }
-
+ 
     // XEP 0184
     if (message->getPayload<Swift::DeliveryReceiptRequest>())
     {
         // send message receipt
-        Swift::Message::ref receiptReply = boost::make_shared<Swift::Message>();
+        Swift::Message::ref receiptReply = std::make_shared<Swift::Message>();
         receiptReply->setFrom(message->getTo());
         receiptReply->setTo(message->getFrom());
 
-        boost::shared_ptr<Swift::DeliveryReceipt> receipt = boost::make_shared<Swift::DeliveryReceipt>();
+        std::shared_ptr<Swift::DeliveryReceipt> receipt = std::make_shared<Swift::DeliveryReceipt>();
         receipt->setReceivedID(message->getID());
         receiptReply->addPayload(receipt);
         client_->sendMessage(receiptReply);
@@ -142,8 +176,8 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         outOfBandElement.append("</url>");
         outOfBandElement.append("</x>");
 
-        boost::shared_ptr<Swift::RawXMLPayload> outOfBand =
-                boost::make_shared<Swift::RawXMLPayload>(outOfBandElement.toStdString());
+        std::shared_ptr<Swift::RawXMLPayload> outOfBand =
+                std::make_shared<Swift::RawXMLPayload>(outOfBandElement.toStdString());
         msg->addPayload(outOfBand);
     }
 
@@ -154,10 +188,10 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
     }
     msg->setType(messagesTyp);
 
-    msg->addPayload(boost::make_shared<Swift::DeliveryReceiptRequest>());
+    msg->addPayload(std::make_shared<Swift::DeliveryReceiptRequest>());
 
     // add chatMarkers stanza
-    msg->addPayload(boost::make_shared<Swift::RawXMLPayload>(ChatMarkers::getMarkableString().toStdString()));
+    msg->addPayload(std::make_shared<Swift::RawXMLPayload>(ChatMarkers::getMarkableString().toStdString()));
 
     client_->sendMessage(msg);
     persistence_->addMessage( (Swift::Message::Groupchat == messagesTyp) ? true : false,
