@@ -108,7 +108,7 @@ bool MessageController::addMessage(bool isGroupMessage, const QString &id, const
     bool messageAdded = false;
 
     if ( (isGroupMessage == false)
-         || ( (isGroupMessage == true) && (! isMessageIdInDatabase(id)) )
+         || ( (isGroupMessage == true) && (id.size() == 0 || !isMessageIdInDatabase(id)) )
          )
     {
         messageAdded = true;
@@ -338,7 +338,7 @@ QPair<QString, int> MessageController::getNewestReceivedMessageIdAndStateOfJid(Q
             break;
         }
     }
-
+ 
     return qMakePair<QString, int>(msgId, msgState);
 }
 
