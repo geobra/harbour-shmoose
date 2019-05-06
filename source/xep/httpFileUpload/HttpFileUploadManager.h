@@ -2,6 +2,7 @@
 #define HTTPFILEUPLOADMANAGER_H
 
 #include <Swiften/Swiften.h>
+#include "../../Settings.h"
 
 #include <QObject>
 
@@ -12,7 +13,7 @@ class HttpFileUploadManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit HttpFileUploadManager(QObject *parent = 0);
+    explicit HttpFileUploadManager(Settings * settings, QObject *parent = 0);
 
     bool requestToUploadFileForJid(QString const &file, const QString &jid);
     QString getStatus();

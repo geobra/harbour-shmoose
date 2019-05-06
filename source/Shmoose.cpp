@@ -40,7 +40,7 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     settings_(new Settings(this)),
     connectionHandler_(new ConnectionHandler(this)),
     messageHandler_(new MessageHandler(persistence_, settings_, this)),
-    httpFileUploadManager_(new HttpFileUploadManager(this)),
+    httpFileUploadManager_(new HttpFileUploadManager(settings_, this)),
     mucManager_(new MucManager(this)),
     discoInfoHandler_(new DiscoInfoHandler(httpFileUploadManager_, this)),
     jid_(""), password_(""),

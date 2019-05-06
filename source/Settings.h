@@ -12,6 +12,7 @@ class Settings : public QObject
     Q_PROPERTY(QString Jid READ getJid WRITE setJid NOTIFY jidChanged)
     Q_PROPERTY(QString Password READ getPassword WRITE setPassword NOTIFY passwordChanged)
     Q_PROPERTY(bool SaveCredentials READ getSaveCredentials WRITE setSaveCredentials NOTIFY saveCredentialsChanged)
+    Q_PROPERTY(bool IgnoreSSLErrors READ getIgnoreSSLErrors WRITE setIgnoreSSLErrors NOTIFY ignoreSSLErrorsChanged)
     Q_PROPERTY(bool SendReadNotifications READ getSendReadNotifications WRITE setSendReadNotifications NOTIFY sendReadNotificationsChanged)
     Q_PROPERTY(QStringList ImagePaths READ getImagePaths WRITE setImagePaths NOTIFY imagePathsChanged)
 
@@ -20,6 +21,7 @@ public:
 
     QString getJid() const;
     QString getPassword() const;
+    bool getIgnoreSSLErrors() const;
     bool getSaveCredentials() const;
     bool getSendReadNotifications() const;
     QStringList getImagePaths();
@@ -28,6 +30,7 @@ signals:
     void jidChanged(QString Jid);
     void passwordChanged(QString Password);
     void saveCredentialsChanged(bool SaveCredentials);
+    void ignoreSSLErrorsChanged(bool IgnoreSSLErrors);
     void sendReadNotificationsChanged(bool SendReadNotifications);
     void imagePathsChanged(QStringList const & ImagePaths);
 
@@ -35,6 +38,7 @@ public slots:
     void setJid(QString Jid);
     void setPassword(QString Password);
     void setSaveCredentials(bool SaveCredentials);
+    void setIgnoreSSLErrors(bool IgnoreSSLErrors);
     void setSendReadNotifications(bool SendReadNotifications);
     void setImagePaths(QStringList const & ImagePaths);
     void removeImagePath(QString const & Path);

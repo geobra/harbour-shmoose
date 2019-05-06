@@ -12,7 +12,7 @@
 
 MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, QObject *parent) : QObject(parent),
     client_(NULL), persistence_(persistence), settings_(settings),
-    downloadManager_(new DownloadManager(this)),
+    downloadManager_(new DownloadManager(settings, this)),
     chatMarkers_(new ChatMarkers(persistence_, this)),
     appIsActive_(true), unAckedMessageIds_()
 {

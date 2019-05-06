@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QNetworkReply>
 
+#include "../../Settings.h"
+
 class QFile;
 class QNetworkAccessManager;
 class QNetworkRequest;
@@ -12,7 +14,7 @@ class HttpFileUploader : public QObject
 {
     Q_OBJECT
 public:
-    HttpFileUploader(QObject *parent = 0);
+    HttpFileUploader(Settings * settings, QObject *parent = 0);
     ~HttpFileUploader();
 
     void upload(QString url, QFile *file);
@@ -30,6 +32,7 @@ public slots:
     void finished();
 
 private:
+    Settings * settings_;
     QNetworkAccessManager* networkManager_;
     QNetworkRequest* request_;
 

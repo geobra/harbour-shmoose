@@ -148,4 +148,21 @@ void Settings::addImagePath(QUrl const & Path)
     }
 }
 
+bool Settings::getIgnoreSSLErrors() const
+{
+    bool ignore = false;
+
+    QSettings settings;
+    ignore = settings.value("security/ignoreSSLErrors", false).toBool();
+
+    return ignore;
+}
+
+void Settings::setIgnoreSSLErrors(bool Ignore)
+{
+    QSettings settings;
+    settings.setValue("security/ignoreSSLErrors", Ignore);
+    emit ignoreSSLErrorsChanged(Ignore);
+}
+
 

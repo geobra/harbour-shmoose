@@ -53,12 +53,14 @@
 #include <QObject>
 #include <QNetworkAccessManager>
 
+#include "../../Settings.h"
+
 class DownloadManager : public QObject
 {
     Q_OBJECT
 
 public:
-    DownloadManager(QObject *parent = 0);
+    DownloadManager(Settings * settings, QObject *parent = 0);
     void doDownload(const QUrl &url);
 
 public slots:
@@ -71,7 +73,7 @@ private:
 
     QNetworkAccessManager manager;
     QList<QNetworkReply *> currentDownloads;
-
+    Settings * settings_;
 };
 
 #endif // DOWNLOADMANAGER_H

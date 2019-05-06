@@ -56,7 +56,7 @@
 #include <QDir>
 #include <QDebug>
 
-DownloadManager::DownloadManager(QObject *parent) : QObject(parent)
+DownloadManager::DownloadManager(Settings * settings, QObject *parent) : QObject(parent), settings_(settings)
 {
     connect(&manager, SIGNAL(finished(QNetworkReply*)), SLOT(downloadFinished(QNetworkReply*)));
 }
@@ -64,6 +64,13 @@ DownloadManager::DownloadManager(QObject *parent) : QObject(parent)
 void DownloadManager::doDownload(const QUrl &url)
 {
     QNetworkRequest request(url);
+
+    if (settings_->getIgnoreSSLErrors()) {
+	    QSslConfiguration conf = request.sslConfiguration();
+	    conf.setPeerVerifyMode(QSslSocket::VerifyNone);
+	    request.setSslConfiguration(conf);
+    }
+
     QNetworkReply *reply = manager.get(request);
 
     connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrors(QList<QSslError>)));

@@ -4,9 +4,9 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 
-HttpFileUploader::HttpFileUploader(QObject *parent) : QObject(parent),
+HttpFileUploader::HttpFileUploader(Settings * settings, QObject *parent) : QObject(parent),
     networkManager_(new QNetworkAccessManager(parent)), request_(new QNetworkRequest()),
-    file_(NULL)
+    file_(NULL), settings_(settings)
 {
     connect(networkManager_, SIGNAL(finished(QNetworkReply*) ), this, SLOT(putFinished(QNetworkReply*)));
 }
@@ -29,6 +29,12 @@ void HttpFileUploader::upload(QString url, QFile* file)
                         ", path: " << theUrl.path() << ", port:" << theUrl.port();
 
             request_->setUrl(theUrl);
+	    
+	    if (settings_->getIgnoreSSLErrors()) {
+		    QSslConfiguration conf = request_->sslConfiguration();
+		    conf.setPeerVerifyMode(QSslSocket::VerifyNone);
+		    request_->setSslConfiguration(conf);
+	    }
 
             QNetworkReply *reply = networkManager_->put(*request_, file);
 

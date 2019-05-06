@@ -13,8 +13,8 @@
 
 #include <QDebug>
 
-HttpFileUploadManager::HttpFileUploadManager(QObject *parent) : QObject(parent),
-    httpUpload_(new HttpFileUploader(this)),
+HttpFileUploadManager::HttpFileUploadManager(Settings * settings, QObject *parent) : QObject(parent),
+    httpUpload_(new HttpFileUploader(settings, this)),
     serverHasFeatureHttpUpload_(false), maxFileSize_(0),
     file_(new QFile(this)), jid_(""), client_(NULL),
     uploadServerJid_(""), statusString_(""), getUrl_(""), busy_(false)
@@ -149,6 +149,8 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
 void HttpFileUploadManager::successReceived()
 {
     busy_ = false;
+    // Inband images: https://xmpp.org/extensions/xep-0071.html
+    // QString body = "<img src='" + getUrl_ + "' alt='image' />";
     emit fileUploadedForJidToUrl(jid_, getUrl_, "image");
 }
 
