@@ -14,6 +14,7 @@
 
 #include <Swiften/Elements/DiscoInfo.h>
 #include <Swiften/Elements/DiscoItems.h>
+#include <Swiften/Queries/Requests/EnableCarbonsRequest.h>
 
 #include <Swiften/Base/IDGenerator.h>
 
@@ -122,6 +123,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 
     // http://xmpp.org/extensions/xep-0184.html, MessageDeliveryReceiptsFeature
     discoInfo.addFeature(Swift::DiscoInfo::MessageDeliveryReceiptsFeature);
+    discoInfo.addFeature(Swift::DiscoInfo::MessageCarbonsFeature);
 
     // https://xmpp.org/extensions/xep-0333.html
     discoInfo.addFeature(ChatMarkers::chatMarkersIdentifier.toStdString());
@@ -165,6 +167,12 @@ void Shmoose::intialSetupOnFirstConnection()
     // Save account data
     settings_->setJid(jid_);
     settings_->setPassword(password_);
+    enableMessageCarbons();
+}
+
+void Shmoose::enableMessageCarbons() {
+    auto enableCarbonsRequest = Swift::EnableCarbonsRequest::create(client_->getIQRouter());
+    enableCarbonsRequest->send();
 }
 
 void Shmoose::setCurrentChatPartner(QString const &jid)
