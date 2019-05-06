@@ -27,6 +27,15 @@ Page {
                 }
             }
 
+            TextSwitch {
+                id: ignoreSSLSwitch
+                checked: shmoose.settings.IgnoreSSLErrors
+                text: qsTr("Ignore SSL errors")
+                onClicked: {
+                    shmoose.settings.IgnoreSSLErrors = ignoreSSLSwitch.checked;
+                }
+            }
+
             SectionHeader { text: qsTr("Attachments") }
 
             Button {
