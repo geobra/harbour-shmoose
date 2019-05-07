@@ -63,6 +63,21 @@ void ConnectionHandler::handleConnected()
     }
 
     client_->sendPresence(Swift::Presence::create("Send me a message"));    // FIXME presence handler
+    enableMessageCarbons();
+}
+
+void ConnectionHandler::enableMessageCarbons() {
+    auto enableCarbonsRequest = Swift::EnableCarbonsRequest::create(client_->getIQRouter());
+    enableCarbonsRequest->onResponse.connect(boost::bind(&ConnectionHandler::handleCarbonsReply, this, _1, _2));
+    enableCarbonsRequest->send();
+}
+
+void ConnectionHandler::handleCarbonsReply(Swift::Payload::ref, Swift::ErrorPayload::ref error){
+    if (error) {
+    	qDebug() << "Failed to enable carbons";
+    } else {
+    	qDebug() << "Successfully enabled carbons";
+    }
 }
 
 void ConnectionHandler::handleDisconnected(const boost::optional<Swift::ClientError>& error)

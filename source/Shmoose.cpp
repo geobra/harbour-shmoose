@@ -167,12 +167,6 @@ void Shmoose::intialSetupOnFirstConnection()
     // Save account data
     settings_->setJid(jid_);
     settings_->setPassword(password_);
-    enableMessageCarbons();
-}
-
-void Shmoose::enableMessageCarbons() {
-    auto enableCarbonsRequest = Swift::EnableCarbonsRequest::create(client_->getIQRouter());
-    enableCarbonsRequest->send();
 }
 
 void Shmoose::setCurrentChatPartner(QString const &jid)

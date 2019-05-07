@@ -34,8 +34,10 @@ private slots:
     void tryReconnect();
 
 private:
+    void handleCarbonsReply(Swift::Payload::ref, Swift::ErrorPayload::ref error);
     void handleConnected();
     void handleDisconnected(const boost::optional<Swift::ClientError> &error);
+    void enableMessageCarbons();
 
     bool connected_;
     bool initialConnectionSuccessfull_;
