@@ -9,6 +9,7 @@
 
 #include <Swiften/Swiften.h>
 
+class ClientXmlFileTracer;
 class ConnectionHandler;
 class MessageHandler;
 class RosterController;
@@ -72,6 +73,8 @@ signals:
     void signalHasInetConnection(bool connected);
     void signalAppGetsActive(bool active);
 
+    void currentChatPartner(QString jid);
+
 private:
 	void requestHttpUploadSlot();
 	void handleHttpUploadResponse(const std::string response);
@@ -80,7 +83,11 @@ private:
     Persistence* getPersistence();
 
 	Swift::Client* client_;
-	Swift::ClientXMLTracer* tracer_;
+#ifdef SFOS
+    ClientXmlFileTracer* tracer_;
+#else
+    Swift::ClientXMLTracer* tracer_;
+#endif
 	Swift::SoftwareVersionResponder* softwareVersionResponder_;
 	Swift::NetworkFactories *netFactories_;
 

@@ -57,6 +57,21 @@ void RosterController::handleJidAdded(const Swift::JID &jid)
     client_->sendPresence(presence);
 }
 
+void RosterController::jidHasOmemo(const QString &jid)
+{
+    foreach(auto *rosterItem, rosterList_)
+    {
+        if (rosterItem->getJid().compare(jid, Qt::CaseInsensitive) == 0)
+        {
+            if (rosterItem->hasOmemo() == 0)
+            {
+                rosterItem->setHasOmemo(true);
+                emit rosterListChanged();
+            }
+        }
+    }
+}
+
 void RosterController::handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string >&)
 {
     std::cout << "RosterController::handleJidUpdated " << jid.toString() << ", name: " << name;
@@ -441,6 +456,22 @@ QString RosterController::getAvatarImagePathForJid(QString const &jid)
 QString RosterController::getNameForJid(QString const &jid)
 {
     return getTypeForJid(attributeName, jid);
+}
+
+int RosterController::hasRosterItemOmemo(QString const &jid)
+{
+    int returnValue = 0;
+
+    foreach (auto rosterItem, rosterList_)
+    {
+        if (rosterItem->getJid().compare(jid, Qt::CaseInsensitive) == 0)
+        {
+            returnValue = rosterItem->hasOmemo();
+            break;
+        }
+    }
+
+    return returnValue;
 }
 
 QString RosterController::getTypeForJid(itemAttribute const &attribute, QString const &jid)

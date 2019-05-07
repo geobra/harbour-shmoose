@@ -34,7 +34,7 @@ signals:
 	void sessionControllerChanged();
 
 public slots:
-    void addMessage(bool isGroupMessage, const QString &id, QString const &jid, QString const &resource, QString const &message, const QString &type, unsigned int direction);
+    void addMessage(bool isGroupMessage, const QString &id, QString const &jid, QString const &resource, QString const &message, const QString &type, unsigned int direction, unsigned int encryption);
     void setCurrentChatPartner(QString const &jid);
 
 private:

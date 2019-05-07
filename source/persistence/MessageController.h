@@ -19,7 +19,7 @@ public:
     virtual QHash<int, QByteArray> roleNames() const;
 
     void setFilterOnJid(QString const &jidFiler);
-    bool addMessage(bool isGroupMessage, const QString &id, QString const &jid, const QString &resource, QString const &message, const QString &type, unsigned int direction);
+    bool addMessage(bool isGroupMessage, const QString &id, QString const &jid, const QString &resource, QString const &message, const QString &type, unsigned int direction, unsigned int encryption);
 
     void markMessageDisplayedConfirmed(QString const &id);
     void markMessageDisplayed(QString const &id);

@@ -14,6 +14,7 @@ const QString Database::sqlMsgMessage_ = "message";                 // plain msg
 const QString Database::sqlMsgDirection_ = "direction";             // (1)ncomming, (0)utgoing
 const QString Database::sqlMsgType_ = "type";                       // group / normal
 const QString Database::sqlMsgState_ = "msgstate";                  // (-1) displayedConfirmed, (0) unknown, (1) send, (2) received, (3) displayed
+const QString Database::sqlMsgEncrypted_ = "encrypted";             // msg (send or received) encrypted? 0: false, 1: true
 
 // session table
 const QString Database::sqlSessionName_ = "sessions";               // sql table name
@@ -75,7 +76,7 @@ bool Database::open(QString const &jid)
             {                
                 QString sqlCreateCommand = "create table " + sqlMsgName_ + " (" + sqlId_ + " TEXT, " + sqlJid_ + " TEXT, "
                         + sqlResource_ + " TEXT, " + sqlMsgMessage_ + " TEXT, " + sqlMsgDirection_ + " INTEGER, "
-                        + sqlTimestamp_ + " INTEGER, " + sqlMsgType_ + " STRING, " + sqlMsgState_ + " INTEGER)";
+                        + sqlTimestamp_ + " INTEGER, " + sqlMsgType_ + " STRING, " + sqlMsgState_ + " INTEGER, " + sqlMsgEncrypted_ + " INTEGER)";
                 if (query.exec(sqlCreateCommand) == false)
                 {
                     qDebug() << "Error creating message table";

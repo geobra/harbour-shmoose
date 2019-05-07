@@ -2,6 +2,7 @@
 #define MESSAGEHANDLER_H
 
 #include <QObject>
+#include <QStringList>
 #include <Swiften/Swiften.h>
 
 class DownloadManager;
@@ -23,6 +24,7 @@ public:
     void sendDisplayedForJid(const QString &jid);
 
 signals:
+    void jidHasOmemo(QString jid);
 
 public slots:
     void slotAppGetsActive(bool active);

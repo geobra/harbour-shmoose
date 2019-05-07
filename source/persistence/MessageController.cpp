@@ -97,7 +97,9 @@ void MessageController::setTable ( const QString &table_name )
 }
 
 // FIXME use direction enum
-bool MessageController::addMessage(bool isGroupMessage, const QString &id, const QString &jid, const QString &resource, const QString &message, const QString &type, unsigned int direction)
+bool MessageController::addMessage(bool isGroupMessage, const QString &id, const QString &jid,
+                                   const QString &resource, const QString &message, const QString &type,
+                                   unsigned int direction, unsigned int encryption)
 {
     /* received group messages are special
      * - my own message into a room will be send back to me from the room
@@ -122,6 +124,7 @@ bool MessageController::addMessage(bool isGroupMessage, const QString &id, const
         record.setValue(Database::sqlMsgDirection_, direction);
         record.setValue(Database::sqlMsgType_, type);
         record.setValue(Database::sqlTimestamp_, QDateTime::currentDateTime().toTime_t());
+        record.setValue(Database::sqlMsgEncrypted_, encryption);
 
         if (! this->insertRecord(-1, record))
         {

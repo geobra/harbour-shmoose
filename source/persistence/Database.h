@@ -21,6 +21,7 @@ public:
     static const QString sqlMsgDirection_;
     static const QString sqlMsgType_;
     static const QString sqlMsgState_;
+    static const QString sqlMsgEncrypted_;
 
     static const QString sqlSessionName_;
     static const QString sqlSessionLastMsg_;

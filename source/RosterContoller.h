@@ -31,6 +31,7 @@ public:
 
     Q_INVOKABLE QString getAvatarImagePathForJid(QString const &jid);
     Q_INVOKABLE QString getNameForJid(QString const &jid);
+    Q_INVOKABLE int hasRosterItemOmemo(QString const &jid);
 
 	void requestRosterFromClient(Swift::Client *client);
 	QQmlListProperty<RosterItem> getRosterList();
@@ -46,6 +47,7 @@ signals:
 public slots:
     void addGroupAsContact(QString groupJid, QString groupName);
     void removeGroupFromContacts(QString groupJid);
+    void jidHasOmemo(const QString& jid);
 
 private:
 	void handleRosterReceived(Swift::ErrorPayload::ref error);

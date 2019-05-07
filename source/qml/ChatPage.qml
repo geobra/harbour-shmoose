@@ -16,7 +16,7 @@ GridLayout {
         id: roster
 
         Layout.fillHeight: true
-        Layout.fillWidth: true
+        Layout.fillWidth: true        
 
         //model: rosterList
         model: shmoose.rosterController.rosterList
@@ -24,8 +24,8 @@ GridLayout {
         delegate: Rectangle {
             height: 25
             width: parent.width
-            color: "green"
-            Text { text: jid}
+            color: (hasOmemo == 0) ? "green" : "blue"
+            Text { text: jid}            
 
             MouseArea {
                 anchors.fill: parent
@@ -106,6 +106,7 @@ GridLayout {
                                 }
 
                                 text: message
+                                color: encrypted === 1 ? "blue" : "green"
 
                                 // make a hand over the link
                                 MouseArea {
@@ -174,4 +175,16 @@ GridLayout {
             }
         }
     }
+
+    Connections
+    {
+        target: shmoose.rosterController
+        onRosterListChanged: {
+            if (shmoose.rosterController.hasRosterItemOmemo(shmoose.getCurrentChatPartner()))
+            {
+                console.log("set e2e")
+            }
+        }
+    }
+
 }

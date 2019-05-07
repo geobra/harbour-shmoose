@@ -11,7 +11,7 @@ RosterItem::RosterItem(QObject *parent) : QObject(parent), jid_(""), name_(""), 
 }
 
 RosterItem::RosterItem(const QString &jid, const QString &name, const Subscription &subscription, bool isGroup, QObject* parent) :
-    QObject(parent), jid_(jid), name_(name), subscription_(subscription), availability_(AVAILABILITY_UNKNOWN), status_(""), isGroup_(isGroup)
+    QObject(parent), jid_(jid), name_(name), subscription_(subscription), availability_(AVAILABILITY_UNKNOWN), status_(""), isGroup_(isGroup), hasOmemo_(false)
 {
 }
 
@@ -115,4 +115,15 @@ void RosterItem::triggerNewImage()
 bool RosterItem::isGroup()
 {
     return isGroup_;
+}
+
+int RosterItem::hasOmemo()
+{
+    return hasOmemo_ ? 1 : 0;
+}
+
+void RosterItem::setHasOmemo(bool omemo)
+{
+    hasOmemo_ = omemo;
+    emit omemoChanged();
 }

@@ -25,7 +25,6 @@ Page {
             onClicked: {
                 console.log("set current char partner: " + jid);
                 pageStack.push (pageMessaging, { "conversationId" : jid });
-                shmoose.setCurrentChatPartner(jid);
             }
 
             Image {

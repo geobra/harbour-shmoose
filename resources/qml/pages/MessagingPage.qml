@@ -19,6 +19,10 @@ Page {
     property string attachmentPath: shmoose.getAttachmentPath();
     property string imagePath : shmoose.rosterController.getAvatarImagePathForJid(conversationId);
 
+    Component.onCompleted: {
+        shmoose.setCurrentChatPartner(conversationId)
+    }
+
     Image {
         //source: "image://glass/qrc:///qml/img/photo.png";
         opacity: 0.85;
@@ -79,8 +83,8 @@ Page {
                 anchors.right: parent.right;
             }
             Label {
-                //text: qsTr ("last seen yesterday, 12:30 PM");
-                text: "";
+                id: e2elabel
+                text: shmoose.rosterController.hasRosterItemOmemo(conversationId) === 1 ? qsTr("omemo") : qsTr("no e2e");
                 color: Theme.secondaryColor;
                 font {
                     family: Theme.fontFamilyHeading;
@@ -190,34 +194,38 @@ Page {
                     text: resource;
                 }
 
-                Label {
-                    text: Qt.formatDateTime (new Date (timestamp * 1000), "yyyy-MM-dd hh:mm:ss");
-                    color: Theme.secondaryColor;
-                    font {
-                        family: Theme.fontFamilyHeading;
-                        pixelSize: Theme.fontSizeTiny;
-                    }
+                Row {
                     anchors {
-                        left: (item.alignRight ? parent.left : undefined);
-                        right: (!item.alignRight ? parent.right : undefined);
+                        right: item.alignLeft ? undefined : parent.right;
+                        left: item.alignRight ? parent.left : undefined;
+                    }
+                    Label {
+                        text: Qt.formatDateTime (new Date (timestamp * 1000), "yyyy-MM-dd hh:mm:ss");
+                        color: Theme.secondaryColor;
+                        font {
+                            family: Theme.fontFamilyHeading;
+                            pixelSize: Theme.fontSizeTiny;
+                        }
+                    }
+                    Image {
+                        visible: encrypted === 1 ? true : false;
+                        source: "image://theme/icon-s-secure";
+                    }
+                    Image {
+                        source: {
+                            if (msgstate == 3) {
+                                return "../img/read_until_green.png"
+                            }
+                            if (msgstate == 2) {
+                                return "../img/2check.png"
+                            }
+                            if (msgstate == 1) {
+                                return "../img/check.png"
+                            }
+                            return ""
+                        }
                     }
                 }
-                Image {
-                    source: {
-                        if (msgstate == 3) {
-                            return "../img/read_until_green.png"
-                        }
-                        if (msgstate == 2) {
-                            return "../img/2check.png"
-                        }
-                        if (msgstate == 1) {
-                            return "../img/check.png"
-                        }
-                        return ""
-                    }
-                    anchors.right: parent.right
-                }
-
             }
 
             menu: ContextMenu {
@@ -302,6 +310,16 @@ Page {
                 //console.log(path)
                 sendmsgview.attachmentPath = path
                 sendButton.icon.source = getSendButtonImage()
+            }
+        }
+    }
+
+    Connections
+    {
+        target: shmoose.rosterController
+        onRosterListChanged: {
+            if (shmoose.rosterController.hasRosterItemOmemo(conversationId) === 1) {
+                e2elabel.text = qsTr("omemo");
             }
         }
     }

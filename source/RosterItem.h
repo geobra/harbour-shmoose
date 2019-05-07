@@ -16,6 +16,7 @@ class RosterItem : public QObject
     Q_PROPERTY(QString status READ getStatus WRITE setStatus NOTIFY statusChanged)
     Q_PROPERTY(QString imagePath READ getImagePath NOTIFY imageChanged)
     Q_PROPERTY(QString isGroup READ isGroup NOTIFY isGroupChanged)
+    Q_PROPERTY(int hasOmemo READ hasOmemo NOTIFY omemoChanged)
 
 public:
 
@@ -59,6 +60,9 @@ public:
 
     bool isGroup();
 
+    int hasOmemo();
+    void setHasOmemo(bool omemo);
+
 signals:
 	void nameChanged();
 	void jidChanged();
@@ -66,6 +70,7 @@ signals:
     void availabilityChanged();
     void statusChanged();
     void isGroupChanged();
+    void omemoChanged();
     void imageChanged();
 
 public slots:
@@ -77,6 +82,7 @@ private:
     Availability availability_;
     QString status_;
     bool isGroup_;
+    bool hasOmemo_;
 };
 
 #endif // ROSTERITEM_H

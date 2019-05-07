@@ -6,6 +6,8 @@ Shmoose builds on and includes code from the following projects:
 
 * XMPP library `Swiften <https://swift.im/swiften.html>`_ from Isode
 * Image picker is from `hangish <https://github.com/rogora/hangish>`_ written by Daniele Rogora
+* Some files from `libpurple <https://developer.pidgin.im/>`_ to implement the plugin mock
+* Omemo by libpurple plugin `lurch <https://github.com/gkdr/lurch>`_ to have state-of-the-art encryption
 
 -------------------------------------------------------------------------------
 Feature Stack until version 1.0
@@ -93,13 +95,28 @@ or use command line::
  * make -j<Number of threads>
 
 -------------------------------------------------------------------------------
-To cross compile for Sailfish OS, do the following
+Installation on SFOS
 -------------------------------------------------------------------------------
 
-tbd... newer library versions are needed!
+To cross compile for Sailfish OS, do the following::
 
  * Get and install Sailfish OS mersdk (tested with version 1608)
- * Ssh into mersdk and do the following in a newly created directory
+ * Ssh into mersdk and do the following
+
+Fetch and compile packages which does not exists for SFOS or are too old::
+
+ * libgpg-error-1.13
+ * libgcrypt-1.7.6 (--enable-static --with-pic)
+ * mxml-2.10
+
+Build with this process::
+
+ * tar -xvf ...tar.gz
+ * sb2 -t SailfishOS-armv7hl ./configure
+ * sb2 -t SailfishOS-armv7hl make
+
+ * sb2 -R -t SailfishOS-armv7hl make install (only for libgpg-error!)
+ * cp libgcrypt.a libmxml.a  /srv/mer/targets/SailfishOS-armv7hl/usr/local/lib/ 
 
 Fetch swift source::
 
@@ -109,7 +126,7 @@ Fetch swift source::
 
 Install all dependencies to build swiften::
 
- * sb2 -t SailfishOS-armv7hl -m sdk-install -R zypper in openssl-devel libiphb-devel
+ * sb2 -t SailfishOS-armv7hl -m sdk-install -R zypper in openssl-devel libiphb-devel glib2-devel sqlite-devel cmake 
 
 Patch SConstruct file to do a PIC build of the library archive
 
@@ -123,11 +140,11 @@ Build Swiften Library::
 
  * sb2 -t SailfishOS-armv7hl /bin/bash ./scons Swiften
 
-Get Smooshe source code::
+Follow 'Get shmoose soure code' as on host guide but::
 
- * cd ..
- * git clone https://github.com/geobra/harbour-shmoose
- * cd harbour-shmoose
- * mb2 -t SailfishOS-armv7hl build
+ * move all omemo build dirs to build-host
+ * prepend the build commands with 'sb2 -t SailfishOS-armv7hl'
+ * move all build dirs to build-arm
+ * patch libsignal-protocol-c to make a PIC build (CMakeLists.txt:23: add -fPIC to CMAKE_C_FLAGS)
 
 

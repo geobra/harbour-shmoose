@@ -1,10 +1,12 @@
-TARGET = harbour-shmoose
+TARGET = harbour-shmoose-omemo
+
+ARCH=host
+contains(DEFINES, SFOS) {
+	ARCH=arm	
+}
 
 # path to local compiled swift 3 lib
-SWIFT3PATH = $$_PRO_FILE_PWD_/../swift-3.0-host
-contains(DEFINES, SFOS) {
-    SWIFT3PATH = $$_PRO_FILE_PWD_/../swift-3.0-arm
-}
+SWIFT3PATH = $$_PRO_FILE_PWD_/../swift-3.0-$${ARCH}
 
 # from swift-config
 SWIFTCXX = -DSWIFTEN_STATIC -DBOOST_ALL_NO_LIB -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_SIGNALS_NO_DEPRECATION_WARNING -DSWIFT_EXPERIMENTAL_FT
@@ -29,22 +31,31 @@ INCLUDEPATH += source/xep/omemo
 QMAKE_CXXFLAGS += $${SWIFTCXX} -std=c++11
 QMAKE_CXXFLAGS += $$system("pkg-config --cflags glib-2.0")
 
-linux-g++ {
+QMAKE_CFLAGS += $$system("pkg-config --cflags glib-2.0 libxml-2.0")
+QMAKE_CFLAGS += -std=c99
+
+! contains(DEFINES, SFOS) {
     QMAKE_CXXFLAGS += -Wno-deprecated-declarations -Wno-placement-new
 }
 
 LIBS += -L$${SWIFT3PATH}/Swiften -L$${SWIFT3PATH}/3rdParty/Boost $${SWIFTLIB}
 
+LIBS += $$_PRO_FILE_PWD_/lib/axc/build-$${ARCH}/libaxc.a
+LIBS += $$_PRO_FILE_PWD_/lib/axc/lib/libsignal-protocol-c/build-$${ARCH}/src/libsignal-protocol-c.a
+LIBS += $$_PRO_FILE_PWD_/lib/libomemo/build-$${ARCH}/libomemo-conversations.a
+LIBS += -lgpg-error
+
 contains(DEFINES, SFOS) {
     LIBS += -liphb
+    LIBS += /usr/local/lib/libmxml.a
+    LIBS += /usr/local/lib/libgcrypt.a
 }
 
-LIBS += -lgcrypt
-LIBS += $$_PRO_FILE_PWD_/lib/axc/build/libaxc.a
-LIBS += $$_PRO_FILE_PWD_/lib/axc/lib/libsignal-protocol-c/build/src/libsignal-protocol-c.a
-LIBS += $$_PRO_FILE_PWD_/lib/libomemo/build/libomemo-conversations.a
+! contains(DEFINES, SFOS) {
+    LIBS += -lmxml -lgcrypt
+}
 
-QMAKE_LFLAGS += $$system("pkg-config --libs glib-2.0 sqlite3 mxml")
+QMAKE_LFLAGS += $$system("pkg-config --libs glib-2.0 sqlite3")
 
 DEFINES += BOOST_SIGNALS_NO_DEPRECATION_WARNING
 
@@ -74,7 +85,11 @@ SOURCES += source/main.cpp \
     source/PresenceHandler.cpp \
     source/DiscoInfoHandler.cpp \
     source/xep/omemo/Omemo.cpp \
-    source/XmppMessageParserClient.cpp
+    source/xep/omemo/lurch.c \
+    source/XmppMessageParserClient.cpp \
+    source/xep/omemo/purple.c \
+    source/xep/omemo/xmlnode.c \
+    source/ClientXmlFileTracer.cpp
 
 HEADERS += source/Shmoose.h \
 	source/RosterContoller.h \
@@ -102,7 +117,22 @@ HEADERS += source/Shmoose.h \
     source/PresenceHandler.h \
     source/DiscoInfoHandler.h \
     source/xep/omemo/Omemo.h \
-    source/XmppMessageParserClient.h
+    source/xep/omemo/lurch.h \
+    source/XmppMessageParserClient.h \
+    source/xep/omemo/purple.h \
+    source/xep/omemo/chat.h \
+    source/xep/omemo/jabber.h \
+    source/xep/omemo/jutil.h \
+    source/xep/omemo/pep.h \
+    source/xep/omemo/iq.h \
+    source/xep/omemo/xmlnode.h \
+    source/xep/omemo/dbus-maybe.h \
+    source/xep/omemo/internal.h \
+    source/xep/omemo/debug.h \
+    source/xep/omemo/util.h \
+    source/xep/omemo/jabber_mock.h \
+    source/xep/omemo/purple_mock.h \
+    source/ClientXmlFileTracer.h
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \

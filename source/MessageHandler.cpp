@@ -14,11 +14,12 @@ MessageHandler::MessageHandler(Persistence *persistence, QObject *parent) : QObj
     client_(NULL), persistence_(persistence),
     downloadManager_(new DownloadManager(this)),
     chatMarkers_(new ChatMarkers(persistence_, this)),
-    omemo_(new Omemo(this)),
+    omemo_(&Omemo::getInstance()),
     xmppMessageParserClient_(new XMPPMessageParserClient()),
     appIsActive_(true), unAckedMessageIds_()
 {
-
+        connect(parent, SIGNAL(currentChatPartner(QString)), omemo_, SLOT(currentChatPartner(QString)));
+        connect(omemo_, SIGNAL(omemoAvailableFor(QString)), this, SIGNAL(jidHasOmemo(QString)));
 }
 
 MessageHandler::~MessageHandler()
@@ -60,21 +61,24 @@ void MessageHandler::handleStanzaAcked(Swift::Stanza::ref stanza)
 
 void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 {
-    //std::cout << "handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
+    std::cout << "handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
 
     Swift::Message* plainMessage = nullptr;
     std::string fromJid = "";
+
+    unsigned int msgEncrypted = 0;
 
     // check if received message is encrypted
     QString qMsg = getSerializedStringFromMessage(message);
     if (isEncryptedMessage(qMsg))
     {
-        fromJid = Omemo::getValueForElementInNode("message", qMsg, "from").toStdString();
-        std::string type = Omemo::getValueForElementInNode("message", qMsg, "type").toStdString();
+        msgEncrypted = 1;
+        //fromJid = Omemo::getValueForElementInNode("message", qMsg, "from").toStdString();
+        //std::string type = Omemo::getValueForElementInNode("message", qMsg, "type").toStdString();
 
-        if ( (! fromJid.empty()) && (! type.empty()) )
+        if ( /*(! fromJid.empty()) && (! type.empty())*/ true )
         {
-            QString decryptedMessage = omemo_->lurch_message_decrypt(fromJid.c_str(), type.c_str(), qMsg.toStdString());
+            QString decryptedMessage = omemo_->decryptMessage(qMsg);
 
             if (decryptedMessage.isEmpty())
             {
@@ -148,7 +152,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
                                  QString::fromStdString(plainMessage->getID()),
                                  QString::fromStdString(fromJid),
                                  QString::fromStdString(plainMessage->getFrom().getResource()),
-                                 theBody, type, 1 );
+                                 theBody, type, 1 , msgEncrypted);
 
         // xep 0333
         QString currentChatPartner = persistence_->getCurrentChatPartner();
@@ -190,6 +194,8 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
 void MessageHandler::sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup)
 {
+    unsigned int msgEncrypted = 0;
+
     Swift::Message::ref msg(new Swift::Message);
     Swift::JID receiverJid(toJid.toStdString());
 
@@ -198,8 +204,33 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
 
     msg->setFrom(Swift::JID(client_->getJID()));
     msg->setTo(receiverJid);
-    msg->setID(msgId);
+    msg->setID(msgId);    
+
+    Swift::Message::Type messagesTyp = Swift::Message::Chat;
+    if (isGroup == true)
+    {
+        messagesTyp = Swift::Message::Groupchat;
+    }
+    msg->setType(messagesTyp);
     msg->setBody(message.toStdString());
+
+    // TODO for now only one to one omemo messaging
+    if (messagesTyp == Swift::Message::Chat && omemo_->isOmemoAvailableForBarJid(toJid.toStdString()))
+    {
+        msgEncrypted = 1;
+
+        QString qMsg = getSerializedStringFromMessage(msg);
+        QString cryptMessage = omemo_->encryptMessage(qMsg);
+
+        //QString to = getValueForElementInNode("message", QString(cryptMessage), "to");
+        QString encryptedPayload = Omemo::getChildFromNode("encrypted", QString(cryptMessage));
+
+        Swift::RawXMLPayload::ref encPayload(new Swift::RawXMLPayload(encryptedPayload.toStdString() + "<encryption xmlns=\"urn:xmpp:eme:0\" namespace=\"eu.siacs.conversations.axolotl\" name=\"OMEMO\" /><store xmlns=\"urn:xmpp:hints\" />"));
+        msg->addPayload(encPayload);
+
+        // TODO finally, remove the plain text body, if encryption was ok
+        msg->removePayloadOfSameType(boost::make_shared<Swift::Body>());
+    }
 
     if(type == "image")
     {
@@ -215,32 +246,18 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         msg->addPayload(outOfBand);
     }
 
-    Swift::Message::Type messagesTyp = Swift::Message::Chat;
-    if (isGroup == true)
-    {
-        messagesTyp = Swift::Message::Groupchat;
-    }
-    msg->setType(messagesTyp);
-
     msg->addPayload(boost::make_shared<Swift::DeliveryReceiptRequest>());
 
     // add chatMarkers stanza
     msg->addPayload(boost::make_shared<Swift::RawXMLPayload>(ChatMarkers::getMarkableString().toStdString()));
 
-    if ( true /* FIXME check if msg should be sent omemo enc */ )
-    {
-        QString qMsg = getSerializedStringFromMessage(msg);
-        omemo_->lurch_message_encrypt_im(toJid, qMsg);
-    }
-    else
-    {
-        client_->sendMessage(msg);
-    }
+    client_->sendMessage(msg);
+
     persistence_->addMessage( (Swift::Message::Groupchat == messagesTyp) ? true : false,
                              QString::fromStdString(msgId),
                              QString::fromStdString(receiverJid.toBare().toString()),
                              QString::fromStdString(receiverJid.getResource()),
-                             message, type, 0);
+                             message, type, 0, msgEncrypted);
     unAckedMessageIds_.push_back(QString::fromStdString(msgId));
 }
 

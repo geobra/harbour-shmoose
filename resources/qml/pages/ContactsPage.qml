@@ -31,7 +31,6 @@ Page {
             menu: contextMenu
             contentHeight: Theme.itemSizeMedium;
             onClicked: {
-                shmoose.setCurrentChatPartner(jid)
                 pageStack.push (pageMessaging, { "conversationId" : jid });
             }
 

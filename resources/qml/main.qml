@@ -37,11 +37,9 @@ ApplicationWindow {
     Component { id: pageCover; CoverPage { } }
     Component { id: pageContacts; ContactsPage { } }
     Component { id: pageConversations; ConversationsPage { } }
-    Component { id: pagePreferences; PreferencesPage { } }
     Component { id: pageAccount; AccountPage { } }
     Component { id: pageMessaging; MessagingPage { } }
     Component { id: imagePicker; ImagePickerPage { } }
-    Component { id: pageSettings; SettingsPage { } }
     Component { id: pageAbout; AboutPage { } }
     Component { id: dialogCreateContact; CreateContactDialog { } }
     Component { id: dialogJoinRoom; JoinRoomDialog { } }

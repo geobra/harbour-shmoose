@@ -18,6 +18,8 @@
 
 #include <Swiften/Base/IDGenerator.h>
 
+#include "ClientXmlFileTracer.h"
+
 #include "RosterContoller.h"
 #include "Persistence.h"
 #include "MessageController.h"
@@ -42,7 +44,7 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     mucManager_(new MucManager(this)),
     discoInfoHandler_(new DiscoInfoHandler(httpFileUploadManager_, this)),
     jid_(""), password_(""),
-    version_("0.5.0")
+    version_("0.4.1")
 {
     qApp->setApplicationVersion(version_);
 
@@ -68,6 +70,9 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     // show errors to user
     connect(mucManager_, SIGNAL(signalShowMessage(QString,QString)), this, SIGNAL(signalShowMessage(QString,QString)));
     connect(rosterController_, SIGNAL(signalShowMessage(QString,QString)), this, SIGNAL(signalShowMessage(QString,QString)));
+
+    // update roster with omemo status
+    connect(messageHandler_, SIGNAL(jidHasOmemo(QString)), rosterController_, SLOT(jidHasOmemo(QString)));
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotAboutToQuit()));
 }
@@ -104,7 +109,12 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     client_ = new Swift::Client(Swift::JID(completeJid.toStdString()), pass.toStdString(), netFactories_);
     client_->setAlwaysTrustCertificates();
 
+#ifdef SFOS
+    QString xmlLogName = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QDir::separator() + "jabbertrace.log";
+    tracer_ = new ClientXmlFileTracer(client_, xmlLogName.toStdString());
+#else
     tracer_ = new Swift::ClientXMLTracer(client_);
+#endif
 
     connectionHandler_->setupWithClient(client_);
     messageHandler_->setupWithClient(client_);
@@ -156,10 +166,10 @@ void Shmoose::intialSetupOnFirstConnection()
     httpFileUploadManager_->setupWithClient(client_);
 
     // init and setup discoInfoHandler
-    //discoInfoHandler_->setupWithClient(client_);
+    discoInfoHandler_->setupWithClient(client_);
 
     // init and setup mucManager
-    //mucManager_->setupWithClient(client_);
+    mucManager_->setupWithClient(client_);
 
     // Save account data
     QSettings settings;
@@ -172,6 +182,10 @@ void Shmoose::setCurrentChatPartner(QString const &jid)
     persistence_->setCurrentChatPartner(jid);
 
     sendReadNotification(true);
+
+    // TODO place signal in qml and exchange all setCurrentChatPartner by the qml signal
+    // The next signal is just a quick proof of concept
+    emit currentChatPartner(jid);
 }
 
 QString Shmoose::getCurrentChatPartner()
