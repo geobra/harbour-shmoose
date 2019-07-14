@@ -116,7 +116,21 @@ void MucManager::joinRoomIfConfigured(Swift::MUCBookmark const &bookmark)
         }
 
         muc->joinAs(nick);
+
+        requestHistoryForRoom(bookmark.getRoom());
     }
+}
+
+void MucManager::requestHistoryForRoom(const Swift::JID& roomJid)
+{
+    // https://xmpp.org/extensions/attic/xep-0313-0.5.html
+
+    Swift::IDGenerator idGenerator;
+    std::string msgId = idGenerator.generateID();
+
+    client_->getIQRouter()->sendIQ(Swift::IQ::createRequest(Swift::IQ::Set, roomJid, msgId,
+                                                            boost::make_shared<Swift::RawXMLPayload>("<query xmlns='urn:xmpp:mam:1' />")
+                                                            ));
 }
 
 QString MucManager::getNickName()

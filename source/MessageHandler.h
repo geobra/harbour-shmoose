@@ -39,6 +39,7 @@ private:
 
     void handleMessageReceived(Swift::Message::ref message);
     void handleStanzaAcked(Swift::Stanza::ref stanza);
+    void handleDataReceived(Swift::SafeByteArray data);
 };
 
 #endif // MESSAGEHANDLER_H

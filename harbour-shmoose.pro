@@ -58,7 +58,8 @@ SOURCES += source/main.cpp \
     source/MessageHandler.cpp \
     source/PresenceHandler.cpp \
     source/DiscoInfoHandler.cpp \
-    source/Settings.cpp
+    source/Settings.cpp \
+    source/XmlProcessor.cpp
 
 HEADERS += source/Shmoose.h \
 	source/RosterContoller.h \
@@ -85,7 +86,8 @@ HEADERS += source/Shmoose.h \
     source/MessageHandler.h \
     source/PresenceHandler.h \
     source/DiscoInfoHandler.h \
-    source/Settings.h
+    source/Settings.h \
+    source/XmlProcessor.h
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \

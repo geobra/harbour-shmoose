@@ -70,7 +70,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/%{name}/icons
 %{_datadir}/%{name}/translations
 %{_datadir}/icons/hicolor/86x86/apps
-%{_bindir}
+%{_bindir}/%{name}
 # >> files
 # << files
 

@@ -44,6 +44,8 @@ private:
     void joinRoomIfConfigured(Swift::MUCBookmark const &bookmark);
     void sendUnavailableToRoom(Swift::MUCBookmark bookmark);
 
+    void requestHistoryForRoom(const Swift::JID& roomJid);
+
     QString getNickName();
     bool triggerNewMucSignal_;
 };
