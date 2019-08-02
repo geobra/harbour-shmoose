@@ -6,12 +6,13 @@
 #include <Swiften/Swiften.h>
 
 class Persistence;
+class RosterController;
 
 class ChatMarkers : public QObject
 {
     Q_OBJECT
 public:
-    explicit ChatMarkers(Persistence* persistence, QObject *parent = 0);
+    ChatMarkers(Persistence* persistence, RosterController* rosterController, QObject *parent = 0);
     void setupWithClient(Swift::Client *client);
 
     static QString getMarkableString();
@@ -32,6 +33,7 @@ private:
 
     Swift::Client* client_;
     Persistence* persistence_;
+    RosterController* rosterController_;
 };
 
 #endif // CHATMARKERS_H

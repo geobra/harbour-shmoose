@@ -40,6 +40,7 @@ ApplicationWindow {
     Component { id: pagePreferences; PreferencesPage { } }
     Component { id: pageAccount; AccountPage { } }
     Component { id: pageMessaging; MessagingPage { } }
+    Component { id: pageMsgStatus; MessageStatusPage { } }
     Component { id: imagePicker; ImagePickerPage { } }
     Component { id: pageAbout; AboutPage { } }
     Component { id: dialogCreateContact; CreateContactDialog { } }

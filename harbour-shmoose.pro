@@ -41,6 +41,7 @@ SOURCES += source/main.cpp \
 	source/persistence/Database.cpp \
 	source/persistence/MessageController.cpp \
 	source/persistence/SessionController.cpp \
+        source/persistence/GcmController.cpp \
 	source/persistence/Persistence.cpp \
 	source/xep/httpFileUpload/XmlHttpUploadContentHandler.cpp \
 	source/xep/httpFileUpload/HttpFileuploader.cpp \
@@ -68,6 +69,7 @@ HEADERS += source/Shmoose.h \
 	source/persistence/Database.h \
 	source/persistence/MessageController.h \
 	source/persistence/SessionController.h \
+        source/persistence/GcmController.h \
 	source/persistence/Persistence.h \
 	source/xep/httpFileUpload/XmlHttpUploadContentHandler.h \
 	source/xep/httpFileUpload/HttpFileuploader.h \

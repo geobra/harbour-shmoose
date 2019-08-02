@@ -18,6 +18,8 @@
 #include "Persistence.h"
 #include "MessageController.h"
 #include "SessionController.h"
+#include "GcmController.h"
+
 #include "FileModel.h"
 #include "System.h"
 
@@ -31,6 +33,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<Persistence*>("Persistence*");
     qRegisterMetaType<MessageController*>("MessageController*");
     qRegisterMetaType<MessageController*>("SessionController*");
+    qRegisterMetaType<GcmController*>("GcmController*");
 
     // app
     QGuiApplication *pApp = NULL;

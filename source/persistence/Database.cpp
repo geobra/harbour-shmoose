@@ -20,6 +20,11 @@ const QString Database::sqlSessionName_ = "sessions";               // sql table
 const QString Database::sqlSessionLastMsg_ = "lastmessage";         // the content of the last message
 const QString Database::sqlSessionUnreadMsg_ = "unreadmessages";    // number of unread messages
 
+// groupchatmarker (gcm) table
+const QString Database::sqlGcmName_ = "groupchatmarkers";           // sql table name
+const QString Database::sqlGcmChatMemberName_ = "chatmembername";   // the name of the group chat member. Is the resource after the room jid
+const QString Database::sqlGcmState_ = "msgstate";                  // The message state. (0) unknown, (1) received, (2) displayed
+
 // common sql column names
 const QString Database::sqlId_ = "id";                              // the msg id
 const QString Database::sqlJid_ = "jid";                            // the jid
@@ -83,9 +88,9 @@ bool Database::open(QString const &jid)
                 }
             }
 
+            // another table for the sessions
             if (! database_.tables().contains( sqlSessionName_ ))
             {
-                // another table for the sessions
                 QString sqlCreateCommand = "create table " + sqlSessionName_ + " (" + sqlJid_ + " TEXT PRIMARY KEY, " + sqlSessionLastMsg_ + " TEXT, "
                         + sqlTimestamp_ + " INTEGER, " + sqlSessionUnreadMsg_ + " INTEGER)";
                 if (query.exec(sqlCreateCommand) == false)
@@ -94,6 +99,20 @@ bool Database::open(QString const &jid)
                     databaseValid_ = false;
                 }
             }
+
+            // another table for the groupchat states
+            if (! database_.tables().contains( sqlGcmName_ ))
+            {
+                QString sqlCreateCommand = "create table " + sqlGcmName_ +
+                        " (" + sqlId_ + " TEXT, " + sqlGcmChatMemberName_ + " TEXT, " + sqlTimestamp_ + " INTEGER, " + sqlGcmState_ + " INTEGER, " +
+                        "PRIMARY KEY ( " + sqlId_ + ", " + sqlGcmChatMemberName_ + ") )";
+                if (query.exec(sqlCreateCommand) == false)
+                {
+                    qDebug() << "Error creating groupchatstate table";
+                    databaseValid_ = false;
+                }
+            }
+
         }
     }
 

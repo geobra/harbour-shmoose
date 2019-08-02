@@ -225,6 +225,14 @@ Page {
                     text: qsTr("Copy")
                     onClicked: Clipboard.text = message
                 }
+                MenuItem {
+                    text: qsTr("Status")
+                    enabled:  (item.alignRight ? false : true);
+                    onClicked:  {
+                        shmoose.persistence.gcmController.setFilterOnMsg(id);
+                        pageStack.push(pageMsgStatus);
+                    }
+                }
             }
 
         }

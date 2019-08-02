@@ -9,12 +9,13 @@
 class DownloadManager;
 class Persistence;
 class ChatMarkers;
+class RosterController;
 
 class MessageHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit MessageHandler(Persistence* persistence, Settings * settings, QObject *parent = 0);
+    MessageHandler(Persistence* persistence, Settings * settings, RosterController* rosterController, QObject *parent = 0);
 
     void setupWithClient(Swift::Client* client);
 

@@ -2,6 +2,7 @@
 #include "Database.h"
 #include "MessageController.h"
 #include "SessionController.h"
+#include "GcmController.h"
 
 #include <QDebug>
 
@@ -10,6 +11,7 @@ Persistence::Persistence(QObject *parent)
       db_(new Database(this)),
       messageController_(new MessageController(db_, this)),
       sessionController_(new SessionController(db_, this)),
+      gcmController_(new GcmController(db_, this)),
       currentChatPartner_(""),
       persistenceValid_(false)
 {
@@ -26,6 +28,7 @@ void Persistence::openDatabaseForJid(QString const &jid)
     {
         messageController_->setup();
         sessionController_->setup();
+        gcmController_->setup();
 
         persistenceValid_ = true;
     }
@@ -98,6 +101,19 @@ void Persistence::setCurrentChatPartner(QString const &jid)
     }
 }
 
+void Persistence::markGroupMessageReceivedByMember(const QString &msgId, const QString &groupChatMember)
+{
+    gcmController_->markGroupMessageReceivedByMember(msgId, groupChatMember);
+    emit gcmControllerChanged();
+}
+
+void Persistence::markGroupMessageDisplayedByMember(const QString &msgId, const QString &groupChatMember)
+{
+    gcmController_->markGroupMessageDisplayedByMember(msgId, groupChatMember);
+    emit gcmControllerChanged();
+}
+
+
 QPair<QString, int> Persistence::getNewestReceivedMessageIdAndStateOfJid(QString const &jid)
 {
     return messageController_->getNewestReceivedMessageIdAndStateOfJid(jid);
@@ -116,4 +132,9 @@ MessageController* Persistence::getMessageController()
 SessionController* Persistence::getSessionController()
 {
     return sessionController_;
+}
+
+GcmController* Persistence::getGcmController()
+{
+    return gcmController_;
 }

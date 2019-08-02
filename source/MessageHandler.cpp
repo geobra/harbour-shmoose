@@ -4,15 +4,16 @@
 #include "DownloadManager.h"
 #include "ChatMarkers.h"
 #include "XmlProcessor.h"
+#include "RosterContoller.h"
 
 #include <QUrl>
 
 #include <QDebug>
 
-MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, QObject *parent) : QObject(parent),
+MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, RosterController* rosterController, QObject *parent) : QObject(parent),
     client_(NULL), persistence_(persistence), settings_(settings),
     downloadManager_(new DownloadManager(this)),
-    chatMarkers_(new ChatMarkers(persistence_, this)),
+    chatMarkers_(new ChatMarkers(persistence_, rosterController, this)),
     appIsActive_(true), unAckedMessageIds_()
 {
 
@@ -161,17 +162,6 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         receipt->setReceivedID(message->getID());
         receiptReply->addPayload(receipt);
         client_->sendMessage(receiptReply);
-    }
-
-    // mark sent msg as received
-    Swift::DeliveryReceipt::ref rcpt = message->getPayload<Swift::DeliveryReceipt>();
-    if (rcpt)
-    {
-        std::string recevideId = rcpt->getReceivedID();
-        if (recevideId.length() > 0)
-        {
-            persistence_->markMessageAsReceivedById(QString::fromStdString(recevideId));
-        }
     }
 }
 
