@@ -8,7 +8,7 @@ import harbour.shmoose 1.0
 
 GridLayout {
     anchors.fill: parent
-    columns: 2
+    columns: 3
 
     readonly property int margin: 10;
 
@@ -110,8 +110,12 @@ GridLayout {
                                 // make a hand over the link
                                 MouseArea {
                                     anchors.fill: parent
-                                    acceptedButtons: Qt.NoButton // we don't want to eat clicks on the Text
-                                    cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                    //acceptedButtons: Qt.NoButton // we don't want to eat clicks on the Text
+                                    //cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                    onClicked:  {
+                                        shmoose.persistence.gcmController.setFilterOnMsg(id);
+                                        //pageStack.push(pageMsgStatus);
+                                    }
                                 }
 
                                 onLinkActivated: Qt.openUrlExternally(link)
@@ -171,6 +175,52 @@ GridLayout {
                     shmoose.sendMessage(shmoose.rosterController.rosterList[roster.currentIndex].jid, texttosend.text, "txt")
                     texttosend.text = ""
                 }
+            }
+        }
+    }
+    Rectangle {
+        id: msgStatusRect
+
+        anchors.left: chat.right
+
+        Layout.fillHeight: true
+        Layout.fillWidth: true
+
+        ListView {
+            id: msgStatus
+
+            height: parent.height
+            width: parent.width
+
+            model: shmoose.persistence.gcmController
+
+            delegate: Item {
+                    id: item
+
+                    width: parent.width
+                    height: 75
+                    //height: messageText.height + msgStatus.height
+                    //height: children.height
+
+                    Column {
+                        anchors {
+                            left: parent.left;
+                            right: parent.right;
+                            margins: margin
+                        }
+                        Label {
+                            text: id;
+                        }
+                        Label {
+                            text: timestamp;
+                        }
+                        Label {
+                            text: chatmembername;
+                        }
+                        Label {
+                            text: msgstate;
+                        }
+                    }
             }
         }
     }
