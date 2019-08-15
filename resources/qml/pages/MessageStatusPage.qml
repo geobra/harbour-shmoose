@@ -25,36 +25,44 @@ Page {
 
             Column {
                 anchors {
-                    left: img.right;
+                    left: parent.left;
+                    right: parent.right;
                     margins: Theme.paddingMedium;
-                    verticalCenter: parent.verticalCenter;
                 }
 
-                Label {
-                    text: id;
-                    color: Theme.secondaryColor;
-                    font.pixelSize: Theme.fontSizeTiny;
-                }
-                Label {
-                    text: timestamp;
-                    color: Theme.secondaryColor;
-                    font.pixelSize: Theme.fontSizeTiny;
-                }
                 Label {
                     text: chatmembername;
                     color: Theme.secondaryColor;
-                    font.pixelSize: Theme.fontSizeTiny;
+                    font.pixelSize: Theme.fontSizeMedium;
                 }
-                Label {
-                    text: msgstate;
-                    color: Theme.secondaryColor;
-                    font.pixelSize: Theme.fontSizeTiny;
+                Row {
+                    anchors {
+                        left: parent.left;
+                        right: parent.right;
+                        margins: Theme.paddingMedium;
+                    }
+
+                    Label {
+                        text: Qt.formatDateTime (new Date (timestamp * 1000), "yyyy-MM-dd hh:mm:ss");
+                        color: Theme.secondaryColor;
+                        font.pixelSize: Theme.fontSizeTiny;
+                    }
+                    Image {
+                        source: {
+                            if (msgstate == 2) {
+                                return "../img/read_until_green.png"
+                            }
+                            if (msgstate == 1) {
+                                return "../img/2check.png"
+                            }
+                            return ""
+                        }
+//		                    anchors.right: parent.right
+                    }
                 }
             }
         }
-
         anchors.fill: parent;
-
     }
 }
 
