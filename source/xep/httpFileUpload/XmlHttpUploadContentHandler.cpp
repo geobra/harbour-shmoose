@@ -19,12 +19,12 @@ bool XmlHttpUploadContentHandler::parsedSuccessfull()
 
 QString XmlHttpUploadContentHandler::getPutUrl()
 {
-    return getUrl_;
+    return putUrl_;
 }
 
 QString XmlHttpUploadContentHandler::getGetUrl()
 {
-    return putUrl_;
+    return getUrl_;
 }
 
 
