@@ -119,6 +119,11 @@ QPair<QString, int> Persistence::getNewestReceivedMessageIdAndStateOfJid(QString
     return messageController_->getNewestReceivedMessageIdAndStateOfJid(jid);
 }
 
+QString Persistence::getResourceForMsgId(const QString& msgId)
+{
+    return messageController_->getRessourceForMsgId(msgId);
+}
+
 bool Persistence::isValid()
 {
     return persistenceValid_;

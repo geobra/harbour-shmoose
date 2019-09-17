@@ -16,7 +16,6 @@ public:
     void setupWithClient(Swift::Client *client);
 
     static QString getMarkableString();
-    QString getDisplayedStringForId(QString displayedId);
 
     void sendDisplayedForJidAndMessageId(QString jid, QString messageId);
     void sendDisplayedForJid(const QString &jid);

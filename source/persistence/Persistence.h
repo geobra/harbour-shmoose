@@ -26,6 +26,7 @@ public:
     void markMessageAsSentById(QString const &id);
 
     QPair<QString, int> getNewestReceivedMessageIdAndStateOfJid(QString const &jid);
+    QString getResourceForMsgId(const QString& msgId);
 
     void openDatabaseForJid(QString const &jid);
 

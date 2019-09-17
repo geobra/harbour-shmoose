@@ -342,6 +342,32 @@ QPair<QString, int> MessageController::getNewestReceivedMessageIdAndStateOfJid(Q
     return qMakePair<QString, int>(msgId, msgState);
 }
 
+QString MessageController::getRessourceForMsgId(const QString& msgId)
+{
+    QString resource = "";
+
+    QSqlQuery query(*(database_->getPointer()));
+
+    if (! query.exec("SELECT " + Database::sqlResource_ + " FROM " + Database::sqlMsgName_
+                     + " WHERE " + Database::sqlId_ + " = \"" + msgId + "\" AND " + Database::sqlMsgDirection_ + " = " + QString::number(MESSAGE_DIRECTION_INCOMING)
+                     + " ORDER BY " + Database::sqlTimestamp_ + " DESC LIMIT 1"))
+    {
+        qDebug() << query.lastError().databaseText();
+        qDebug() << query.lastError().driverText();
+        qDebug() << query.lastError().text();
+    }
+    else
+    {
+        while (query.next())
+        {
+            resource = query.value(0).toString();
+            break;
+        }
+    }
+
+    return resource;
+}
+
 void MessageController::printSqlError()
 {
     qDebug() << this->lastError().databaseText();

@@ -27,6 +27,7 @@ public:
     void markMessageSent(QString const &id);
 
     QPair<QString, int> getNewestReceivedMessageIdAndStateOfJid(QString const &jid);
+    QString getRessourceForMsgId(const QString& msgId);
 
 signals:
     void signalMessageReceived(QString id, QString jid, QString message);
