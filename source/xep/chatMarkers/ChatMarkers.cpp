@@ -75,7 +75,7 @@ void ChatMarkers::handleMessageReceived(Swift::Message::ref message)
             QString msgId = XmlProcessor::getContentInTag("displayed", "id", rawXml);
             if (! msgId.isEmpty())
             {
-                QString sender = XmlProcessor::getContentInTag("displayed", "sender", rawXml);
+                QString sender = QString::fromStdString(message->getFrom());
                 Swift::JID jidSender(sender.toStdString());
                 if ((! sender.isEmpty()) && rosterController_->isGroup(QString::fromStdString(jidSender.toBare().toString())))
                 {
@@ -128,6 +128,13 @@ void ChatMarkers::sendDisplayedForJid(const QString& jid)
             if (toJID.isBare() == true)
             {
                 sender += "/" + persistence_->getResourceForMsgId(displayedMsgId);
+
+                // workaround for swift bug. parse error on 'client->sendMessage' if <...> is inside a data tag
+                // e.g. <displayed xmlns="urn:xmpp:chat-markers:0" id="abc" sender="3q4rb@conference.jabber.ccc.de/some<tag>name"></displayed>
+                // triggers absence of payload in msg an causes bad formed xml.
+                // results in swift stream error and disconnect.
+                sender.replace("<", "(");
+                sender.replace(">", ")");
             }
 
             displayedPayload += " sender='" +  sender + "'";
