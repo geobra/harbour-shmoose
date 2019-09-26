@@ -143,3 +143,8 @@ GcmController* Persistence::getGcmController()
 {
     return gcmController_;
 }
+
+const QString Persistence::getResourcesOfDisplayedMsgforMsgId(const QString& msgId)
+{
+    return gcmController_->getResourcesOfDisplayedMsgforMsgId(msgId);
+}

@@ -35,7 +35,7 @@ GridLayout {
                     //console.log( "clicked: " + roster.currentIndex)
                     console.log( "jid: " + shmoose.rosterController.rosterList[roster.currentIndex].jid)
 
-                    shmoose.setCurrentChatPartner(shmoose.rosterController.rosterList[roster.currentIndex].jid)
+                    shmoose.setCurrentChatPartner(shmoose.rosterController.rosterList[roster.currentIndex].jid)               
                 }
             }
         }
@@ -114,6 +114,7 @@ GridLayout {
                                     //cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
                                     onClicked:  {
                                         shmoose.persistence.gcmController.setFilterOnMsg(id);
+                                        console.log("seen by: " + shmoose.persistence.getResourcesOfDisplayedMsgforMsgId(id));
                                         //pageStack.push(pageMsgStatus);
                                     }
                                 }

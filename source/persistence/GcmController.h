@@ -23,6 +23,8 @@ public:
 	void markGroupMessageReceivedByMember(const QString& msgId, const QString& groupChatMember);
 	void markGroupMessageDisplayedByMember(const QString& msgId, const QString& groupChatMember);
 
+    const QString getResourcesOfDisplayedMsgforMsgId(const QString& msgId);
+
 signals:
 
 public slots:

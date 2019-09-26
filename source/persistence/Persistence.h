@@ -35,6 +35,8 @@ public:
     void markGroupMessageReceivedByMember(const QString& msgId, const QString& groupChatMember);
     void markGroupMessageDisplayedByMember(const QString& msgId, const QString& groupChatMember);
 
+    Q_INVOKABLE const QString getResourcesOfDisplayedMsgforMsgId(const QString& msgId);
+
 signals:
     void messageControllerChanged();
     void sessionControllerChanged();

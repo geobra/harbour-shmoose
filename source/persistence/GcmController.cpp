@@ -5,6 +5,7 @@
 #include <QSqlError>
 #include <QDateTime>
 #include <QSqlQuery>
+#include <QRegularExpression>
 
 #include <QDebug>
 
@@ -150,9 +151,36 @@ int GcmController::getMsgStatus(const QString& msgId, const QString& groupChatMe
 		}
 	}
 
-	qDebug() << "found msg state: " << msgState << "for msg id " << msgId;
+    //qDebug() << "found msg state: " << msgState << "for msg id " << msgId;
 
 	return msgState;
+}
+
+const QString GcmController::getResourcesOfDisplayedMsgforMsgId(const QString& msgId)
+{
+    QString resources = "";
+
+    QSqlQuery query(*(database_->getPointer()));
+    if (! query.exec("SELECT " + Database::sqlGcmChatMemberName_ + " FROM " + Database::sqlGcmName_ + \
+                     " WHERE " + Database::sqlId_ + " = \"" + msgId + "\" AND " + \
+                     Database::sqlGcmState_ + " = 2"
+                     ))
+    {
+        qDebug() << query.lastError().databaseText();
+        qDebug() << query.lastError().driverText();
+        qDebug() << query.lastError().text();
+    }
+    else
+    {
+        while (query.next())
+        {
+            resources += query.value(0).toString() + ", ";
+        }
+
+        resources.remove(QRegularExpression(",\\s+$"));
+    }
+
+    return resources;
 }
 
 void GcmController::printSqlError()
