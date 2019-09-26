@@ -2,6 +2,7 @@
 #include "Persistence.h"
 #include "XmlProcessor.h"
 #include "RosterContoller.h"
+#include "XmlWriter.h"
 
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
@@ -116,7 +117,9 @@ void ChatMarkers::sendDisplayedForJid(const QString& jid)
         msg->setFrom(Swift::JID(client_->getJID()));
         msg->setID(msgId);
 
-        QString displayedPayload = "<displayed xmlns='" +  chatMarkersIdentifier + "' id='" + displayedMsgId + "' ";
+        AttrMap displayedPayloadContent;
+        displayedPayloadContent.insert("xmlns", chatMarkersIdentifier);
+        displayedPayloadContent.insert("id", displayedMsgId);
 
         if (itsAMuc == true)
         {
@@ -128,16 +131,9 @@ void ChatMarkers::sendDisplayedForJid(const QString& jid)
             if (toJID.isBare() == true)
             {
                 sender += "/" + persistence_->getResourceForMsgId(displayedMsgId);
-
-                // workaround for swift bug. parse error on 'client->sendMessage' if <...> is inside a data tag
-                // e.g. <displayed xmlns="urn:xmpp:chat-markers:0" id="abc" sender="3q4rb@conference.jabber.ccc.de/some<tag>name"></displayed>
-                // triggers absence of payload in msg an causes bad formed xml.
-                // results in swift stream error and disconnect.
-                sender.replace("<", "(");
-                sender.replace(">", ")");
             }
 
-            displayedPayload += " sender='" +  sender + "'";
+            displayedPayloadContent.insert("sender", sender);
         }
         else
         {
@@ -145,10 +141,11 @@ void ChatMarkers::sendDisplayedForJid(const QString& jid)
             msg->setType(Swift::Message::Normal);
         }
 
-        displayedPayload += " />";
-
         // add chatMarkers stanza
-        msg->addPayload(boost::make_shared<Swift::RawXMLPayload>(displayedPayload.toStdString()));
+        XmlWriter xw;
+        xw.writeAtomTag("displayed", displayedPayloadContent);
+
+        msg->addPayload(boost::make_shared<Swift::RawXMLPayload>(xw.getXmlResult().toStdString()));
 
         client_->sendMessage(msg);
 
