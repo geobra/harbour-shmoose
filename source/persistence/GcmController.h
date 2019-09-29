@@ -23,7 +23,7 @@ public:
 	void markGroupMessageReceivedByMember(const QString& msgId, const QString& groupChatMember);
 	void markGroupMessageDisplayedByMember(const QString& msgId, const QString& groupChatMember);
 
-    const QString getResourcesOfDisplayedMsgforMsgId(const QString& msgId);
+    const QString getResourcesOfNewestDisplayedMsgforJid(const QString& jid);
 
 signals:
 
@@ -36,6 +36,8 @@ private:
 	void markGroupMessage(const QString& msgId, const QString& groupChatMember, int state);
 
 	int getMsgStatus(const QString& msgId, const QString &groupChatMember);
+
+    QString getNewestMessageIdOfJid(const QString& jid);
 
 	void printSqlError();
 

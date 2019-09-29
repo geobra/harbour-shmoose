@@ -156,8 +156,13 @@ int GcmController::getMsgStatus(const QString& msgId, const QString& groupChatMe
 	return msgState;
 }
 
-const QString GcmController::getResourcesOfDisplayedMsgforMsgId(const QString& msgId)
+
+
+const QString GcmController::getResourcesOfNewestDisplayedMsgforJid(const QString& jid)
 {
+    const QString msgId = getNewestMessageIdOfJid(jid);
+    //qDebug() << "newset msg id: " << msgId;
+
     QString resources = "";
 
     QSqlQuery query(*(database_->getPointer()));
@@ -181,6 +186,31 @@ const QString GcmController::getResourcesOfDisplayedMsgforMsgId(const QString& m
     }
 
     return resources;
+}
+
+QString GcmController::getNewestMessageIdOfJid(const QString& jid)
+{
+    QString msgId = "";
+
+    QSqlQuery query(*(database_->getPointer()));
+    if (! query.exec("SELECT " + Database::sqlId_ + " FROM " + Database::sqlMsgName_ \
+                     + " WHERE " + Database::sqlJid_ + " = \"" + jid + "\"" \
+                     + " ORDER BY " + Database::sqlTimestamp_ + " DESC LIMIT 1"))
+    {
+        qDebug() << query.lastError().databaseText();
+        qDebug() << query.lastError().driverText();
+        qDebug() << query.lastError().text();
+    }
+    else
+    {
+        while (query.next())
+        {
+            msgId = query.value(0).toString();
+            break;
+        }
+    }
+
+    return msgId;
 }
 
 void GcmController::printSqlError()

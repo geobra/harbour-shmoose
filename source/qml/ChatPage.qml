@@ -114,8 +114,7 @@ GridLayout {
                                     //cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
                                     onClicked:  {
                                         shmoose.persistence.gcmController.setFilterOnMsg(id);
-                                        console.log("seen by: " + shmoose.persistence.getResourcesOfDisplayedMsgforMsgId(id));
-                                        //pageStack.push(pageMsgStatus);
+                                        console.log("seen by: " + shmoose.persistence.getResourcesOfNewestDisplayedMsgforJid(shmoose.rosterController.rosterList[roster.currentIndex].jid));
                                     }
                                 }
 

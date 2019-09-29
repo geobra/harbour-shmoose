@@ -227,7 +227,6 @@ Page {
                 }
                 MenuItem {
                     text: qsTr("Status")
-                    enabled:  (item.alignRight ? false : true);
                     onClicked:  {
                         shmoose.persistence.gcmController.setFilterOnMsg(id);
                         pageStack.push(pageMsgStatus);
@@ -240,9 +239,35 @@ Page {
             top: banner.bottom;
             left: parent.left;
             right: parent.right;
-            bottom: sendmsgview.top;
+            bottom: displaymsgview.top;
         }
 
+    }
+    Row {
+        id: displaymsgview
+
+        spacing: 5
+
+        anchors {
+            left: parent.left;
+            right: parent.right;
+            bottom:sendmsgview.top;
+            margins: view.spacing;
+        }
+        Label {
+            id: displaymsgviewlabel
+            text:  shmoose.persistence.getResourcesOfNewestDisplayedMsgforJid(conversationId);
+            enabled: isGroup;
+            color: Theme.highlightColor;
+            font {
+                family: Theme.fontFamily;
+                pixelSize: Theme.fontSizeTiny;
+            }
+        }
+        Image {
+            source: "../img/read_until_green.png";
+            visible: displaymsgviewlabel.text.length > 0 ? true: false;
+        }
     }
 
     Row {
@@ -295,15 +320,19 @@ Page {
                 } else {
                     //console.log(sendmsgview.attachmentPath)
                     var msgToSend = editbox.text;
+
                     if (sendmsgview.attachmentPath.length > 0) {
                         shmoose.sendFile(conversationId, sendmsgview.attachmentPath);
                         sendmsgview.attachmentPath = ""
                     }
+
                     if (msgToSend.length > 0) {
                         shmoose.sendMessage(conversationId, msgToSend, "text");
                         editbox.text = " ";
                         editbox.text = "";
                     }
+
+                    displaymsgviewlabel.text = "";
                 }
             }
             function processAttachment(path) {

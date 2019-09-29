@@ -144,7 +144,7 @@ GcmController* Persistence::getGcmController()
     return gcmController_;
 }
 
-const QString Persistence::getResourcesOfDisplayedMsgforMsgId(const QString& msgId)
+const QString Persistence::getResourcesOfNewestDisplayedMsgforJid(const QString& jid)
 {
-    return gcmController_->getResourcesOfDisplayedMsgforMsgId(msgId);
+    return gcmController_->getResourcesOfNewestDisplayedMsgforJid(jid);
 }
