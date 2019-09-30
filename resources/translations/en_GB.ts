@@ -4,14 +4,42 @@
 <context>
     <name>AboutPage</name>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="13"/>
+        <location filename="../qml/pages/AboutPage.qml" line="14"/>
         <source>Shmoose - Xmpp Client</source>
         <translation>Shmoose - Xmpp Client</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="33"/>
+        <location filename="../qml/pages/AboutPage.qml" line="27"/>
         <source>Version</source>
         <translation>Version</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="34"/>
+        <source>Contributions:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AttachmentPathsPage</name>
+    <message>
+        <location filename="../qml/pages/AttachmentPathsPage.qml" line="12"/>
+        <source>Add Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AttachmentPathsPage.qml" line="23"/>
+        <source>Attachment Search Paths</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AttachmentPathsPage.qml" line="37"/>
+        <source>Deleting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AttachmentPathsPage.qml" line="42"/>
+        <source>Remove</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -53,12 +81,12 @@
         <translation>Offline</translation>
     </message>
     <message>
-        <location filename="../qml/cover/CoverPage.qml" line="46"/>
+        <location filename="../qml/cover/CoverPage.qml" line="48"/>
         <source>connected</source>
         <translation>Connected</translation>
     </message>
     <message>
-        <location filename="../qml/cover/CoverPage.qml" line="50"/>
+        <location filename="../qml/cover/CoverPage.qml" line="51"/>
         <source>disconnected</source>
         <translation>Disconnected</translation>
     </message>
@@ -134,48 +162,48 @@
         <translation type="vanished">Login</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="16"/>
+        <location filename="../qml/pages/LoginPage.qml" line="22"/>
         <source>Welcome to Shmoose</source>
         <translation>Welcome to Shmoose</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="21"/>
+        <location filename="../qml/pages/LoginPage.qml" line="29"/>
         <source>Login to Jabber Server</source>
         <translation>Login to Jabber Server</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="28"/>
+        <location filename="../qml/pages/LoginPage.qml" line="36"/>
         <source>jid@server.com</source>
         <translation>jid@server.com</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="29"/>
+        <location filename="../qml/pages/LoginPage.qml" line="37"/>
         <source>JID</source>
         <translation>JID</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="40"/>
+        <location filename="../qml/pages/LoginPage.qml" line="48"/>
         <source>password</source>
         <translation>password</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="42"/>
+        <location filename="../qml/pages/LoginPage.qml" line="50"/>
         <source>Password</source>
         <translation>Password</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="61"/>
+        <location filename="../qml/pages/LoginPage.qml" line="71"/>
         <source>Save credentials (unencrypted)</source>
         <translation>Save credentials (unencrypted)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="71"/>
-        <location filename="../qml/pages/LoginPage.qml" line="91"/>
+        <location filename="../qml/pages/LoginPage.qml" line="81"/>
+        <location filename="../qml/pages/LoginPage.qml" line="103"/>
         <source>Connect</source>
         <translation>Connect</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="76"/>
+        <location filename="../qml/pages/LoginPage.qml" line="86"/>
         <source>Connecting...</source>
         <translation>Connecting...</translation>
     </message>
@@ -194,8 +222,21 @@
     </message>
     <message>
         <location filename="../qml/pages/MenuPage.qml" line="62"/>
+        <source>Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MenuPage.qml" line="63"/>
         <source>About</source>
         <translation>About</translation>
+    </message>
+</context>
+<context>
+    <name>MessageStatusPage</name>
+    <message>
+        <location filename="../qml/pages/MessageStatusPage.qml" line="18"/>
+        <source>Message Status</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -206,9 +247,42 @@
         <translation>Copy</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagingPage.qml" line="253"/>
+        <location filename="../qml/pages/MessagingPage.qml" line="230"/>
+        <source>Status</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingPage.qml" line="287"/>
         <source>Enter message...</source>
         <translation>Enter message...</translation>
+    </message>
+</context>
+<context>
+    <name>PreferencesPage</name>
+    <message>
+        <location filename="../qml/pages/PreferencesPage.qml" line="17"/>
+        <source>Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/PreferencesPage.qml" line="19"/>
+        <source>Privacy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/PreferencesPage.qml" line="24"/>
+        <source>Send Read Notifications</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/PreferencesPage.qml" line="30"/>
+        <source>Attachments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/PreferencesPage.qml" line="33"/>
+        <source>Edit attachment search paths</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

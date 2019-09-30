@@ -232,6 +232,14 @@
     </message>
 </context>
 <context>
+    <name>MessageStatusPage</name>
+    <message>
+        <location filename="../qml/pages/MessageStatusPage.qml" line="18"/>
+        <source>Message Status</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MessagingPage</name>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="225"/>
@@ -239,7 +247,12 @@
         <translation>Kopieren</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagingPage.qml" line="253"/>
+        <location filename="../qml/pages/MessagingPage.qml" line="230"/>
+        <source>Status</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingPage.qml" line="287"/>
         <source>Enter message...</source>
         <translation>Nachricht eingeben...</translation>
     </message>
