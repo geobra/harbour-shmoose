@@ -226,6 +226,7 @@ Page {
                     onClicked: Clipboard.text = message
                 }
                 MenuItem {
+                    visible: isGroup;
                     text: qsTr("Status")
                     onClicked:  {
                         shmoose.persistence.gcmController.setFilterOnMsg(id);

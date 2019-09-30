@@ -83,7 +83,10 @@ void ChatMarkers::handleMessageReceived(Swift::Message::ref message)
                     // group member displayed
                     // add to displayed list for that msg in the group
                     QString groupChatMember = QString::fromStdString(jidSender.getResource());
-                    persistence_->markGroupMessageDisplayedByMember(msgId, groupChatMember);
+                    if (! groupChatMember.isEmpty())
+                    {
+                        persistence_->markGroupMessageDisplayedByMember(msgId, groupChatMember);
+                    }
                 }
                 else
                 {
