@@ -156,5 +156,8 @@ void ChatMarkers::sendDisplayedForJid(const QString& jid)
 
 QString ChatMarkers::getMarkableString()
 {
-    return "<markable xmlns='" +  chatMarkersIdentifier + "'/>";
+    XmlWriter xw;
+    xw.writeAtomTag("markable", AttrMap("xmlns", chatMarkersIdentifier));
+
+    return xw.getXmlResult();
 }

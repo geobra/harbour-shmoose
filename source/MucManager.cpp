@@ -1,6 +1,9 @@
 #include "MucManager.h"
+#include "XmlWriter.h"
 
+#include <QDateTime>
 #include <iostream>
+
 
 MucManager::MucManager(QObject *parent) :
     QObject(parent), client_(NULL), mucBookmarkManager_(NULL), triggerNewMucSignal_(true)
@@ -125,11 +128,40 @@ void MucManager::requestHistoryForRoom(const Swift::JID& roomJid)
 {
     // https://xmpp.org/extensions/attic/xep-0313-0.5.html
 
+    // get the date of last week
+    QDateTime lastWeek = QDateTime::currentDateTime().addDays(-7);
+    lastWeek.setTimeSpec(Qt::UTC);
+
+    // construct the mam query for messages from within last week
+    const QString xmppMam = "urn:xmpp:mam:1";
+
+    XmlWriter xw;
+    xw.writeOpenTag( "query", AttrMap("xmlns", xmppMam) );
+
+    AttrMap xmlnsMap;
+    xmlnsMap.insert("xmlns", "jabber:x:data");
+    xmlnsMap.insert("type", "submit");
+    xw.writeOpenTag("x", xmlnsMap);
+
+    AttrMap fieldMap;
+    fieldMap.insert("var", "FORM_TYPE");
+    fieldMap.insert("type", "hidden");
+    xw.writeOpenTag("field", fieldMap);
+    xw.writeTaggedString( "value", xmppMam );
+    xw.writeCloseTag( "field" );
+
+    xw.writeOpenTag( "field", AttrMap("var", "start") );
+    xw.writeTaggedString( "value", lastWeek.toString(Qt::ISODate) );
+    xw.writeCloseTag( "field" );
+
+    xw.writeCloseTag( "x" );
+    xw.writeCloseTag( "query" );
+
     Swift::IDGenerator idGenerator;
     std::string msgId = idGenerator.generateID();
 
     client_->getIQRouter()->sendIQ(Swift::IQ::createRequest(Swift::IQ::Set, roomJid, msgId,
-                                                            boost::make_shared<Swift::RawXMLPayload>("<query xmlns='urn:xmpp:mam:1' />")
+                                                            boost::make_shared<Swift::RawXMLPayload>(xw.getXmlResult().toStdString())
                                                             ));
 }
 

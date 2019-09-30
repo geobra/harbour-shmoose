@@ -141,8 +141,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         // xep 0333
         QString currentChatPartner = persistence_->getCurrentChatPartner();
         qDebug() << "fromJid: " << QString::fromStdString(fromJid) << "current: " << currentChatPartner << ", isGroup: " << isGroupMessage << ", appActive? " << appIsActive_;
-        if ( /*(isGroupMessage == false) &&*/                                               // no read notification for group messages
-             (currentChatPartner.compare(QString::fromStdString(fromJid)) == 0) &&     // immediatelly send read notification if sender is current chat partner
+        if ( (currentChatPartner.compare(QString::fromStdString(fromJid)) == 0) &&     // immediatelly send read notification if sender is current chat partner
              (appIsActive_ == true)                                                     // but only if app is active
              )
         {
