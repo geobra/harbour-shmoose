@@ -20,12 +20,11 @@ Feature Stack until version 1.0
 * XEP-0363: HTTP File Upload [done]
 * XEP-0333: Chat Markers [done]
 * XEP-0313: Message Archive Management [partial]
-* XEP-0045: Multi-User Chat [done]
+* XEP-0045: Multi-User Chat [WIP]
 * XEP-0280: Message Carbons [WIP]
-* XEP-0198: Stream Management  [partial]
+* XEP-0198: Stream Management  [done]
 * XEP-0384: OMEMO Encryption [WIP]
-* XEP-0144 Roster Item Exchange [partial]
-* XEP-0144 Persistent Storage of Private Data via PubSub [WIP]
+
 
 -------------------------------------------------------------------------------
 Ready to use binaries can be found on openrepos
