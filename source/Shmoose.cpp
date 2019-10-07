@@ -101,6 +101,10 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 
     QString completeJid = jid + "/shmoose";
 
+#ifndef SFOS
+    completeJid += "Desktop";
+#endif
+
     // setup the xmpp client
     client_ = new Swift::Client(Swift::JID(completeJid.toStdString()), pass.toStdString(), netFactories_);
     client_->setAlwaysTrustCertificates();

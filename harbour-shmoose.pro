@@ -23,7 +23,7 @@ INCLUDEPATH += source/xep/chatMarkers
 
 QMAKE_CXXFLAGS += $${SWIFTCXX} -std=c++11
 ! contains(DEFINES, SFOS) {
-    QMAKE_CXXFLAGS += -Wno-deprecated-declarations -Wno-placement-new
+    QMAKE_CXXFLAGS += -Wno-deprecated-declarations -Wno-placement-new -Wno-parentheses
 }
 LIBS += -L$${SWIFT3PATH}/Swiften -L$${SWIFT3PATH}/3rdParty/Boost $${SWIFTLIB}
 
