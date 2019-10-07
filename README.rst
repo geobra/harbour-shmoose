@@ -19,11 +19,12 @@ Feature Stack until version 1.0
 * XEP-0199: XMPP Ping [done]
 * XEP-0363: HTTP File Upload [done]
 * XEP-0333: Chat Markers [done]
-* XEP-0045: Multi-User Chat [partial]
-* XEP-0198: Stream Management  [partial]
-* OMEMO Multi-End Message and Object Encryption [ ]
-* Add, edit and delete roster items [partial]
-* Make database persistent [WIP]
+* XEP-0313: Message Archive Management [partial]
+* XEP-0045: Multi-User Chat [WIP]
+* XEP-0280: Message Carbons [WIP]
+* XEP-0198: Stream Management  [done]
+* XEP-0384: OMEMO Encryption [WIP]
+
 
 -------------------------------------------------------------------------------
 Ready to use binaries can be found on openrepos
