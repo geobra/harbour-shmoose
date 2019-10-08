@@ -92,7 +92,7 @@ Page {
                     id: contextMenu
                     ContextMenu {
                         MenuItem {
-                            text: "Remove"
+                            text:  qsTr("Remove");
                             onClicked: {
                                 if (shmoose.rosterController.isGroup(jid)) {
                                     shmoose.removeRoom(jid)
