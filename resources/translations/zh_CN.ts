@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="14"/>
         <source>Shmoose - Xmpp Client</source>
-        <translation>Shmoose - Xmpp C客户端</translation>
+        <translation>Shmoose - Xmpp 客户端</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="27"/>
