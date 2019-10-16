@@ -16,7 +16,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="34"/>
         <source>Contributions:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mitwirkende:</translation>
     </message>
 </context>
 <context>
@@ -250,7 +250,7 @@
     <message>
         <location filename="../qml/pages/MessageStatusPage.qml" line="18"/>
         <source>Message Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Nachrichten Status</translation>
     </message>
 </context>
 <context>
@@ -263,7 +263,7 @@
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="230"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="287"/>
