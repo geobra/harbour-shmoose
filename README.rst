@@ -27,28 +27,28 @@ Feature Stack until version 1.0
 
 
 -------------------------------------------------------------------------------
-Ready to use binaries can be found on openrepos
+Ready-to-use binaries can be found on OpenRepos
 -------------------------------------------------------------------------------
-`Shmoose on openrepos <https://openrepos.net/content/schorsch/shmoose>`_
+`Shmoose on OpenRepos <https://openrepos.net/content/schorsch/shmoose>`_
 
 -------------------------------------------------------------------------------
 Installation
 -------------------------------------------------------------------------------
 
-On Linux do the following:
+On Linux|GNU, do the following:
 
 Create a working directory::
 
  * mkdir src
  * cd src
 
-Fetch swift source::
+Fetch the Swift source::
 
  * wget https://swift.im/downloads/releases/swift-3.0/swift-3.0.tar.gz
  * tar -xzvf swift-3.0.tar.gz
  * cd swift-3.0/
 
-Install all dependencies to build swiften::
+Install all dependencies to build Swiften::
 
  * ./BuildTools/InstallSwiftDependencies.sh
  * ./scons Swiften -j<Number of threads>
@@ -57,40 +57,40 @@ Install dependencies to build Shmoose (example for Debian)::
 
  * sudo apt-get install zlib1g-dev libssl-dev libxml2-dev libstdc++-5-dev libqt5quick5 libqt5quickparticles5 libqt5quickwidgets5 libqt5qml5 libqt5network5 libqt5gui5 libqt5core5a qt5-default libglib2.0-dev libpthread-stubs0-dev
 
-Get Shmoose source code::
+Fetch the Shmoose source code::
 
  * cd ..
  * git clone https://github.com/geobra/harbour-shmoose
 
 Either::
 
- * open pro file within qtreator
+ * Open the .profile file within Qt Creator
 
-or use command line::
+or use command-line::
 
  * cd harbour-shmoose
  * qmake
  * make -j<Number of threads>
 
 -------------------------------------------------------------------------------
-To cross compile for Sailfish OS, do the following
+To cross compile for Sailfish OS, do the following:
 -------------------------------------------------------------------------------
 
  * Get and install Sailfish OS mersdk (tested with version 1608)
- * Ssh into mersdk and do the following in a newly created directory
+ * SSH into mersdk and do the following in a newly created directory
 
-Fetch swift source::
+Fetch the Swift source source::
 
  * wget https://swift.im/downloads/releases/swift-3.0/swift-3.0.tar.gz
  * mkdir swift-3.0-arm
  * cd swift-3.0-arm
  * tar --strip-components=1 -xzvf ../swift-3.0.tar.gz
 
-Install all dependencies to build swiften::
+Install all dependencies to build Swiften::
 
  * sb2 -t SailfishOS-armv7hl -m sdk-install -R zypper in openssl-devel libiphb-devel libxml2-devel
 
-Patch SConstruct file to do a PIC build of the library archive
+Patch the SConstruct file to do a PIC build of the library archive
 
 Add::
 
@@ -98,11 +98,11 @@ Add::
 
 under the line 'env.SConscript = SConscript' on line 14
 
-Build Swiften Library::
+Build the Swiften Library::
 
  * sb2 -t SailfishOS-armv7hl /bin/bash ./scons Swiften
 
-Get Shmoose source code::
+Fetch the Shmoose source code::
 
  * cd ..
  * git clone https://github.com/geobra/harbour-shmoose
