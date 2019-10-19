@@ -43,6 +43,14 @@
     </message>
 </context>
 <context>
+    <name>ChatPage</name>
+    <message>
+        <location filename="../../source/qml/ChatPage.qml" line="164"/>
+        <source>Enter message</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ContactsPage</name>
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="18"/>
@@ -199,6 +207,7 @@
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="81"/>
         <location filename="../qml/pages/LoginPage.qml" line="103"/>
+        <location filename="../../source/qml/LoginPage.qml" line="68"/>
         <source>Connect</source>
         <translation>Connect</translation>
     </message>

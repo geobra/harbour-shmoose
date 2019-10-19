@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="sv_SE" sourcelanguage="en_AU">
+<TS version="2.1" language="sv_SE" sourcelanguage="en_AU">
 <context>
     <name>AboutPage</name>
     <message>
@@ -16,6 +16,37 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="34"/>
         <source>Contributions:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AttachmentPathsPage</name>
+    <message>
+        <location filename="../qml/pages/AttachmentPathsPage.qml" line="12"/>
+        <source>Add Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AttachmentPathsPage.qml" line="23"/>
+        <source>Attachment Search Paths</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AttachmentPathsPage.qml" line="37"/>
+        <source>Deleting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AttachmentPathsPage.qml" line="42"/>
+        <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ChatPage</name>
+    <message>
+        <location filename="../../source/qml/ChatPage.qml" line="164"/>
+        <source>Enter message</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -176,6 +207,7 @@
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="81"/>
         <location filename="../qml/pages/LoginPage.qml" line="103"/>
+        <location filename="../../source/qml/LoginPage.qml" line="68"/>
         <source>Connect</source>
         <translation>Anslut</translation>
     </message>
@@ -209,6 +241,14 @@
     </message>
 </context>
 <context>
+    <name>MessageStatusPage</name>
+    <message>
+        <location filename="../qml/pages/MessageStatusPage.qml" line="18"/>
+        <source>Message Status</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MessagingPage</name>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="225"/>
@@ -216,7 +256,12 @@
         <translation>Kopiera</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagingPage.qml" line="253"/>
+        <location filename="../qml/pages/MessagingPage.qml" line="230"/>
+        <source>Status</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingPage.qml" line="287"/>
         <source>Enter message...</source>
         <translation>Skriv meddelande...</translation>
     </message>
@@ -237,6 +282,16 @@
         <location filename="../qml/pages/PreferencesPage.qml" line="24"/>
         <source>Send Read Notifications</source>
         <translation>Skick läskvitton</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/PreferencesPage.qml" line="30"/>
+        <source>Attachments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/PreferencesPage.qml" line="33"/>
+        <source>Edit attachment search paths</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
