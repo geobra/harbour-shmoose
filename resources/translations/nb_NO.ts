@@ -5,56 +5,56 @@
     <name>AboutPage</name>
     <message>
         <source>Shmoose - Xmpp Client</source>
-        <translation type="unfinished"></translation>
+        <translation>Shmoose - XMPP-klient</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versjon</translation>
     </message>
     <message>
         <source>Contributions:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bidragsytere:</translation>
     </message>
 </context>
 <context>
     <name>AttachmentPathsPage</name>
     <message>
         <source>Add Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til sti</translation>
     </message>
     <message>
         <source>Attachment Search Paths</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vedleggssøkestier</translation>
     </message>
     <message>
         <source>Deleting</source>
-        <translation type="unfinished"></translation>
+        <translation>Sletter</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Fjern</translation>
     </message>
 </context>
 <context>
     <name>ChatPage</name>
     <message>
         <source>Enter message</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Skriv inn melding</translation>
     </message>
 </context>
 <context>
     <name>ContactsPage</name>
     <message>
         <source>Contacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontakter</translation>
     </message>
     <message>
         <source>Join room by address</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta del i rom ved bruk av adresse</translation>
     </message>
     <message>
         <source>Add contact</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til kontakt</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -65,182 +65,182 @@
     <name>ConversationsPage</name>
     <message>
         <source>Conversations</source>
-        <translation type="unfinished"></translation>
+        <translation>Samtaler</translation>
     </message>
 </context>
 <context>
     <name>CoverPage</name>
     <message>
         <source>online</source>
-        <translation type="unfinished"></translation>
+        <translation>pålogget</translation>
     </message>
     <message>
         <source>offline</source>
-        <translation type="unfinished"></translation>
+        <translation>frakoblet</translation>
     </message>
     <message>
         <source>connected</source>
-        <translation type="unfinished"></translation>
+        <translation>koblet til</translation>
     </message>
     <message>
         <source>disconnected</source>
-        <translation type="unfinished"></translation>
+        <translation>koblet fra</translation>
     </message>
 </context>
 <context>
     <name>CreateContactDialog</name>
     <message>
         <source>Add Contact</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til kontakt</translation>
     </message>
     <message>
         <source>id@domain.org</source>
-        <translation type="unfinished"></translation>
+        <translation>id@domene.no</translation>
     </message>
     <message>
         <source>JID</source>
-        <translation type="unfinished"></translation>
+        <translation>JID</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Navn</translation>
     </message>
     <message>
         <source>NickName</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kallenavn</translation>
     </message>
 </context>
 <context>
     <name>ImagePickerPage</name>
     <message>
         <source>Select picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Velg bilde</translation>
     </message>
 </context>
 <context>
     <name>JoinRoomDialog</name>
     <message>
         <source>Join Room by address</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta del i rom ved bruk av adresse</translation>
     </message>
     <message>
         <source>id@domain.org</source>
-        <translation type="unfinished"></translation>
+        <translation>id@domene.no</translation>
     </message>
     <message>
         <source>Room address</source>
-        <translation type="unfinished"></translation>
+        <translation>Rom-adresse</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Navn</translation>
     </message>
     <message>
         <source>Room name</source>
-        <translation type="unfinished"></translation>
+        <translation>Romnavn</translation>
     </message>
 </context>
 <context>
     <name>LoginPage</name>
     <message>
         <source>Welcome to Shmoose</source>
-        <translation type="unfinished"></translation>
+        <translation>Velkommen til Shmoose</translation>
     </message>
     <message>
         <source>Login to Jabber Server</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Logg inn på Jabber-tjener</translation>
     </message>
     <message>
         <source>jid@server.com</source>
-        <translation type="unfinished"></translation>
+        <translation>jid@tjener.no</translation>
     </message>
     <message>
         <source>JID</source>
-        <translation type="unfinished"></translation>
+        <translation>JID</translation>
     </message>
     <message>
         <source>password</source>
-        <translation type="unfinished"></translation>
+        <translation>passord</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Passord</translation>
     </message>
     <message>
         <source>Save credentials (unencrypted)</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagre identitetsdetaljer (ukryptert)</translation>
     </message>
     <message>
         <source>Connect</source>
-        <translation type="unfinished"></translation>
+        <translation>Koble til</translation>
     </message>
     <message>
         <source>Connecting...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kobler til…</translation>
     </message>
 </context>
 <context>
     <name>MenuPage</name>
     <message>
         <source>Contacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontakter</translation>
     </message>
     <message>
         <source>Conversations</source>
-        <translation type="unfinished"></translation>
+        <translation>Samtaler</translation>
     </message>
     <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Innstillinger</translation>
     </message>
     <message>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Om</translation>
     </message>
 </context>
 <context>
     <name>MessageStatusPage</name>
     <message>
         <source>Message Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Meldingsstatus</translation>
     </message>
 </context>
 <context>
     <name>MessagingPage</name>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopier</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
         <source>Enter message...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Skriv inn melding…</translation>
     </message>
 </context>
 <context>
     <name>PreferencesPage</name>
     <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Innstillinger</translation>
     </message>
     <message>
         <source>Privacy</source>
-        <translation type="unfinished"></translation>
+        <translation>Personvern</translation>
     </message>
     <message>
         <source>Send Read Notifications</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Send meldingsforvarsler</translation>
     </message>
     <message>
         <source>Attachments</source>
-        <translation type="unfinished"></translation>
+        <translation>Vedlegg</translation>
     </message>
     <message>
         <source>Edit attachment search paths</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Rediger vedleggssøkestier</translation>
     </message>
 </context>
 </TS>
