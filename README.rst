@@ -64,7 +64,7 @@ Fetch the Shmoose source code::
 
 Either::
 
- * Open the .profile file within Qt Creator
+ * Open the project file (.pro) within Qt Creator
 
 or use command-line::
 
