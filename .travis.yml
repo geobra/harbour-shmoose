@@ -10,5 +10,5 @@ install:
     - sudo apt-get install qt5-default libswiften-dev qtdeclarative5-dev
 script:
     - qmake
-    - make -j
+    - make
 
