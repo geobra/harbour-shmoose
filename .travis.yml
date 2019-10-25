@@ -9,6 +9,6 @@ install:
     - sudo apt-get update
     - sudo apt-get install qt5-default libswiften-dev qtdeclarative5-dev
 script:
-    - qmake
+    - qmake DEFINES+=TRAVIS
     - make
 
