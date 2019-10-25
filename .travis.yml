@@ -1,0 +1,14 @@
+language : cpp
+compiler: gcc
+os: linux
+dist: xenial
+
+install:
+    - sudo echo "deb http://de.archive.ubuntu.com/ubuntu/ eoan main restricted" >> /etc/apt/sources.list
+    - sudo echo "deb http://de.archive.ubuntu.com/ubuntu/ eoan universe" >> /etc/apt/sources.list
+    - sudo apt-get update
+    - sudo apt-get install qt5-default libswiften-dev qtdeclarative5-dev
+script:
+    - qmake
+    - make -j
+
