@@ -1,5 +1,5 @@
 #include "PresenceHandler.h"
-#include "RosterContoller.h"
+#include "RosterController.h"
 
 PresenceHandler::PresenceHandler(RosterController *rosterController) : QObject(rosterController),
     client_(NULL), rosterController_(rosterController)

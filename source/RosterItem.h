@@ -2,7 +2,6 @@
 #define ROSTERITEM_H
 
 #include <QObject>
-#include <QQmlEngine>
 #include <QImage>
 
 class RosterItem : public QObject

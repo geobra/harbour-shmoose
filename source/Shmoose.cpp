@@ -17,7 +17,7 @@
 
 #include <Swiften/Base/IDGenerator.h>
 
-#include "RosterContoller.h"
+#include "RosterController.h"
 #include "Persistence.h"
 #include "MessageController.h"
 
@@ -112,7 +112,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     connectionHandler_->setupWithClient(client_);
     messageHandler_->setupWithClient(client_);
 
-    tracer_ = new Swift::ClientXMLTracer(client_);
+    //tracer_ = new Swift::ClientXMLTracer(client_);
 
     // configure the xmpp client
     softwareVersionResponder_ = new Swift::SoftwareVersionResponder(client_->getIQRouter());
@@ -155,7 +155,7 @@ void Shmoose::intialSetupOnFirstConnection()
 {
     // Request the roster
     rosterController_->setupWithClient(client_);
-    rosterController_->requestRosterFromClient(client_);
+    rosterController_->requestRoster();
 
     // pass the client pointer to the httpFileUploadManager
     httpFileUploadManager_->setupWithClient(client_);

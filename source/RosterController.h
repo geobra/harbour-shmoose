@@ -32,13 +32,12 @@ public:
     Q_INVOKABLE QString getAvatarImagePathForJid(QString const &jid);
     Q_INVOKABLE QString getNameForJid(QString const &jid);
 
-    void requestRosterFromClient(Swift::Client *client);
+    void requestRoster();
     QQmlListProperty<RosterItem> getRosterList();
 
     void handleUpdateFromPresence(const Swift::JID &jid, const QString &status, const RosterItem::Availability& availability);
 
     void updateNameForJid(const Swift::JID &jid, const std::string &name);
-
 signals:
     void rosterListChanged();
     void signalShowMessage(QString headline, QString body);

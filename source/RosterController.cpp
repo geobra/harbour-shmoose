@@ -1,4 +1,4 @@
-#include "RosterContoller.h"
+#include "RosterController.h"
 #include "System.h"
 #include "PresenceHandler.h"
 
@@ -95,6 +95,7 @@ void RosterController::handleUpdateFromPresence(const Swift::JID &jid, const QSt
                 (*it)->setStatus(status);
             }
 
+            emit rosterListChanged();
             break;
         }
     }
@@ -144,11 +145,11 @@ void RosterController::handleMessageReceived(Swift::Message::ref message)
     }
 }
 
-void RosterController::requestRosterFromClient(Swift::Client *client)
+void RosterController::requestRoster()
 {
     client_->requestRoster();
 
-    Swift::GetRosterRequest::ref rosterRequest = Swift::GetRosterRequest::create(client->getIQRouter());
+    Swift::GetRosterRequest::ref rosterRequest = Swift::GetRosterRequest::create(client_->getIQRouter());
     rosterRequest->onResponse.connect(bind(&RosterController::handleRosterReceived, this, _2));
     rosterRequest->send();
 }

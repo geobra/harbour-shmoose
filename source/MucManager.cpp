@@ -170,6 +170,7 @@ QString MucManager::getNickName()
     // FIXME get name from settings page
     QString nick = QString::fromStdString(client_->getJID().toBare().toString());
     nick.replace("@", "(at)");
+    //QString nick = QString::fromStdString(client_->getJID().getNode());
 
     return nick;
 }

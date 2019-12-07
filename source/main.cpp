@@ -13,7 +13,7 @@
 #include "Swiften/EventLoop/Qt/QtEventLoop.h"
 
 #include "Shmoose.h"
-#include "RosterContoller.h"
+#include "RosterController.h"
 #include "RosterItem.h"
 #include "Persistence.h"
 #include "MessageController.h"

@@ -6,45 +6,46 @@ contains(DEFINES, SFOS) {
     SWIFT3PATH = ../swift-3.0-arm
 }
 
-# from swift-config
-SWIFTCXX = -DSWIFTEN_STATIC -DBOOST_ALL_NO_LIB -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_SIGNALS_NO_DEPRECATION_WARNING -DSWIFT_EXPERIMENTAL_FT
-SWIFTLIB = -lSwiften -lrt -lz -lssl -lcrypto -lxml2 -lresolv -lpthread -ldl -lm -lc -lstdc++
-
-contains(DEFINES, TRAVIS) {
-SWIFTLIB += -lboost_system -lboost_signals
-}
-
-! contains(DEFINES, TRAVIS) {
-SWIFTLIB += -lSwiften_Boost
-}
-
+include($$PWD/swift.pri)
 
 TEMPLATE = app
 QT += qml quick core sql xml concurrent
 
-INCLUDEPATH += $${SWIFT3PATH}/3rdParty/Boost/src
-INCLUDEPATH += $${SWIFT3PATH}/
+contains(DEFINES, DBUS) {
+    CONFIG += console
+    QT += dbus
+}
+
 INCLUDEPATH += source
 INCLUDEPATH += source/persistence
 INCLUDEPATH += source/xep/httpFileUpload
 INCLUDEPATH += source/xep/xmppPing
 INCLUDEPATH += source/xep/chatMarkers
 
-QMAKE_CXXFLAGS += $${SWIFTCXX} -std=c++11
 ! contains(DEFINES, SFOS) {
     QMAKE_CXXFLAGS += -Wno-deprecated-declarations -Wno-placement-new -Wno-parentheses
 }
-LIBS += -L$${SWIFT3PATH}/Swiften -L$${SWIFT3PATH}/3rdParty/Boost $${SWIFTLIB}
 
 contains(DEFINES, SFOS) {
     LIBS += -liphb
 }
 
+QMAKE_CXXFLAGS += -std=c++11
+
 DEFINES += BOOST_SIGNALS_NO_DEPRECATION_WARNING
 
-SOURCES += source/main.cpp \
+contains(DEFINES, DBUS) {
+    SOURCES += source/dbus/main.cpp
+
+    SOURCES += source/dbus/DbusCommunicator.cpp
+    HEADERS += source/dbus/DbusCommunicator.h
+}
+else {
+    SOURCES += source/main.cpp
+}
+
+SOURCES += \
 	source/Shmoose.cpp \
-	source/RosterContoller.cpp \
 	source/RosterItem.cpp \
         source/ReConnectionHandler.cpp \
 	source/persistence/Database.cpp \
@@ -70,10 +71,10 @@ SOURCES += source/main.cpp \
         source/DiscoInfoHandler.cpp \
         source/Settings.cpp \
         source/XmlProcessor.cpp \
-        source/XmlWriter.cpp
+        source/XmlWriter.cpp \
+        source/RosterController.cpp
 
 HEADERS += source/Shmoose.h \
-	source/RosterContoller.h \
 	source/RosterItem.h \
         source/ReConnectionHandler.h \
 	source/persistence/Database.h \
@@ -100,7 +101,8 @@ HEADERS += source/Shmoose.h \
         source/DiscoInfoHandler.h \
         source/Settings.h \
         source/XmlProcessor.h \
-        source/XmlWriter.h
+        source/XmlWriter.h \
+        source/RosterController.h
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \

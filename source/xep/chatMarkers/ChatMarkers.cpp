@@ -1,7 +1,7 @@
 #include "ChatMarkers.h"
 #include "Persistence.h"
 #include "XmlProcessor.h"
-#include "RosterContoller.h"
+#include "RosterController.h"
 #include "XmlWriter.h"
 
 #include <QRegularExpression>

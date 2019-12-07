@@ -70,6 +70,10 @@ signals:
     void signalAppGetsActive(bool active);
 
 private:
+#ifdef DBUS
+public:
+#endif
+
     void requestHttpUploadSlot();
     void handleHttpUploadResponse(const std::string response);
 

@@ -4,7 +4,7 @@
 #include "DownloadManager.h"
 #include "ChatMarkers.h"
 #include "XmlProcessor.h"
-#include "RosterContoller.h"
+#include "RosterController.h"
 
 #include <QUrl>
 
