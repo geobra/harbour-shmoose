@@ -9,9 +9,10 @@ install:
     - sudo apt-get -qq update
     - sudo apt-get -qq install qt5-default libswiften-dev qtdeclarative5-dev
 
-    - sudo apt-get install ejabberd
-    - sudo ejabberdctl register user1 localhost user1
-    - sudo ejabberdctl register user2 localhost user2
+    # ejabberd fails to install properly on this eoan instance
+    #- sudo apt-get install ejabberd
+    #- sudo ejabberdctl register user1 localhost user1
+    #- sudo ejabberdctl register user2 localhost user2
 script:
     - qmake DEFINES+=TRAVIS
     - make
