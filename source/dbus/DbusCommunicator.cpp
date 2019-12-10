@@ -2,6 +2,7 @@
 
 #include "Shmoose.h"
 #include "RosterController.h"
+#include "MessageController.h"
 
 #include <QDebug>
 #include <QDBusConnection>
@@ -36,21 +37,29 @@ void DbusCommunicator::setXmpClient(Shmoose* shmoose)
     shmoose_ = shmoose;
 }
 
+void DbusCommunicator::setupConnections()
+{
+    Persistence *persistence = shmoose_->getPersistence();
+    MessageController *msgCtrl = persistence->getMessageController();
+
+    connect(msgCtrl, SIGNAL(signalMessageReceived(QString, QString, QString)), this, SLOT(slotForwaredReceivedMsgToDbus(QString, QString, QString)));
+}
+
 bool DbusCommunicator::tryToConnect(const QString& jid, const QString& pass)
 {
     qDebug() << "try to connect as " << jid << " with pass " << pass;
 
-    connect(shmoose_, SIGNAL(connectionStateChanged()), this, SLOT(clientConnected()));
+    connect(shmoose_, SIGNAL(connectionStateChanged()), this, SLOT(slotClientConnected()));
     shmoose_->mainConnect(jid, pass);
 
     return true;
 }
 
-void DbusCommunicator::clientConnected()
+void DbusCommunicator::slotClientConnected()
 {
     qDebug() << "connected!";
 
-    QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "connected");
+    QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalConnected");
     if(QDBusConnection::sessionBus().send(msg) == false)
     {
         qDebug() << "cant send message via dbus";
@@ -63,7 +72,7 @@ bool DbusCommunicator::requestRoster()
     RosterController* rc = shmoose_->getRosterController();
     rc->requestRoster();
 
-    connect(rc, SIGNAL(rosterListChanged()), this, SLOT(gotRosterEntry()));
+    connect(rc, SIGNAL(rosterListChanged()), this, SLOT(slotGotRosterEntry()));
 
     return true;
 }
@@ -74,16 +83,16 @@ bool DbusCommunicator::addContact(const QString& jid, const QString& name)
     RosterController* rc = shmoose_->getRosterController();
     rc->addContact(jid, name);
 
-    connect(rc, SIGNAL(rosterListChanged()), this, SLOT(gotRosterEntry()));
+    connect(rc, SIGNAL(rosterListChanged()), this, SLOT(slotGotRosterEntry()));
 
     return true;
 }
 
-void DbusCommunicator::gotRosterEntry()
+void DbusCommunicator::slotGotRosterEntry()
 {
     qDebug() << "newRosterEntry!";
 
-    QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "newRosterEntry");
+    QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalNewRosterEntry");
     if(QDBusConnection::sessionBus().send(msg) == false)
     {
         qDebug() << "cant send message via dbus";
@@ -93,42 +102,22 @@ void DbusCommunicator::gotRosterEntry()
 bool DbusCommunicator::sendMsg(const QString& jid, const QString& msg)
 {
     qDebug() << "sendMsg";
-
-    Persistence *persistence = shmoose_->getPersistence();
-    connect(persistence, SIGNAL(messageControllerChanged()), this, SLOT(msgChanged()));
-
     shmoose_->sendMessage(jid, msg, "msg");
 
     return true;
 }
 
-void DbusCommunicator::msgChanged()
+void DbusCommunicator::slotForwaredReceivedMsgToDbus(QString id, QString jid, QString message)
 {
-    qDebug() << "msgChanged";
-
-    QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalMsgChanged");
-    if(QDBusConnection::sessionBus().send(msg) == false)
-    {
-        qDebug() << "cant send message via dbus";
-    }
-}
-
-bool DbusCommunicator::requestLatestMsgForJid(const QString& jid)
-{
-    qDebug() << "requestLatestMsgForJid: " << jid;
-    Persistence *persistence = shmoose_->getPersistence();
-    QPair<QString, int> msgAndState = persistence->getNewestReceivedMessageIdAndStateOfJid(jid);
-
-    //qDebug() << "found msg: " << msgAndState.first << ", state: " << msgAndState.second;
+    //qDebug() << "id: " << id << ", jid: " << jid << ", msg: " << message;
 
     QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalLatestMsg");
-    msg << msgAndState.first;
-    msg << msgAndState.second;
+    msg << id;
+    msg << jid;
+    msg << message;
 
     if(QDBusConnection::sessionBus().send(msg) == false)
     {
         qDebug() << "cant send message via dbus";
     }
-
-    return true;
 }

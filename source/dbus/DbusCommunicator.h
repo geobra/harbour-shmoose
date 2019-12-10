@@ -11,24 +11,23 @@ class DbusCommunicator : public QObject
 public:
     explicit DbusCommunicator(const QString& path, const QString& name, QObject * const parent = nullptr);
     void setXmpClient(Shmoose* shmoose);
+    void setupConnections();
 
 public slots:
     Q_SCRIPTABLE bool tryToConnect(const QString& jid, const QString& pass);
     Q_SCRIPTABLE bool requestRoster();
     Q_SCRIPTABLE bool addContact(const QString& jid, const QString& name);
     Q_SCRIPTABLE bool sendMsg(const QString& jid, const QString& msg);
-    Q_SCRIPTABLE bool requestLatestMsgForJid(const QString& jid);
 
 signals:
-    void connected();
-    void newRosterEntry();
-    void signalMsgChanged();
-    void signalLatestMsg(QString, int);
+    void signalConnected();
+    void signalNewRosterEntry();
+    void signalLatestMsg(QString, QString, QString);
 
 private slots:
-    void clientConnected();
-    void gotRosterEntry();
-    void msgChanged();
+    void slotClientConnected();
+    void slotGotRosterEntry();
+    void slotForwaredReceivedMsgToDbus(QString id, QString jid, QString message);
 
 private:
     Shmoose* shmoose_;

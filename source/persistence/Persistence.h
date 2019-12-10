@@ -47,6 +47,9 @@ public slots:
     void setCurrentChatPartner(QString const &jid);
 
 private:
+#ifdef DBUS
+public:
+#endif
     MessageController* getMessageController();
     SessionController* getSessionController();
     GcmController* getGcmController();

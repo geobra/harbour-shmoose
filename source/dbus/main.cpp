@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
 
         DbusCommunicator dbusCommunicator(dbusPath, dbusServiceName);
         dbusCommunicator.setXmpClient(&shmoose);
+        dbusCommunicator.setupConnections();
 
         // fly
         return app.exec();
