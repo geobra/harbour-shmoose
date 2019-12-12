@@ -18,6 +18,7 @@ public slots:
     Q_SCRIPTABLE bool requestRoster();
     Q_SCRIPTABLE bool addContact(const QString& jid, const QString& name);
     Q_SCRIPTABLE bool sendMsg(const QString& jid, const QString& msg);
+    Q_SCRIPTABLE bool setCurrentChatPartner(QString jid);
 
 signals:
     void signalConnected();

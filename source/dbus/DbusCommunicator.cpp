@@ -134,3 +134,12 @@ void DbusCommunicator::slotForwardMsgStateToDbus(QString msgId, int msgState)
         qDebug() << "cant send message via dbus";
     }
 }
+
+bool DbusCommunicator::setCurrentChatPartner(QString jid)
+{
+    qDebug() << "setCurrentChatPartner: " << jid;
+
+    shmoose_->setCurrentChatPartner(jid);
+
+    return true;
+}

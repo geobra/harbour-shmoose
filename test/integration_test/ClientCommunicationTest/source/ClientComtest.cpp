@@ -82,7 +82,8 @@ void ClientComTest::sendMsgTest()
     const QString msgOnWire = "Hi user2 from user1";
 
     // Setup msg state spyer
-    QSignalSpy spyMsgState(interfaceLhs->getInterface(), SIGNAL(signalMsgState(QString, int)));
+    QSignalSpy spyMsgStateSender(interfaceLhs->getInterface(), SIGNAL(signalMsgState(QString, int)));
+    QSignalSpy spyMsgStateReceiver(interfaceRhs->getInterface(), SIGNAL(signalMsgState(QString, int)));
 
     // send msgOnWire from user1 to user2
     QList<QVariant> arguments {"user2@localhost", msgOnWire};
@@ -97,23 +98,47 @@ void ClientComTest::sendMsgTest()
     QVERIFY(spyArguments.at(2).toString() == msgOnWire);
 
     // check the msg status as seen from the sender
-    spyMsgState.wait();
+    spyMsgStateSender.wait();
 
-    if (spyMsgState.size() > 2) // we expect two state changes. if it is not already here, wait another second to arrieve.
+    if (spyMsgStateSender.size() > 2) // we expect two state changes. if it is not already here, wait another second to arrieve.
     {
-        spyMsgState.wait(1000);
+        spyMsgStateSender.wait(1000);
     }
 
-    QVERIFY(spyMsgState.count() == 2);
+    QVERIFY(spyMsgStateSender.count() == 2);
 
     // TODO test the received state only. disconnect the receiving client before sending, check status, then connect that client again.
     int expectedState = 1; // (-1) displayedConfirmed, (0) unknown, (1) sent, (2) received, (3) displayed
-    while(! spyMsgState.isEmpty())
+    while(! spyMsgStateSender.isEmpty())
     {
-        QList<QVariant> spyArguments = spyMsgState.takeFirst();
+        QList<QVariant> spyArguments = spyMsgStateSender.takeFirst();
         QVERIFY(spyArguments.at(1).toInt() == expectedState);
 
         expectedState++;
+    }
+
+    // read the message at the received client. status must change to displayed (3). Received client set status to displayedConfirmed (-1)
+    QList<QVariant> argumentsCurrentChatPartner {"user1@localhost"};
+    interfaceRhs->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartner);
+
+    spyMsgStateSender.wait();
+    QVERIFY(spyMsgStateSender.count() == 1);
+    while(! spyMsgStateSender.isEmpty())
+    {
+        QList<QVariant> spyArguments = spyMsgStateSender.takeFirst();
+        QVERIFY(spyArguments.at(1).toInt() == expectedState);
+    }
+
+    // check the state for that sent msg at the receiver side. must be -1, displayedConfirmed.
+    if (spyMsgStateReceiver.count() <= 0)
+    {
+        spyMsgStateReceiver.wait(1000);
+    }
+    QCOMPARE(spyMsgStateReceiver.count(), 1);
+    while(! spyMsgStateReceiver.isEmpty())
+    {
+        QList<QVariant> spyArguments = spyMsgStateReceiver.takeFirst();
+        QVERIFY(spyArguments.at(1).toInt() == -1);
     }
 }
 
