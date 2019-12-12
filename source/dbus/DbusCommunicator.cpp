@@ -43,6 +43,7 @@ void DbusCommunicator::setupConnections()
     MessageController *msgCtrl = persistence->getMessageController();
 
     connect(msgCtrl, SIGNAL(signalMessageReceived(QString, QString, QString)), this, SLOT(slotForwaredReceivedMsgToDbus(QString, QString, QString)));
+    connect(msgCtrl, SIGNAL(signalMessageStateChanged(QString, int)), this, SLOT(slotForwardMsgStateToDbus(QString, int)));
 }
 
 bool DbusCommunicator::tryToConnect(const QString& jid, const QString& pass)
@@ -115,6 +116,18 @@ void DbusCommunicator::slotForwaredReceivedMsgToDbus(QString id, QString jid, QS
     msg << id;
     msg << jid;
     msg << message;
+
+    if(QDBusConnection::sessionBus().send(msg) == false)
+    {
+        qDebug() << "cant send message via dbus";
+    }
+}
+
+void DbusCommunicator::slotForwardMsgStateToDbus(QString msgId, int msgState)
+{
+    QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalMsgState");
+    msg << msgId;
+    msg << msgState;
 
     if(QDBusConnection::sessionBus().send(msg) == false)
     {

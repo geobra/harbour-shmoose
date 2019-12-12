@@ -31,6 +31,7 @@ public:
 
 signals:
     void signalMessageReceived(QString id, QString jid, QString message);
+    void signalMessageStateChanged(QString msgId, int state);
 
 public slots:
 

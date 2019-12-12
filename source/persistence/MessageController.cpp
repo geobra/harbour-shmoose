@@ -288,6 +288,10 @@ void MessageController::setMessageStateOfId(QString const &id, int const state)
             {
                 qDebug() << "error on select in MessageController::addMessage";
             }
+            else
+            {
+                emit signalMessageStateChanged(id, state);
+            }
         }
     }
 }

@@ -81,6 +81,9 @@ void ClientComTest::sendMsgTest()
 {
     const QString msgOnWire = "Hi user2 from user1";
 
+    // Setup msg state spyer
+    QSignalSpy spyMsgState(interfaceLhs->getInterface(), SIGNAL(signalMsgState(QString, int)));
+
     // send msgOnWire from user1 to user2
     QList<QVariant> arguments {"user2@localhost", msgOnWire};
     interfaceLhs->callDbusMethodWithArgument("sendMsg", arguments);
@@ -92,6 +95,26 @@ void ClientComTest::sendMsgTest()
 
     QList<QVariant> spyArguments = spyLatestMsg.takeFirst();
     QVERIFY(spyArguments.at(2).toString() == msgOnWire);
+
+    // check the msg status as seen from the sender
+    spyMsgState.wait();
+
+    if (spyMsgState.size() > 2) // we expect two state changes. if it is not already here, wait another second to arrieve.
+    {
+        spyMsgState.wait(1000);
+    }
+
+    QVERIFY(spyMsgState.count() == 2);
+
+    // TODO test the received state only. disconnect the receiving client before sending, check status, then connect that client again.
+    int expectedState = 1; // (-1) displayedConfirmed, (0) unknown, (1) sent, (2) received, (3) displayed
+    while(! spyMsgState.isEmpty())
+    {
+        QList<QVariant> spyArguments = spyMsgState.takeFirst();
+        QVERIFY(spyArguments.at(1).toInt() == expectedState);
+
+        expectedState++;
+    }
 }
 
 
