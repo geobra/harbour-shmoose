@@ -13,6 +13,12 @@ install:
     - sudo apt-get install ejabberd
     - sudo ejabberdctl register user1 localhost user1
     - sudo ejabberdctl register user2 localhost user2
+
+before_script:
+    - "export DISPLAY=:99.0"
+    - "sh -e /etc/init.d/xvfb start"
+    - sleep 3
+
 script:
     # standard x86 build
     - mkdir -p build/x86
