@@ -26,6 +26,19 @@ script:
     - cd test
     - qmake ../.. DEFINES+=TRAVIS DEFINES+=dbus
     - make
+
+    # run the test clients
+    - ./harbour-shmoose lhs &
+    - ./harbour-shmoose rhs &
     - cd ../..
-    # - todo run the tests
+
+    # build the test
+    -  cd test/integration_test/ClientCommunicationTest/
+    - mkdir build
+    - cd build
+    - qmake ..
+    - make
+    - ./ClientCommunicationTest
+    - cd ../../..
+
 
