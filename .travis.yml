@@ -15,18 +15,17 @@ install:
     - sudo ejabberdctl register user2 localhost user2
 script:
     # standard x86 build
-    - mkdir buildx86
-    - cd buildx86
-    - qmake .. DEFINES+=TRAVIS
+    - mkdir -p build/x86
+    - cd build/x86
+    - qmake ../.. DEFINES+=TRAVIS
     - make
     - cd ..
 
     # build for testing
     - mkdir test
     - cd test
-    - qmake .. DEFINES+=TRAVIS DEFINES+=dbus
+    - qmake ../.. DEFINES+=TRAVIS DEFINES+=dbus
     - make
-    - cd ..
+    - cd ../..
     # - todo run the tests
-
 
