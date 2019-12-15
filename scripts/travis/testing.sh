@@ -14,8 +14,8 @@ qmake .. DEFINES+=TRAVIS DEFINES+=dbus
 make
 
 # run the test clients
-xvfb-run -e /dev/stdout ./harbour-shmoose lhs &
-xvfb-run -e /dev/stdout ./harbour-shmoose rhs &
+xvfb-run -a -e /dev/stdout ./harbour-shmoose lhs &
+xvfb-run -a -e /dev/stdout ./harbour-shmoose rhs &
 cd ..
 
 # build the test
