@@ -10,7 +10,7 @@ install:
     - sudo apt-get -qq install qt5-default libswiften-dev qtdeclarative5-dev
 
     - sudo apt-get install systemd # new version nedded by ejabberd
-    - sudo apt-get install dbus ejabberd
+    - sudo apt-get install dbus-x11 ejabberd
     - sudo ejabberdctl register user1 localhost user1
     - sudo ejabberdctl register user2 localhost user2
 
