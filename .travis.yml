@@ -2,7 +2,6 @@ language : cpp
 compiler: gcc
 os: linux
 dist: xenial
-script: xvfb-run make test
 
 install:
     - sudo echo "deb http://de.archive.ubuntu.com/ubuntu/ eoan main restricted" >> /etc/apt/sources.list
@@ -16,6 +15,9 @@ install:
     - sudo ejabberdctl register user2 localhost user2
 
 script:
+    - xvfb-run make test
+    - "export DISPLAY=:99.0"
+
     # standard x86 build
     - mkdir -p build/x86
     - cd build/x86
