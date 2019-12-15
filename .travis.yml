@@ -21,30 +21,12 @@ before_script:
 
 script:
     # standard x86 build
-    - mkdir -p build/x86
-    - cd build/x86
-    - qmake ../.. DEFINES+=TRAVIS
+    - mkdir -p buildx86
+    - cd buildx86
+    - qmake .. DEFINES+=TRAVIS
     - make
     - cd ..
 
-    # build for testing
-    - mkdir test
-    - cd test
-    - qmake ../.. DEFINES+=TRAVIS DEFINES+=dbus
-    - make
-
-    # run the test clients
-    - ./harbour-shmoose lhs &
-    - ./harbour-shmoose rhs &
-    - cd ../..
-
-    # build the test
-    -  cd test/integration_test/ClientCommunicationTest/
-    - mkdir build
-    - cd build
-    - qmake ..
-    - make
-    - ./ClientCommunicationTest
-    - cd ../../..
-
+    # testing
+    - ./scripts/travis/testing.sh
 
