@@ -10,16 +10,14 @@ install:
     - sudo apt-get -qq install qt5-default libswiften-dev qtdeclarative5-dev
 
     - sudo apt-get install systemd # new version nedded by ejabberd
-    - sudo apt-get install ejabberd
+    - sudo apt-get install dbus-x11 ejabberd
     - sudo ejabberdctl register user1 localhost user1
     - sudo ejabberdctl register user2 localhost user2
 
-before_script:
-    - "export DISPLAY=:99.0"
-    - "sh -e /etc/init.d/xvfb start"
-    - sleep 3
-
 script:
+    - xvfb-run make test
+    - "export DISPLAY=:99.0"
+
     # standard x86 build
     - mkdir -p buildx86
     - cd buildx86
