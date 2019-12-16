@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # a dbus session is needed
-DBA=$(dbus-daemon --print-address --session --fork)
-export DBUS_SESSION_BUS_ADDRESS=$DBA
+#DBA=$(dbus-daemon --print-address --session --fork)
+#export DBUS_SESSION_BUS_ADDRESS=$DBA
 echo "use $DBUS_SESSION_BUS_ADDRESS as dbus address"
 
 # build for testing
