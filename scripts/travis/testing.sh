@@ -24,6 +24,6 @@ mkdir build
 cd build
 qmake ..
 make
-./ClientCommunicationTest
+xvfb-run -a -e /dev/stdout ./ClientCommunicationTest
 cd ../../..
 
