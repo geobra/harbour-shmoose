@@ -4,6 +4,9 @@
 #DBA=$(dbus-daemon --print-address --session --fork)
 #export DBUS_SESSION_BUS_ADDRESS=$DBA
 echo "use $DBUS_SESSION_BUS_ADDRESS as dbus address"
+echo "avilable session busses:"
+ls -l ~/.dbus/session-bus/  
+echo "done"
 
 # build for testing
 mkdir testing
