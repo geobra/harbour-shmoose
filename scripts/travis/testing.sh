@@ -4,7 +4,7 @@
 #DBA=$(dbus-daemon --print-address --session --fork)
 #export DBUS_SESSION_BUS_ADDRESS=$DBA
 
-sudo systemctl restart dbus
+sudo systemctl status dbus
 
 echo "use $DBUS_SESSION_BUS_ADDRESS as dbus address"
 echo "avilable session busses:"
