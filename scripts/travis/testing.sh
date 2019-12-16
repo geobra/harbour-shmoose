@@ -1,11 +1,8 @@
 #! /bin/bash
 
 # a dbus session is needed
-if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
-    ## if not found, launch a new one
-    eval 'dbus-launch --sh-syntax --exit-with-session'
-    echo "D-Bus per-session daemon address is: $DBUS_SESSION_BUS_ADDRESS"
-fi
+DBA=$(dbus-daemon --print-address --session --fork)
+export DBUS_SESSION_BUS_ADDRESS=$DBA
 
 # build for testing
 mkdir testing
