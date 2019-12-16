@@ -5,27 +5,28 @@ dist: xenial
 #services:
 #  - xvfb
 
-install:
-    - sudo echo "deb http://de.archive.ubuntu.com/ubuntu/ eoan main restricted" >> /etc/apt/sources.list
-    - sudo echo "deb http://de.archive.ubuntu.com/ubuntu/ eoan universe" >> /etc/apt/sources.list
-    - sudo apt-get -qq update
-    - sudo apt-get -qq install qt5-default libqt5sql5-sqlite libswiften-dev qtdeclarative5-dev qml-module-qtquick2 qml-module-qtquick-controls
+install: 
+    - ps axwf | grep dbus 
+      #- sudo echo "deb http://de.archive.ubuntu.com/ubuntu/ eoan main restricted" >> /etc/apt/sources.list
+      #- sudo echo "deb http://de.archive.ubuntu.com/ubuntu/ eoan universe" >> /etc/apt/sources.list
+      #- sudo apt-get -qq update
+      #- sudo apt-get -qq install qt5-default libqt5sql5-sqlite libswiften-dev qtdeclarative5-dev qml-module-qtquick2 qml-module-qtquick-controls
 
-    - sudo apt-get install systemd # new version nedded by ejabberd
-    - sudo apt-get install xvfb dbus-x11 ejabberd
-    - sudo ejabberdctl register user1 localhost user1
-    - sudo ejabberdctl register user2 localhost user2
+      #- sudo apt-get install systemd # new version nedded by ejabberd
+      #- sudo apt-get install xvfb ejabberd
+      #- sudo ejabberdctl register user1 localhost user1
+      #- sudo ejabberdctl register user2 localhost user2
 
 script:
     #- "export DISPLAY=:99.0"
 
     # standard x86 build
-    - mkdir -p buildx86
-    - cd buildx86
-    - qmake .. DEFINES+=TRAVIS
-    - make
-    - cd ..
+    #- mkdir -p buildx86
+    #- cd buildx86
+    #- qmake .. DEFINES+=TRAVIS
+    #- make
+    #- cd ..
 
     # testing
-    - ./scripts/travis/testing.sh
+    #- ./scripts/travis/testing.sh
 
