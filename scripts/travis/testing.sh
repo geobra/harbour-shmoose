@@ -15,7 +15,7 @@ echo "done"
 # build for testing
 mkdir testing
 cd testing
-qmake .. DEFINES+=TRAVIS DEFINES+=dbus
+qmake .. DEFINES+=TRAVIS DEFINES+=DBUS
 make
 
 # run the test clients
