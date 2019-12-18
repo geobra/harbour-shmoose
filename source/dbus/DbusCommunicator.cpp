@@ -30,6 +30,8 @@ DbusCommunicator::DbusCommunicator(const QString &path, const QString &name, QOb
                 qPrintable(QDBusConnection::sessionBus().lastError().message()));
         exit(1);
     }
+
+    qDebug() << "QDbusConnection name: " << QDBusConnection::sessionBus().name() << ", env: " << qgetenv("DBUS_SESSION_BUS_ADDRESS");
 }
 
 void DbusCommunicator::setXmpClient(Shmoose* shmoose)

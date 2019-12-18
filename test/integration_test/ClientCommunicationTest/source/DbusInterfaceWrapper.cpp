@@ -13,6 +13,8 @@ DbusInterfaceWrapper::DbusInterfaceWrapper(const QString &service, const QString
     {
         qDebug() << QDBusConnection::sessionBus().lastError().message();
     }
+
+    qDebug() << "QDbusConnection name: " << QDBusConnection::sessionBus().name() << ", env: " << qgetenv("DBUS_SESSION_BUS_ADDRESS");
 }
 
 void DbusInterfaceWrapper::callDbusMethodWithArgument(QString const &method, QList<QVariant> const &arguments,
