@@ -8,9 +8,6 @@ if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
 fi
 
 echo "use $DBUS_SESSION_BUS_ADDRESS as dbus address"
-echo "avilable session busses:"
-ls -l ~/.dbus/session-bus/  
-echo "done"
 
 # build for testing
 mkdir testing

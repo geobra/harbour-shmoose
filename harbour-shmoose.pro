@@ -34,6 +34,7 @@ QMAKE_CXXFLAGS += -std=c++11
 
 DEFINES += BOOST_SIGNALS_NO_DEPRECATION_WARNING
 
+# testing or production files
 contains(DEFINES, DBUS) {
     SOURCES += source/dbus/main.cpp
 
@@ -43,6 +44,13 @@ contains(DEFINES, DBUS) {
 else {
     SOURCES += source/main.cpp
 }
+
+# on testing, add flags to produce coverage
+contains(DEFINES, DBUS) {
+	QMAKE_CXXFLAGS += -fprofile-arcs -ftest-coverage
+	LIBS += -lgcov
+}
+
 
 SOURCES += \
 	source/Shmoose.cpp \
