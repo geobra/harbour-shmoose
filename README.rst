@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.com/geobra/harbour-shmoose.svg?branch=master
+    :target: https://travis-ci.com/geobra/harbour-shmoose
+
 .. image:: https://codecov.io/gh/geobra/harbour-shmoose/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/geobra/harbour-shmoose
 
