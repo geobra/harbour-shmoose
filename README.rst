@@ -1,3 +1,6 @@
+.. image:: https://codecov.io/gh/geobra/harbour-shmoose/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/geobra/harbour-shmoose
+
 ===============================================================================
 Shmoose - XMPP Client for Sailfish OS
 ===============================================================================
