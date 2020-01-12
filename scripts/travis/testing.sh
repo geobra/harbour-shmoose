@@ -30,7 +30,7 @@ cd build
 qmake ..
 make
 xvfb-run -a -e /dev/stdout ./ClientCommunicationTest
-cd ../../..
+cd ../../../..
 
 # collect the coverage info
 lcov --capture --directory $TESTPATH --output-file $COVFILE
