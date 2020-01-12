@@ -20,6 +20,8 @@ private slots:
 
     void sendMsgTest();
 
+    void quitClientsTest();
+
 private:
     void connectionTestCommon(DbusInterfaceWrapper* interface, const QString& jid, const QString& pass);
     void requestRosterTestCommon(DbusInterfaceWrapper *interface);

@@ -142,5 +142,10 @@ void ClientComTest::sendMsgTest()
     }
 }
 
+void ClientComTest::quitClientsTest()
+{
+    interfaceLhs->callDbusMethodWithArgument("quitClient", QList<QVariant>());
+    interfaceRhs->callDbusMethodWithArgument("quitClient", QList<QVariant>());
+}
 
 QTEST_MAIN(ClientComTest)

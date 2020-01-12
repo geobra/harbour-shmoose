@@ -4,6 +4,7 @@
 #include "RosterController.h"
 #include "MessageController.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QDBusConnection>
 #include <QDBusMessage>
@@ -142,6 +143,18 @@ bool DbusCommunicator::setCurrentChatPartner(QString jid)
     qDebug() << "setCurrentChatPartner: " << jid;
 
     shmoose_->setCurrentChatPartner(jid);
+
+    return true;
+}
+
+bool DbusCommunicator::quitClient()
+{
+    qDebug() << "goodbye";
+
+    // FIXME this produces a segfault in ~Shmoose!
+    //QCoreApplication::quit();
+
+    exit(0);
 
     return true;
 }
