@@ -61,7 +61,7 @@ bool DbusCommunicator::tryToConnect(const QString& jid, const QString& pass)
 
 void DbusCommunicator::slotClientConnected()
 {
-    qDebug() << "connected!";
+    qDebug() << "slotClientConnected!";
 
     QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalConnected");
     if(QDBusConnection::sessionBus().send(msg) == false)
@@ -155,6 +155,24 @@ bool DbusCommunicator::quitClient()
     //QCoreApplication::quit();
 
     exit(0);
+
+    return true;
+}
+
+bool DbusCommunicator::disconnectFromServer()
+{
+    qDebug() << "disconnectFromServer";
+
+    shmoose_->mainDisconnect();
+
+    return true;
+}
+
+bool DbusCommunicator::reConnect()
+{
+    qDebug() << "reConnect";
+
+    shmoose_->reConnect();
 
     return true;
 }

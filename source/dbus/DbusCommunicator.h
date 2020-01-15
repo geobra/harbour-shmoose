@@ -19,6 +19,9 @@ public slots:
     Q_SCRIPTABLE bool addContact(const QString& jid, const QString& name);
     Q_SCRIPTABLE bool sendMsg(const QString& jid, const QString& msg);
     Q_SCRIPTABLE bool setCurrentChatPartner(QString jid);
+    Q_SCRIPTABLE bool disconnectFromServer();
+    Q_SCRIPTABLE bool reConnect();
+
     Q_SCRIPTABLE bool quitClient();
 
 signals:

@@ -151,6 +151,14 @@ void Shmoose::mainDisconnect()
     }
 }
 
+void Shmoose::reConnect()
+{
+    if (client_ != nullptr)
+    {
+        client_->connect();
+    }
+}
+
 void Shmoose::intialSetupOnFirstConnection()
 {
     // Request the roster

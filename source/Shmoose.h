@@ -33,6 +33,7 @@ public:
 
     Q_INVOKABLE void mainDisconnect();
     Q_INVOKABLE void mainConnect(const QString &jid, const QString &pass);
+    Q_INVOKABLE void reConnect();
     Q_INVOKABLE void setCurrentChatPartner(QString const &jid);
     Q_INVOKABLE QString getCurrentChatPartner();
 
