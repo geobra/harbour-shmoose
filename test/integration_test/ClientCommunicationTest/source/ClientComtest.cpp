@@ -9,7 +9,7 @@
  *
  * 1o1:
  * Send 1to1 msg, check status. Send msg to offline client, check status. Reconnect and check status again
- * Check recieving order of msg on reconnect
+ * Check recieving order of msg after reconnect
  * Send pictures (http_upload) and receive them
  *
  * Group:
@@ -217,6 +217,37 @@ void ClientComTest::sendMsgTest()
     QCOMPARE(spyMsgStateReceiver.count(), 1);
     QList<QVariant> spyArgumentsDisplayConfirmed = spyMsgStateReceiver.takeFirst();
     QVERIFY(spyArgumentsDisplayConfirmed.at(1).toInt() == -1);
+
+    // #################################################################################################
+    // send two messages from user1 to user2. user2 is offline. user2 gets online. check received order.
+    // #################################################################################################
+    spyLatestMsg.clear();
+    // disconnect one client
+    interfaceRhs->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
+    interfaceRhs->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
+
+    // send messages from user1 to user2
+    QList<QVariant> msg1ForUser2 {user2jid, "one"};
+    interfaceLhs->callDbusMethodWithArgument("sendMsg", msg1ForUser2);
+
+    QList<QVariant> msg2ForUser2 {user2jid, "two"};
+    interfaceLhs->callDbusMethodWithArgument("sendMsg", msg2ForUser2);
+
+    // connect the user2 client again
+    interfaceRhs->callDbusMethodWithArgument("reConnect", QList<QVariant>());
+
+    // wait for the msg delivered to the reconnected client (as seen from the sender)
+    spyMsgStateSender.wait(1000);
+    spyMsgStateReceiver.wait(1000);
+
+    // two received msg are expected after reconnect.
+    QCOMPARE(spyLatestMsg.count(), 2);
+
+    // content of received msg is 'one' and 'two'
+    spyArgumentsOfMsg = spyLatestMsg.takeFirst();
+    QVERIFY(spyArgumentsOfMsg.at(2).toString() == "one");
+    spyArgumentsOfMsg = spyLatestMsg.takeFirst();
+    QVERIFY(spyArgumentsOfMsg.at(2).toString() == "two");
 }
 
 void ClientComTest::quitClientsTest()
