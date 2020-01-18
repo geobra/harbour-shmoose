@@ -3,6 +3,30 @@
 
 #include <QSignalSpy>
 
+/*
+ * Tests:
+ * Connect, Disconnect, Reconnect
+ *
+ * 1o1:
+ * Send 1to1 msg, check status. Send msg to offline client, check status. Reconnect and check status again
+ * Check recieving order of msg on reconnect
+ * Send pictures (http_upload) and receive them
+ *
+ * Group:
+ * Add group, delete group
+ * send group msg, check status. Send group msg with offline clients, check status. Reconnect and check status again
+ * Check simple mam
+ * Check recieving order of msg on reconnect
+ *
+ * Roster:
+ * Add contact, delete contact, check status, avatar
+ *
+ */
+
+ClientComTest::ClientComTest() : user1jid("user1@localhost"), user2jid("user2@localhost")
+{
+}
+
 void ClientComTest::initTestCase()
 {
     QString dbusServiceNameCommon("org.shmoose.dbuscom");
@@ -24,8 +48,8 @@ void ClientComTest::cleanupTestCase()
 // connection test
 void ClientComTest::connectionTest()
 {
-    connectionTestCommon(interfaceLhs, "user1@localhost", "user1");
-    connectionTestCommon(interfaceRhs, "user2@localhost", "user2");
+    connectionTestCommon(interfaceLhs, user1jid, "user1");
+    connectionTestCommon(interfaceRhs, user2jid, "user2");
 }
 
 void ClientComTest::connectionTestCommon(DbusInterfaceWrapper *interface, const QString& jid, const QString& pass)
@@ -62,8 +86,8 @@ void ClientComTest::requestRosterTestCommon(DbusInterfaceWrapper *interface)
 // add contact test
 void ClientComTest::addContactTest()
 {
-    addContactTestCommon(interfaceLhs, "user2@localhost", "user2");
-    addContactTestCommon(interfaceRhs, "user1@localhost", "user1");
+    addContactTestCommon(interfaceLhs, user2jid, "user2");
+    addContactTestCommon(interfaceRhs, user1jid, "user1");
 }
 
 void ClientComTest::addContactTestCommon(DbusInterfaceWrapper *interface, const QString& jid, const QString& name)
@@ -88,7 +112,7 @@ void ClientComTest::sendMsgTest()
     // ####################################################
     // send msgOnWire from user1 to user2. Both are online.
     // ####################################################
-    QList<QVariant> argumentsMsgForUser2 {"user2@localhost", msgOnWire};
+    QList<QVariant> argumentsMsgForUser2 {user2jid, msgOnWire};
     interfaceLhs->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser2);
 
     // wait for arrived msgOnWire at other client
@@ -102,14 +126,15 @@ void ClientComTest::sendMsgTest()
     // check the msg status as seen from the sender
     spyMsgStateSender.wait();
 
-    if (spyMsgStateSender.size() < 2) // we expect two state changes. if it is not already here, wait another second to arrieve.
+    if (spyMsgStateSender.size() < 2) // we expect two state changes. if it is not already here, wait another second to arive.
     {
         spyMsgStateSender.wait(1000);
+        spyMsgStateReceiver.wait(1000);
     }
 
+    qDebug() << "state changes: " << spyMsgStateSender.count();
     QVERIFY(spyMsgStateSender.count() == 2);
 
-    // TODO test the received state only. disconnect the receiving client before sending, check status, then connect that client again.
     int expectedState = 1; // (-1) displayedConfirmed, (0) unknown, (1) sent, (2) received, (3) displayed
     while(! spyMsgStateSender.isEmpty())
     {
@@ -120,7 +145,7 @@ void ClientComTest::sendMsgTest()
     }
 
     // read the message at the received client. status must change to displayed (3). Received client set status to displayedConfirmed (-1)
-    QList<QVariant> argumentsCurrentChatPartnerUser1 {"user1@localhost"};
+    QList<QVariant> argumentsCurrentChatPartnerUser1 {user1jid};
     interfaceRhs->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerUser1);
 
     spyMsgStateSender.wait();
@@ -159,6 +184,7 @@ void ClientComTest::sendMsgTest()
     QVERIFY(spyMsgStateSender.count() == 1);
 
     QList<QVariant> spyArgumentsForSentState = spyMsgStateSender.takeFirst();
+    qDebug() << "state of msg whil partner is offline: " << spyArgumentsForSentState.at(1).toInt();
     QVERIFY(spyArgumentsForSentState.at(1).toInt() == 1); // msg has been sent to server. nothing else
 
     // connect the user2 client again

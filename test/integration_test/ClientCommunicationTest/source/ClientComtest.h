@@ -10,6 +10,9 @@ class ClientComTest : public QObject
 {
     Q_OBJECT
 
+public:
+    ClientComTest();
+
 private slots:
     void initTestCase();
     void cleanupTestCase();
@@ -29,6 +32,9 @@ private:
 
     DbusInterfaceWrapper* interfaceLhs;
     DbusInterfaceWrapper* interfaceRhs;
+
+    const QString user1jid;
+    const QString user2jid;
 
 public slots:
     void receiveConnectedSignal(QString str);
