@@ -208,6 +208,7 @@ void ClientComTest::sendMsgTest()
 
     // be sure that the state is 'read'
     spyMsgStateSender.wait();
+    spyMsgStateReceiver.wait();
     QVERIFY(spyMsgStateSender.count() == 1);
     QList<QVariant> spyArgumentsRead = spyMsgStateSender.takeFirst();
     QVERIFY(spyArgumentsRead.at(1).toInt() == 3);
