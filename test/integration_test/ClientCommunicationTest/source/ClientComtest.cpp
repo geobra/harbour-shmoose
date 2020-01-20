@@ -194,6 +194,7 @@ void ClientComTest::sendMsgTest()
 
     // wait for the msg delivered to the reconnected client (as seen from the sender)
     spyMsgStateSender.wait();
+    spyMsgStateReceiver.wait();
 
     QVERIFY(spyMsgStateSender.count() == 1);
 

@@ -2,8 +2,6 @@ language : cpp
 compiler: gcc
 os: linux
 dist: xenial
-#services:
-#  - xvfb
 
 install:
     - sudo echo "deb http://de.archive.ubuntu.com/ubuntu/ eoan main restricted" >> /etc/apt/sources.list
@@ -15,7 +13,12 @@ install:
     - sudo apt-get install xvfb ejabberd
     - sudo ejabberdctl register user1 localhost user1
     - sudo ejabberdctl register user2 localhost user2
-    - sudo cat /etc/ejabberd/ejabberd.yml
+
+    # enable http_upload
+    - sudo sed -e s/'## "\/upload": mod_http_upload'/'"\/upload": mod_http_upload'/ -i /etc/ejabberd/ejabberd.yml
+    - sudo sed -e s/'## mod_http_upload:'/'mod_http_upload:'/ -i /etc/ejabberd/ejabberd.yml
+    - sudo sed -e s/'##   put_url:'/'   put_url:'/ -i /etc/ejabberd/ejabberd.yml
+    - sudo systemctl restart ejabberd
 
 script:
     # standard x86 build
