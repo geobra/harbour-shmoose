@@ -15,7 +15,7 @@ install:
     - sudo apt-get install xvfb ejabberd
     - sudo ejabberdctl register user1 localhost user1
     - sudo ejabberdctl register user2 localhost user2
-    - cat /etc/ejabberd/ejabberd.yml
+    - sudo cat /etc/ejabberd/ejabberd.yml
 
 script:
     # standard x86 build
