@@ -14,7 +14,6 @@ install:
     - sudo ejabberdctl register user1 localhost user1
     - sudo ejabberdctl register user2 localhost user2
 
-    # enable http_upload
     - sudo sed -e s/'## "\/upload": mod_http_upload'/'"\/upload": mod_http_upload'/ -i /etc/ejabberd/ejabberd.yml
     - sudo sed -e s/'## mod_http_upload:'/'mod_http_upload:'/ -i /etc/ejabberd/ejabberd.yml
     - sudo sed -e s/'##   put_url:'/'   put_url:'/ -i /etc/ejabberd/ejabberd.yml
