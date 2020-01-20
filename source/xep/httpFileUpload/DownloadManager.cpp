@@ -141,6 +141,8 @@ void DownloadManager::downloadFinished(QNetworkReply *reply)
         {
             printf("Download of %s succeeded (saved to %s)\n",
                    url.toEncoded().constData(), qPrintable(filename));
+
+            emit httpDownloadFinished(filename);
         }
     }
 

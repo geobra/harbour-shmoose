@@ -256,14 +256,19 @@ void ClientComTest::sendMsgTest()
     // ##################################
     // send a picture from user1 to user2
     // ##################################
+    QSignalSpy spyDownloadFinished(interfaceRhs_->getInterface(), SIGNAL(signalDownloadFinished(QString)));
 
     // send picture from user1 to user2
     QList<QVariant> fileForUser2 {user2jid_, imageFileName_};
     interfaceLhs_->callDbusMethodWithArgument("sendFile", fileForUser2);
 
-    spyMsgStateSender.wait(5000);
-    spyMsgStateReceiver.wait(5000);
+    spyMsgStateSender.wait();
+    spyMsgStateReceiver.wait();
 
+    QCOMPARE(spyDownloadFinished.count(), 1);
+    QList<QVariant> spyArgumentsOfDownload = spyDownloadFinished.takeFirst();
+    QString localPath = spyArgumentsOfDownload.at(0).toString();
+    QVERIFY(localPath.contains("64x64-red"));
 }
 
 void ClientComTest::quitClientsTest()

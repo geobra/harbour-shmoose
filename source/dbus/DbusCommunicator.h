@@ -30,12 +30,14 @@ signals:
     void signalNewRosterEntry();
     void signalLatestMsg(QString, QString, QString);
     void signalMsgState(QString, int);
+    void signalDownloadFinished(QString);
 
 private slots:
     void slotClientConnected();
     void slotGotRosterEntry();
     void slotForwaredReceivedMsgToDbus(QString id, QString jid, QString message);
     void slotForwardMsgStateToDbus(QString msgId, int msgState);
+    void slotForwardDownloadMsgToDbus(QString);
 
 private:
     Shmoose* shmoose_;

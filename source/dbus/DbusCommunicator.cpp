@@ -3,6 +3,8 @@
 #include "Shmoose.h"
 #include "RosterController.h"
 #include "MessageController.h"
+#include "MessageHandler.h"
+#include "DownloadManager.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -44,9 +46,11 @@ void DbusCommunicator::setupConnections()
 {
     Persistence *persistence = shmoose_->getPersistence();
     MessageController *msgCtrl = persistence->getMessageController();
+    DownloadManager* downloadMgr = shmoose_->messageHandler_->downloadManager_;
 
     connect(msgCtrl, SIGNAL(signalMessageReceived(QString, QString, QString)), this, SLOT(slotForwaredReceivedMsgToDbus(QString, QString, QString)));
     connect(msgCtrl, SIGNAL(signalMessageStateChanged(QString, int)), this, SLOT(slotForwardMsgStateToDbus(QString, int)));
+    connect(downloadMgr, SIGNAL(httpDownloadFinished(QString)), this, SLOT(slotForwardDownloadMsgToDbus(QString)));
 }
 
 bool DbusCommunicator::tryToConnect(const QString& jid, const QString& pass)
@@ -140,6 +144,17 @@ void DbusCommunicator::slotForwardMsgStateToDbus(QString msgId, int msgState)
     QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalMsgState");
     msg << msgId;
     msg << msgState;
+
+    if(QDBusConnection::sessionBus().send(msg) == false)
+    {
+        qDebug() << "cant send message via dbus";
+    }
+}
+
+void DbusCommunicator::slotForwardDownloadMsgToDbus(QString localPath)
+{
+    QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalDownloadFinished");
+    msg << localPath;
 
     if(QDBusConnection::sessionBus().send(msg) == false)
     {

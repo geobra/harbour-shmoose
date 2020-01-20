@@ -65,6 +65,9 @@ public slots:
     void downloadFinished(QNetworkReply *reply);
     void sslErrors(const QList<QSslError> &errors);
 
+signals:
+    void httpDownloadFinished(QString);
+
 private:
     QString saveFileName(const QUrl &url);
     bool saveToDisk(const QString &filename, QIODevice *data);

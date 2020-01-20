@@ -28,6 +28,9 @@ public slots:
     void slotAppGetsActive(bool active);
 
 private:
+#ifdef DBUS
+public:
+#endif
     Swift::Client* client_;
     Persistence* persistence_;
     Settings* settings_;
