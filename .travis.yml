@@ -5,7 +5,7 @@ dist: xenial
 #services:
 #  - xvfb
 
-install: 
+install:
     - sudo echo "deb http://de.archive.ubuntu.com/ubuntu/ eoan main restricted" >> /etc/apt/sources.list
     - sudo echo "deb http://de.archive.ubuntu.com/ubuntu/ eoan universe" >> /etc/apt/sources.list
     - sudo apt-get -qq update
@@ -15,6 +15,7 @@ install:
     - sudo apt-get install xvfb ejabberd
     - sudo ejabberdctl register user1 localhost user1
     - sudo ejabberdctl register user2 localhost user2
+    - cat /etc/ejabberd/ejabberd.yml
 
 script:
     # standard x86 build

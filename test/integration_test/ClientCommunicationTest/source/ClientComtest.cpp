@@ -2,6 +2,7 @@
 #include "DbusInterfaceWrapper.h"
 
 #include <QSignalSpy>
+#include <QImageWriter>
 
 /*
  * Tests:
@@ -23,8 +24,9 @@
  *
  */
 
-ClientComTest::ClientComTest() : user1jid("user1@localhost"), user2jid("user2@localhost")
+ClientComTest::ClientComTest() : user1jid_("user1@localhost"), user2jid_("user2@localhost"), imageFileName_("/tmp/64x64-red.jpeg")
 {
+    generatePicture();
 }
 
 void ClientComTest::initTestCase()
@@ -36,8 +38,8 @@ void ClientComTest::initTestCase()
 
     QString dbusObjectPath("/client");
 
-    interfaceLhs = new DbusInterfaceWrapper(dbusServiceNameLhs, dbusObjectPath, "", QDBusConnection::sessionBus(), this);
-    interfaceRhs = new DbusInterfaceWrapper(dbusServiceNameRhs, dbusObjectPath, "", QDBusConnection::sessionBus(), this);
+    interfaceLhs_ = new DbusInterfaceWrapper(dbusServiceNameLhs, dbusObjectPath, "", QDBusConnection::sessionBus(), this);
+    interfaceRhs_ = new DbusInterfaceWrapper(dbusServiceNameRhs, dbusObjectPath, "", QDBusConnection::sessionBus(), this);
 }
 
 void ClientComTest::cleanupTestCase()
@@ -48,8 +50,8 @@ void ClientComTest::cleanupTestCase()
 // connection test
 void ClientComTest::connectionTest()
 {
-    connectionTestCommon(interfaceLhs, user1jid, "user1");
-    connectionTestCommon(interfaceRhs, user2jid, "user2");
+    connectionTestCommon(interfaceLhs_, user1jid_, "user1");
+    connectionTestCommon(interfaceRhs_, user2jid_, "user2");
 }
 
 void ClientComTest::connectionTestCommon(DbusInterfaceWrapper *interface, const QString& jid, const QString& pass)
@@ -70,8 +72,8 @@ void ClientComTest::receiveConnectedSignal(QString str)
 // request roster test
 void ClientComTest::requestRosterTest()
 {
-    requestRosterTestCommon(interfaceLhs);
-    requestRosterTestCommon(interfaceRhs);
+    requestRosterTestCommon(interfaceLhs_);
+    requestRosterTestCommon(interfaceRhs_);
 }
 
 void ClientComTest::requestRosterTestCommon(DbusInterfaceWrapper *interface)
@@ -86,8 +88,8 @@ void ClientComTest::requestRosterTestCommon(DbusInterfaceWrapper *interface)
 // add contact test
 void ClientComTest::addContactTest()
 {
-    addContactTestCommon(interfaceLhs, user2jid, "user2");
-    addContactTestCommon(interfaceRhs, user1jid, "user1");
+    addContactTestCommon(interfaceLhs_, user2jid_, "user2");
+    addContactTestCommon(interfaceRhs_, user1jid_, "user1");
 }
 
 void ClientComTest::addContactTestCommon(DbusInterfaceWrapper *interface, const QString& jid, const QString& name)
@@ -106,17 +108,17 @@ void ClientComTest::sendMsgTest()
     const QString msgOnWire = "Hi user2 from user1";
 
     // Setup msg state spyer
-    QSignalSpy spyMsgStateSender(interfaceLhs->getInterface(), SIGNAL(signalMsgState(QString, int)));
-    QSignalSpy spyMsgStateReceiver(interfaceRhs->getInterface(), SIGNAL(signalMsgState(QString, int)));
+    QSignalSpy spyMsgStateSender(interfaceLhs_->getInterface(), SIGNAL(signalMsgState(QString, int)));
+    QSignalSpy spyMsgStateReceiver(interfaceRhs_->getInterface(), SIGNAL(signalMsgState(QString, int)));
 
     // ####################################################
     // send msgOnWire from user1 to user2. Both are online.
     // ####################################################
-    QList<QVariant> argumentsMsgForUser2 {user2jid, msgOnWire};
-    interfaceLhs->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser2);
+    QList<QVariant> argumentsMsgForUser2 {user2jid_, msgOnWire};
+    interfaceLhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser2);
 
     // wait for arrived msgOnWire at other client
-    QSignalSpy spyLatestMsg(interfaceRhs->getInterface(), SIGNAL(signalLatestMsg(QString, QString, QString)));
+    QSignalSpy spyLatestMsg(interfaceRhs_->getInterface(), SIGNAL(signalLatestMsg(QString, QString, QString)));
     spyLatestMsg.wait();
     QCOMPARE(spyLatestMsg.count(), 1);
 
@@ -145,8 +147,8 @@ void ClientComTest::sendMsgTest()
     }
 
     // read the message at the received client. status must change to displayed (3). Received client set status to displayedConfirmed (-1)
-    QList<QVariant> argumentsCurrentChatPartnerUser1 {user1jid};
-    interfaceRhs->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerUser1);
+    QList<QVariant> argumentsCurrentChatPartnerUser1 {user1jid_};
+    interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerUser1);
 
     spyMsgStateSender.wait();
     QVERIFY(spyMsgStateSender.count() == 1);
@@ -173,11 +175,11 @@ void ClientComTest::sendMsgTest()
     // ####################################################
     // disconnect one client
     QList<QVariant> argumentsCurrentChatPartnerEmpty {""};
-    interfaceRhs->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
-    interfaceRhs->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
+    interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
+    interfaceRhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
 
     // send msgOnWire from user1 to user2
-    interfaceLhs->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser2);
+    interfaceLhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser2);
 
     // check the msg status as seen from the sender
     spyMsgStateSender.wait();
@@ -188,7 +190,7 @@ void ClientComTest::sendMsgTest()
     QVERIFY(spyArgumentsForSentState.at(1).toInt() == 1); // msg has been sent to server. nothing else
 
     // connect the user2 client again
-    interfaceRhs->callDbusMethodWithArgument("reConnect", QList<QVariant>());
+    interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
 
     // wait for the msg delivered to the reconnected client (as seen from the sender)
     spyMsgStateSender.wait();
@@ -201,7 +203,7 @@ void ClientComTest::sendMsgTest()
     QVERIFY(spyArgumentsReceivedReconnected.at(1).toInt() == 2); // received from reconnected client
 
     // read the msg on user1, lhs
-    interfaceRhs->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerUser1);
+    interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerUser1);
 
     // be sure that the state is 'read'
     spyMsgStateSender.wait();
@@ -223,18 +225,18 @@ void ClientComTest::sendMsgTest()
     // #################################################################################################
     spyLatestMsg.clear();
     // disconnect one client
-    interfaceRhs->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
-    interfaceRhs->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
+    interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
+    interfaceRhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
 
     // send messages from user1 to user2
-    QList<QVariant> msg1ForUser2 {user2jid, "one"};
-    interfaceLhs->callDbusMethodWithArgument("sendMsg", msg1ForUser2);
+    QList<QVariant> msg1ForUser2 {user2jid_, "one"};
+    interfaceLhs_->callDbusMethodWithArgument("sendMsg", msg1ForUser2);
 
-    QList<QVariant> msg2ForUser2 {user2jid, "two"};
-    interfaceLhs->callDbusMethodWithArgument("sendMsg", msg2ForUser2);
+    QList<QVariant> msg2ForUser2 {user2jid_, "two"};
+    interfaceLhs_->callDbusMethodWithArgument("sendMsg", msg2ForUser2);
 
     // connect the user2 client again
-    interfaceRhs->callDbusMethodWithArgument("reConnect", QList<QVariant>());
+    interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
 
     // wait for the msg delivered to the reconnected client (as seen from the sender)
     spyMsgStateSender.wait(1000);
@@ -248,12 +250,35 @@ void ClientComTest::sendMsgTest()
     QVERIFY(spyArgumentsOfMsg.at(2).toString() == "one");
     spyArgumentsOfMsg = spyLatestMsg.takeFirst();
     QVERIFY(spyArgumentsOfMsg.at(2).toString() == "two");
+
+    // ##################################
+    // send a picture from user1 to user2
+    // ##################################
+
+    // send picture from user1 to user2
+    QList<QVariant> fileForUser2 {user2jid_, imageFileName_};
+    interfaceLhs_->callDbusMethodWithArgument("sendFile", fileForUser2);
+
+    spyMsgStateSender.wait(5000);
+    spyMsgStateReceiver.wait(5000);
+
 }
 
 void ClientComTest::quitClientsTest()
 {
-    interfaceLhs->callDbusMethodWithArgument("quitClient", QList<QVariant>());
-    interfaceRhs->callDbusMethodWithArgument("quitClient", QList<QVariant>());
+    interfaceLhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
+    interfaceRhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
+}
+
+void ClientComTest::generatePicture()
+{
+    QString imagePath(imageFileName_);
+    QImage image(64, 64, QImage::Format_RGB32);
+    image.fill(Qt::red);
+    {
+        QImageWriter writer(imagePath);
+        writer.write(image);
+    }
 }
 
 QTEST_MAIN(ClientComTest)

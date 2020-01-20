@@ -1,5 +1,4 @@
-QT -= gui
-QT += testlib dbus
+QT += testlib dbus gui
 
 CONFIG += c++11 console
 CONFIG -= app_bundle

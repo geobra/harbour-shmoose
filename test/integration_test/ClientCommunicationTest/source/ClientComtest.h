@@ -30,11 +30,15 @@ private:
     void requestRosterTestCommon(DbusInterfaceWrapper *interface);
     void addContactTestCommon(DbusInterfaceWrapper *interface, const QString& jid, const QString& name);
 
-    DbusInterfaceWrapper* interfaceLhs;
-    DbusInterfaceWrapper* interfaceRhs;
+    void generatePicture();
 
-    const QString user1jid;
-    const QString user2jid;
+    DbusInterfaceWrapper* interfaceLhs_;
+    DbusInterfaceWrapper* interfaceRhs_;
+
+    const QString user1jid_;
+    const QString user2jid_;
+
+    const QString imageFileName_;
 
 public slots:
     void receiveConnectedSignal(QString str);

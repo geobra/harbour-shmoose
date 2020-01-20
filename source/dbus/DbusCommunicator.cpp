@@ -111,6 +111,15 @@ bool DbusCommunicator::sendMsg(const QString& jid, const QString& msg)
     return true;
 }
 
+bool DbusCommunicator::sendFile(const QString& jid, const QString& path)
+{
+    qDebug() << "sendFile";
+    shmoose_->sendFile(jid, path);
+
+    return true;
+}
+
+
 void DbusCommunicator::slotForwaredReceivedMsgToDbus(QString id, QString jid, QString message)
 {
     //qDebug() << "id: " << id << ", jid: " << jid << ", msg: " << message;
