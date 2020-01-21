@@ -5,6 +5,7 @@
 #include "MessageController.h"
 #include "MessageHandler.h"
 #include "DownloadManager.h"
+#include "MucManager.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -105,6 +106,33 @@ void DbusCommunicator::slotGotRosterEntry()
     {
         qDebug() << "cant send message via dbus";
     }
+}
+
+bool DbusCommunicator::joinRoom(const QString& jid, const QString& name)
+{
+    qDebug() << "joinRoom: jid: " << jid << ", name: " << name;
+    shmoose_->joinRoom(jid, name);
+
+    MucManager* mm = shmoose_->mucManager_;
+    connect(mm, SIGNAL(newGroupForContactsList(QString,QString)), this, SLOT(slotNewRoomJoin(QString, QString)));
+
+    return true;
+}
+
+bool DbusCommunicator::slotNewRoomJoin(QString jid, QString name)
+{
+    qDebug() << "slotNewRoomJoin!";
+
+    QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalRoomJoined");
+    msg << jid;
+    msg << name;
+
+    if(QDBusConnection::sessionBus().send(msg) == false)
+    {
+        qDebug() << "cant send message via dbus";
+    }
+
+    return true;
 }
 
 bool DbusCommunicator::sendMsg(const QString& jid, const QString& msg)

@@ -18,18 +18,33 @@ cd $TESTPATH
 qmake .. DEFINES+=TRAVIS DEFINES+=DBUS
 make
 
-# run the test clients
+# run the test clients for plain 1to1 msg tests
 xvfb-run -a -e /dev/stdout ./harbour-shmoose lhs &
 xvfb-run -a -e /dev/stdout ./harbour-shmoose rhs &
 cd ..
 
-# build the test
+# build the plain 1to1 msg test
 cd test/integration_test/ClientCommunicationTest/
 mkdir build
 cd build
 qmake ..
 make
 xvfb-run -a -e /dev/stdout ./ClientCommunicationTest
+cd ../../../..
+
+
+# run the test clients for the room msg tests
+xvfb-run -a -e /dev/stdout ./$TESTPATH/harbour-shmoose lhs &
+xvfb-run -a -e /dev/stdout ./$TESTPATH/harbour-shmoose mhs &
+xvfb-run -a -e /dev/stdout ./$TESTPATH/harbour-shmoose rhs &
+
+# build the plain room msg test
+cd test/integration_test/ClientRoomMessagingTest/
+mkdir build
+cd build
+qmake ..
+make
+xvfb-run -a -e /dev/stdout ./ClientRoomMessagingTest
 cd ../../../..
 
 # collect the coverage info

@@ -17,6 +17,7 @@ public slots:
     Q_SCRIPTABLE bool tryToConnect(const QString& jid, const QString& pass);
     Q_SCRIPTABLE bool requestRoster();
     Q_SCRIPTABLE bool addContact(const QString& jid, const QString& name);
+    Q_SCRIPTABLE bool joinRoom(const QString& jid, const QString& name);
     Q_SCRIPTABLE bool sendMsg(const QString& jid, const QString& msg);
     Q_SCRIPTABLE bool sendFile(const QString& jid, const QString& path);
     Q_SCRIPTABLE bool setCurrentChatPartner(QString jid);
@@ -28,6 +29,7 @@ public slots:
 signals:
     void signalConnected();
     void signalNewRosterEntry();
+    void signalRoomJoined(QString, QString);
     void signalLatestMsg(QString, QString, QString);
     void signalMsgState(QString, int);
     void signalDownloadFinished(QString);
@@ -35,6 +37,7 @@ signals:
 private slots:
     void slotClientConnected();
     void slotGotRosterEntry();
+    bool slotNewRoomJoin(QString jid, QString name);
     void slotForwaredReceivedMsgToDbus(QString id, QString jid, QString message);
     void slotForwardMsgStateToDbus(QString msgId, int msgState);
     void slotForwardDownloadMsgToDbus(QString);
