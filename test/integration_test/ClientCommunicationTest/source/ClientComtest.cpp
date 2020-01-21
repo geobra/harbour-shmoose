@@ -134,8 +134,8 @@ void ClientComTest::sendMsgTest()
     interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerUser1);
 
     // be sure that the state is 'read'
-    spyMsgStateReceiver.wait();
-    spyMsgStateSender.wait();
+    spyMsgStateSender.wait(2000);
+    spyMsgStateReceiver.wait(2000);
 
     QVERIFY(spyMsgStateSender.count() == 1);
     QList<QVariant> spyArgumentsRead = spyMsgStateSender.takeFirst();
