@@ -24,82 +24,9 @@
  *
  */
 
-ClientComTest::ClientComTest() : user1jid_("user1@localhost"), user2jid_("user2@localhost"), imageFileName_("/tmp/64x64-red.jpeg")
-{
-    generatePicture();
-}
-
-void ClientComTest::initTestCase()
-{
-    QString dbusServiceNameCommon("org.shmoose.dbuscom");
-
-    QString dbusServiceNameLhs = dbusServiceNameCommon + "lhs";
-    QString dbusServiceNameRhs = dbusServiceNameCommon + "rhs";
-
-    QString dbusObjectPath("/client");
-
-    interfaceLhs_ = new DbusInterfaceWrapper(dbusServiceNameLhs, dbusObjectPath, "", QDBusConnection::sessionBus(), this);
-    interfaceRhs_ = new DbusInterfaceWrapper(dbusServiceNameRhs, dbusObjectPath, "", QDBusConnection::sessionBus(), this);
-}
-
-void ClientComTest::cleanupTestCase()
+ClientComTest::ClientComTest() : ClientComTestCommon()
 {
 
-}
-
-// connection test
-void ClientComTest::connectionTest()
-{
-    connectionTestCommon(interfaceLhs_, user1jid_, "user1");
-    connectionTestCommon(interfaceRhs_, user2jid_, "user2");
-}
-
-void ClientComTest::connectionTestCommon(DbusInterfaceWrapper *interface, const QString& jid, const QString& pass)
-{
-    QList<QVariant> arguments{jid, pass};
-    interface->callDbusMethodWithArgument("tryToConnect", arguments);
-
-    QSignalSpy spySignalConnected(interface->getInterface(), SIGNAL(signalConnected()));
-    spySignalConnected.wait();
-    QCOMPARE(spySignalConnected.count(), 1);
-}
-
-void ClientComTest::receiveConnectedSignal(QString str)
-{
-    qDebug() << "from daemon::connected signal: " << str;
-}
-
-// request roster test
-void ClientComTest::requestRosterTest()
-{
-    requestRosterTestCommon(interfaceLhs_);
-    requestRosterTestCommon(interfaceRhs_);
-}
-
-void ClientComTest::requestRosterTestCommon(DbusInterfaceWrapper *interface)
-{
-    QSignalSpy spyNewRosterEntry(interface->getInterface(), SIGNAL(signalNewRosterEntry()));
-    interface->callDbusMethodWithArgument("requestRoster", QList<QVariant>());
-
-    spyNewRosterEntry.wait();
-    QCOMPARE(spyNewRosterEntry.count(), 1);
-}
-
-// add contact test
-void ClientComTest::addContactTest()
-{
-    addContactTestCommon(interfaceLhs_, user2jid_, "user2");
-    addContactTestCommon(interfaceRhs_, user1jid_, "user1");
-}
-
-void ClientComTest::addContactTestCommon(DbusInterfaceWrapper *interface, const QString& jid, const QString& name)
-{
-    QList<QVariant> arguments {jid, name};
-    interface->callDbusMethodWithArgument("addContact", arguments);
-
-    QSignalSpy spyNewRosterEntry(interface->getInterface(), SIGNAL(signalNewRosterEntry()));
-    spyNewRosterEntry.wait(200);
-    //QCOMPARE(spyNewRosterEntry.count(), 1);
 }
 
 // send msg test
@@ -270,23 +197,12 @@ void ClientComTest::sendMsgTest()
     QList<QVariant> spyArgumentsOfDownload = spyDownloadFinished.takeFirst();
     QString localPath = spyArgumentsOfDownload.at(0).toString();
     QVERIFY(localPath.contains("64x64-red"));
-}
 
-void ClientComTest::quitClientsTest()
-{
+    // quit clients
     interfaceLhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
     interfaceRhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
 }
 
-void ClientComTest::generatePicture()
-{
-    QString imagePath(imageFileName_);
-    QImage image(64, 64, QImage::Format_RGB32);
-    image.fill(Qt::red);
-    {
-        QImageWriter writer(imagePath);
-        writer.write(image);
-    }
-}
+
 
 QTEST_MAIN(ClientComTest)
