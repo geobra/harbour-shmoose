@@ -78,9 +78,9 @@ void ClientComTest::requestRosterTest()
 
 void ClientComTest::requestRosterTestCommon(DbusInterfaceWrapper *interface)
 {
+    QSignalSpy spyNewRosterEntry(interface->getInterface(), SIGNAL(signalNewRosterEntry()));
     interface->callDbusMethodWithArgument("requestRoster", QList<QVariant>());
 
-    QSignalSpy spyNewRosterEntry(interface->getInterface(), SIGNAL(signalNewRosterEntry()));
     spyNewRosterEntry.wait();
     QCOMPARE(spyNewRosterEntry.count(), 1);
 }
@@ -207,8 +207,9 @@ void ClientComTest::sendMsgTest()
     interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerUser1);
 
     // be sure that the state is 'read'
-    spyMsgStateSender.wait();
     spyMsgStateReceiver.wait();
+    spyMsgStateSender.wait();
+
     QVERIFY(spyMsgStateSender.count() == 1);
     QList<QVariant> spyArgumentsRead = spyMsgStateSender.takeFirst();
     QVERIFY(spyArgumentsRead.at(1).toInt() == 3);
