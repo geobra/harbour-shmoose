@@ -57,6 +57,8 @@ void ClientComTestCommon::connectionTestCommon(DbusInterfaceWrapper *interface, 
     QSignalSpy spySignalConnected(interface->getInterface(), SIGNAL(signalConnected()));
     spySignalConnected.wait();
     QCOMPARE(spySignalConnected.count(), 1);
+
+    spySignalConnected.wait(5000); // wait until all initial handshakes are done
 }
 
 void ClientComTestCommon::receiveConnectedSignal(QString str)

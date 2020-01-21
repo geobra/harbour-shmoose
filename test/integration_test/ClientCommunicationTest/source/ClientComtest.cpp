@@ -120,8 +120,10 @@ void ClientComTest::sendMsgTest()
     interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
 
     // wait for the msg delivered to the reconnected client (as seen from the sender)
-    spyMsgStateSender.wait(2000);
-    spyMsgStateReceiver.wait(2000);
+    spyMsgStateReceiver.wait();
+    spyMsgStateReceiver.wait(5000);  // wait until the reconnt handshake is done
+
+    spyMsgStateSender.wait(); // for the msg ack stanza
 
     QVERIFY(spyMsgStateSender.count() == 1);
 

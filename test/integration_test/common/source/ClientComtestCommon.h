@@ -13,8 +13,10 @@ class ClientComTestCommon : public QObject
 public:
     ClientComTestCommon();
 
-private slots:
+protected slots:
     void initTestCase();
+
+private slots:
     void cleanupTestCase();
 
     void connectionTest();
