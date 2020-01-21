@@ -14,6 +14,7 @@ install:
     - sudo ejabberdctl register user1 localhost user1
     - sudo ejabberdctl register user2 localhost user2
     - sudo ejabberdctl register user3 localhost user3
+    - sudo ejabberdctl create_room testroom conference.localhost localhost
 
     # copy config with http_upload enabled
     - sudo cp test/config/ejabberd.yml /etc/ejabberd/

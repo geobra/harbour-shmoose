@@ -120,8 +120,8 @@ void ClientComTest::sendMsgTest()
     interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
 
     // wait for the msg delivered to the reconnected client (as seen from the sender)
-    spyMsgStateSender.wait();
-    spyMsgStateReceiver.wait();
+    spyMsgStateSender.wait(2000);
+    spyMsgStateReceiver.wait(2000);
 
     QVERIFY(spyMsgStateSender.count() == 1);
 
