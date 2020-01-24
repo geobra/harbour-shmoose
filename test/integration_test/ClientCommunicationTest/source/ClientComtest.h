@@ -17,6 +17,7 @@ public:
 
 private slots:
     void sendMsgTest();
+
 };
 
 #endif // CLIENTCOMTEST_H

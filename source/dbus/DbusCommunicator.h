@@ -32,6 +32,7 @@ signals:
     void signalRoomJoined(QString, QString);
     void signalLatestMsg(QString, QString, QString);
     void signalMsgState(QString, int);
+    void signalRoomMsgState(QString, QString, int);
     void signalDownloadFinished(QString);
 
 private slots:
@@ -40,6 +41,7 @@ private slots:
     bool slotNewRoomJoin(QString jid, QString name);
     void slotForwaredReceivedMsgToDbus(QString id, QString jid, QString message);
     void slotForwardMsgStateToDbus(QString msgId, int msgState);
+    void slotForwardRoomMsgStateToDbus(QString msgId, QString jid, int msgState);
     void slotForwardDownloadMsgToDbus(QString);
 
 private:

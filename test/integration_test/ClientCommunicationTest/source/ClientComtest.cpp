@@ -46,19 +46,19 @@ void ClientComTest::sendMsgTest()
 
     // wait for arrived msgOnWire at other client
     QSignalSpy spyLatestMsg(interfaceRhs_->getInterface(), SIGNAL(signalLatestMsg(QString, QString, QString)));
-    spyLatestMsg.wait();
+    spyLatestMsg.wait(timeOut_);
     QCOMPARE(spyLatestMsg.count(), 1);
 
     QList<QVariant> spyArgumentsOfMsg = spyLatestMsg.takeFirst();
     QVERIFY(spyArgumentsOfMsg.at(2).toString() == msgOnWire);
 
     // check the msg status as seen from the sender
-    spyMsgStateSender.wait();
+    spyMsgStateSender.wait(timeOut_);
 
     if (spyMsgStateSender.size() < 2) // we expect two state changes. if it is not already here, wait another second to arive.
     {
-        spyMsgStateSender.wait(1000);
-        spyMsgStateReceiver.wait(1000);
+        spyMsgStateSender.wait(timeOut_);
+        spyMsgStateReceiver.wait(timeOut_);
     }
 
     qDebug() << "state changes: " << spyMsgStateSender.count();
@@ -77,7 +77,7 @@ void ClientComTest::sendMsgTest()
     QList<QVariant> argumentsCurrentChatPartnerUser1 {user1jid_};
     interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerUser1);
 
-    spyMsgStateSender.wait();
+    spyMsgStateSender.wait(timeOut_);
     QVERIFY(spyMsgStateSender.count() == 1);
     while(! spyMsgStateSender.isEmpty())
     {
@@ -88,7 +88,7 @@ void ClientComTest::sendMsgTest()
     // check the state for that sent msg at the receiver side. must be -1, displayedConfirmed.
     if (spyMsgStateReceiver.count() <= 0)
     {
-        spyMsgStateReceiver.wait(1000);
+        spyMsgStateReceiver.wait(timeOut_);
     }
     QCOMPARE(spyMsgStateReceiver.count(), 1);
     while(! spyMsgStateReceiver.isEmpty())
@@ -109,7 +109,7 @@ void ClientComTest::sendMsgTest()
     interfaceLhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser2);
 
     // check the msg status as seen from the sender
-    spyMsgStateSender.wait();
+    spyMsgStateSender.wait(timeOut_);
     QVERIFY(spyMsgStateSender.count() == 1);
 
     QList<QVariant> spyArgumentsForSentState = spyMsgStateSender.takeFirst();
@@ -120,10 +120,10 @@ void ClientComTest::sendMsgTest()
     interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
 
     // wait for the msg delivered to the reconnected client (as seen from the sender)
-    spyMsgStateReceiver.wait();
-    spyMsgStateReceiver.wait(5000);  // wait until the reconnt handshake is done
+    spyMsgStateReceiver.wait(timeOut_);
+    spyMsgStateReceiver.wait(timeOut_);  // wait until the reconnt handshake is done
 
-    spyMsgStateSender.wait(); // for the msg ack stanza
+    spyMsgStateSender.wait(timeOut_); // for the msg ack stanza
 
     QVERIFY(spyMsgStateSender.count() == 1);
 
@@ -136,8 +136,8 @@ void ClientComTest::sendMsgTest()
     interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerUser1);
 
     // be sure that the state is 'read'
-    spyMsgStateSender.wait(2000);
-    spyMsgStateReceiver.wait(2000);
+    spyMsgStateSender.wait(timeOut_);
+    spyMsgStateReceiver.wait(timeOut_);
 
     QVERIFY(spyMsgStateSender.count() == 1);
     QList<QVariant> spyArgumentsRead = spyMsgStateSender.takeFirst();
@@ -146,7 +146,7 @@ void ClientComTest::sendMsgTest()
     // check the state for that sent msg at the receiver side. must be -1, displayedConfirmed.
     if (spyMsgStateReceiver.count() <= 0)
     {
-        spyMsgStateReceiver.wait(1000);
+        spyMsgStateReceiver.wait(timeOut_);
     }
     QCOMPARE(spyMsgStateReceiver.count(), 1);
     QList<QVariant> spyArgumentsDisplayConfirmed = spyMsgStateReceiver.takeFirst();
@@ -171,10 +171,10 @@ void ClientComTest::sendMsgTest()
     interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
 
     // wait for the msg delivered to the reconnected client (as seen from the sender)
-    spyMsgStateReceiver.wait();
-    spyMsgStateReceiver.wait(5000);  // wait until the reconnt handshake is done
+    spyMsgStateReceiver.wait(timeOut_);
+    spyMsgStateReceiver.wait(timeOut_);  // wait until the reconnt handshake is done
 
-    spyMsgStateSender.wait(); // for the msg ack stanza
+    spyMsgStateSender.wait(timeOut_); // for the msg ack stanza
 
     // two received msg are expected after reconnect.
     QCOMPARE(spyLatestMsg.count(), 2);
@@ -194,8 +194,8 @@ void ClientComTest::sendMsgTest()
     QList<QVariant> fileForUser2 {user2jid_, imageFileName_};
     interfaceLhs_->callDbusMethodWithArgument("sendFile", fileForUser2);
 
-    spyMsgStateSender.wait();
-    spyMsgStateReceiver.wait();
+    spyMsgStateSender.wait(timeOut_);
+    spyMsgStateReceiver.wait(timeOut_);
 
     QCOMPARE(spyDownloadFinished.count(), 1);
     QList<QVariant> spyArgumentsOfDownload = spyDownloadFinished.takeFirst();

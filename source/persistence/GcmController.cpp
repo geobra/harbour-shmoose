@@ -115,6 +115,10 @@ VALUES
 		{
 			qDebug() << "sql error in GcmController::markGroupMessage";
 		}
+        else
+        {
+            emit signalRoomMessageStateChanged(msgId, groupChatMember, state);
+        }
 	}
 }
 

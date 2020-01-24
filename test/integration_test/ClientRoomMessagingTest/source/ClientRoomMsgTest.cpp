@@ -3,6 +3,7 @@
 
 #include <QSignalSpy>
 #include <QImageWriter>
+#include <QDebug>
 
 /*
  * Common Tests:
@@ -62,24 +63,29 @@ void ClientRoomMsgTest::sendRoomMsgTest()
 
     QList<QVariant> argumentsJoinRoom {roomJid, "testroom"};
     interfaceLhs_->callDbusMethodWithArgument("joinRoom", argumentsJoinRoom);
-    joinRoomLhs.wait();
+    joinRoomLhs.wait(timeOut_);
+    qDebug() << "join room count: " << joinRoomLhs.count();
     QVERIFY(joinRoomLhs.count() == 1);
 
     interfaceMhs_->callDbusMethodWithArgument("joinRoom", argumentsJoinRoom);
-    joinRoomMhs.wait();
+    joinRoomMhs.wait(timeOut_);
+    qDebug() << "join room count: " << joinRoomMhs.count();
     QVERIFY(joinRoomMhs.count() == 1);
+    joinRoomMhs.clear();
 
     interfaceRhs_->callDbusMethodWithArgument("joinRoom", argumentsJoinRoom);
-    joinRoomRhs.wait();
+    joinRoomRhs.wait(timeOut_);
+    qDebug() << "join room count: " << joinRoomRhs.count();
     QVERIFY(joinRoomRhs.count() == 1);
+    joinRoomRhs.clear();
 
     // user1 sends msg. all other clients should receive them
     const QString msgOnWireFromUser1 = "Hi room from user1";
 
-    // Setup msg state state spyer
-    QSignalSpy spyMsgStateAtUser1(interfaceLhs_->getInterface(), SIGNAL(signalMsgState(QString, int)));
-    QSignalSpy spyMsgStateAtUser2(interfaceRhs_->getInterface(), SIGNAL(signalMsgState(QString, int)));
-    QSignalSpy spyMsgStateAtUser3(interfaceMhs_->getInterface(), SIGNAL(signalMsgState(QString, int)));
+    // Setup msg state spyer
+    QSignalSpy spyMsgStateAtUser1(interfaceLhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
+    QSignalSpy spyMsgStateAtUser2(interfaceRhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
+    QSignalSpy spyMsgStateAtUser3(interfaceMhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
 
     // setup msg text speyer
     QSignalSpy spyLatestMsgAtUser2(interfaceRhs_->getInterface(), SIGNAL(signalLatestMsg(QString, QString, QString)));
@@ -90,10 +96,10 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     interfaceLhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgToRoom);
 
     // wait for arrived msgOnWireFromUser1 at other clients
-    spyLatestMsgAtUser2.wait();
+    spyLatestMsgAtUser2.wait(timeOut_);
     QCOMPARE(spyLatestMsgAtUser2.count(), 1);
 
-    spyLatestMsgAtUser3.wait();
+    spyLatestMsgAtUser3.wait(timeOut_);
     QCOMPARE(spyLatestMsgAtUser3.count(), 1);
 
     // check the msg content
@@ -103,19 +109,15 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     QList<QVariant> spyArgumentsOfMsgAtUser3 = spyLatestMsgAtUser3.takeFirst();
     QVERIFY(spyArgumentsOfMsgAtUser3.at(2).toString() == msgOnWireFromUser1);
 
+    // check the msg status as seen from the sender (user1)
+    spyMsgStateAtUser1.wait(timeOut_);
+    qDebug() << "msg state count at user1: " << spyMsgStateAtUser1.count();
 
-    // check the msg status as seen from the sender
-#if 0
-    spyMsgStateSender.wait();
-
-    if (spyMsgStateSender.size() < 2) // we expect two state changes. if it is not already here, wait another second to arive.
+    while (! spyMsgStateAtUser1.isEmpty())
     {
-        spyMsgStateSender.wait(1000);
-        spyMsgStateReceiver.wait(1000);
+        QList<QVariant> spyArgumentsOfMsgState = spyMsgStateAtUser1.takeFirst();
+        qDebug() << "id: " << spyArgumentsOfMsgState.at(0).toString() << ", jid: " << spyArgumentsOfMsgState.at(1).toString() << ", state: " << spyArgumentsOfMsgState.at(2).toInt();
     }
-#endif
-
-    // check msg status at user1 side
 
     // user2 reads msg. check msg status at user1 side for user2 and user3
 

@@ -19,7 +19,7 @@
  *
  */
 
-ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2jid_("user2@localhost"), imageFileName_("/tmp/64x64-red.jpeg")
+ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2jid_("user2@localhost"), imageFileName_("/tmp/64x64-red.jpeg"), timeOut_(9000)
 {
     generatePicture();
 }
@@ -55,10 +55,10 @@ void ClientComTestCommon::connectionTestCommon(DbusInterfaceWrapper *interface, 
     interface->callDbusMethodWithArgument("tryToConnect", arguments);
 
     QSignalSpy spySignalConnected(interface->getInterface(), SIGNAL(signalConnected()));
-    spySignalConnected.wait();
+    spySignalConnected.wait(timeOut_);
     QCOMPARE(spySignalConnected.count(), 1);
 
-    spySignalConnected.wait(5000); // wait until all initial handshakes are done
+    spySignalConnected.wait(timeOut_); // wait until all initial handshakes are done
 }
 
 void ClientComTestCommon::receiveConnectedSignal(QString str)
@@ -78,7 +78,7 @@ void ClientComTestCommon::requestRosterTestCommon(DbusInterfaceWrapper *interfac
     QSignalSpy spyNewRosterEntry(interface->getInterface(), SIGNAL(signalNewRosterEntry()));
     interface->callDbusMethodWithArgument("requestRoster", QList<QVariant>());
 
-    spyNewRosterEntry.wait();
+    spyNewRosterEntry.wait(timeOut_);
     //QCOMPARE(spyNewRosterEntry.count(), 1); // temporary disabled
 }
 
@@ -95,7 +95,7 @@ void ClientComTestCommon::addContactTestCommon(DbusInterfaceWrapper *interface, 
     interface->callDbusMethodWithArgument("addContact", arguments);
 
     QSignalSpy spyNewRosterEntry(interface->getInterface(), SIGNAL(signalNewRosterEntry()));
-    spyNewRosterEntry.wait(200);
+    spyNewRosterEntry.wait(timeOut_);
     //QCOMPARE(spyNewRosterEntry.count(), 1);
 }
 

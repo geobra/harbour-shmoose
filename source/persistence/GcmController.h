@@ -26,6 +26,7 @@ public:
     const QString getResourcesOfNewestDisplayedMsgforJid(const QString& jid);
 
 signals:
+    void signalRoomMessageStateChanged(QString, QString, int);
 
 public slots:
 

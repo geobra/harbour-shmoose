@@ -13,6 +13,9 @@ class ClientComTestCommon : public QObject
 public:
     ClientComTestCommon();
 
+public slots:
+    void receiveConnectedSignal(QString str);
+
 protected slots:
     void initTestCase();
 
@@ -21,7 +24,7 @@ private slots:
 
     void connectionTest();
     void requestRosterTest();
-    void addContactTest();    
+    void addContactTest();
 
 protected:
     void connectionTestCommon(DbusInterfaceWrapper* interface, const QString& jid, const QString& pass);
@@ -38,8 +41,7 @@ protected:
 
     const QString imageFileName_;
 
-public slots:
-    void receiveConnectedSignal(QString str);
+    const int timeOut_;
 };
 
 #endif // CLIENTCOMTESTCOMMON_H

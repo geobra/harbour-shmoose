@@ -22,11 +22,11 @@ install:
 
 script:
     # standard x86 build
-    - mkdir -p buildx86
-    - cd buildx86
-    - qmake .. DEFINES+=TRAVIS
-    - make
-    - cd ..
+    #- mkdir -p buildx86
+    #- cd buildx86
+    #- qmake .. DEFINES+=TRAVIS
+    #- make
+    #- cd ..
 
     # testing. build and run
     - ./scripts/travis/testing.sh
