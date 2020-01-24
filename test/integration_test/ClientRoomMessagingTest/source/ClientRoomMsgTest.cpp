@@ -38,10 +38,6 @@ void ClientRoomMsgTest::sendRoomMsgTest()
 {
     const QString roomJid = "testroom@conference.localhost";
 
-    // Setup msg state spyer
-    QSignalSpy spyMsgStateSender(interfaceLhs_->getInterface(), SIGNAL(signalMsgState(QString, int)));
-    QSignalSpy spyMsgStateReceiver(interfaceRhs_->getInterface(), SIGNAL(signalMsgState(QString, int)));
-
     // user1 and user2 already logged in. Login user3
     connectionTestCommon(interfaceMhs_, user3jid_, "user3");
     requestRosterTestCommon(interfaceMhs_);
@@ -112,14 +108,33 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     // check the msg status as seen from the sender (user1)
     spyMsgStateAtUser1.wait(timeOut_);
     qDebug() << "msg state count at user1: " << spyMsgStateAtUser1.count();
+    QVERIFY(spyMsgStateAtUser1.count() == 3); // 3 users, 3 updates on the msg state.
 
     while (! spyMsgStateAtUser1.isEmpty())
     {
+        // spyArgumentsOfMsgState: 0 = msgId, 1 = jid, 2 = state
         QList<QVariant> spyArgumentsOfMsgState = spyMsgStateAtUser1.takeFirst();
         qDebug() << "id: " << spyArgumentsOfMsgState.at(0).toString() << ", jid: " << spyArgumentsOfMsgState.at(1).toString() << ", state: " << spyArgumentsOfMsgState.at(2).toInt();
+        if (spyArgumentsOfMsgState.at(1).toString().contains("user1"))
+        {
+            QVERIFY(spyArgumentsOfMsgState.at(2).toInt() == 1); // sent
+        }
+        if (spyArgumentsOfMsgState.at(1).toString().contains("user2") || spyArgumentsOfMsgState.at(1).toString().contains("user3"))
+        {
+            QVERIFY(spyArgumentsOfMsgState.at(2).toInt() == 2); // received
+        }
     }
 
     // user2 reads msg. check msg status at user1 side for user2 and user3
+    QList<QVariant> argumentsCurrentChatPartnerRoom {roomJid};
+    interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerRoom);
+
+    spyMsgStateAtUser1.wait(timeOut_);
+    qDebug() << "spy state after read at user2: " << spyMsgStateAtUser1.count() ;
+    QVERIFY(spyMsgStateAtUser1.count() == 1);
+    QList<QVariant> spyArgumentsOfMsgState = spyMsgStateAtUser1.takeFirst();
+    QVERIFY(spyArgumentsOfMsgState.at(1).toString().contains("user2"));
+    QVERIFY(spyArgumentsOfMsgState.at(2).toInt() == 3); // user2 has read the msg
 
     // user3 reads msg. check msg statua at user1 side for user2 and user3
 

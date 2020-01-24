@@ -184,6 +184,8 @@ void DbusCommunicator::slotForwardMsgStateToDbus(QString msgId, int msgState)
 
 void DbusCommunicator::slotForwardRoomMsgStateToDbus(QString msgId, QString jid, int msgState)
 {
+    qDebug() << "slotForwardRoomMsgStateToDbus: msg state changed for msgId: " << msgId << ", jid: " << jid << ", state: " << msgState;
+
     QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalRoomMsgState");
     msg << msgId;
     msg << jid;

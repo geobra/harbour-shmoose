@@ -41,7 +41,9 @@ protected:
 
     const QString imageFileName_;
 
+    const int timeOutConnect_;
     const int timeOut_;
+
 };
 
 #endif // CLIENTCOMTESTCOMMON_H
