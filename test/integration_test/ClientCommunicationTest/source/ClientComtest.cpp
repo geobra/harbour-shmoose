@@ -41,14 +41,14 @@ void ClientComTest::sendMsgTest()
     // ####################################################
     // send msgOnWire from user1 to user2. Both are online.
     // ####################################################
+    QSignalSpy spyLatestMsg(interfaceRhs_->getInterface(), SIGNAL(signalLatestMsg(QString, QString, QString)));
+
     QList<QVariant> argumentsMsgForUser2 {user2jid_, msgOnWire};
     interfaceLhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser2);
 
     // wait for arrived msgOnWire at other client
-    QSignalSpy spyLatestMsg(interfaceRhs_->getInterface(), SIGNAL(signalLatestMsg(QString, QString, QString)));
     spyLatestMsg.wait(timeOut_);
     QCOMPARE(spyLatestMsg.count(), 1);
-
 
     QList<QVariant> spyArgumentsOfMsg = spyLatestMsg.takeFirst();
     QVERIFY(spyArgumentsOfMsg.at(2).toString() == msgOnWire);

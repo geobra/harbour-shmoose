@@ -64,6 +64,7 @@ private:
     void sortRosterList();
 
     QString getTypeForJid(itemAttribute const &attribute, QString const &jid);
+    bool isJidInRoster(const QString& bareJid);
 
     Swift::Client* client_;
     QList<RosterItem*> rosterList_;

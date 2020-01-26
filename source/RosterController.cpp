@@ -326,7 +326,7 @@ void RosterController::addContact(const QString& jid, const QString& name)
 {
     Swift::JID newContactJid(jid.toStdString());
 
-    if (newContactJid.isValid())
+    if (newContactJid.isValid() == true && isJidInRoster(jid) == false)
     {
         Swift::IDGenerator idGenerator;
         std::string msgId = idGenerator.generateID();
@@ -343,7 +343,7 @@ void RosterController::addContact(const QString& jid, const QString& name)
     }
     else
     {
-        emit signalShowMessage("Add Contact", "JID not valid!");
+        emit signalShowMessage("Add Contact", "JID not valid or already in Roster!");
     }
 }
 
@@ -382,6 +382,22 @@ void RosterController::sendUnavailableAndUnsubscribeToJid(const QString& jid)
 QQmlListProperty<RosterItem> RosterController::getRosterList()
 {
     return QQmlListProperty<RosterItem>(this, rosterList_);
+}
+
+bool RosterController::isJidInRoster(const QString& bareJid)
+{
+    bool returnValue = false;
+
+    foreach(RosterItem *item, rosterList_)
+    {
+        if (item->getJid().compare(bareJid) == 0)
+        {
+            returnValue = true;
+            break;
+        }
+    }
+
+    return returnValue;
 }
 
 void RosterController::addGroupAsContact(QString groupJid, QString groupName)
