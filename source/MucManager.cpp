@@ -2,6 +2,7 @@
 #include "XmlWriter.h"
 
 #include <QDateTime>
+#include <QDebug>
 #include <iostream>
 
 
@@ -82,6 +83,29 @@ void MucManager::handleBookmarksReady()
             joinRoomIfConfigured(*it);
         }
     }
+}
+
+bool MucManager::isRoomAlreadyBookmarked(const QString& roomJid)
+{
+    qDebug() << "isRoomAlreadyBookmarked?: " << roomJid;
+    bool returnValue = false;
+
+    std::vector<Swift::MUCBookmark> bookmarks = mucBookmarkManager_->getBookmarks();
+
+    for(std::vector<Swift::MUCBookmark>::iterator it = bookmarks.begin(); it != bookmarks.end(); ++it)
+    {
+        Swift::JID roomJidBm((*it).getRoom());
+
+        if (roomJid.compare(QString::fromStdString(roomJidBm.toBare().toString()), Qt::CaseInsensitive) == 0)
+        {
+            returnValue = true;
+            break;
+        }
+    }
+
+    qDebug() << "... " << returnValue;
+
+    return returnValue;
 }
 
 void MucManager::handleBookmarkAdded(Swift::MUCBookmark bookmark)
@@ -188,24 +212,27 @@ void MucManager::handleBookmarkRemoved(Swift::MUCBookmark bookmark)
 
 void MucManager::addRoom(Swift::JID &roomJid, QString const &roomName)
 {
-    std::string nickName = getNickName().toStdString();
+    if (isRoomAlreadyBookmarked(QString::fromStdString(roomJid)) == false)
+    {
+        std::string nickName = getNickName().toStdString();
 
-    // create MUC
-    boost::shared_ptr<Swift::MUC> muc = client_->getMUCManager()->createMUC(roomJid);
-    muc->onJoinComplete.connect(boost::bind(&MucManager::handleJoinComplete, this, _1));
-    muc->onJoinFailed.connect(boost::bind(&MucManager::handleJoinFailed, this, _1));
+        // create MUC
+        boost::shared_ptr<Swift::MUC> muc = client_->getMUCManager()->createMUC(roomJid);
+        muc->onJoinComplete.connect(boost::bind(&MucManager::handleJoinComplete, this, _1));
+        muc->onJoinFailed.connect(boost::bind(&MucManager::handleJoinFailed, this, _1));
 
-    // create bookmark
-    boost::shared_ptr<Swift::MUCBookmark> mucBookmark(new Swift::MUCBookmark(roomJid, roomName.toStdString()));
-    mucBookmark->setNick(nickName);
-    mucBookmark->setAutojoin(true);
+        // create bookmark
+        boost::shared_ptr<Swift::MUCBookmark> mucBookmark(new Swift::MUCBookmark(roomJid, roomName.toStdString()));
+        mucBookmark->setNick(nickName);
+        mucBookmark->setAutojoin(true);
 
-    // save MucCollection
-    boost::shared_ptr<MucCollection> mucCollection(new MucCollection(muc, mucBookmark, nickName));
-    mucCollection_.push_back(mucCollection);
+        // save MucCollection
+        boost::shared_ptr<MucCollection> mucCollection(new MucCollection(muc, mucBookmark, nickName));
+        mucCollection_.push_back(mucCollection);
 
-    // try to join. onJoinComplete, add to bookmark
-    muc->joinAs(getNickName().toStdString());
+        // try to join. onJoinComplete, add to bookmark
+        muc->joinAs(getNickName().toStdString());
+    }
 }
 
 void MucManager::handleJoinComplete(const std::string &joinedName)

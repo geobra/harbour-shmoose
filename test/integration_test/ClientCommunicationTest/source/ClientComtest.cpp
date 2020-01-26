@@ -49,6 +49,7 @@ void ClientComTest::sendMsgTest()
     spyLatestMsg.wait(timeOut_);
     QCOMPARE(spyLatestMsg.count(), 1);
 
+
     QList<QVariant> spyArgumentsOfMsg = spyLatestMsg.takeFirst();
     QVERIFY(spyArgumentsOfMsg.at(2).toString() == msgOnWire);
 

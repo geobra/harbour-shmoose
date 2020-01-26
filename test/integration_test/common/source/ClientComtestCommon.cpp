@@ -24,7 +24,7 @@ ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2
 #ifdef TRAVIS
     9000
 #else
-    1000
+    5000
 #endif
     )
 {

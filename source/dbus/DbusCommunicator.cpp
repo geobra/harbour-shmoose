@@ -138,6 +138,15 @@ bool DbusCommunicator::slotNewRoomJoin(QString jid, QString name)
     return true;
 }
 
+bool DbusCommunicator::removeRoom(const QString& jid)
+{
+    qDebug() << "removeRoom: jid: " << jid;
+    shmoose_->removeRoom(jid);
+
+    return true;
+}
+
+
 bool DbusCommunicator::sendMsg(const QString& jid, const QString& msg)
 {
     qDebug() << "sendMsg";

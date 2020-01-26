@@ -46,6 +46,9 @@ private:
 
     void requestHistoryForRoom(const Swift::JID& roomJid);
 
+    bool isRoomAlreadyBookmarked(const QString& roomJid);
+
+
     QString getNickName();
     bool triggerNewMucSignal_;
 };
