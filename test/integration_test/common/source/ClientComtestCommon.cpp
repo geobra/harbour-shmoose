@@ -24,7 +24,7 @@ ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2
 #ifdef TRAVIS
     9000
 #else
-    5000
+    1000
 #endif
     )
 {
@@ -86,7 +86,7 @@ void ClientComTestCommon::requestRosterTestCommon(DbusInterfaceWrapper *interfac
     interface->callDbusMethodWithArgument("requestRoster", QList<QVariant>());
 
     spyNewRosterEntry.wait(timeOut_);
-    //QCOMPARE(spyNewRosterEntry.count(), 1); // temporary disabled
+    QCOMPARE(spyNewRosterEntry.count(), 1);
 }
 
 // add contact test
@@ -98,12 +98,15 @@ void ClientComTestCommon::addContactTest()
 
 void ClientComTestCommon::addContactTestCommon(DbusInterfaceWrapper *interface, const QString& jid, const QString& name)
 {
+    QSignalSpy spyNewRosterEntry(interface->getInterface(), SIGNAL(signalNewRosterEntry()));
+
     QList<QVariant> arguments {jid, name};
     interface->callDbusMethodWithArgument("addContact", arguments);
 
-    QSignalSpy spyNewRosterEntry(interface->getInterface(), SIGNAL(signalNewRosterEntry()));
     spyNewRosterEntry.wait(timeOut_);
-    //QCOMPARE(spyNewRosterEntry.count(), 1);
+#ifdef TRAVIS
+    QCOMPARE(spyNewRosterEntry.count(), 1); // only on travis where the contact is not already in roster
+#endif
 }
 
 void ClientComTestCommon::generatePicture()

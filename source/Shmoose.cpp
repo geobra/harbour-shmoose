@@ -112,7 +112,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     connectionHandler_->setupWithClient(client_);
     messageHandler_->setupWithClient(client_);
 
-    //tracer_ = new Swift::ClientXMLTracer(client_);
+    tracer_ = new Swift::ClientXMLTracer(client_);
 
     // configure the xmpp client
     softwareVersionResponder_ = new Swift::SoftwareVersionResponder(client_->getIQRouter());
