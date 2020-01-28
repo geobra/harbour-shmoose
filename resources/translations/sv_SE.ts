@@ -58,6 +58,11 @@
         <translation>Kontakter</translation>
     </message>
     <message>
+        <location filename="../qml/pages/ContactsPage.qml" line="95"/>
+        <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/ContactsPage.qml" line="124"/>
         <source>Join room by address</source>
         <translation>Anslut till rum via adress</translation>

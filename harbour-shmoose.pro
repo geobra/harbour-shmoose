@@ -124,7 +124,8 @@ TRANSLATIONS = resources/translations/de_DE.ts \
                resources/translations/nl.ts \
                resources/translations/sv_SE.ts \
                resources/translations/zh_CN.ts \
-               resources/translations/nb_NO.ts
+               resources/translations/nb_NO.ts \
+               resources/translations/hr_HR.ts
 
 RESOURCES += shmoose.qrc
 

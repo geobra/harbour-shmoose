@@ -58,6 +58,11 @@
         <translation>联系人</translation>
     </message>
     <message>
+        <location filename="../qml/pages/ContactsPage.qml" line="95"/>
+        <source>Remove</source>
+        <translation type="unfinished">移除</translation>
+    </message>
+    <message>
         <location filename="../qml/pages/ContactsPage.qml" line="124"/>
         <source>Join room by address</source>
         <translation>通过地址加入房间</translation>
