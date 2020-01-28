@@ -47,7 +47,7 @@
     <message>
         <location filename="../../source/qml/ChatPage.qml" line="164"/>
         <source>Enter message</source>
-        <translation type="unfinished"></translation>
+        <translation>Introducir mensaje</translation>
     </message>
 </context>
 <context>
@@ -60,12 +60,12 @@
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="95"/>
         <source>Remove</source>
-        <translation type="unfinished">Quitar</translation>
+        <translation>Quitar</translation>
     </message>
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="124"/>
         <source>Join room by address</source>
-        <translation>Unirse a sala por dirección</translation>
+        <translation>Agregar sala</translation>
     </message>
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="131"/>
