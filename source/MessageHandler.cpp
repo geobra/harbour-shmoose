@@ -210,6 +210,8 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
                               QString::fromStdString(receiverJid.getResource()),
                               message, type, 0);
     unAckedMessageIds_.push_back(QString::fromStdString(msgId));
+
+    emit messageSent(QString::fromStdString(msgId));
 }
 
 void MessageHandler::sendDisplayedForJid(const QString &jid)

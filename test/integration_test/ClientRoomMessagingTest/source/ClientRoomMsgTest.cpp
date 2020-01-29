@@ -36,6 +36,9 @@ void ClientRoomMsgTest::initTestCase()
 
 void ClientRoomMsgTest::sendRoomMsgTest()
 {
+    // need to collect more then one signal here. qsignalspy only catches one at a time. Use an own slot to collet them all.
+    QObject::connect(interfaceLhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)), this, SLOT(collectMsgStateChanged(QString, QString, int)));
+
     const QString roomJid = "testroom@conference.localhost";
 
     // user1 and user2 already logged in. Login user3
@@ -61,35 +64,45 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     interfaceLhs_->callDbusMethodWithArgument("joinRoom", argumentsJoinRoom);
     joinRoomLhs.wait(timeOut_);
     qDebug() << "join room count: " << joinRoomLhs.count();
-    //QVERIFY(joinRoomLhs.count() == 1);
+#ifdef TRAVIS
+    QVERIFY(joinRoomLhs.count() == 1);
+    joinRoomMhs.clear();
+#endif
 
     interfaceMhs_->callDbusMethodWithArgument("joinRoom", argumentsJoinRoom);
     joinRoomMhs.wait(timeOut_);
     qDebug() << "join room count: " << joinRoomMhs.count();
-    //QVERIFY(joinRoomMhs.count() == 1);
+#ifdef TRAVIS
+    QVERIFY(joinRoomMhs.count() == 1);
     joinRoomMhs.clear();
+#endif
 
     interfaceRhs_->callDbusMethodWithArgument("joinRoom", argumentsJoinRoom);
     joinRoomRhs.wait(timeOut_);
     qDebug() << "join room count: " << joinRoomRhs.count();
-    //QVERIFY(joinRoomRhs.count() == 1);
+#ifdef TRAVIS
+    QVERIFY(joinRoomRhs.count() == 1);
     joinRoomRhs.clear();
+#endif
 
     // user1 sends msg. all other clients should receive them
     const QString msgOnWireFromUser1 = "Hi room from user1";
-
-    // Setup msg state spyer
-    QSignalSpy spyMsgStateAtUser1(interfaceLhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
-    QSignalSpy spyMsgStateAtUser2(interfaceRhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
-    QSignalSpy spyMsgStateAtUser3(interfaceMhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
 
     // setup msg text speyer
     QSignalSpy spyLatestMsgAtUser2(interfaceRhs_->getInterface(), SIGNAL(signalLatestMsg(QString, QString, QString)));
     QSignalSpy spyLatestMsgAtUser3(interfaceMhs_->getInterface(), SIGNAL(signalLatestMsg(QString, QString, QString)));
 
     // send the msg
+    QSignalSpy spyMsgSent(interfaceLhs_->getInterface(), SIGNAL(signalMsgSent(QString)));
     QList<QVariant> argumentsMsgToRoom {roomJid, msgOnWireFromUser1};
     interfaceLhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgToRoom);
+
+    // check msgId of sent msg
+    spyMsgSent.wait(timeOut_);
+    QVERIFY(spyMsgSent.count() == 1);
+    QList<QVariant> spyArgumentsOfMsgSent = spyMsgSent.takeFirst();
+    QString msgId = spyArgumentsOfMsgSent.at(0).toString();
+    qDebug() << "sent MsgId: " << msgId;
 
     // wait for arrived msgOnWireFromUser1 at other clients
     spyLatestMsgAtUser2.wait(timeOut_);
@@ -106,22 +119,24 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     QVERIFY(spyArgumentsOfMsgAtUser3.at(2).toString() == msgOnWireFromUser1);
 
     // check the msg status as seen from the sender (user1)
-    spyMsgStateAtUser1.wait(timeOut_);
-    qDebug() << "msg state count at user1: " << spyMsgStateAtUser1.count();
-    QVERIFY(spyMsgStateAtUser1.count() == 3); // 3 users, 3 updates on the msg state.
-
-    while (! spyMsgStateAtUser1.isEmpty())
+    while (! stateChangeMsgList_.isEmpty())
     {
-        // spyArgumentsOfMsgState: 0 = msgId, 1 = jid, 2 = state
-        QList<QVariant> spyArgumentsOfMsgState = spyMsgStateAtUser1.takeFirst();
-        qDebug() << "id: " << spyArgumentsOfMsgState.at(0).toString() << ", jid: " << spyArgumentsOfMsgState.at(1).toString() << ", state: " << spyArgumentsOfMsgState.at(2).toInt();
-        if (spyArgumentsOfMsgState.at(1).toString().contains("user1"))
+        MsgIdJidState mij = stateChangeMsgList_.takeFirst();
+        qDebug() << "id: " << mij.msgId << ", jid: " << mij.jid << ", state: " << mij.state;
+
+        if (mij.msgId.compare(msgId) != 0) // only interessted in answers to our sent msg
         {
-            QVERIFY(spyArgumentsOfMsgState.at(2).toInt() == 1); // sent
+            qDebug() << "   ... skip!!!!";
+            continue;
         }
-        if (spyArgumentsOfMsgState.at(1).toString().contains("user2") || spyArgumentsOfMsgState.at(1).toString().contains("user3"))
+
+        if (mij.jid.contains("user1"))
         {
-            QVERIFY(spyArgumentsOfMsgState.at(2).toInt() == 2); // received
+            QVERIFY(mij.state == 1); // sent
+        }
+        if (mij.jid.contains("user2") || mij.jid.contains("user3"))
+        {
+            QVERIFY(mij.state == 2); // received
         }
     }
 
@@ -145,6 +160,13 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     interfaceLhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
     interfaceRhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
     interfaceMhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
+}
+
+void ClientRoomMsgTest::collectMsgStateChanged(QString msgId, QString jid, int state)
+{
+    qDebug() << "collectMsgStateChanged: " << msgId << ", " << jid << ", " << state;
+    MsgIdJidState mjs{msgId, jid, state};
+    stateChangeMsgList_.push_back(mjs);
 }
 
 QTEST_MAIN(ClientRoomMsgTest)

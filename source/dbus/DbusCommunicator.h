@@ -35,6 +35,7 @@ signals:
     void signalMsgState(QString, int);
     void signalRoomMsgState(QString, QString, int);
     void signalDownloadFinished(QString);
+    void signalMsgSent(QString);
 
 private slots:
     void slotClientConnected();
@@ -44,6 +45,7 @@ private slots:
     void slotForwardMsgStateToDbus(QString msgId, int msgState);
     void slotForwardRoomMsgStateToDbus(QString msgId, QString jid, int msgState);
     void slotForwardDownloadMsgToDbus(QString);
+    void slotForwardMsgSentToDbus(QString);
 
 private:
     Shmoose* shmoose_;

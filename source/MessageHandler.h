@@ -23,6 +23,7 @@ public:
     void sendDisplayedForJid(const QString &jid);
 
 signals:
+    void messageSent(QString msgId);
 
 public slots:
     void slotAppGetsActive(bool active);
