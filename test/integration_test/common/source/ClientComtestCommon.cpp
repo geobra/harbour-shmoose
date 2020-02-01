@@ -24,7 +24,7 @@ ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2
 #ifdef TRAVIS
     9000
 #else
-    5000
+    2000
 #endif
     )
 {
@@ -86,7 +86,8 @@ void ClientComTestCommon::requestRosterTestCommon(DbusInterfaceWrapper *interfac
     interface->callDbusMethodWithArgument("requestRoster", QList<QVariant>());
 
     spyNewRosterEntry.wait(timeOut_);
-#ifdef TRAVIS
+#ifndef TRAVIS
+    // on travis, the inital roster list is empty
     QCOMPARE(spyNewRosterEntry.count(), 1);
 #endif
 }

@@ -3,6 +3,7 @@
 
 #include <QSignalSpy>
 #include <QImageWriter>
+#include <algorithm>
 
 /*
  * Tests:
@@ -32,6 +33,10 @@ ClientComTest::ClientComTest() : ClientComTestCommon()
 // send msg test
 void ClientComTest::sendMsgTest()
 {
+    // need to collect more then one signal here. qsignalspy only catches one at a time. Use an own slot to collet them all.
+    QObject::connect(interfaceLhs_->getInterface(), SIGNAL(signalMsgState(QString, int)), this, SLOT(collectMsgStateLhsChanged(QString, int)));
+    QObject::connect(interfaceRhs_->getInterface(), SIGNAL(signalMsgState(QString, int)), this, SLOT(collectMsgStateRhsChanged(QString, int)));
+
     const QString msgOnWire = "Hi user2 from user1";
 
     // Setup msg state spyer
@@ -43,8 +48,16 @@ void ClientComTest::sendMsgTest()
     // ####################################################
     QSignalSpy spyLatestMsg(interfaceRhs_->getInterface(), SIGNAL(signalLatestMsg(QString, QString, QString)));
 
+    QSignalSpy spyMsgSent(interfaceLhs_->getInterface(), SIGNAL(signalMsgSent(QString)));
     QList<QVariant> argumentsMsgForUser2 {user2jid_, msgOnWire};
     interfaceLhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser2);
+
+    // check msgId of sent msg
+    spyMsgSent.wait(timeOut_);
+    QVERIFY(spyMsgSent.count() == 1);
+    QList<QVariant> spyArgumentsOfMsgSent = spyMsgSent.takeFirst();
+    QString msgId = spyArgumentsOfMsgSent.at(0).toString();
+    qDebug() << "sent MsgId: " << msgId;
 
     // wait for arrived msgOnWire at other client
     spyLatestMsg.wait(timeOut_);
@@ -54,49 +67,24 @@ void ClientComTest::sendMsgTest()
     QVERIFY(spyArgumentsOfMsg.at(2).toString() == msgOnWire);
 
     // check the msg status as seen from the sender
+    // there must be 2 msg's for the sent msgId. the first with state change to 1, the second with state change to 2.
     spyMsgStateSender.wait(timeOut_);
 
-    if (spyMsgStateSender.size() < 2) // we expect two state changes. if it is not already here, wait another second to arive.
-    {
-        spyMsgStateSender.wait(timeOut_);
-        spyMsgStateReceiver.wait(timeOut_);
-    }
-
-    qDebug() << "state changes: " << spyMsgStateSender.count();
-    QVERIFY(spyMsgStateSender.count() == 2);
-
-    int expectedState = 1; // (-1) displayedConfirmed, (0) unknown, (1) sent, (2) received, (3) displayed
-    while(! spyMsgStateSender.isEmpty())
-    {
-        QList<QVariant> spyArguments = spyMsgStateSender.takeFirst();
-        QVERIFY(spyArguments.at(1).toInt() == expectedState);
-
-        expectedState++;
-    }
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdState>{{"foo", 1}, {"foo", 2}}), true);
 
     // read the message at the received client. status must change to displayed (3). Received client set status to displayedConfirmed (-1)
     QList<QVariant> argumentsCurrentChatPartnerUser1 {user1jid_};
     interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerUser1);
 
     spyMsgStateSender.wait(timeOut_);
-    QVERIFY(spyMsgStateSender.count() == 1);
-    while(! spyMsgStateSender.isEmpty())
-    {
-        QList<QVariant> spyArguments = spyMsgStateSender.takeFirst();
-        QVERIFY(spyArguments.at(1).toInt() == expectedState);
-    }
+
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdState>{{"foo", 3}}), true);
 
     // check the state for that sent msg at the receiver side. must be -1, displayedConfirmed.
-    if (spyMsgStateReceiver.count() <= 0)
-    {
-        spyMsgStateReceiver.wait(timeOut_);
-    }
-    QCOMPARE(spyMsgStateReceiver.count(), 1);
-    while(! spyMsgStateReceiver.isEmpty())
-    {
-        QList<QVariant> spyArguments = spyMsgStateReceiver.takeFirst();
-        QVERIFY(spyArguments.at(1).toInt() == -1);
-    }
+    spyMsgStateReceiver.wait(timeOut_);
+    QVERIFY(spyMsgStateReceiver.count() > 0);
+
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(rhs, msgId, QList<MsgIdState>{{"foo", -1}}),true);
 
     // ####################################################
     // send msgOnWire from user1 to user2. user2 is offline.
@@ -109,13 +97,17 @@ void ClientComTest::sendMsgTest()
     // send msgOnWire from user1 to user2
     interfaceLhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser2);
 
+    // check msgId of sent msg
+    spyMsgSent.wait(timeOut_);
+    QVERIFY(spyMsgSent.count() == 1);
+    spyArgumentsOfMsgSent = spyMsgSent.takeFirst();
+    msgId = spyArgumentsOfMsgSent.at(0).toString();
+    qDebug() << "sent MsgId: " << msgId;
+
     // check the msg status as seen from the sender
     spyMsgStateSender.wait(timeOut_);
-    QVERIFY(spyMsgStateSender.count() == 1);
 
-    QList<QVariant> spyArgumentsForSentState = spyMsgStateSender.takeFirst();
-    qDebug() << "state of msg whil partner is offline: " << spyArgumentsForSentState.at(1).toInt();
-    QVERIFY(spyArgumentsForSentState.at(1).toInt() == 1); // msg has been sent to server. nothing else
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdState>{{"foo", 1}}), true); // msg has been sent to server. nothing else
 
     // connect the user2 client again
     interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
@@ -125,13 +117,7 @@ void ClientComTest::sendMsgTest()
     spyMsgStateReceiver.wait(timeOutConnect_);  // wait until the reconnt handshake is done
 
     spyMsgStateSender.wait(timeOut_); // for the msg ack stanza
-
-    QVERIFY(spyMsgStateSender.count() == 1);
-
-    QList<QVariant> spyArgumentsReceivedReconnected = spyMsgStateSender.takeFirst();
-
-    qDebug() << "state: " << spyArgumentsReceivedReconnected.at(1).toInt();
-    QVERIFY(spyArgumentsReceivedReconnected.at(1).toInt() == 2); // received from reconnected client
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdState>{{"foo", 2}}), true); // received from reconnected client
 
     // read the msg on user1, lhs
     interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerUser1);
@@ -140,18 +126,14 @@ void ClientComTest::sendMsgTest()
     spyMsgStateSender.wait(timeOut_);
     spyMsgStateReceiver.wait(timeOut_);
 
-    QVERIFY(spyMsgStateSender.count() == 1);
-    QList<QVariant> spyArgumentsRead = spyMsgStateSender.takeFirst();
-    QVERIFY(spyArgumentsRead.at(1).toInt() == 3);
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdState>{{"foo", 3}}), true);
 
     // check the state for that sent msg at the receiver side. must be -1, displayedConfirmed.
     if (spyMsgStateReceiver.count() <= 0)
     {
         spyMsgStateReceiver.wait(timeOut_);
     }
-    QCOMPARE(spyMsgStateReceiver.count(), 1);
-    QList<QVariant> spyArgumentsDisplayConfirmed = spyMsgStateReceiver.takeFirst();
-    QVERIFY(spyArgumentsDisplayConfirmed.at(1).toInt() == -1);
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(rhs, msgId, QList<MsgIdState>{{"foo", -1}}), true);
 
     // #################################################################################################
     // send two messages from user1 to user2. user2 is offline. user2 gets online. check received order.
@@ -208,6 +190,94 @@ void ClientComTest::sendMsgTest()
     interfaceRhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
 }
 
+bool ClientComTest::destrcutiveVerfiyStateAndCountOfMsgStates(enum side theSide, const QString& msgIdFilter, QList<MsgIdState> msgsList)
+{
+    auto returnValue = true;
 
+    QList<MsgIdState> list = (theSide == lhs) ? stateChangeMsgLhsList_ : stateChangeMsgRhsList_;
+
+    qDebug() << "before:";
+    for(auto msg: list)
+    {
+        qDebug() << "id: " << msg.msgId << ", state: " << msg.state;
+    }
+
+#if 0
+    msgsList.erase(
+                std::remove_if(
+                    list.begin(),
+                    list.end(),
+                    [&msgIdFilter](const MsgIdState msg){return (msgIdFilter.compare(msg.msgId) != 0);}
+                ),
+            list.end()
+            );
+#endif
+
+    QMutableListIterator<MsgIdState> i(list);
+    while (i.hasNext())
+    {
+        if (i.next().msgId.compare(msgIdFilter) != 0)
+        {
+            i.remove();
+        }
+    }
+
+    qDebug() << "after:";
+    for(auto msg: list)
+    {
+        qDebug() << "id: " << msg.msgId << ", state: " << msg.state;
+    }
+
+
+    if(list.count() != msgsList.count())
+    {
+        qDebug() << "collected list.count() is " << list.count() << " and test msgsList.count() is " << msgsList.count();
+    }
+
+    (list.count() == msgsList.count()) ? returnValue = true : returnValue = false;
+
+    if (returnValue == true)
+    {
+        int loop = 0;
+        for(auto msg: list)
+        {
+            if (msg.state != msgsList.at(loop).state)
+            {
+                qDebug() << "collected msg.state is " << msg.state << " and test msgList.state is " << msgsList.at(loop).state;
+            }
+
+            if (returnValue == true)
+            {
+                (msg.state == msgsList.at(loop).state) ? returnValue = true : returnValue = false;
+            }
+            loop++;
+        }
+    }
+
+    if (theSide == lhs)
+    {
+        stateChangeMsgLhsList_.clear();
+    }
+    else
+    {
+        stateChangeMsgRhsList_.clear();
+    }
+
+    return returnValue;
+}
+
+void ClientComTest::collectMsgStateLhsChanged(QString msgId, int state)
+{
+    qDebug() << "collectMsgStateLhsChanged: " << msgId << ", " << state;
+    MsgIdState msgState{msgId, state};
+    stateChangeMsgLhsList_.push_back(msgState);
+}
+
+void ClientComTest::collectMsgStateRhsChanged(QString msgId, int state)
+{
+    qDebug() << "collectMsgStateRhsChanged: " << msgId << ", " << state;
+    MsgIdState msgState{msgId, state};
+    stateChangeMsgRhsList_.push_back(msgState);
+}
 
 QTEST_MAIN(ClientComTest)

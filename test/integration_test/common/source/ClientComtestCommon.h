@@ -43,7 +43,6 @@ protected:
 
     const int timeOutConnect_;
     const int timeOut_;
-
 };
 
 #endif // CLIENTCOMTESTCOMMON_H
