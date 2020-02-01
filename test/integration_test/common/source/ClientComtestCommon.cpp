@@ -19,10 +19,10 @@
  *
  */
 
-ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2jid_("user2@localhost"), imageFileName_("/tmp/64x64-red.jpeg"), timeOutConnect_(6000),
+ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2jid_("user2@localhost"), imageFileName_("/tmp/64x64-red.jpeg"), timeOutConnect_(9000),
     timeOut_(
 #ifdef TRAVIS
-    9000
+    20000
 #else
     2000
 #endif
