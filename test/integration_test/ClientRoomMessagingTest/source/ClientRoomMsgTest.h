@@ -19,11 +19,18 @@ private slots:
     void initTestCase();
 
     void sendRoomMsgTest();
-    void collectMsgStateChanged(QString msgId, QString jid, int state);
+    void collectMsgStateChangedLhs(QString msgId, QString jid, int state);
 
 private:
     DbusInterfaceWrapper* interfaceMhs_;
     const QString user3jid_;
+
+    enum side
+    {
+        lhs,
+        mhs,
+        rhs
+    };
 
     struct MsgIdJidState
     {
@@ -32,7 +39,8 @@ private:
         int state;
     };
 
-    QList<MsgIdJidState> stateChangeMsgList_;
+    QList<MsgIdJidState> stateChangeMsgLhsList_;
+    bool destrcutiveVerfiyStateAndCountOfMsgStates(enum side theSide, const QString& msgIdFilter, QList<MsgIdJidState> msgsList);
 };
 
 #endif // CLIENTROOMMSGTEST_H

@@ -39,7 +39,7 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     // The message states: (0) unknown, (1) received, (2) displayed
 
     // need to collect more then one signal here. qsignalspy only catches one at a time. Use an own slot to collet them all.
-    QObject::connect(interfaceLhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)), this, SLOT(collectMsgStateChanged(QString, QString, int)));
+    QObject::connect(interfaceLhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)), this, SLOT(collectMsgStateChangedLhs(QString, QString, int)));
     QSignalSpy spyMsgStateRoomLhs(interfaceLhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
     QSignalSpy spyMsgStateRoomRhs(interfaceRhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
 
@@ -131,14 +131,14 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     // check the msg status as seen from the sender (user1)
     spyMsgStateRoomLhs.wait(timeOut_);
     auto receivedCount = 0;
-    while (! stateChangeMsgList_.isEmpty())
+    while (! stateChangeMsgLhsList_.isEmpty())
     {
-        MsgIdJidState mij = stateChangeMsgList_.takeFirst();
-        qDebug() << "id: " << mij.msgId << ", jid: " << mij.jid << ", state: " << mij.state;
+        MsgIdJidState mij = stateChangeMsgLhsList_.takeFirst();
 
+        //qDebug() << "id: " << mij.msgId << ", jid: " << mij.jid << ", state: " << mij.state;
         if (mij.msgId.compare(msgId) != 0) // only interessted in answers to our sent msg
         {
-            qDebug() << "   ... skip!!!!";
+            //qDebug() << "   ... skip!!!!";
             continue;
         }
 
@@ -149,32 +149,18 @@ void ClientRoomMsgTest::sendRoomMsgTest()
         }
     }
     QCOMPARE(receivedCount, 3);
-    stateChangeMsgList_.clear();
+    stateChangeMsgLhsList_.clear();
 
-    // user2 reads msg. check msg status at user1 side for user2 and user3
+    // user2 reads msg. check msg status at user1 side for user2
     QList<QVariant> argumentsCurrentChatPartnerRoom {roomJid};
     interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerRoom);
 
     spyMsgStateRoomRhs.wait(timeOut_); // sends the displayed stanza
     spyMsgStateRoomLhs.wait(timeOut_); // receives the displayed stanza
-    qDebug() << "##########";
-    while (! stateChangeMsgList_.isEmpty())
-    {
-        MsgIdJidState mij = stateChangeMsgList_.takeFirst();
-        qDebug() << "id: " << mij.msgId << ", jid: " << mij.jid << ", state: " << mij.state;
-    }
 
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdJidState>{{"foo", "user2", 2}}), true);
 
-
-#if 0
-    spyMsgStateAtUser1.wait(timeOut_); // catch up state change msg
-    qDebug() << "spy state after read at user2: " << spyMsgStateAtUser1.count() ;
-    QVERIFY(spyMsgStateAtUser1.count() == 1);
-    QList<QVariant> spyArgumentsOfMsgState = spyMsgStateAtUser1.takeFirst();
-    QVERIFY(spyArgumentsOfMsgState.at(1).toString().contains("user2"));
-    QVERIFY(spyArgumentsOfMsgState.at(2).toInt() == 3); // user2 has read the msg
-#endif
-    // user3 reads msg. check msg statua at user1 side for user2 and user3
+    // user3 reads msg. check msg status at user1 side for user3
 
 
 
@@ -184,11 +170,87 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     interfaceMhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
 }
 
-void ClientRoomMsgTest::collectMsgStateChanged(QString msgId, QString jid, int state)
+bool ClientRoomMsgTest::destrcutiveVerfiyStateAndCountOfMsgStates(enum side theSide, const QString& msgIdFilter, QList<MsgIdJidState> msgsList)
+{
+    auto returnValue = true;
+
+    QList<MsgIdJidState> list = {};
+    if (theSide == lhs)
+    {
+        list = stateChangeMsgLhsList_;
+    }
+    else if (theSide == mhs)
+    {
+        // TODO
+    }
+    else if (theSide == rhs)
+    {
+        // TODO
+    }
+
+    qDebug() << "before:";
+    for(auto msg: list)
+    {
+        qDebug() << "id: " << msg.msgId << ", jid: " << msg.jid << ", state: " << msg.state;
+    }
+
+    QMutableListIterator<MsgIdJidState> i(list);
+    while (i.hasNext())
+    {
+        if (i.next().msgId.compare(msgIdFilter) != 0)
+        {
+            i.remove();
+        }
+    }
+
+    qDebug() << "after:";
+    for(auto msg: list)
+    {
+        qDebug() << "id: " << msg.msgId << ", jid: " << msg.jid << ", state: " << msg.state;
+    }
+
+
+    if(list.count() != msgsList.count())
+    {
+        qDebug() << "collected list.count() is " << list.count() << " and test msgsList.count() is " << msgsList.count();
+        returnValue = false;
+    }
+
+    if (returnValue == true)
+    {
+        int loop = 0;
+        for(auto msg: list)
+        {
+            if (msg.state != msgsList.at(loop).state || (! msg.jid.startsWith(msgsList.at(loop).jid, Qt::CaseInsensitive)))
+            {
+                qDebug() << "collected msg.state is " << msg.state << " and test msgList.state is " << msgsList.at(loop).state;
+                qDebug() << "collected msg.jid is " << msg.jid << " and test msgList.state starts with " << msgsList.at(loop).jid;
+                returnValue = false;
+                break;
+            }
+
+            loop++;
+        }
+    }
+
+    if (theSide == lhs)
+    {
+        stateChangeMsgLhsList_.clear();
+    }
+    else
+    {
+        // TODO
+    }
+
+    return returnValue;
+}
+
+
+void ClientRoomMsgTest::collectMsgStateChangedLhs(QString msgId, QString jid, int state)
 {
     qDebug() << "collectMsgStateChanged: " << msgId << ", " << jid << ", " << state;
     MsgIdJidState mjs{msgId, jid, state};
-    stateChangeMsgList_.push_back(mjs);
+    stateChangeMsgLhsList_.push_back(mjs);
 }
 
 QTEST_MAIN(ClientRoomMsgTest)

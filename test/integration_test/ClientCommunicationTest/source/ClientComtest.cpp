@@ -236,9 +236,8 @@ bool ClientComTest::destrcutiveVerfiyStateAndCountOfMsgStates(enum side theSide,
     if(list.count() != msgsList.count())
     {
         qDebug() << "collected list.count() is " << list.count() << " and test msgsList.count() is " << msgsList.count();
+        returnValue = false;
     }
-
-    (list.count() == msgsList.count()) ? returnValue = true : returnValue = false;
 
     if (returnValue == true)
     {
@@ -248,12 +247,10 @@ bool ClientComTest::destrcutiveVerfiyStateAndCountOfMsgStates(enum side theSide,
             if (msg.state != msgsList.at(loop).state)
             {
                 qDebug() << "collected msg.state is " << msg.state << " and test msgList.state is " << msgsList.at(loop).state;
+                returnValue = false;
+                break;
             }
 
-            if (returnValue == true)
-            {
-                (msg.state == msgsList.at(loop).state) ? returnValue = true : returnValue = false;
-            }
             loop++;
         }
     }
