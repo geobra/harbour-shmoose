@@ -81,7 +81,10 @@ void ConnectionHandler::handleDisconnected(const boost::optional<Swift::ClientEr
         // trigger the reConnectionHandler to get back online if inet is available
         if (initialConnectionSuccessfull_)
         {
+#ifndef TRAVIS
+            // dont do a automatic reconnect attempmt on TRAVIS during testing
             reConnectionHandler_->isConnected(hasInetConnection_);
+#endif
         }
     }
     else
