@@ -28,7 +28,7 @@ public slots:
     Q_SCRIPTABLE bool quitClient();
 
 signals:
-    void signalConnected();
+    void signalConnectionStateChanged();
     void signalNewRosterEntry();
     void signalRoomJoined(QString, QString);
     void signalLatestMsg(QString, QString, QString);
@@ -38,7 +38,7 @@ signals:
     void signalMsgSent(QString);
 
 private slots:
-    void slotClientConnected();
+    void slotConnectionStateChanged();
     void slotGotRosterEntry();
     bool slotNewRoomJoin(QString jid, QString name);
     void slotForwaredReceivedMsgToDbus(QString id, QString jid, QString message);

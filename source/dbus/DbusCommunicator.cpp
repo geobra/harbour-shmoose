@@ -63,17 +63,17 @@ bool DbusCommunicator::tryToConnect(const QString& jid, const QString& pass)
 {
     qDebug() << "try to connect as " << jid << " with pass " << pass;
 
-    connect(shmoose_, SIGNAL(connectionStateChanged()), this, SLOT(slotClientConnected()));
+    connect(shmoose_, SIGNAL(connectionStateChanged()), this, SLOT(slotConnectionStateChanged()));
     shmoose_->mainConnect(jid, pass);
 
     return true;
 }
 
-void DbusCommunicator::slotClientConnected()
+void DbusCommunicator::slotConnectionStateChanged()
 {
-    qDebug() << "slotClientConnected!";
+    qDebug() << "slotConnectionStateChanged!";
 
-    QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalConnected");
+    QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalConnectionStateChanged");
     if(QDBusConnection::sessionBus().send(msg) == false)
     {
         qDebug() << "cant send message via dbus";

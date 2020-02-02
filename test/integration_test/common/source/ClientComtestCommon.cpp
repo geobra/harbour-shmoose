@@ -19,12 +19,12 @@
  *
  */
 
-ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2jid_("user2@localhost"), imageFileName_("/tmp/64x64-red.jpeg"), timeOutConnect_(9000),
+ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2jid_("user2@localhost"), imageFileName_("/tmp/64x64-red.jpeg"), timeOutConnect_(20000),
     timeOut_(
 #ifdef TRAVIS
     20000
 #else
-    2000
+    4000
 #endif
     )
 {
@@ -61,7 +61,7 @@ void ClientComTestCommon::connectionTestCommon(DbusInterfaceWrapper *interface, 
     QList<QVariant> arguments{jid, pass};
     interface->callDbusMethodWithArgument("tryToConnect", arguments);
 
-    QSignalSpy spySignalConnected(interface->getInterface(), SIGNAL(signalConnected()));
+    QSignalSpy spySignalConnected(interface->getInterface(), SIGNAL(signalConnectionStateChanged()));
     spySignalConnected.wait(timeOutConnect_);
     QCOMPARE(spySignalConnected.count(), 1);
 

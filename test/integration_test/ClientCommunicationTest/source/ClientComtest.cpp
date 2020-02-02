@@ -94,6 +94,10 @@ void ClientComTest::sendMsgTest()
     interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
     interfaceRhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
 
+    QSignalSpy spySignalDisconnected(interfaceRhs_->getInterface(), SIGNAL(signalConnectionStateChanged()));
+    spySignalDisconnected.wait(timeOutConnect_);
+    QCOMPARE(spySignalDisconnected.count(), 1);
+
     // send msgOnWire from user1 to user2
     interfaceLhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser2);
 
