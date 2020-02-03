@@ -40,6 +40,11 @@ void ClientRoomMsgTest::sendRoomMsgTest()
 
     // need to collect more then one signal here. qsignalspy only catches one at a time. Use an own slot to collet them all.
     QObject::connect(interfaceLhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)), this, SLOT(collectMsgStateChangedLhs(QString, QString, int)));
+    QObject::connect(interfaceRhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)), this, SLOT(collectMsgStateChangedRhs(QString, QString, int)));
+
+    // collect msgs
+    QObject::connect(interfaceRhs_->getInterface(), SIGNAL(signalLatestMsg(QString, QString, QString)), this, SLOT(collectLatestMsgRhs(QString, QString, QString)));
+
     QSignalSpy spyMsgStateRoomLhs(interfaceLhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
     QSignalSpy spyMsgStateRoomRhs(interfaceRhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
     QSignalSpy spyMsgStateRoomMhs(interfaceMhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
@@ -116,8 +121,8 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     spyMsgSent.wait(timeOut_);
     QVERIFY(spyMsgSent.count() == 1);
     QList<QVariant> spyArgumentsOfMsgSent = spyMsgSent.takeFirst();
-    QString msgId = spyArgumentsOfMsgSent.at(0).toString();
-    qDebug() << "sent MsgId: " << msgId;
+    QString msgId1 = spyArgumentsOfMsgSent.at(0).toString();
+    qDebug() << "sent MsgId: " << msgId1;
 
     // wait for arrived msgOnWireFromUser1 at other clients
     spyLatestMsgAtUser2.wait(timeOut_);
@@ -140,8 +145,8 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     {
         MsgIdJidState mij = stateChangeMsgLhsList_.takeFirst();
 
-        //qDebug() << "id: " << mij.msgId << ", jid: " << mij.jid << ", state: " << mij.state;
-        if (mij.msgId.compare(msgId) != 0) // only interessted in answers to our sent msg
+        //qDebug() << "id: " << mij.msgId1 << ", jid: " << mij.jid << ", state: " << mij.state;
+        if (mij.msgId.compare(msgId1) != 0) // only interessted in answers to our sent msg
         {
             //qDebug() << "   ... skip!!!!";
             continue;
@@ -163,7 +168,7 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     spyMsgStateRoomRhs.wait(timeOut_); // sends the displayed stanza
     spyMsgStateRoomLhs.wait(timeOut_); // receives the displayed stanza
 
-    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdJidState>{{"foo", "user2", 2}}), true);
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId1, QList<MsgIdJidState>{{"foo", "user2", 2}}), true);
 
     // user3 reads msg. check msg status at user1 side for user3
     interfaceMhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerRoom);
@@ -171,7 +176,7 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     spyMsgStateRoomMhs.wait(timeOut_); // sends the displayed stanza
     spyMsgStateRoomLhs.wait(timeOut_); // receives the displayed stanza
 
-    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdJidState>{{"foo", "user3", 2}}), true);
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId1, QList<MsgIdJidState>{{"foo", "user3", 2}}), true);
 
     //---------------------------------------------------------------------------------------------------------------
     // Send group msg with offline clients, check status. Reconnect and check status again
@@ -201,35 +206,41 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     spyMsgSent.wait(timeOut_);
     QVERIFY(spyMsgSent.count() == 1);
     spyArgumentsOfMsgSent = spyMsgSent.takeFirst();
-    msgId = spyArgumentsOfMsgSent.at(0).toString();
-    qDebug() << "sent MsgId: " << msgId;
+    QString msgId2 = spyArgumentsOfMsgSent.at(0).toString();
+    qDebug() << "sent MsgId: " << msgId2;
 
     spyMsgStateRoomRhs.wait(timeOut_); // could send a stanza
     spyMsgStateRoomMhs.wait(timeOut_); // could send a stanza
     spyMsgStateRoomLhs.wait(timeOut_); // could receive a stanza
 
     // check status of msg at user1 side. No update should be there. All clients are offline! Only user1 (the sender) has virtual received his msg
-    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdJidState>{{"foo", "user1", 1}}), true);
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId2, QList<MsgIdJidState>{{"foo", "user1", 1}}), true);
 
     // connect the user2 client again
+    spySignalDisconnectedRhs.clear();
     interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
+    spySignalDisconnectedRhs.wait(timeOutConnect_);
+    QCOMPARE(spySignalDisconnectedRhs.count(), 1);
 
     // wait for the msg be delivered to the reconnected client (as seen from the sender)
     spyMsgStateRoomRhs.wait(timeOutConnect_);
     spyMsgStateRoomRhs.wait(timeOutConnect_);  // wait until the reconnt handshake is done
 
     spyMsgStateRoomLhs.wait(timeOut_); // for the msg ack stanza
-    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdJidState>{{"foo", "user2", 1}}), true); // received from reconnected client
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId2, QList<MsgIdJidState>{{"foo", "user2", 1}}), true); // received from reconnected client
 
     // connect the user3 client again
+    spySignalDisconnectedMhs.clear();
     interfaceMhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
+    spySignalDisconnectedMhs.wait(timeOutConnect_);
+    QCOMPARE(spySignalDisconnectedMhs.count(), 1);
 
     // wait for the msg be delivered to the reconnected client (as seen from the sender)
     spyMsgStateRoomMhs.wait(timeOutConnect_);
     spyMsgStateRoomMhs.wait(timeOutConnect_);  // wait until the reconnt handshake is done
 
     spyMsgStateRoomMhs.wait(timeOut_); // for the msg ack stanza
-    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdJidState>{{"foo", "user3", 1}}), true); // received from reconnected client
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId2, QList<MsgIdJidState>{{"foo", "user3", 1}}), true); // received from reconnected client
 
     // user2 reads msg. check msg status at user1 side for user2
     interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerRoom);
@@ -237,7 +248,7 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     spyMsgStateRoomRhs.wait(timeOut_); // sends the displayed stanza
     spyMsgStateRoomLhs.wait(timeOut_); // receives the displayed stanza
 
-    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdJidState>{{"foo", "user2", 2}}), true);
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId2, QList<MsgIdJidState>{{"foo", "user2", 2}}), true);
 
     // user3 reads msg. check msg status at user1 side for user3
     interfaceMhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerRoom);
@@ -245,9 +256,79 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     spyMsgStateRoomMhs.wait(timeOut_); // sends the displayed stanza
     spyMsgStateRoomLhs.wait(timeOut_); // receives the displayed stanza
 
-    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdJidState>{{"foo", "user3", 2}}), true);
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId2, QList<MsgIdJidState>{{"foo", "user3", 2}}), true);
 
 
+    // ------------------------------------------------------------
+    // Check simple mam and recieving order of msg on reconnect
+    // ------------------------------------------------------------
+    // set user2 offline
+    spySignalDisconnectedRhs.clear();
+    interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
+    interfaceRhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
+
+    spySignalDisconnectedRhs.wait(timeOutConnect_);
+    QCOMPARE(spySignalDisconnectedRhs.count(), 1);
+
+    // send 3 msgs from user1
+    // send the 1st msg
+    spyMsgSent.clear();
+    interfaceLhs_->callDbusMethodWithArgument("sendMsg", QList<QVariant>{roomJid, "1st msg for offline user2"});
+
+    // check msgId of sent msg
+    spyMsgSent.wait(timeOut_);
+    QVERIFY(spyMsgSent.count() == 1);
+    spyArgumentsOfMsgSent = spyMsgSent.takeFirst();
+    QString msgIdOff1 = spyArgumentsOfMsgSent.at(0).toString();
+    qDebug() << "sent MsgId: " << msgIdOff1;
+
+    // send the 2nd msg
+    spyMsgSent.clear();
+    interfaceLhs_->callDbusMethodWithArgument("sendMsg", QList<QVariant>{roomJid, "2nd msg for offline user2"});
+
+    // check msgId of sent msg
+    spyMsgSent.wait(timeOut_);
+    QVERIFY(spyMsgSent.count() == 1);
+    spyArgumentsOfMsgSent = spyMsgSent.takeFirst();
+    QString msgIdOff2 = spyArgumentsOfMsgSent.at(0).toString();
+    qDebug() << "sent MsgId: " << msgIdOff2;
+
+    // send the 3rd msg
+    spyMsgSent.clear();
+    interfaceLhs_->callDbusMethodWithArgument("sendMsg", QList<QVariant>{roomJid, "3rd msg for offline user2"});
+
+    // check msgId of sent msg
+    spyMsgSent.wait(timeOut_);
+    QVERIFY(spyMsgSent.count() == 1);
+    spyArgumentsOfMsgSent = spyMsgSent.takeFirst();
+    QString msgIdOff3 = spyArgumentsOfMsgSent.at(0).toString();
+    qDebug() << "sent MsgId: " << msgIdOff3;
+
+
+    // connect the user2 client again
+    collectedMsgRhsList_.clear();
+    spySignalDisconnectedRhs.clear();
+    interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
+    spySignalDisconnectedRhs.wait(timeOutConnect_);
+    QCOMPARE(spySignalDisconnectedRhs.count(), 1);
+
+    // wait for the msg be delivered to the reconnected client (as seen from the sender)
+    spyMsgStateRoomRhs.wait(timeOutConnect_);
+    spyMsgStateRoomRhs.wait(timeOutConnect_);  // wait until the reconnt handshake is done
+
+    // check for at least msg1 and msg2 in this sequence
+    qDebug() << "mam results:";
+    for(auto msg: collectedMsgRhsList_)
+    {
+        qDebug() << "## id: " << msg.msgId << ", jid: " << msg.jid << ", msg: " << msg.msg;
+    }
+    QVERIFY(collectedMsgRhsList_.size() == 3);
+    QCOMPARE(collectedMsgRhsList_.at(0).msgId, msgIdOff1);
+    QCOMPARE(collectedMsgRhsList_.at(1).msgId, msgIdOff2);
+    QCOMPARE(collectedMsgRhsList_.at(2).msgId, msgIdOff3);
+
+    // FIXME check for the delay stanza
+    // <delay xmlns="urn:xmpp:delay" from="testroom@conference.localhost" stamp="2020-02-03T20:18:21.060696Z"></delay>
 
 
     // quit clients
@@ -334,9 +415,22 @@ bool ClientRoomMsgTest::destrcutiveVerfiyStateAndCountOfMsgStates(enum side theS
 
 void ClientRoomMsgTest::collectMsgStateChangedLhs(QString msgId, QString jid, int state)
 {
-    qDebug() << "collectMsgStateChanged: " << msgId << ", " << jid << ", " << state;
+    qDebug() << "collectMsgStateChangedLhs: " << msgId << ", " << jid << ", " << state;
     MsgIdJidState mjs{msgId, jid, state};
     stateChangeMsgLhsList_.push_back(mjs);
+}
+
+void ClientRoomMsgTest::collectMsgStateChangedRhs(QString msgId, QString jid, int state)
+{
+    qDebug() << "collectMsgStateChangedRhs: " << msgId << ", " << jid << ", " << state;
+    MsgIdJidState mjs{msgId, jid, state};
+    stateChangeMsgRhsList_.push_back(mjs);
+}
+
+void ClientRoomMsgTest::collectLatestMsgRhs(QString msgId, QString jid, QString msg)
+{
+    qDebug() << "collectLatestMsgRhs: " << msgId << ", " << jid << ", " << msg;
+    collectedMsgRhsList_.push_back(MsgContent{msgId, jid, msg});
 }
 
 QTEST_MAIN(ClientRoomMsgTest)
