@@ -42,6 +42,7 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     QObject::connect(interfaceLhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)), this, SLOT(collectMsgStateChangedLhs(QString, QString, int)));
     QSignalSpy spyMsgStateRoomLhs(interfaceLhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
     QSignalSpy spyMsgStateRoomRhs(interfaceRhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
+    QSignalSpy spyMsgStateRoomMhs(interfaceMhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
 
     const QString roomJid = "testroom@conference.localhost";
 
@@ -59,7 +60,9 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     addContactTestCommon(interfaceMhs_, user1jid_, "user1");
     addContactTestCommon(interfaceMhs_, user2jid_, "user2");
 
+    // --------------------------
     // all clients join the room
+    // --------------------------
     QSignalSpy joinRoomLhs(interfaceLhs_->getInterface(), SIGNAL(signalRoomJoined(QString, QString)));
     QSignalSpy joinRoomMhs(interfaceMhs_->getInterface(), SIGNAL(signalRoomJoined(QString, QString)));
     QSignalSpy joinRoomRhs(interfaceRhs_->getInterface(), SIGNAL(signalRoomJoined(QString, QString)));
@@ -95,7 +98,9 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     interfaceMhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
     interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
 
-    // user1 sends msg. all other clients should receive them
+    // ---------------------------------------------------------------------
+    // user1 sends msg. all other clients should receive them. check status
+    // ---------------------------------------------------------------------
     const QString msgOnWireFromUser1 = "Hi room from user1";
 
     // setup msg text speyer
@@ -161,6 +166,87 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdJidState>{{"foo", "user2", 2}}), true);
 
     // user3 reads msg. check msg status at user1 side for user3
+    interfaceMhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerRoom);
+
+    spyMsgStateRoomMhs.wait(timeOut_); // sends the displayed stanza
+    spyMsgStateRoomLhs.wait(timeOut_); // receives the displayed stanza
+
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdJidState>{{"foo", "user3", 2}}), true);
+
+    //---------------------------------------------------------------------------------------------------------------
+    // Send group msg with offline clients, check status. Reconnect and check status again
+    //---------------------------------------------------------------------------------------------------------------
+    // set user2 offline
+    interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
+    interfaceRhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
+
+    QSignalSpy spySignalDisconnectedRhs(interfaceRhs_->getInterface(), SIGNAL(signalConnectionStateChanged()));
+    spySignalDisconnectedRhs.wait(timeOutConnect_);
+    QCOMPARE(spySignalDisconnectedRhs.count(), 1);
+
+    // set user3 offline
+    interfaceMhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
+    interfaceMhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
+
+    QSignalSpy spySignalDisconnectedMhs(interfaceMhs_->getInterface(), SIGNAL(signalConnectionStateChanged()));
+    spySignalDisconnectedMhs.wait(timeOutConnect_);
+    QCOMPARE(spySignalDisconnectedMhs.count(), 1);
+
+    // send the msg
+    spyMsgSent.clear();
+    stateChangeMsgLhsList_.clear();
+    interfaceLhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgToRoom);
+
+    // check msgId of sent msg
+    spyMsgSent.wait(timeOut_);
+    QVERIFY(spyMsgSent.count() == 1);
+    spyArgumentsOfMsgSent = spyMsgSent.takeFirst();
+    msgId = spyArgumentsOfMsgSent.at(0).toString();
+    qDebug() << "sent MsgId: " << msgId;
+
+    spyMsgStateRoomRhs.wait(timeOut_); // could send a stanza
+    spyMsgStateRoomMhs.wait(timeOut_); // could send a stanza
+    spyMsgStateRoomLhs.wait(timeOut_); // could receive a stanza
+
+    // check status of msg at user1 side. No update should be there. All clients are offline! Only user1 (the sender) has virtual received his msg
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdJidState>{{"foo", "user1", 1}}), true);
+
+    // connect the user2 client again
+    interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
+
+    // wait for the msg be delivered to the reconnected client (as seen from the sender)
+    spyMsgStateRoomRhs.wait(timeOutConnect_);
+    spyMsgStateRoomRhs.wait(timeOutConnect_);  // wait until the reconnt handshake is done
+
+    spyMsgStateRoomLhs.wait(timeOut_); // for the msg ack stanza
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdJidState>{{"foo", "user2", 1}}), true); // received from reconnected client
+
+    // connect the user3 client again
+    interfaceMhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
+
+    // wait for the msg be delivered to the reconnected client (as seen from the sender)
+    spyMsgStateRoomMhs.wait(timeOutConnect_);
+    spyMsgStateRoomMhs.wait(timeOutConnect_);  // wait until the reconnt handshake is done
+
+    spyMsgStateRoomMhs.wait(timeOut_); // for the msg ack stanza
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdJidState>{{"foo", "user3", 1}}), true); // received from reconnected client
+
+    // user2 reads msg. check msg status at user1 side for user2
+    interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerRoom);
+
+    spyMsgStateRoomRhs.wait(timeOut_); // sends the displayed stanza
+    spyMsgStateRoomLhs.wait(timeOut_); // receives the displayed stanza
+
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdJidState>{{"foo", "user2", 2}}), true);
+
+    // user3 reads msg. check msg status at user1 side for user3
+    interfaceMhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerRoom);
+
+    spyMsgStateRoomMhs.wait(timeOut_); // sends the displayed stanza
+    spyMsgStateRoomLhs.wait(timeOut_); // receives the displayed stanza
+
+    QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdJidState>{{"foo", "user3", 2}}), true);
+
 
 
 
