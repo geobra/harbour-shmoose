@@ -138,8 +138,9 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     QList<QVariant> spyArgumentsOfMsgAtUser3 = spyLatestMsgAtUser3.takeFirst();
     QVERIFY(spyArgumentsOfMsgAtUser3.at(2).toString() == msgOnWireFromUser1);
 
-    // check the msg status as seen from the sender (user1)
-    spyMsgStateRoomLhs.wait(timeOut_);
+    spyMsgStateRoomRhs.wait(timeOut_); // some time to send msg status
+    spyMsgStateRoomMhs.wait(timeOut_); // some time to send msg status
+    spyMsgStateRoomLhs.wait(timeOut_); // check the msg status as seen from the sender (user1)
     auto receivedCount = 0;
     while (! stateChangeMsgLhsList_.isEmpty())
     {
