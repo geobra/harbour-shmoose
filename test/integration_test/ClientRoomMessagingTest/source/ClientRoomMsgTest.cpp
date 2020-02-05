@@ -53,7 +53,7 @@ void ClientRoomMsgTest::sendRoomMsgTest()
 
     // user1 and user2 already logged in. Login user3
     connectionTestCommon(interfaceMhs_, user3jid_, "user3");
-    requestRosterTestCommon(interfaceMhs_);
+    //requestRosterTestCommon(interfaceMhs_);
 
     // user1: user2 (from base), user3
     addContactTestCommon(interfaceLhs_, user3jid_, "user3");
@@ -145,10 +145,10 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     {
         MsgIdJidState mij = stateChangeMsgLhsList_.takeFirst();
 
-        //qDebug() << "id: " << mij.msgId1 << ", jid: " << mij.jid << ", state: " << mij.state;
+        qDebug() << "id: " << mij.msgId << ", jid: " << mij.jid << ", state: " << mij.state;
         if (mij.msgId.compare(msgId1) != 0) // only interessted in answers to our sent msg
         {
-            //qDebug() << "   ... skip!!!!";
+            qDebug() << "   ... skip!!!!";
             continue;
         }
 
