@@ -19,6 +19,8 @@ public slots:
 protected slots:
     void initTestCase();
 
+    void collectLatestMsgRhs(QString msgId, QString jid, QString msg);
+
 private slots:
     void cleanupTestCase();
 
@@ -43,6 +45,15 @@ protected:
 
     const int timeOutConnect_;
     const int timeOut_;
+
+    struct MsgContent
+    {
+        QString msgId;
+        QString jid;
+        QString msg;
+    };
+
+    QList<MsgContent> collectedMsgRhsList_;
 };
 
 #endif // CLIENTCOMTESTCOMMON_H

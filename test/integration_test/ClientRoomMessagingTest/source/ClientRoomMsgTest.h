@@ -22,8 +22,6 @@ private slots:
     void collectMsgStateChangedLhs(QString msgId, QString jid, int state);
     void collectMsgStateChangedRhs(QString msgId, QString jid, int state);
 
-    void collectLatestMsgRhs(QString msgId, QString jid, QString msg);
-
 private:
     DbusInterfaceWrapper* interfaceMhs_;
     const QString user3jid_;
@@ -42,17 +40,8 @@ private:
         int state;
     };
 
-    struct MsgContent
-    {
-        QString msgId;
-        QString jid;
-        QString msg;
-    };
-
     QList<MsgIdJidState> stateChangeMsgLhsList_;
     QList<MsgIdJidState> stateChangeMsgRhsList_;
-
-    QList<MsgContent> collectedMsgRhsList_;
 
     bool destrcutiveVerfiyStateAndCountOfMsgStates(enum side theSide, const QString& msgIdFilter, QList<MsgIdJidState> msgsList);
 };

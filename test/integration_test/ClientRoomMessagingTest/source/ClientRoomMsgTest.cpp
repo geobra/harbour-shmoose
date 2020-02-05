@@ -330,6 +330,10 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     // FIXME check for the delay stanza
     // <delay xmlns="urn:xmpp:delay" from="testroom@conference.localhost" stamp="2020-02-03T20:18:21.060696Z"></delay>
 
+    //------------------------
+    // TODO Leave group
+    //------------------------
+
 
     // quit clients
     interfaceLhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
@@ -425,12 +429,6 @@ void ClientRoomMsgTest::collectMsgStateChangedRhs(QString msgId, QString jid, in
     qDebug() << "collectMsgStateChangedRhs: " << msgId << ", " << jid << ", " << state;
     MsgIdJidState mjs{msgId, jid, state};
     stateChangeMsgRhsList_.push_back(mjs);
-}
-
-void ClientRoomMsgTest::collectLatestMsgRhs(QString msgId, QString jid, QString msg)
-{
-    qDebug() << "collectLatestMsgRhs: " << msgId << ", " << jid << ", " << msg;
-    collectedMsgRhsList_.push_back(MsgContent{msgId, jid, msg});
 }
 
 QTEST_MAIN(ClientRoomMsgTest)

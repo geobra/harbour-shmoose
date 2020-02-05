@@ -14,12 +14,6 @@
  * Check recieving order of msg after reconnect
  * Send pictures (http_upload) and receive them
  *
- * Group:
- * Add group, delete group
- * send group msg, check status. Send group msg with offline clients, check status. Reconnect and check status again
- * Check simple mam
- * Check recieving order of msg on reconnect
- *
  * Roster:
  * Add contact, delete contact, check status, avatar
  *
@@ -36,6 +30,9 @@ void ClientComTest::sendMsgTest()
     // need to collect more then one signal here. qsignalspy only catches one at a time. Use an own slot to collet them all.
     QObject::connect(interfaceLhs_->getInterface(), SIGNAL(signalMsgState(QString, int)), this, SLOT(collectMsgStateLhsChanged(QString, int)));
     QObject::connect(interfaceRhs_->getInterface(), SIGNAL(signalMsgState(QString, int)), this, SLOT(collectMsgStateRhsChanged(QString, int)));
+
+    // collect msgs
+    QObject::connect(interfaceRhs_->getInterface(), SIGNAL(signalLatestMsg(QString, QString, QString)), this, SLOT(collectLatestMsgRhs(QString, QString, QString)));
 
     const QString msgOnWire = "Hi user2 from user1";
 
@@ -142,20 +139,43 @@ void ClientComTest::sendMsgTest()
     // #################################################################################################
     // send two messages from user1 to user2. user2 is offline. user2 gets online. check received order.
     // #################################################################################################
-    spyLatestMsg.clear();
+    collectedMsgRhsList_.clear();
     // disconnect one client
+    spySignalDisconnected.clear();
     interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
     interfaceRhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
+
+    // wait for client to be disconnected
+    spySignalDisconnected.wait(timeOutConnect_);
+    QCOMPARE(spySignalDisconnected.count(), 1);
+
 
     // send messages from user1 to user2
     QList<QVariant> msg1ForUser2 {user2jid_, "one"};
     interfaceLhs_->callDbusMethodWithArgument("sendMsg", msg1ForUser2);
 
+    spyMsgSent.clear();
+    spyMsgSent.wait(timeOut_);
+    QVERIFY(spyMsgSent.count() == 1);
+    spyArgumentsOfMsgSent = spyMsgSent.takeFirst();
+    msgId = spyArgumentsOfMsgSent.at(0).toString();
+    qDebug() << "sent MsgId1: " << msgId;
+
     QList<QVariant> msg2ForUser2 {user2jid_, "two"};
     interfaceLhs_->callDbusMethodWithArgument("sendMsg", msg2ForUser2);
 
+    spyMsgSent.clear();
+    spyMsgSent.wait(timeOut_);
+    QVERIFY(spyMsgSent.count() == 1);
+    spyArgumentsOfMsgSent = spyMsgSent.takeFirst();
+    msgId = spyArgumentsOfMsgSent.at(0).toString();
+    qDebug() << "sent MsgId2: " << msgId;
+
     // connect the user2 client again
+    spySignalDisconnected.clear();
     interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
+    spySignalDisconnected.wait(timeOutConnect_);
+    QCOMPARE(spySignalDisconnected.count(), 1);
 
     // wait for the msg delivered to the reconnected client (as seen from the sender)
     spyMsgStateReceiver.wait(timeOutConnect_);
@@ -164,13 +184,9 @@ void ClientComTest::sendMsgTest()
     spyMsgStateSender.wait(timeOut_); // for the msg ack stanza
 
     // two received msg are expected after reconnect.
-    QCOMPARE(spyLatestMsg.count(), 2);
-
-    // content of received msg is 'one' and 'two'
-    spyArgumentsOfMsg = spyLatestMsg.takeFirst();
-    QVERIFY(spyArgumentsOfMsg.at(2).toString() == "one");
-    spyArgumentsOfMsg = spyLatestMsg.takeFirst();
-    QVERIFY(spyArgumentsOfMsg.at(2).toString() == "two");
+    QVERIFY(collectedMsgRhsList_.size() == 2);
+    QCOMPARE(collectedMsgRhsList_.at(0).msg, "one");
+    QCOMPARE(collectedMsgRhsList_.at(1).msg, "two");
 
     // ##################################
     // send a picture from user1 to user2
@@ -206,8 +222,8 @@ bool ClientComTest::destrcutiveVerfiyStateAndCountOfMsgStates(enum side theSide,
         qDebug() << "id: " << msg.msgId << ", state: " << msg.state;
     }
 
-#if 0
-    msgsList.erase(
+
+    list.erase(
                 std::remove_if(
                     list.begin(),
                     list.end(),
@@ -215,8 +231,8 @@ bool ClientComTest::destrcutiveVerfiyStateAndCountOfMsgStates(enum side theSide,
                 ),
             list.end()
             );
-#endif
 
+#if 0
     QMutableListIterator<MsgIdState> i(list);
     while (i.hasNext())
     {
@@ -225,6 +241,7 @@ bool ClientComTest::destrcutiveVerfiyStateAndCountOfMsgStates(enum side theSide,
             i.remove();
         }
     }
+#endif
 
     qDebug() << "after:";
     for(auto msg: list)
