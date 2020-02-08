@@ -19,11 +19,13 @@ public slots:
     Q_SCRIPTABLE bool addContact(const QString& jid, const QString& name);
     Q_SCRIPTABLE bool joinRoom(const QString& jid, const QString& name);
     Q_SCRIPTABLE bool removeRoom(const QString& jid);
+    Q_SCRIPTABLE bool removeContact(const QString& jid);
     Q_SCRIPTABLE bool sendMsg(const QString& jid, const QString& msg);
     Q_SCRIPTABLE bool sendFile(const QString& jid, const QString& path);
     Q_SCRIPTABLE bool setCurrentChatPartner(QString jid);
     Q_SCRIPTABLE bool disconnectFromServer();
     Q_SCRIPTABLE bool reConnect();
+    Q_SCRIPTABLE bool requestRosterList();
 
     Q_SCRIPTABLE bool quitClient();
 
@@ -36,6 +38,9 @@ signals:
     void signalRoomMsgState(QString, QString, int);
     void signalDownloadFinished(QString);
     void signalMsgSent(QString);
+    void signalRosterEntry(QString jid, QString name, int subscription, int availability, QString status, QString image, bool isGroup);
+    void signalRosterListDone();
+    void signalMucRoomRemoved(QString);
 
 private slots:
     void slotConnectionStateChanged();
@@ -46,6 +51,7 @@ private slots:
     void slotForwardRoomMsgStateToDbus(QString msgId, QString jid, int msgState);
     void slotForwardDownloadMsgToDbus(QString);
     void slotForwardMsgSentToDbus(QString);
+    void slotForwardMucRoomRemoved(QString);
 
 private:
     Shmoose* shmoose_;

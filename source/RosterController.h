@@ -37,7 +37,12 @@ public:
 
     void handleUpdateFromPresence(const Swift::JID &jid, const QString &status, const RosterItem::Availability& availability);
 
-    void updateNameForJid(const Swift::JID &jid, const std::string &name);
+    bool updateNameForJid(const Swift::JID &jid, const std::string &name);
+
+#ifdef DBUS
+    QList<RosterItem *> fetchRosterList();
+#endif
+
 signals:
     void rosterListChanged();
     void signalShowMessage(QString headline, QString body);
@@ -49,7 +54,7 @@ public slots:
 private:
     void handleRosterReceived(Swift::ErrorPayload::ref error);
     void handleJidAdded(const Swift::JID &jid);
-    void handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string > &);
+    void handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string > &params);
     void handleJidRemoved(const Swift::JID &jid);
 
     void sendUnavailableAndUnsubscribeToJid(const QString& jid);
@@ -60,11 +65,18 @@ private:
 
     void bindJidUpdateMethodes();
 
+    bool updateSubscriptionForJid(const Swift::JID &jid, RosterItem::Subscription subscription);
+    bool updateStatusForJid(const Swift::JID &jid, const QString& status);
+    bool updateAvailabilityForJid(const Swift::JID &jid, const RosterItem::Availability& availability);
+
     bool checkHashDiffers(QString const &jid, QString const &newHash);
     void sortRosterList();
 
     QString getTypeForJid(itemAttribute const &attribute, QString const &jid);
     bool isJidInRoster(const QString& bareJid);
+
+    void appendToRosterIfNotAlreadyIn(const QString& jid);
+    void dumpRosterList();
 
     Swift::Client* client_;
     QList<RosterItem*> rosterList_;

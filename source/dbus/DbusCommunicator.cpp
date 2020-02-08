@@ -2,6 +2,7 @@
 
 #include "Shmoose.h"
 #include "RosterController.h"
+#include "RosterItem.h"
 #include "MessageController.h"
 #include "MessageHandler.h"
 #include "DownloadManager.h"
@@ -51,19 +52,24 @@ void DbusCommunicator::setupConnections()
     GcmController* gcmCtrl = persistence->getGcmController();
     DownloadManager* downloadMgr = shmoose_->messageHandler_->downloadManager_;
     MessageHandler* msgHandler = shmoose_->messageHandler_;
+    MucManager* muma = shmoose_->mucManager_;
+    RosterController* rc = shmoose_->getRosterController();
 
+    connect(shmoose_, SIGNAL(connectionStateChanged()), this, SLOT(slotConnectionStateChanged()));
     connect(msgCtrl, SIGNAL(signalMessageReceived(QString, QString, QString)), this, SLOT(slotForwaredReceivedMsgToDbus(QString, QString, QString)));
     connect(msgCtrl, SIGNAL(signalMessageStateChanged(QString, int)), this, SLOT(slotForwardMsgStateToDbus(QString, int)));
     connect(gcmCtrl, SIGNAL(signalRoomMessageStateChanged(QString,QString,int)), this, SLOT(slotForwardRoomMsgStateToDbus(QString, QString, int)));
     connect(downloadMgr, SIGNAL(httpDownloadFinished(QString)), this, SLOT(slotForwardDownloadMsgToDbus(QString)));
     connect(msgHandler, SIGNAL(messageSent(QString)), this, SLOT(slotForwardMsgSentToDbus(QString)));
+    connect(muma, SIGNAL(newGroupForContactsList(QString,QString)), this, SLOT(slotNewRoomJoin(QString, QString)));
+    connect(muma, SIGNAL(removeGroupFromContactsList(QString)), this, SLOT(slotForwardMucRoomRemoved(QString)));
+    connect(rc, SIGNAL(rosterListChanged()), this, SLOT(slotGotRosterEntry()));
 }
 
 bool DbusCommunicator::tryToConnect(const QString& jid, const QString& pass)
 {
     qDebug() << "try to connect as " << jid << " with pass " << pass;
 
-    connect(shmoose_, SIGNAL(connectionStateChanged()), this, SLOT(slotConnectionStateChanged()));
     shmoose_->mainConnect(jid, pass);
 
     return true;
@@ -86,8 +92,6 @@ bool DbusCommunicator::requestRoster()
     RosterController* rc = shmoose_->getRosterController();
     rc->requestRoster();
 
-    connect(rc, SIGNAL(rosterListChanged()), this, SLOT(slotGotRosterEntry()));
-
     return true;
 }
 
@@ -96,8 +100,6 @@ bool DbusCommunicator::addContact(const QString& jid, const QString& name)
     qDebug() << "addContact: jid: " << jid << ", name: " << name;
     RosterController* rc = shmoose_->getRosterController();
     rc->addContact(jid, name);
-
-    connect(rc, SIGNAL(rosterListChanged()), this, SLOT(slotGotRosterEntry()));
 
     return true;
 }
@@ -117,9 +119,6 @@ bool DbusCommunicator::joinRoom(const QString& jid, const QString& name)
 {
     qDebug() << "joinRoom: jid: " << jid << ", name: " << name;
     shmoose_->joinRoom(jid, name);
-
-    MucManager* mm = shmoose_->mucManager_;
-    connect(mm, SIGNAL(newGroupForContactsList(QString,QString)), this, SLOT(slotNewRoomJoin(QString, QString)));
 
     return true;
 }
@@ -148,6 +147,15 @@ bool DbusCommunicator::removeRoom(const QString& jid)
     return true;
 }
 
+bool DbusCommunicator::removeContact(const QString& jid)
+{
+    qDebug() << "removeContact: jid: " << jid;
+    RosterController* rc = shmoose_->getRosterController();
+
+    rc->removeContact(jid);
+
+    return true;
+}
 
 bool DbusCommunicator::sendMsg(const QString& jid, const QString& msg)
 {
@@ -267,4 +275,51 @@ bool DbusCommunicator::reConnect()
     shmoose_->reConnect();
 
     return true;
+}
+
+bool DbusCommunicator::requestRosterList()
+{
+    RosterController* rc = shmoose_->getRosterController();
+
+    QList<RosterItem*> rosterList = rc->fetchRosterList();
+    for (auto item: rosterList)
+    {
+        qDebug() << ", jid: " << item->getJid() << "name: " << item->getName() <<
+                    ", subscription: " << item->getSubscription() << ", availability: " << item->getAvailability() <<
+                    ", status" << item->getStatus() << ", image: " << item->getImagePath() << ", isGroup: " << item->isGroup();
+
+        QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalRosterEntry");
+        msg << item->getJid();
+        msg << item->getName();
+        msg << item->getSubscription();
+        msg << item->getAvailability();
+        msg << item->getStatus();
+        msg << item->getImagePath();
+        msg << item->isGroup();
+
+        if(QDBusConnection::sessionBus().send(msg) == false)
+        {
+            qDebug() << "cant send message via dbus";
+        }
+    }
+
+    QDBusMessage msg2 = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalRosterListDone");
+    if(QDBusConnection::sessionBus().send(msg2) == false)
+    {
+        qDebug() << "cant send message via dbus";
+    }
+
+
+    return true;
+}
+
+void DbusCommunicator::slotForwardMucRoomRemoved(QString jid)
+{
+    QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalMucRoomRemoved");
+    msg << jid;
+
+    if(QDBusConnection::sessionBus().send(msg) == false)
+    {
+        qDebug() << "cant send message via dbus";
+    }
 }

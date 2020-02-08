@@ -14,9 +14,6 @@
  * Check recieving order of msg after reconnect
  * Send pictures (http_upload) and receive them
  *
- * Roster:
- * Add contact, delete contact, check status, avatar
- *
  */
 
 ClientComTest::ClientComTest() : ClientComTestCommon()

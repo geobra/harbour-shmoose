@@ -19,12 +19,12 @@
  *
  */
 
-ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2jid_("user2@localhost"), imageFileName_("/tmp/64x64-red.jpeg"), timeOutConnect_(20000),
+ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2jid_("user2@localhost"), imageFileName_("/tmp/64x64-red.jpeg"), timeOutConnect_(4000),
     timeOut_(
 #ifdef TRAVIS
     20000
 #else
-    4000
+    2000
 #endif
     )
 {
@@ -76,10 +76,9 @@ void ClientComTestCommon::receiveConnectedSignal(QString str)
 // request roster test
 void ClientComTestCommon::requestRosterTest()
 {
-#if 0
-    requestRosterTestCommon(interfaceLhs_);
-    requestRosterTestCommon(interfaceRhs_);
-#endif
+    // always request roster in first place, before trying to add new contacts!
+    //requestRosterTestCommon(interfaceLhs_);
+    //requestRosterTestCommon(interfaceRhs_);
 }
 
 void ClientComTestCommon::requestRosterTestCommon(DbusInterfaceWrapper *interface)
