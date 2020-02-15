@@ -45,7 +45,7 @@ void RosterController::setupWithClient(Swift::Client *client)
  */
 void RosterController::handleJidAdded(const Swift::JID &jid)
 {
-    std::cout << "################# RosterController::handleJidAdded: " << jid.toString() << std::endl;
+    qDebug() << "################# RosterController::handleJidAdded: " << QString::fromStdString(jid.toString());
     dumpRosterList();
 
     if (isJidInRoster(QString::fromStdString(jid.toBare().toString())) == false)
@@ -55,31 +55,37 @@ void RosterController::handleJidAdded(const Swift::JID &jid)
                                           RosterItem::SUBSCRIPTION_NONE, false, this));
 
         sortRosterList();
+
+        // request subscription
+        Swift::Presence::ref presence = Swift::Presence::create();
+        presence->setTo(jid);
+        presence->setType(Swift::Presence::Subscribe);
+        client_->sendPresence(presence);
+
         emit rosterListChanged();
     }
-
-    // request subscription
-    Swift::Presence::ref presence = Swift::Presence::create();
-    presence->setTo(jid);
-    presence->setType(Swift::Presence::Subscribe);
-    client_->sendPresence(presence);
 
     qDebug() << "##################### handleJidAdded: rL_.size: " << rosterList_.size();
 }
 
 void RosterController::handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string >& params)
 {
-    std::cout << "############# RosterController::handleJidUpdated " << jid.toString() << ", name: " << name;
+    std::cout << "############# RosterController::handleJidUpdated " << jid.toString() << ", name: " << name << std::endl;
     dumpRosterList(); 
 
     for (auto item: params)
     {
-        std::cout << "   params: " << item;
+        std::cout << "   params: " << item << std::endl;
     }
 
-    bool changed = updateNameForJid(jid, name);
+    bool changed1 = updateNameForJid(jid, name);
 
-    if (changed)
+    Swift::XMPPRoster *xmppRoster = client_->getRoster();
+    Swift::RosterItemPayload::Subscription subs = xmppRoster->getSubscriptionStateForJID(jid);
+
+    bool changed2 = updateSubscriptionForJid(jid, static_cast<RosterItem::Subscription>(subs));
+
+    if (changed1 || changed2)
     {
         emit rosterListChanged();
     }
@@ -89,6 +95,7 @@ void RosterController::handleJidUpdated(const Swift::JID &jid, const std::string
 
 bool RosterController::updateNameForJid(const Swift::JID &jid, const std::string &name)
 {
+    qDebug()  << "-- updateNameForJid: " << QString::fromStdString(jid.toString()) << ", name: " << QString::fromStdString(name);
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
@@ -109,6 +116,8 @@ bool RosterController::updateNameForJid(const Swift::JID &jid, const std::string
 
 bool RosterController::updateSubscriptionForJid(const Swift::JID &jid, RosterItem::Subscription subscription)
 {
+    qDebug()  << "-- updateSubscriptionForJid: " << QString::fromStdString(jid.toString()) << ", subs: " << subscription;
+
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
@@ -119,6 +128,11 @@ bool RosterController::updateSubscriptionForJid(const Swift::JID &jid, RosterIte
         if (item->getJid().compare(localBareJid, Qt::CaseInsensitive) == 0)
         {
             item->setSubscription(subscription);
+
+            // FIXME need two signal here for testing?!
+            emit rosterListChanged();
+            emit subscriptionUpdated(subscription);
+
             somethingChanged = true;
             break;
         }
@@ -129,6 +143,8 @@ bool RosterController::updateSubscriptionForJid(const Swift::JID &jid, RosterIte
 
 bool RosterController::updateStatusForJid(const Swift::JID &jid, const QString& status)
 {
+    qDebug()  << "-- updateStatusForJid: " << QString::fromStdString(jid.toString()) << ", status: " << status;
+
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
@@ -141,6 +157,8 @@ bool RosterController::updateStatusForJid(const Swift::JID &jid, const QString& 
             if (item->getJid().compare(localBareJid, Qt::CaseInsensitive) == 0)
             {
                 item->setStatus(status);
+                emit rosterListChanged();
+
                 somethingChanged = true;
                 break;
             }
@@ -152,6 +170,8 @@ bool RosterController::updateStatusForJid(const Swift::JID &jid, const QString& 
 
 bool RosterController::updateAvailabilityForJid(const Swift::JID &jid, const RosterItem::Availability& availability)
 {
+    qDebug()  << "-- updateAvailabilityForJid: " << QString::fromStdString(jid.toString()) << ", ava: " << availability;
+
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
@@ -162,6 +182,8 @@ bool RosterController::updateAvailabilityForJid(const Swift::JID &jid, const Ros
         if (item->getJid().compare(localBareJid, Qt::CaseInsensitive) == 0)
         {
             item->setAvailability(availability);
+            emit rosterListChanged();
+
             somethingChanged = true;
             break;
         }
@@ -434,6 +456,7 @@ void RosterController::bindJidUpdateMethodes()
 
 void RosterController::addContact(const QString& jid, const QString& name)
 {
+    qDebug() << "addContact: " << jid << ", name: " << name;
     Swift::JID newContactJid(jid.toStdString());
 
     if (newContactJid.isValid() == true && isJidInRoster(jid) == false)
@@ -450,10 +473,13 @@ void RosterController::addContact(const QString& jid, const QString& name)
 
         Swift::IQRouter *iqRouter = client_->getIQRouter();
         iqRouter->sendIQ(Swift::IQ::createRequest(Swift::IQ::Set, Swift::JID(), msgId, payload));
+
+        qDebug() << "  stanza sent";
     }
     else
     {
         emit signalShowMessage("Add Contact", "JID not valid or already in Roster!");
+        qDebug() << "  already in roster";
     }
 }
 

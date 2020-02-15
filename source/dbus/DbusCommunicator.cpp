@@ -1,7 +1,6 @@
 #include "DbusCommunicator.h"
 
 #include "Shmoose.h"
-#include "RosterController.h"
 #include "RosterItem.h"
 #include "MessageController.h"
 #include "MessageHandler.h"
@@ -64,6 +63,7 @@ void DbusCommunicator::setupConnections()
     connect(muma, SIGNAL(newGroupForContactsList(QString,QString)), this, SLOT(slotNewRoomJoin(QString, QString)));
     connect(muma, SIGNAL(removeGroupFromContactsList(QString)), this, SLOT(slotForwardMucRoomRemoved(QString)));
     connect(rc, SIGNAL(rosterListChanged()), this, SLOT(slotGotRosterEntry()));
+    connect(rc, SIGNAL(subscriptionUpdated(RosterItem::Subscription)), this, SLOT(slotForwardSubscriptionUpdate(RosterItem::Subscription)));
 }
 
 bool DbusCommunicator::tryToConnect(const QString& jid, const QString& pass)
@@ -317,6 +317,17 @@ void DbusCommunicator::slotForwardMucRoomRemoved(QString jid)
 {
     QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalMucRoomRemoved");
     msg << jid;
+
+    if(QDBusConnection::sessionBus().send(msg) == false)
+    {
+        qDebug() << "cant send message via dbus";
+    }
+}
+
+void DbusCommunicator::slotForwardSubscriptionUpdate(RosterItem::Subscription sub)
+{
+    QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalSubscriptionUpdated");
+    msg << (int) sub;
 
     if(QDBusConnection::sessionBus().send(msg) == false)
     {

@@ -19,6 +19,7 @@ private slots:
     void addDeleteRosterEntryTest();
 
     void collectRosterListLhs(QString jid, QString name, int subscription, int availability, QString status, QString imagePath, bool isGroup);
+    void collectSubscriptionChangesLhs(int subs);
 
 private:
     void removeRoomCommon(DbusInterfaceWrapper* interface, const QString& jid);

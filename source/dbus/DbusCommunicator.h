@@ -2,6 +2,8 @@
 #define DBUSCOMMUNICATOR_H
 
 #include "Shmoose.h"
+#include "RosterController.h"
+
 #include <QObject>
 
 class DbusCommunicator : public QObject
@@ -41,6 +43,7 @@ signals:
     void signalRosterEntry(QString jid, QString name, int subscription, int availability, QString status, QString image, bool isGroup);
     void signalRosterListDone();
     void signalMucRoomRemoved(QString);
+    void signalSubscriptionUpdated(int);
 
 private slots:
     void slotConnectionStateChanged();
@@ -52,6 +55,7 @@ private slots:
     void slotForwardDownloadMsgToDbus(QString);
     void slotForwardMsgSentToDbus(QString);
     void slotForwardMucRoomRemoved(QString);
+    void slotForwardSubscriptionUpdate(RosterItem::Subscription sub);
 
 private:
     Shmoose* shmoose_;

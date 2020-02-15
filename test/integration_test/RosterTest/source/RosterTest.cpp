@@ -23,26 +23,29 @@ RosterTest::RosterTest() : ClientComTestCommon()
 
 void RosterTest::addDeleteRosterEntryTest()
 {
-    QObject::connect(interfaceLhs_->getInterface(), SIGNAL(signalRosterEntry(QString, QString, int, int, QString, QString, bool)),
+    connect(interfaceLhs_->getInterface(), SIGNAL(signalRosterEntry(QString, QString, int, int, QString, QString, bool)),
                      this, SLOT(collectRosterListLhs(QString, QString, int, int, QString, QString, bool)));
+
+    connect(interfaceLhs_->getInterface(), SIGNAL(signalSubscriptionUpdated(int)), this, SLOT(collectSubscriptionChangesLhs(int)));
 
     // -----------------------------------------------------------
     // for a clean test, check for contacts and delete them if any
     // -----------------------------------------------------------
 
     // request roster from server
-    QSignalSpy spyNewRosterEntry(interfaceLhs_->getInterface(), SIGNAL(signalNewRosterEntry()));
+    QSignalSpy spyNewRosterEntryLhs(interfaceLhs_->getInterface(), SIGNAL(signalNewRosterEntry()));
+    QSignalSpy spyNewRosterEntryRhs(interfaceRhs_->getInterface(), SIGNAL(signalNewRosterEntry()));
     interfaceLhs_->callDbusMethodWithArgument("requestRoster", QList<QVariant>());
 
-    spyNewRosterEntry.wait(timeOut_);
+    spyNewRosterEntryLhs.wait(timeOut_);
     // on travis, the inital roster list is empty
     //QCOMPARE(spyNewRosterEntry.count(), 1);
 
     // request received rosterlist to be send from client
     interfaceLhs_->callDbusMethodWithArgument("requestRosterList", QList<QVariant>());
 
-    QSignalSpy spyRosterListReceived(interfaceLhs_->getInterface(), SIGNAL(signalRosterListDone()));
-    spyRosterListReceived.wait(timeOut_);
+    QSignalSpy spyRosterListReceivedLhs(interfaceLhs_->getInterface(), SIGNAL(signalRosterListDone()));
+    spyRosterListReceivedLhs.wait(timeOut_);
 
     for (auto rosterItem: rosterListLhs_)
     {
@@ -59,49 +62,90 @@ void RosterTest::addDeleteRosterEntryTest()
 
     }
 
-    spyRosterListReceived.wait(timeOut_);
+    spyRosterListReceivedLhs.wait(timeOut_);
+    spyNewRosterEntryRhs.wait(timeOut_);
 
     // verfiy rosterlist is empty
+    qDebug() << "verify rosterlist is empty";
     rosterListLhs_.clear();
-    spyRosterListReceived.clear();
+    spyRosterListReceivedLhs.clear();
     interfaceLhs_->callDbusMethodWithArgument("requestRosterList", QList<QVariant>());
-    spyRosterListReceived.wait(timeOut_);
+    spyRosterListReceivedLhs.wait(timeOut_);
     dumpRosterList("verfiy rosterlist is empty: ");
     QCOMPARE(rosterListLhs_.count(), 0);
 
+
 #if 0
+    // reconnect rhs
+    qDebug() << "reconnect user2";
+    interfaceRhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
+    QSignalSpy spySignalConnectionChangedRhs(interfaceRhs_->getInterface(), SIGNAL(signalConnectionStateChanged()));
+    spySignalConnectionChangedRhs.wait(timeOutConnect_);
+    QCOMPARE(spySignalConnectionChangedRhs.count(), 1);
+
+    spySignalConnectionChangedRhs.clear();
+    interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
+    spySignalConnectionChangedRhs.wait(timeOutConnect_);
+    spySignalConnectionChangedRhs.wait(timeOutConnect_);
+    QCOMPARE(spySignalConnectionChangedRhs.count(), 1);
+#endif
+
+
+
+
+    qDebug() << "try to add a user2";
+    spyNewRosterEntryLhs.wait(3000);
+
     // add user2 as contact to user1
     QString nameForUser2 = "funny name for user2";
     addContactTestCommon(interfaceLhs_, "user2@localhost" , nameForUser2);
 
-    // disconnect and reconnect user2
-    interfaceRhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
+    // check and loop over subsChanged signal until we get the 'both' subscription value
+    QSignalSpy spySubscriptonChangedLhs(interfaceLhs_->getInterface(), SIGNAL(signalSubscriptionUpdated(int)));
+    QSignalSpy spySubscriptonChangedRhs(interfaceRhs_->getInterface(), SIGNAL(signalSubscriptionUpdated(int)));
+    spySubscriptonChangedLhs.wait(timeOut_);
+    qDebug() << "subs changed count: " << spySubscriptonChangedLhs.count();
+    QVERIFY(spySubscriptonChangedLhs.count() > 0);
+    QList<QVariant> spyArgumentsOfSubs = spySubscriptonChangedLhs.takeFirst();
+    int currentSubsState = spyArgumentsOfSubs.at(0).toInt();
+    qDebug() << "subs state from signal: " << currentSubsState;
 
-    QSignalSpy spySignalConnectionChanged(interfaceRhs_->getInterface(), SIGNAL(signalConnectionStateChanged()));
-    spySignalConnectionChanged.wait(timeOutConnect_);
-    QCOMPARE(spySignalConnectionChanged.count(), 1);
+    unsigned int loopCount = 0;
+    while (currentSubsState != 3 && loopCount < 20)
+    {
+        spySubscriptonChangedLhs.wait(timeOut_);
+        spySubscriptonChangedRhs.wait(timeOut_);
+        if (spySubscriptonChangedLhs.count() > 0)
+        {
+            spyArgumentsOfSubs = spySubscriptonChangedLhs.takeFirst();
+            currentSubsState = spyArgumentsOfSubs.at(0).toInt();
+            qDebug() << "subs state from signal: " << currentSubsState;
+        }
+        else
+        {
+            qDebug() << "timeout wait for subs changed";
+        }
 
-    spySignalConnectionChanged.clear();
-    interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
-    spySignalConnectionChanged.wait(timeOutConnect_);
-    spySignalConnectionChanged.wait(timeOutConnect_);
-    QCOMPARE(spySignalConnectionChanged.count(), 1);
+        loopCount++;
+    }
+    QVERIFY(loopCount < 20);
+
 
     // check accepted contact add, availability and status.
+    rosterListLhs_.clear();
     interfaceLhs_->callDbusMethodWithArgument("requestRosterList", QList<QVariant>());
-    spyRosterListReceived.wait(timeOut_);
-
-    spyRosterListReceived.wait(10000); // need some time to exchange subscription messages
+    spyRosterListReceivedLhs.wait(timeOut_);
 
     for (auto rosterItem: rosterListLhs_)
     {
         qDebug() << "process roster: " << rosterItem.jid << ", sub: " << rosterItem.subscription << ", avail: " << rosterItem.availability ;
+#if 0
         QCOMPARE(rosterItem.name, nameForUser2);
-        QCOMPARE(rosterItem.availability, 2); // online
-
+        QCOMPARE(rosterItem.availability, 1); // online
+        QCOMPARE(rosterItem.subscription, 3); // both
+#endif
 
     }
-#endif
 
     // remove user2 as contact.
 
@@ -149,9 +193,16 @@ void RosterTest::removeRoomCommon(DbusInterfaceWrapper* interface, const QString
 
 void RosterTest::collectRosterListLhs(QString jid, QString name, int subscription, int availability, QString status, QString imagePath, bool isGroup)
 {
-    qDebug() << "collectRosterListLhs: " << jid << ", " << name << ", " << subscription << ", " << availability << ", " << status << ", " << imagePath << ", " << isGroup;
+    //qDebug() << "collectRosterListLhs: " << jid << ", " << name << ", " << subscription << ", " << availability << ", " << status << ", " << imagePath << ", " << isGroup;
     RosterItem ri{jid, name, subscription, availability, status, imagePath, isGroup};
     rosterListLhs_.push_back(ri);
+
+    dumpRosterList("collectRosterListLhs:");
+}
+
+void RosterTest::collectSubscriptionChangesLhs(int subs)
+{
+    qDebug() << "subs change lhs: " << subs;
 }
 
 void RosterTest::dumpRosterList(const QString& title)

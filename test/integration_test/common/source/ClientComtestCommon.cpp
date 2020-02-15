@@ -94,8 +94,8 @@ void ClientComTestCommon::requestRosterTestCommon(DbusInterfaceWrapper *interfac
 // add contact test
 void ClientComTestCommon::addContactTest()
 {
-    addContactTestCommon(interfaceLhs_, user2jid_, "user2");
-    addContactTestCommon(interfaceRhs_, user1jid_, "user1");
+    //addContactTestCommon(interfaceLhs_, user2jid_, "user2");
+    //addContactTestCommon(interfaceRhs_, user1jid_, "user1");
 }
 
 void ClientComTestCommon::addContactTestCommon(DbusInterfaceWrapper *interface, const QString& jid, const QString& name)

@@ -36,6 +36,10 @@ public:
     QQmlListProperty<RosterItem> getRosterList();
 
     void handleUpdateFromPresence(const Swift::JID &jid, const QString &status, const RosterItem::Availability& availability);
+    bool updateSubscriptionForJid(const Swift::JID &jid, RosterItem::Subscription subscription);
+    bool updateStatusForJid(const Swift::JID &jid, const QString& status);
+    bool updateAvailabilityForJid(const Swift::JID &jid, const RosterItem::Availability& availability);
+
 
     bool updateNameForJid(const Swift::JID &jid, const std::string &name);
 
@@ -46,6 +50,7 @@ public:
 signals:
     void rosterListChanged();
     void signalShowMessage(QString headline, QString body);
+    void subscriptionUpdated(RosterItem::Subscription subs);
 
 public slots:
     void addGroupAsContact(QString groupJid, QString groupName);
@@ -64,10 +69,6 @@ private:
     void handleMessageReceived(Swift::Message::ref message);
 
     void bindJidUpdateMethodes();
-
-    bool updateSubscriptionForJid(const Swift::JID &jid, RosterItem::Subscription subscription);
-    bool updateStatusForJid(const Swift::JID &jid, const QString& status);
-    bool updateAvailabilityForJid(const Swift::JID &jid, const RosterItem::Availability& availability);
 
     bool checkHashDiffers(QString const &jid, QString const &newHash);
     void sortRosterList();
