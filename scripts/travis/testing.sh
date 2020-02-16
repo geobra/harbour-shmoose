@@ -3,6 +3,7 @@
 TESTPATH="testing"
 COVFILE="coverage.info"
 
+
 # a dbus session is needed
 if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
 	## if not found, launch a new one
@@ -19,6 +20,7 @@ qmake .. DEFINES+=TRAVIS DEFINES+=DBUS
 make
 
 # run the test clients for plain 1to1 msg tests
+./scripts/travis/reset_ejabberd.sh
 xvfb-run -a -e /dev/stdout ./harbour-shmoose lhs &
 xvfb-run -a -e /dev/stdout ./harbour-shmoose rhs &
 cd ..
@@ -35,6 +37,12 @@ cd ../../../..
 
 
 # build the plain 1to1 msg test
+#killall -9 harbour-shmoose
+#./scripts/travis/reset_ejabberd.sh
+
+#xvfb-run -a -e /dev/stdout ./harbour-shmoose lhs &
+#xvfb-run -a -e /dev/stdout ./harbour-shmoose rhs &
+
 #cd test/integration_test/ClientCommunicationTest/
 #mkdir build
 #cd build
@@ -44,12 +52,17 @@ cd ../../../..
 #cd ../../../..
 
 
+
 # run the test clients for the room msg tests
+#killall -9 harbour-shmoose
+#./scripts/travis/reset_ejabberd.sh
+
 #xvfb-run -a -e /dev/stdout ./$TESTPATH/harbour-shmoose lhs &
 #xvfb-run -a -e /dev/stdout ./$TESTPATH/harbour-shmoose mhs &
 #xvfb-run -a -e /dev/stdout ./$TESTPATH/harbour-shmoose rhs &
 
 # build the plain room msg test
+#./scripts/travis/reset_ejabberd.sh
 #cd test/integration_test/ClientRoomMessagingTest/
 #mkdir build
 #cd build
