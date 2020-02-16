@@ -20,7 +20,7 @@ qmake .. DEFINES+=TRAVIS DEFINES+=DBUS
 make
 
 # run the test clients for plain 1to1 msg tests
-./scripts/travis/reset_ejabberd.sh
+../scripts/travis/reset_ejabberd.sh
 xvfb-run -a -e /dev/stdout ./harbour-shmoose lhs &
 xvfb-run -a -e /dev/stdout ./harbour-shmoose rhs &
 cd ..
