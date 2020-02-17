@@ -28,75 +28,8 @@ void RosterTest::addDeleteRosterEntryTest()
 
     connect(interfaceLhs_->getInterface(), SIGNAL(signalSubscriptionUpdated(int)), this, SLOT(collectSubscriptionChangesLhs(int)));
 
-    // -----------------------------------------------------------
-    // for a clean test, check for contacts and delete them if any
-    // -----------------------------------------------------------
-
-    // request roster from server
-    QSignalSpy spyNewRosterEntryLhs(interfaceLhs_->getInterface(), SIGNAL(signalNewRosterEntry()));
-    QSignalSpy spyNewRosterEntryRhs(interfaceRhs_->getInterface(), SIGNAL(signalNewRosterEntry()));
-    interfaceLhs_->callDbusMethodWithArgument("requestRoster", QList<QVariant>());
-
-    spyNewRosterEntryLhs.wait(timeOut_);
-    // on travis, the inital roster list is empty
-    //QCOMPARE(spyNewRosterEntry.count(), 1);
-
-    // request received rosterlist to be send from client
-    interfaceLhs_->callDbusMethodWithArgument("requestRosterList", QList<QVariant>());
-
-    QSignalSpy spyRosterListReceivedLhs(interfaceLhs_->getInterface(), SIGNAL(signalRosterListDone()));
-    spyRosterListReceivedLhs.wait(timeOut_);
-
-    for (auto rosterItem: rosterListLhs_)
-    {
-        qDebug() << "remove contacts: " << rosterItem.jid;
-
-        if (rosterItem.isGroup == true)
-        {
-            removeRoomCommon(interfaceLhs_, rosterItem.jid);
-        }
-        else
-        {
-            removeContactCommon(interfaceLhs_, rosterItem.jid);
-        }
-
-    }
-
-    spyRosterListReceivedLhs.wait(timeOut_);
-    spyNewRosterEntryRhs.wait(timeOut_);
-
-    // verfiy rosterlist is empty
-    qDebug() << "verify rosterlist is empty";
-    rosterListLhs_.clear();
-    spyRosterListReceivedLhs.clear();
-    interfaceLhs_->callDbusMethodWithArgument("requestRosterList", QList<QVariant>());
-    spyRosterListReceivedLhs.wait(timeOut_);
-    dumpRosterList("verfiy rosterlist is empty: ");
-    QCOMPARE(rosterListLhs_.count(), 0);
-
-
-#if 0
-    // reconnect rhs
-    qDebug() << "reconnect user2";
-    interfaceRhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
-    QSignalSpy spySignalConnectionChangedRhs(interfaceRhs_->getInterface(), SIGNAL(signalConnectionStateChanged()));
-    spySignalConnectionChangedRhs.wait(timeOutConnect_);
-    QCOMPARE(spySignalConnectionChangedRhs.count(), 1);
-
-    spySignalConnectionChangedRhs.clear();
-    interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
-    spySignalConnectionChangedRhs.wait(timeOutConnect_);
-    spySignalConnectionChangedRhs.wait(timeOutConnect_);
-    QCOMPARE(spySignalConnectionChangedRhs.count(), 1);
-#endif
-
-
-
-
-    qDebug() << "try to add a user2";
-    spyNewRosterEntryLhs.wait(3000);
-
     // add user2 as contact to user1
+    qDebug() << "try to add a user2";
     QString nameForUser2 = "funny name for user2";
     addContactTestCommon(interfaceLhs_, "user2@localhost" , nameForUser2);
 
@@ -132,6 +65,7 @@ void RosterTest::addDeleteRosterEntryTest()
 
 
     // check accepted contact add, availability and status.
+    QSignalSpy spyRosterListReceivedLhs(interfaceLhs_->getInterface(), SIGNAL(signalRosterListDone()));
     rosterListLhs_.clear();
     interfaceLhs_->callDbusMethodWithArgument("requestRosterList", QList<QVariant>());
     spyRosterListReceivedLhs.wait(timeOut_);
@@ -139,30 +73,72 @@ void RosterTest::addDeleteRosterEntryTest()
     for (auto rosterItem: rosterListLhs_)
     {
         qDebug() << "process roster: " << rosterItem.jid << ", sub: " << rosterItem.subscription << ", avail: " << rosterItem.availability ;
-#if 0
+
         QCOMPARE(rosterItem.name, nameForUser2);
         QCOMPARE(rosterItem.availability, 1); // online
         QCOMPARE(rosterItem.subscription, 3); // both
-#endif
+    }
+
+    // set user 2 offline
+    qDebug() << "disconnect user2";
+    interfaceRhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
+    QSignalSpy spySignalConnectionChangedRhs(interfaceRhs_->getInterface(), SIGNAL(signalConnectionStateChanged()));
+    spySignalConnectionChangedRhs.wait(timeOutConnect_);
+    QCOMPARE(spySignalConnectionChangedRhs.count(), 1);
+
+    // check user 2 is offline as seen from user1
+    spyRosterListReceivedLhs.clear();
+    rosterListLhs_.clear();
+    interfaceLhs_->callDbusMethodWithArgument("requestRosterList", QList<QVariant>());
+    spyRosterListReceivedLhs.wait(timeOut_);
+
+    for (auto rosterItem: rosterListLhs_)
+    {
+        qDebug() << "process roster: " << rosterItem.jid << ", sub: " << rosterItem.subscription << ", avail: " << rosterItem.availability ;
+
+        QCOMPARE(rosterItem.name, nameForUser2);
+        //QCOMPARE(rosterItem.availability, 2); // offline. msg may come late. dont check it
+        QCOMPARE(rosterItem.subscription, 3); // both
+    }
+
+    // add user3 as contact
+    qDebug() << "try to add offline user3";
+    QString nameForUser3 = "funny name for user3";
+    addContactTestCommon(interfaceLhs_, "user3@localhost" , nameForUser3);
+
+    // check _not_ accepted contact request, availability and status
+    spySubscriptonChangedLhs.wait(timeOut_);
+    rosterListLhs_.clear();
+    interfaceLhs_->callDbusMethodWithArgument("requestRosterList", QList<QVariant>());
+    spyRosterListReceivedLhs.wait(timeOut_);
+
+    QCOMPARE(rosterListLhs_.count(), 2); // user 2 and user3 in roster
+    for (auto rosterItem: rosterListLhs_)
+    {
+        qDebug() << "process roster: " << rosterItem.jid << ", sub: " << rosterItem.subscription << ", avail: " << rosterItem.availability ;
+        if (rosterItem.name.compare(nameForUser2, Qt::CaseSensitive) == 0)
+        {
+            QCOMPARE(rosterItem.availability, 2); // offline
+            QCOMPARE(rosterItem.subscription, 3); // both
+        }
+
+        if (rosterItem.name.compare(nameForUser3, Qt::CaseSensitive) == 0)
+        {
+            QCOMPARE(rosterItem.availability, 0); // unknown
+            QCOMPARE(rosterItem.subscription, 0); // unknown
+        }
 
     }
 
-    // remove user2 as contact.
-
-    // set user 2 offline
-
-    // add user2 as contact
-
-    // check _not_ accepted contact request, availability and status
-
-    // reconnect user2
+    // connect user3
 
     // check accepted contact request, availability and status
 
-    // test same with user3
+    // remove user2 as contact.
 
+    // add room
 
-
+    // delete room
 
     // quit clients
     interfaceLhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());

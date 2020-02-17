@@ -45,31 +45,38 @@ void PresenceHandler::handlePresenceChanged(Swift::Presence::ref presence)
     //qDebug() << "handlePresenceChanged: type: " << presence->getType() << ", jid: " << QString::fromStdString(presence->getFrom());
 
     Swift::JID jid = presence->getFrom();
-    QString status = "";
 
-    if (presence->getType() == Swift::Presence::Available)
+    if (jid.toBare().toString().compare(client_->getJID().toBare().toString()) != 0 ) // only interested in updates of other clients. not our self sent presence msgs
     {
-        std::vector<boost::shared_ptr<Swift::Status> > availabilityPayloads = presence->getPayloads<Swift::Status>();
 
-        for (std::vector<boost::shared_ptr<Swift::Status>>::iterator it = availabilityPayloads.begin() ; it != availabilityPayloads.end(); ++it)
+        QString status = "";
+
+        if (presence->getType() == Swift::Presence::Available)
         {
-            status = QString::fromStdString((*it)->getText());
-            break;
-        }
-    }
+            std::vector<boost::shared_ptr<Swift::Status> > availabilityPayloads = presence->getPayloads<Swift::Status>();
 
-    if (jid.isValid())
-    {
-        RosterItem::Availability availability = RosterItem::AVAILABILITY_ONLINE;
-
-        if (presence->getType() == Swift::Presence::Unavailable
-                || presence->getType() == Swift::Presence::Error
-                || presence->getType() == Swift::Presence::Probe
-                )
-        {
-            availability = RosterItem::AVAILABILITY_OFFLINE;
+            for (std::vector<boost::shared_ptr<Swift::Status>>::iterator it = availabilityPayloads.begin() ; it != availabilityPayloads.end(); ++it)
+            {
+                status = QString::fromStdString((*it)->getText());
+                rosterController_->updateStatusForJid(jid, status);
+                break;
+            }
         }
 
-        rosterController_->handleUpdateFromPresence(jid, status, availability);
+        if (jid.isValid())
+        {
+            RosterItem::Availability availability = RosterItem::AVAILABILITY_ONLINE;
+
+            if (presence->getType() == Swift::Presence::Unavailable
+                    || presence->getType() == Swift::Presence::Error
+                    || presence->getType() == Swift::Presence::Probe
+                    || presence->getType() == Swift::Presence::Unsubscribe
+                    || presence->getType() == Swift::Presence::Unsubscribed
+                    )
+            {
+                availability = RosterItem::AVAILABILITY_OFFLINE;
+            }
+            rosterController_->updateAvailabilityForJid(jid, availability);
+        }
     }
 }
