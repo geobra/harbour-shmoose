@@ -36,6 +36,9 @@ void ClientRoomMsgTest::initTestCase()
 
 void ClientRoomMsgTest::sendRoomMsgTest()
 {
+    requestRosterTestCommon(interfaceLhs_);
+    requestRosterTestCommon(interfaceRhs_);
+
     // The message states: (0) unknown, (1) received, (2) displayed
 
     // need to collect more then one signal here. qsignalspy only catches one at a time. Use an own slot to collet them all.
@@ -51,7 +54,7 @@ void ClientRoomMsgTest::sendRoomMsgTest()
 
     // user1 and user2 already logged in. Login user3
     connectionTestCommon(interfaceMhs_, user3jid_, "user3");
-    //requestRosterTestCommon(interfaceMhs_);
+    requestRosterTestCommon(interfaceMhs_);
 
     // user1: user2 (from base), user3
     addContactTestCommon(interfaceLhs_, user3jid_, "user3");

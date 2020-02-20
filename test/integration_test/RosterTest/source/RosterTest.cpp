@@ -212,6 +212,7 @@ void RosterTest::addDeleteRosterEntryTest()
     {
         qDebug() << "process roster: " << rosterItem.jid << ", sub: " << rosterItem.subscription << ", avail: " << rosterItem.availability ;
 
+        // TODO check for real room name. will be updated in a later stanza.
         if (rosterItem.name.compare(roomJid_, Qt::CaseSensitive) == 0)
         {
             QCOMPARE(rosterItem.availability, 1); // online

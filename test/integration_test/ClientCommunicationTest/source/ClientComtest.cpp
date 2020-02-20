@@ -24,6 +24,13 @@ ClientComTest::ClientComTest() : ClientComTestCommon()
 // send msg test
 void ClientComTest::sendMsgTest()
 {
+    requestRosterTestCommon(interfaceLhs_);
+    requestRosterTestCommon(interfaceRhs_);
+
+    // add the contacts
+    addContactTestCommon(interfaceLhs_, user2jid_, "user2");
+    addContactTestCommon(interfaceRhs_, user1jid_, "user1");
+
     // need to collect more then one signal here. qsignalspy only catches one at a time. Use an own slot to collet them all.
     QObject::connect(interfaceLhs_->getInterface(), SIGNAL(signalMsgState(QString, int)), this, SLOT(collectMsgStateLhsChanged(QString, int)));
     QObject::connect(interfaceRhs_->getInterface(), SIGNAL(signalMsgState(QString, int)), this, SLOT(collectMsgStateRhsChanged(QString, int)));
