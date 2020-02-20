@@ -40,6 +40,10 @@ protected:
 
     const QString user1jid_;
     const QString user2jid_;
+    const QString user3jid_;
+
+    const QString dbusServiceNameCommon_;
+    const QString dbusObjectPath_;
 
     const QString imageFileName_;
 

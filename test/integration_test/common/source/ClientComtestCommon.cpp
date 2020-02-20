@@ -19,7 +19,9 @@
  *
  */
 
-ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2jid_("user2@localhost"), imageFileName_("/tmp/64x64-red.jpeg"), timeOutConnect_(4000),
+ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2jid_("user2@localhost"), user3jid_("user3@localhost"),
+    dbusServiceNameCommon_("org.shmoose.dbuscom"), dbusObjectPath_("/client"),
+    imageFileName_("/tmp/64x64-red.jpeg"), timeOutConnect_(4000),
     timeOut_(
 #ifdef TRAVIS
     20000
@@ -33,15 +35,11 @@ ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2
 
 void ClientComTestCommon::initTestCase()
 {
-    QString dbusServiceNameCommon("org.shmoose.dbuscom");
+    QString dbusServiceNameLhs = dbusServiceNameCommon_ + "lhs";
+    QString dbusServiceNameRhs = dbusServiceNameCommon_ + "rhs";
 
-    QString dbusServiceNameLhs = dbusServiceNameCommon + "lhs";
-    QString dbusServiceNameRhs = dbusServiceNameCommon + "rhs";
-
-    QString dbusObjectPath("/client");
-
-    interfaceLhs_ = new DbusInterfaceWrapper(dbusServiceNameLhs, dbusObjectPath, "", QDBusConnection::sessionBus(), this);
-    interfaceRhs_ = new DbusInterfaceWrapper(dbusServiceNameRhs, dbusObjectPath, "", QDBusConnection::sessionBus(), this);
+    interfaceLhs_ = new DbusInterfaceWrapper(dbusServiceNameLhs, dbusObjectPath_, "", QDBusConnection::sessionBus(), this);
+    interfaceRhs_ = new DbusInterfaceWrapper(dbusServiceNameRhs, dbusObjectPath_, "", QDBusConnection::sessionBus(), this);
 }
 
 void ClientComTestCommon::cleanupTestCase()

@@ -118,7 +118,7 @@ void RosterTest::addDeleteRosterEntryTest()
         qDebug() << "process roster: " << rosterItem.jid << ", sub: " << rosterItem.subscription << ", avail: " << rosterItem.availability ;
         if (rosterItem.name.compare(nameForUser2, Qt::CaseSensitive) == 0)
         {
-            QCOMPARE(rosterItem.availability, 2); // offline
+            // QCOMPARE(rosterItem.availability, 2); // offline. msg may come late. dont check it
             QCOMPARE(rosterItem.subscription, 3); // both
         }
 
@@ -131,10 +131,70 @@ void RosterTest::addDeleteRosterEntryTest()
     }
 
     // connect user3
+    QString dbusServiceNameMhs = dbusServiceNameCommon_ + "mhs";
+    DbusInterfaceWrapper* interfaceMhs_ = new DbusInterfaceWrapper(dbusServiceNameMhs, dbusObjectPath_, "", QDBusConnection::sessionBus(), this);
+    QSignalSpy spySubscriptonChangedMhs(interfaceMhs_->getInterface(), SIGNAL(signalSubscriptionUpdated(int)));
+
+    connectionTestCommon(interfaceMhs_, user3jid_, "user3");
+
+    // request roster list of user3
+    // only then, presenc information will be sent to a client!
+    // https://xmpp.org/rfcs/rfc3921.html -> 7.3
+    QSignalSpy spyRosterListReceivedMhs(interfaceMhs_->getInterface(), SIGNAL(signalNewRosterEntry()));
+    interfaceMhs_->callDbusMethodWithArgument("requestRoster", QList<QVariant>());
+    spyRosterListReceivedMhs.wait(timeOut_);
+
 
     // check accepted contact request, availability and status
+    // https://xmpp.org/rfcs/rfc3921.html -> 8.1
+    // no resent of the subscription request from the server!
+    int currentSubsStateMhs = 0;
+    unsigned int loopCountMhs = 0;
+
+    while (currentSubsStateMhs != 3 && loopCountMhs < 5)
+    {
+        qDebug() << "subs changed count: " << spySubscriptonChangedMhs.count();
+
+        spySubscriptonChangedLhs.wait(timeOut_);
+        spySubscriptonChangedMhs.wait(timeOut_);
+        if (spySubscriptonChangedMhs.count() > 0)
+        {
+            QList<QVariant> spyArgumentsOfSubsMhs = spySubscriptonChangedMhs.takeFirst();
+            currentSubsStateMhs = spyArgumentsOfSubsMhs.at(0).toInt();
+            qDebug() << "mhs subs state from signal: " << currentSubsStateMhs;
+        }
+        else
+        {
+            qDebug() << "mhs: timeout wait for subs changed";
+        }
+
+        loopCountMhs++;
+    }
+    QCOMPARE(currentSubsStateMhs, 0);
+
+    // TODO. Offline user3 is in uers1 roster now without subscriptions
+    // add ability to request only the subscription part again
+    // extend the test here!
 
     // remove user2 as contact.
+    QSignalSpy spyRosterChangedLhs(interfaceLhs_->getInterface(), SIGNAL(signalNewRosterEntry()));
+    interfaceLhs_->callDbusMethodWithArgument("removeContact", QList<QVariant>{user2jid_});
+    spyRosterChangedLhs.wait(timeOut_);
+
+    spyRosterListReceivedLhs.clear();
+    rosterListLhs_.clear();
+    interfaceLhs_->callDbusMethodWithArgument("requestRosterList", QList<QVariant>());
+    spyRosterListReceivedLhs.wait(timeOut_);
+
+    for (auto rosterItem: rosterListLhs_)
+    {
+        qDebug() << "process roster: " << rosterItem.jid << ", sub: " << rosterItem.subscription << ", avail: " << rosterItem.availability ;
+
+        QCOMPARE(rosterItem.name, nameForUser3);
+        QCOMPARE(rosterItem.availability, 0);
+        QCOMPARE(rosterItem.subscription, 0);
+    }
+
 
     // add room
 
@@ -143,6 +203,7 @@ void RosterTest::addDeleteRosterEntryTest()
     // quit clients
     interfaceLhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
     interfaceRhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
+    interfaceMhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
 }
 
 void RosterTest::removeContactCommon(DbusInterfaceWrapper* interface, const QString& jid)
