@@ -19,7 +19,7 @@
  *
  */
 
-ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2jid_("user2@localhost"), user3jid_("user3@localhost"),
+ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2jid_("user2@localhost"), user3jid_("user3@localhost"), roomJid_("testroom@conference.localhost"),
     dbusServiceNameCommon_("org.shmoose.dbuscom"), dbusObjectPath_("/client"),
     imageFileName_("/tmp/64x64-red.jpeg"), timeOutConnect_(4000),
     timeOut_(

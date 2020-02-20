@@ -49,8 +49,6 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     QSignalSpy spyMsgStateRoomRhs(interfaceRhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
     QSignalSpy spyMsgStateRoomMhs(interfaceMhs_->getInterface(), SIGNAL(signalRoomMsgState(QString, QString, int)));
 
-    const QString roomJid = "testroom@conference.localhost";
-
     // user1 and user2 already logged in. Login user3
     connectionTestCommon(interfaceMhs_, user3jid_, "user3");
     //requestRosterTestCommon(interfaceMhs_);
@@ -72,7 +70,7 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     QSignalSpy joinRoomMhs(interfaceMhs_->getInterface(), SIGNAL(signalRoomJoined(QString, QString)));
     QSignalSpy joinRoomRhs(interfaceRhs_->getInterface(), SIGNAL(signalRoomJoined(QString, QString)));
 
-    QList<QVariant> argumentsJoinRoom {roomJid, "testroom"};
+    QList<QVariant> argumentsJoinRoom {roomJid_, "testroom"};
     interfaceLhs_->callDbusMethodWithArgument("joinRoom", argumentsJoinRoom);
     joinRoomLhs.wait(timeOut_);
     qDebug() << "join room count: " << joinRoomLhs.count();
@@ -114,7 +112,7 @@ void ClientRoomMsgTest::sendRoomMsgTest()
 
     // send the msg
     QSignalSpy spyMsgSent(interfaceLhs_->getInterface(), SIGNAL(signalMsgSent(QString)));
-    QList<QVariant> argumentsMsgToRoom {roomJid, msgOnWireFromUser1};
+    QList<QVariant> argumentsMsgToRoom {roomJid_, msgOnWireFromUser1};
     interfaceLhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgToRoom);
 
     // check msgId of sent msg
@@ -163,7 +161,7 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     stateChangeMsgLhsList_.clear();
 
     // user2 reads msg. check msg status at user1 side for user2
-    QList<QVariant> argumentsCurrentChatPartnerRoom {roomJid};
+    QList<QVariant> argumentsCurrentChatPartnerRoom {roomJid_};
     interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerRoom);
 
     spyMsgStateRoomRhs.wait(timeOut_); // sends the displayed stanza
@@ -274,7 +272,7 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     // send 3 msgs from user1
     // send the 1st msg
     spyMsgSent.clear();
-    interfaceLhs_->callDbusMethodWithArgument("sendMsg", QList<QVariant>{roomJid, "1st msg for offline user2"});
+    interfaceLhs_->callDbusMethodWithArgument("sendMsg", QList<QVariant>{roomJid_, "1st msg for offline user2"});
 
     // check msgId of sent msg
     spyMsgSent.wait(timeOut_);
@@ -285,7 +283,7 @@ void ClientRoomMsgTest::sendRoomMsgTest()
 
     // send the 2nd msg
     spyMsgSent.clear();
-    interfaceLhs_->callDbusMethodWithArgument("sendMsg", QList<QVariant>{roomJid, "2nd msg for offline user2"});
+    interfaceLhs_->callDbusMethodWithArgument("sendMsg", QList<QVariant>{roomJid_, "2nd msg for offline user2"});
 
     // check msgId of sent msg
     spyMsgSent.wait(timeOut_);
@@ -296,7 +294,7 @@ void ClientRoomMsgTest::sendRoomMsgTest()
 
     // send the 3rd msg
     spyMsgSent.clear();
-    interfaceLhs_->callDbusMethodWithArgument("sendMsg", QList<QVariant>{roomJid, "3rd msg for offline user2"});
+    interfaceLhs_->callDbusMethodWithArgument("sendMsg", QList<QVariant>{roomJid_, "3rd msg for offline user2"});
 
     // check msgId of sent msg
     spyMsgSent.wait(timeOut_);

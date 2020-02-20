@@ -195,10 +195,50 @@ void RosterTest::addDeleteRosterEntryTest()
         QCOMPARE(rosterItem.subscription, 0);
     }
 
-
     // add room
+    QSignalSpy joinRoomLhs(interfaceLhs_->getInterface(), SIGNAL(signalRoomJoined(QString, QString)));
+    interfaceLhs_->callDbusMethodWithArgument("joinRoom", QList<QVariant>{roomJid_, "testroom"});
+    joinRoomLhs.wait(timeOut_);
+    qDebug() << "join room count: " << joinRoomLhs.count();
+    QVERIFY(joinRoomLhs.count() == 1);
+
+    spyRosterListReceivedLhs.clear();
+    rosterListLhs_.clear();
+    interfaceLhs_->callDbusMethodWithArgument("requestRosterList", QList<QVariant>());
+    spyRosterListReceivedLhs.wait(timeOut_);
+
+    QCOMPARE(rosterListLhs_.count(), 2); // user3 and the room
+    for (auto rosterItem: rosterListLhs_)
+    {
+        qDebug() << "process roster: " << rosterItem.jid << ", sub: " << rosterItem.subscription << ", avail: " << rosterItem.availability ;
+
+        if (rosterItem.name.compare(roomJid_, Qt::CaseSensitive) == 0)
+        {
+            QCOMPARE(rosterItem.availability, 1); // online
+            //QCOMPARE(rosterItem.subscription, 0); // ignored on rooms
+        }
+    }
 
     // delete room
+    // TODO implement signal after room is removed from roster instead of just the roster changed signal!
+    spyRosterChangedLhs.clear();
+    interfaceLhs_->callDbusMethodWithArgument("removeRoom", QList<QVariant>{roomJid_});
+    spyRosterChangedLhs.wait(timeOut_);
+    qDebug() << "remove room count: " << spyRosterChangedLhs.count();
+    QVERIFY(spyRosterChangedLhs.count() == 1);
+
+#if 0
+    spyRosterListReceivedLhs.clear();
+    rosterListLhs_.clear();
+    interfaceLhs_->callDbusMethodWithArgument("requestRosterList", QList<QVariant>());
+    spyRosterListReceivedLhs.wait(timeOut_);
+
+    QCOMPARE(rosterListLhs_.count(), 1); // only user3
+    for (auto rosterItem: rosterListLhs_)
+    {
+        qDebug() << "process roster: " << rosterItem.jid << ", sub: " << rosterItem.subscription << ", avail: " << rosterItem.availability ;
+    }
+#endif
 
     // quit clients
     interfaceLhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
