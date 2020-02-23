@@ -2,7 +2,7 @@
 
 TESTPATH="testing"
 COVFILE="coverage.info"
-
+RESULTS="results"
 
 # a dbus session is needed
 if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
@@ -21,20 +21,20 @@ make
 
 
 GCOVRESULTSCOMMON="gcovresults"
-RESULTSC1=${TRAVIS_BUILD_DIR}/${TESTPATH}/${GCOVRESULTSCOMMON}/c1/
-RESULTSC2=${TRAVIS_BUILD_DIR}/${TESTPATH}/${GCOVRESULTSCOMMON}/c2/
-RESULTSC3=${TRAVIS_BUILD_DIR}/${TESTPATH}/${GCOVRESULTSCOMMON}/c3/
+RESULTSC1=${TRAVIS_BUILD_DIR}/${RESULTS}/${GCOVRESULTSCOMMON}/c1/
+RESULTSC2=${TRAVIS_BUILD_DIR}/${RESULTS}/${GCOVRESULTSCOMMON}/c2/
+RESULTSC3=${TRAVIS_BUILD_DIR}/${RESULTS}/${GCOVRESULTSCOMMON}/c3/
 
 mkdir -p $RESULTSC1
 mkdir -p $RESULTSC2
 mkdir -p $RESULTSC3
 
-BUILD_PATH_DEPTH=$(echo "${TRAVIS_BUILD_DIR}/${TESTPATH}" | grep -o / | wc -l)
-echo "BPD ####### $BUILD_PATH_DEPTH #############"
+BUILDTEST_PATH_DEPTH=$(echo "${TRAVIS_BUILD_DIR}/${TESTPATH}" | grep -o / | wc -l)
+echo "BPD ####### $BUILDTEST_PATH_DEPTH #############"
 
 # build and run the roster test
 ${TRAVIS_BUILD_DIR}/scripts/travis/reset_ejabberd.sh
-export GCOV_PREFIX_STRIP=$BUILD_PATH_DEPTH
+export GCOV_PREFIX_STRIP=$BUILDTEST_PATH_DEPTH
 GCOV_PREFIX=$RESULTSC1 xvfb-run -a -e /dev/stdout ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose lhs &
 GCOV_PREFIX=$RESULTSC2 xvfb-run -a -e /dev/stdout ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose mhs &
 GCOV_PREFIX=$RESULTSC3 xvfb-run -a -e /dev/stdout ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose rhs &
