@@ -35,7 +35,7 @@ merge_client_coverage_to_file()
 	TFILE=$1
 	APPEND=""
 	for CF in $(find ${TRAVIS_BUILD_DIR}/${RESULTS} -name "*.cov"); do
-		if [ ! -s "$CF" ]; then
+		if [ -s "$CF" ]; then
 			APPEND="$APPEND -a $CF "
 		fi
 	done
