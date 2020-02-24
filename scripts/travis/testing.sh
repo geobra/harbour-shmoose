@@ -1,4 +1,5 @@
 #! /bin/bash
+set -x
 
 TESTPATH="testing"
 COVFILE="coverage.info"
