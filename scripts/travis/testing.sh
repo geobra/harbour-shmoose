@@ -1,5 +1,4 @@
 #! /bin/bash
-set -x
 
 TESTPATH="testing"
 COVFILE="coverage.info"
@@ -114,7 +113,7 @@ collect_coverage_at_path_to_file "$RESULTSC3" "c3.cov"
 merge_client_coverage_to_file room.cov 
 
 
-# merge tracefiles with -a t1 -a t2 -a t3 -o final.cov
+# merge test tracefiles to final cov
 lcov -a ${TRAVIS_BUILD_DIR}/roster.cov -a ${TRAVIS_BUILD_DIR}/1o1.cov -a ${TRAVIS_BUILD_DIR}/room.cov -o ${TRAVIS_BUILD_DIR}/$COVFILE 
 
 # remove system files from /usr and generated moc files

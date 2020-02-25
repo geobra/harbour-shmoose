@@ -69,7 +69,7 @@ RosterItem::Availability RosterItem::getAvailability()
 
 void RosterItem::setAvailability(const Availability& availability)
 {
-    qDebug() << "RosterItem::setAvailability" << availability;
+    //qDebug() << "RosterItem::setAvailability" << availability;
     availability_ = availability;
 
     emit availabilityChanged();

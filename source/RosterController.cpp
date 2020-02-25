@@ -45,8 +45,8 @@ void RosterController::setupWithClient(Swift::Client *client)
  */
 void RosterController::handleJidAdded(const Swift::JID &jid)
 {
-    qDebug() << "################# RosterController::handleJidAdded: " << QString::fromStdString(jid.toString());
-    dumpRosterList();
+    //qDebug() << "################# RosterController::handleJidAdded: " << QString::fromStdString(jid.toString());
+    //dumpRosterList();
 
     if (isJidInRoster(QString::fromStdString(jid.toBare().toString())) == false)
     {
@@ -65,13 +65,13 @@ void RosterController::handleJidAdded(const Swift::JID &jid)
         emit rosterListChanged();
     }
 
-    qDebug() << "##################### handleJidAdded: rL_.size: " << rosterList_.size();
+    //qDebug() << "##################### handleJidAdded: rL_.size: " << rosterList_.size();
 }
 
 void RosterController::handleJidUpdated(const Swift::JID &jid, const std::string &name, const std::vector< std::string >& params)
 {
-    std::cout << "############# RosterController::handleJidUpdated " << jid.toString() << ", name: " << name << std::endl;
-    dumpRosterList(); 
+    //std::cout << "############# RosterController::handleJidUpdated " << jid.toString() << ", name: " << name << std::endl;
+    //dumpRosterList();
 
     for (auto item: params)
     {
@@ -90,12 +90,12 @@ void RosterController::handleJidUpdated(const Swift::JID &jid, const std::string
         emit rosterListChanged();
     }
 
-    qDebug() << "#####################handleJidUpdated: rL_.size: " << rosterList_.size();
+    //qDebug() << "#####################handleJidUpdated: rL_.size: " << rosterList_.size();
 }
 
 bool RosterController::updateNameForJid(const Swift::JID &jid, const std::string &name)
 {
-    qDebug()  << "-- updateNameForJid: " << QString::fromStdString(jid.toString()) << ", name: " << QString::fromStdString(name);
+    //qDebug()  << "-- updateNameForJid: " << QString::fromStdString(jid.toString()) << ", name: " << QString::fromStdString(name);
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
@@ -116,7 +116,7 @@ bool RosterController::updateNameForJid(const Swift::JID &jid, const std::string
 
 bool RosterController::updateSubscriptionForJid(const Swift::JID &jid, RosterItem::Subscription subscription)
 {
-    qDebug()  << "-- updateSubscriptionForJid: " << QString::fromStdString(jid.toString()) << ", subs: " << subscription;
+    //qDebug()  << "-- updateSubscriptionForJid: " << QString::fromStdString(jid.toString()) << ", subs: " << subscription;
 
     bool somethingChanged = false;
 
@@ -143,7 +143,7 @@ bool RosterController::updateSubscriptionForJid(const Swift::JID &jid, RosterIte
 
 bool RosterController::updateStatusForJid(const Swift::JID &jid, const QString& status)
 {
-    qDebug()  << "-- updateStatusForJid: " << QString::fromStdString(jid.toString()) << ", status: " << status;
+    //qDebug()  << "-- updateStatusForJid: " << QString::fromStdString(jid.toString()) << ", status: " << status;
 
     bool somethingChanged = false;
 
@@ -170,7 +170,7 @@ bool RosterController::updateStatusForJid(const Swift::JID &jid, const QString& 
 
 bool RosterController::updateAvailabilityForJid(const Swift::JID &jid, const RosterItem::Availability& availability)
 {
-    qDebug()  << "-- updateAvailabilityForJid: " << QString::fromStdString(jid.toString()) << ", ava: " << availability;
+    //qDebug()  << "-- updateAvailabilityForJid: " << QString::fromStdString(jid.toString()) << ", ava: " << availability;
 
     bool somethingChanged = false;
 
@@ -195,8 +195,8 @@ bool RosterController::updateAvailabilityForJid(const Swift::JID &jid, const Ros
 
 void RosterController::handleUpdateFromPresence(const Swift::JID &jid, const QString &status, const RosterItem::Availability& availability)
 {
-    std::cout << "########### RosterController::handleUpdatedFromPresence " << jid.toString() << ", status: " << status.toStdString() << std::endl;
-    dumpRosterList();
+    //std::cout << "########### RosterController::handleUpdatedFromPresence " << jid.toString() << ", status: " << status.toStdString() << std::endl;
+    //dumpRosterList();
 
     bool changed1 = updateStatusForJid(jid, status);
     bool changed2 = updateAvailabilityForJid(jid, availability);
@@ -206,13 +206,13 @@ void RosterController::handleUpdateFromPresence(const Swift::JID &jid, const QSt
         emit rosterListChanged();
     }
 
-    qDebug() << "#####################handleUpdateFromPresence: rL_.size: " << rosterList_.size();
+    //qDebug() << "#####################handleUpdateFromPresence: rL_.size: " << rosterList_.size();
 }
 
 void RosterController::handleJidRemoved(const Swift::JID &jid)
 {
-    std::cout << "############ RosterController::handleJidRemoved: " << jid.toString() << std::endl;
-    dumpRosterList();
+    //std::cout << "############ RosterController::handleJidRemoved: " << jid.toString() << std::endl;
+    //dumpRosterList();
 
     bool somethingChanged = false;
 
@@ -235,13 +235,13 @@ void RosterController::handleJidRemoved(const Swift::JID &jid)
 
     if (somethingChanged)
     {
-        qDebug() << "handleJidRemoved: emit rosterListChanged";
+        //qDebug() << "handleJidRemoved: emit rosterListChanged";
 
         sortRosterList();
         emit rosterListChanged();
     }
 
-    qDebug() << "#####################handleJidRemoved: rL_.size: " << rosterList_.size();
+    //qDebug() << "#####################handleJidRemoved: rL_.size: " << rosterList_.size();
 }
 
 void RosterController::handleMessageReceived(Swift::Message::ref message)
@@ -273,8 +273,8 @@ void RosterController::requestRoster()
  */
 void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
 {
-    qDebug() << "handleRosterReceived";
-    dumpRosterList();
+    //qDebug() << "handleRosterReceived";
+    //dumpRosterList();
 
     if (error)
     {
@@ -299,7 +299,7 @@ void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
             QString bareJid = QString::fromStdString((*it).getJID().toBare().toString());
             if (isJidInRoster(bareJid) == false)
             {
-                qDebug() << "######## handleRosterReceived: append " << bareJid;
+                //qDebug() << "######## handleRosterReceived: append " << bareJid;
                 rosterList_.append(new RosterItem(QString::fromStdString((*it).getJID().toBare().toString()),
                                                   QString::fromStdString((*it).getName()),
                                                   (RosterItem::Subscription)(*it).getSubscription(), false, this));
@@ -320,7 +320,7 @@ void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
         }
     }
 
-    qDebug() << "#####################handleRosterReceived: rL_.size: " << rosterList_.size();
+    //qDebug() << "#####################handleRosterReceived: rL_.size: " << rosterList_.size();
 }
 
 void RosterController::handleVCardChanged(const Swift::JID &jid, const Swift::VCard::ref &vCard)
@@ -538,8 +538,8 @@ bool RosterController::isJidInRoster(const QString& bareJid)
 
 void RosterController::addGroupAsContact(QString groupJid, QString groupName)
 {
-    qDebug() << "addGroupAsContact";
-    dumpRosterList();
+    //qDebug() << "addGroupAsContact";
+    //dumpRosterList();
 
     if (isJidInRoster(groupJid) == false)
     {
@@ -550,16 +550,16 @@ void RosterController::addGroupAsContact(QString groupJid, QString groupName)
     }
     else
     {
-        qDebug() << "############ group already in roster gui!" << groupJid;
+        //qDebug() << "############ group already in roster gui!" << groupJid;
     }
 
-    qDebug() << "#####################addGroupAsContact: rL_.size: " << rosterList_.size();
+    //qDebug() << "#####################addGroupAsContact: rL_.size: " << rosterList_.size();
 }
 
 void RosterController::removeGroupFromContacts(QString groupJid)
 {
-    qDebug() << "removeGroupFromContacts";
-    dumpRosterList();
+    //qDebug() << "removeGroupFromContacts";
+    //dumpRosterList();
 
     bool somethingChanged = false;
     QList<RosterItem*>::iterator it = rosterList_.begin();
@@ -584,7 +584,7 @@ void RosterController::removeGroupFromContacts(QString groupJid)
         //emit rosterListChanged();
     }
 
-    qDebug() << "#####################removeGroupFromContacts: rL_.size: " << rosterList_.size();
+    //qDebug() << "#####################removeGroupFromContacts: rL_.size: " << rosterList_.size();
 }
 
 bool RosterController::isGroup(QString const &jid)
@@ -642,7 +642,7 @@ QString RosterController::getTypeForJid(itemAttribute const &attribute, QString 
 
 void RosterController::appendToRosterIfNotAlreadyIn(const QString& jid)
 {
-    qDebug() << "----------------- appendToRosterIfNotAlreadyIn ----------  " << jid;
+    //qDebug() << "----------------- appendToRosterIfNotAlreadyIn ----------  " << jid;
     if (isJidInRoster(jid) == false // not already in
             &&
             (! jid.compare( QString::fromStdString(client_->getJID().toBare().toBare()), Qt::CaseInsensitive) == 0)) // not the user of this client instance
