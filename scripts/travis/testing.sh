@@ -83,10 +83,8 @@ GCOV_PREFIX=$RESULTSC1 xvfb-run -a -e /dev/stdout ${TRAVIS_BUILD_DIR}/${TESTPATH
 GCOV_PREFIX=$RESULTSC2 xvfb-run -a -e /dev/stdout ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose rhs &
 
 cd ${TRAVIS_BUILD_DIR}/test/integration_test/ClientCommunicationTest/
-mkdir build
-cd build
-qmake ..
-make
+mkdir build && cd build
+qmake .. && make
 xvfb-run -a -e /dev/stdout ./ClientCommunicationTest
 
 # cp trace data to source dir; run lcov and generate test.cov
@@ -95,25 +93,29 @@ collect_coverage_at_path_to_file "$RESULTSC2" "c2.cov"
 
 merge_client_coverage_to_file 1o1.cov 
 
-
 # build the plain room msg test
-#killall -9 harbour-shmoose
-#${TRAVIS_BUILD_DIR}/scripts/travis/reset_ejabberd.sh
+killall -9 harbour-shmoose
+${TRAVIS_BUILD_DIR}/scripts/travis/reset_ejabberd.sh
+xvfb-run -a -e /dev/stdout ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose lhs &
+xvfb-run -a -e /dev/stdout ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose mhs &
+xvfb-run -a -e /dev/stdout ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose rhs &
 
-#xvfb-run -a -e /dev/stdout ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose lhs &
-#xvfb-run -a -e /dev/stdout ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose mhs &
-#xvfb-run -a -e /dev/stdout ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose rhs &
+${TRAVIS_BUILD_DIR}/scripts/travis/reset_ejabberd.sh
+cd ${TRAVIS_BUILD_DIR}/test/integration_test/ClientRoomMessagingTest/
+mkdir build && cd build
+qmake .. && make
+xvfb-run -a -e /dev/stdout ./ClientRoomMessagingTest
 
-#${TRAVIS_BUILD_DIR}/scripts/travis/reset_ejabberd.sh
-#cd ${TRAVIS_BUILD_DIR}/test/integration_test/ClientRoomMessagingTest/
-#mkdir build
-#cd build
-#qmake ..
-#make
-#xvfb-run -a -e /dev/stdout ./ClientRoomMessagingTest
+# cp trace data to source dir; run lcov and generate test.cov
+collect_coverage_at_path_to_file "$RESULTSC1" "c1.cov"
+collect_coverage_at_path_to_file "$RESULTSC2" "c2.cov"
+collect_coverage_at_path_to_file "$RESULTSC3" "c3.cov"
+
+merge_client_coverage_to_file room.cov 
+
 
 # merge tracefiles with -a t1 -a t2 -a t3 -o final.cov
-lcov -a ${TRAVIS_BUILD_DIR}/roster.cov -a ${TRAVIS_BUILD_DIR}/1o1.cov -o ${TRAVIS_BUILD_DIR}/$COVFILE 
+lcov -a ${TRAVIS_BUILD_DIR}/roster.cov -a ${TRAVIS_BUILD_DIR}/1o1.cov -a ${TRAVIS_BUILD_DIR}/room.cov -o ${TRAVIS_BUILD_DIR}/$COVFILE 
 
 # remove system files from /usr and generated moc files
 lcov --remove ${TRAVIS_BUILD_DIR}/$COVFILE '/usr/*' --output-file ${TRAVIS_BUILD_DIR}/$COVFILE

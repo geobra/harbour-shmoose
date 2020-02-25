@@ -56,11 +56,13 @@ void ClientRoomMsgTest::sendRoomMsgTest()
     connectionTestCommon(interfaceMhs_, user3jid_, "user3");
     requestRosterTestCommon(interfaceMhs_);
 
-    // user1: user2 (from base), user3
+    // user1: user2, user3
     addContactTestCommon(interfaceLhs_, user3jid_, "user3");
+    addContactTestCommon(interfaceLhs_, user2jid_, "user2");
 
-    // user2: user1 (from base), user3
+    // user2: user1, user3
     addContactTestCommon(interfaceRhs_, user3jid_, "user3");
+    addContactTestCommon(interfaceRhs_, user1jid_, "user1");
 
     // user3: user1, user2
     addContactTestCommon(interfaceMhs_, user1jid_, "user1");
