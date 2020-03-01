@@ -6,5 +6,5 @@ extraction:
       command:
       - "mkdir build_lgtm"
       - "cd build_lgtm"
-      - "qmake .."
+      - "qmake .. DEFINES+=TRAVIS"
 
