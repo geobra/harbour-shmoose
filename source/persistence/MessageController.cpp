@@ -121,7 +121,7 @@ bool MessageController::addMessage(bool isGroupMessage, const QString &id, const
         record.setValue(Database::sqlMsgMessage_, message);
         record.setValue(Database::sqlMsgDirection_, direction);
         record.setValue(Database::sqlMsgType_, type);
-        record.setValue(Database::sqlTimestamp_, QDateTime::currentDateTime().toTime_t());
+        record.setValue(Database::sqlTimestamp_, QDateTime::currentDateTimeUtc().toTime_t());
 
         if (! this->insertRecord(-1, record))
         {

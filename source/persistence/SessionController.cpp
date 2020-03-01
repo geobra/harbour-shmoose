@@ -128,7 +128,7 @@ void SessionController::updateSession(QString const &jid, QString const &lastMes
     QString sqlCommand =
             "REPLACE into sessions (jid, lastmessage, timestamp, unreadmessages) VALUES ( \""
             + jid + "\", \"" + lastMessage.simplified() + "\", "
-            + QString::number(QDateTime::currentDateTime().toTime_t()) + ", "
+            + QString::number(QDateTime::currentDateTimeUtc().toTime_t()) + ", "
             + QString::number(unreadMessages) + " )";
 
     //qDebug() << sqlCommand;

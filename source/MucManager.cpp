@@ -153,7 +153,7 @@ void MucManager::requestHistoryForRoom(const Swift::JID& roomJid)
     // https://xmpp.org/extensions/attic/xep-0313-0.5.html
 
     // get the date of last week
-    QDateTime lastWeek = QDateTime::currentDateTime().addDays(-7);
+    QDateTime lastWeek = QDateTime::currentDateTimeUtc().addDays(-7);
     lastWeek.setTimeSpec(Qt::UTC);
 
     // construct the mam query for messages from within last week
