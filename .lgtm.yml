@@ -10,7 +10,7 @@ extraction:
         - qml-module-qtquick-controls
     configure:
       command:
-      - "mkdir build_lgtm"
-      - "cd build_lgtm"
+      - "mkdir _lgtm_build_dir"
+      - "cd _lgtm_build_dir"
       - "qmake .. DEFINES+=TRAVIS"
 
