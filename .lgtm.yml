@@ -1,7 +1,13 @@
 extraction:
   cpp:
     prepare:
-      packages: "qt5-default libqt5sql5-sqlite libswiften-dev qtdeclarative5-dev qml-module-qtquick2 qml-module-qtquick-controls"
+      packages:
+        - qt5-default
+        - libqt5sql5-sqlite
+        - libswiften-dev
+        - qtdeclarative5-dev
+        - qml-module-qtquick2
+        - qml-module-qtquick-controls
     configure:
       command:
       - "mkdir build_lgtm"
