@@ -101,7 +101,7 @@ VALUES
 	if (! query.exec("REPLACE INTO " + Database::sqlGcmName_ +
 					 " (" + Database::sqlId_ + ", " + Database::sqlGcmChatMemberName_ + ", " + Database::sqlTimestamp_ + ", " + Database::sqlGcmState_ + ") " +
 					 "VALUES " +
-					 "('" + msgId + "', '" + groupChatMember + "', '" + QString::number(QDateTime::currentDateTime().toTime_t()) + "', " + QString::number(state) + ");"
+                     "('" + msgId + "', '" + groupChatMember + "', '" + QString::number(QDateTime::currentDateTimeUtc().toTime_t()) + "', " + QString::number(state) + ");"
 					 ))
 	{
 		qDebug() << query.lastError().databaseText();

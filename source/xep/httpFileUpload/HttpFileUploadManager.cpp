@@ -174,7 +174,7 @@ bool HttpFileUploadManager::createAttachmentPath()
 // create a path and file name with a jpg suffix
 QString HttpFileUploadManager::createTargetImageName(QString source)
 {
-    QDateTime now(QDateTime::currentDateTime());
+    QDateTime now(QDateTime::currentDateTimeUtc());
     uint unixTime = now.toTime_t();
 
     QString targetFileName = QFileInfo(source).baseName() + ".jpg";
