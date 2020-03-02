@@ -1,7 +1,8 @@
 [[section-introduction-and-goals]]
 == Introduction and Goals
+Shmoose is a XMPP client for Sailfish OS. XMPP is an open standard and is using free, open and decentralised servers for communicating with other users. Instead of using 'walled garden' instant messaging solutions to communicate with other users, XMPP is federalised and therore more resistent to censorship and outage.
 
-
+Shmoose should enable SailfishOS users to use this ecosystem with all the XMPP features, a modern instant messanger should provide today.  
 
 === Requirements Overview
 
@@ -21,3 +22,4 @@
 | _<Role-1>_ | _<Contact-1>_ | _<Expectation-1>_
 | _<Role-2>_ | _<Contact-2>_ | _<Expectation-2>_
 |===
+
