@@ -262,7 +262,7 @@ void MucManager::handleJoinFailed(Swift::ErrorPayload::ref error)
     {
         Swift::ErrorPayload joinError = *error;
         //std::cout << "join error: " << joinError.getText() << std::endl;
-        signalShowMessage("Error joining room", QString::fromStdString(joinError.getText()));
+        emit signalShowMessage("Error joining room", QString::fromStdString(joinError.getText()));
     }
 }
 
