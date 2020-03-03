@@ -1,4 +1,4 @@
-= Software Architecture: Shmoose - XMPP Client for SailfishOS 
+= Software Architecture - Shmoose
 // toc-title definition MUST follow document title without blank line!
 :toc-title: Table of Contents
 

@@ -1,16 +1,36 @@
 [[section-introduction-and-goals]]
 == Introduction and Goals
-Shmoose is a XMPP client for Sailfish OS. XMPP is an open standard and is using free, open and decentralised servers for communicating with other users. Instead of using 'walled garden' instant messaging solutions to communicate with other users, XMPP is federalised and therore more resistent to censorship and outage.
+Shmoose is a XMPP client for Sailfish OS.
+XMPP is an open standard and is using free, open and decentralised servers for communicating with other users.
+Instead of using 'walled garden' instant messaging solutions to communicate with other users, XMPP is federalised and therore more resistent to censorship and outage.
 
-Shmoose should enable SailfishOS users to use this ecosystem with all the XMPP features, a modern instant messanger should provide today.  
+Shmoose will enable SailfishOS users to use this ecosystem with all the XMPP features a modern instant messanger should provide today.
 
 === Requirements Overview
+This is a list of the highlevel requirements which must be fulfilled.
 
-
+* The client shall be able to provide 1to1 communication
+* The client shall be able to provice 1 to many communication (aka rooms in XMPP)
+* The client shall display the status of a sent message
+* The client shall be able to add, edit and delete contacts
+* The client shall be able to distribute pictures
+* The client shall be able to communicat in a secure manner
+** The client shall support TLS connections to the server
+** The client shall support OMEMO E2EE (end to end encryption)
 
 === Quality Goals
+*Reliability* +
+Each sent message must be guaranteed to be delivered to the receiver. Each received message must be analyzed and processed by the client.
+
+*Security* +
+A message must be encrypted to ensure the privacy of the message content. Additional, it must be detected if the  message content was altered in any way to fulfill integrity. Authenticity must be ensured to proove the message is from the assumed message partner.
+
+*Modularity* +
+Each feature should be loosiely coupled to be able to easily exchange the implementation if necessary.
 
 
+*Portability* +
+It should be possible to run the client on the SailfishOS plattform as well as on any desktop linux environment.
 
 === Stakeholders
 
@@ -18,8 +38,8 @@ Shmoose should enable SailfishOS users to use this ecosystem with all the XMPP f
 
 [options="header",cols="1,2,2"]
 |===
-|Role/Name|Contact|Expectations
-| _<Role-1>_ | _<Contact-1>_ | _<Expectation-1>_
-| _<Role-2>_ | _<Contact-2>_ | _<Expectation-2>_
+|Role/Name|Group|Expectations
+| _Developer_ | _github / maemo_ | _Understanding the structur of the code_
+| _User_ | _Sailfish Community_ | _Get into the functionality_
 |===
 
