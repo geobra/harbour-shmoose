@@ -1,17 +1,9 @@
 [[section-system-scope-and-context]]
 == System Scope and Context
 
-
-
-
-
 === Business Context
+image::use_case.png[]
 
-
-
-**<Diagram or Table>**
-
-**<optionally: Explanation of external domain interfaces>**
 
 === Technical Context
 

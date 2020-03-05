@@ -34,12 +34,11 @@ It should be possible to run the client on the SailfishOS plattform as well as o
 
 === Stakeholders
 
-
-
 [options="header",cols="1,2,2"]
 |===
 |Role/Name|Group|Expectations
 | _Developer_ | _github / maemo_ | _Understanding the structur of the code_
 | _User_ | _Sailfish Community_ | _Get into the functionality_
+| _me_ | _Architect_ | _Playground to test new stuff_
 |===
 

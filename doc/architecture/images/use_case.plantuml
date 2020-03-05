@@ -1,0 +1,16 @@
+@startuml
+skinparam handwritten true
+left to right direction
+skinparam packageStyle rectangle
+actor user
+actor network
+rectangle Client{
+  user -- (1o1 communication)
+  user -- (group communication)
+  (send message) .> (1o1 communication) : include
+  (send message) .> (group communication) : include
+  (encryption) .> (send message) : extends
+  (send message) -- network
+}
+@enduml
+
