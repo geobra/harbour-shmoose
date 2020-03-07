@@ -4,7 +4,7 @@ left to right direction
 skinparam packageStyle rectangle
 actor user
 actor network
-rectangle XMPP-Client{
+rectangle Shmoose{
   user -- (communicate 1o1)
   user -- (communicate in group)
   user -- (check message status)

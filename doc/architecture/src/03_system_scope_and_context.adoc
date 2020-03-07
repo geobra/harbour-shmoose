@@ -5,12 +5,45 @@
 image::use_case.png[]
 
 
+
+*User (Actor)* +
+The user is the person who uses the client to communicate with other users. 
+
+*Network (Actor)* +
+To communicate with other users, a network is necessary where other users interconnect their clients. 
+
+*Communicate 1o1* +
+A user is able to make private communication with one other user of the network.
+
+*Communicate in group* +
+A user is able to communicate witt more then one user at a time. Group communication in the XMPP jargon is done by using rooms.
+
+*Send picture* +
+A user is able to send pictures. Either by 1o1 messaging or by group messaging.
+
+*Check message status* +
+A user is able to check the status of a message. The status is something like
+
+* received by server
+* received by client
+* displayed to users
+
+*Handle contacts* +
+The user is able to handle contacts. This can be
+
+* add a new contact
+* edit an existing contact
+* remove a contact
+
+The contacts also have states like
+
+* online
+* offline
+* subscriptions
+ 
+
 === Technical Context
+image::technical_context.png[]
 
+The technical context is straight forward. The client communicates with a XMPP server by using the XMPP protocol via TCP/IP.
 
-
-**<Diagram or Table>**
-
-**<optionally: Explanation of technical interfaces>**
-
-**<Mapping Input/Output to Channels>**

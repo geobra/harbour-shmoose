@@ -1,0 +1,10 @@
+@startuml
+
+[Shmoose]
+[Server]  
+
+
+[Shmoose] <-> [Server] : XMPP over TCP/IP 
+
+@enduml
+
