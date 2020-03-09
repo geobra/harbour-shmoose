@@ -21,6 +21,7 @@ collect_coverage_at_path_to_file()
 	CFILE=$2
 	if [ "$(ls -A $RPATH)" ]; then
 		cp $RPATH/*.gcda ${TRAVIS_BUILD_DIR}/${TESTPATH}/
+		echo "lcov --capture --directory ${TRAVIS_BUILD_DIR}/$TESTPATH --output-file ${TRAVIS_BUILD_DIR}/${RESULTS}/$CFILE"
 		lcov --capture --directory ${TRAVIS_BUILD_DIR}/$TESTPATH --output-file ${TRAVIS_BUILD_DIR}/${RESULTS}/$CFILE
 		rm -f ${TRAVIS_BUILD_DIR}/$TESTPATH/*.gcda
 	fi
@@ -37,6 +38,7 @@ merge_client_coverage_to_file()
 			APPEND="$APPEND -a $CF "
 		fi
 	done
+	echo "lcov $APPEND -o  ${TRAVIS_BUILD_DIR}/$TFILE"
 	lcov $APPEND -o  ${TRAVIS_BUILD_DIR}/$TFILE
 
 	find ${TRAVIS_BUILD_DIR}/${RESULTS} -type f -name "*.cov" -exec rm -f {} \;
@@ -114,7 +116,8 @@ merge_client_coverage_to_file room.cov
 
 
 # merge test tracefiles to final cov
-lcov -a ${TRAVIS_BUILD_DIR}/roster.cov -a ${TRAVIS_BUILD_DIR}/1o1.cov -a ${TRAVIS_BUILD_DIR}/room.cov -o ${TRAVIS_BUILD_DIR}/$COVFILE 
+echo "lcov -a ${TRAVIS_BUILD_DIR}/roster.cov -a ${TRAVIS_BUILD_DIR}/1o1.cov -a ${TRAVIS_BUILD_DIR}/room.cov -o ${TRAVIS_BUILD_DIR}/$COVFILE"
+lcov -a ${TRAVIS_BUILD_DIR}/roster.cov -a ${TRAVIS_BUILD_DIR}/1o1.cov -a ${TRAVIS_BUILD_DIR}/room.cov -o ${TRAVIS_BUILD_DIR}/$COVFILE
 
 # remove system files from /usr and generated moc files
 lcov --remove ${TRAVIS_BUILD_DIR}/$COVFILE '/usr/*' --output-file ${TRAVIS_BUILD_DIR}/$COVFILE

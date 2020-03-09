@@ -10,7 +10,7 @@ install:
     - sudo apt-get -qq install qt5-default libqt5sql5-sqlite libswiften-dev qtdeclarative5-dev qml-module-qtquick2 qml-module-qtquick-controls lcov
 
     - sudo apt-get install systemd # new version nedded by ejabberd
-    - sudo apt-get install asciidoctor plantuml
+    - sudo apt-get install asciidoctor plantuml graphviz
     - sudo apt-get install xvfb ejabberd
 
 script:

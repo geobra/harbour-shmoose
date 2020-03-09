@@ -1,5 +1,10 @@
 [[section-solution-strategy]]
 == Solution Strategy
 
+To reduce the workload and boost the quality of Shmoose, the client should be build on already existing and prooven components. A XMPP library is used to handle most of the implementation details of the main XEP's, needed by a modern client. Additional all the encryption stuff will not be implemented from scratch but also used from already existing libraries.
 
+
+
+TODO
+Map the quality goals to the implementation details
 
