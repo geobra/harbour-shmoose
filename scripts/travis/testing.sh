@@ -116,8 +116,14 @@ merge_client_coverage_to_file room.cov
 
 
 # merge test tracefiles to final cov
-echo "lcov -a ${TRAVIS_BUILD_DIR}/roster.cov -a ${TRAVIS_BUILD_DIR}/1o1.cov -a ${TRAVIS_BUILD_DIR}/room.cov -o ${TRAVIS_BUILD_DIR}/$COVFILE"
-lcov -a ${TRAVIS_BUILD_DIR}/roster.cov -a ${TRAVIS_BUILD_DIR}/1o1.cov -a ${TRAVIS_BUILD_DIR}/room.cov -o ${TRAVIS_BUILD_DIR}/$COVFILE
+APPEND=""
+for CF in $(ls ${TRAVIS_BUILD_DIR}/*.cov); do
+	if [ -s "$CF" ]; then
+		APPEND="$APPEND -a $CF "
+	fi
+done
+echo "lcov $APPEND -o ${TRAVIS_BUILD_DIR}/$COVFILE"
+lcov $APPEND -o ${TRAVIS_BUILD_DIR}/$COVFILE
 
 # remove system files from /usr and generated moc files
 lcov --remove ${TRAVIS_BUILD_DIR}/$COVFILE '/usr/*' --output-file ${TRAVIS_BUILD_DIR}/$COVFILE
