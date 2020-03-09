@@ -1,0 +1,25 @@
+@startuml
+skinparam handwritten true
+left to right direction
+skinparam packageStyle rectangle
+actor user
+actor network
+rectangle Shmoose{
+  user -- (communicate 1o1)
+  user -- (communicate in group)
+  user -- (check message status)
+  user -- (send picture)
+  user -- (handle contacts)
+  (send message) ..> (communicate 1o1) : include
+  (send message) ..> (communicate in group) : include
+  (receive message) ..> (communicate 1o1) : include
+  (receive message) ..> (communicate in group) : include
+  (encryption) ..> (send message) : extends
+  (encryption) ..> (receive message) : extends
+  (send picture) ..> (send message) : extends
+  (send message) -- network
+  (receive message) -- network
+  (handle contacts) -- network
+}
+@enduml
+

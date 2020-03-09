@@ -1,0 +1,15 @@
+[[section-architecture-constraints]]
+== Architecture Constraints
+
+=== Organisational
+
+|===
+|Uncertain number of developers|As this open source project implements a niche protocol (XMPP) on a niche OS (Sailfish) it's hardly forseeable how many contributions would be made   
+|===
+
+=== Technical
+
+|===
+|Specific versions of libraries|The implemented client should be runnable on any Unix like system. But the main target OS would be Sailfish OS. Because of this the Qt Version is currently limited to v6.5 and the C{plus}{plus} standard to C{plus}{plus}11 with some parts of C{plus}{plus}14
+|===
+
