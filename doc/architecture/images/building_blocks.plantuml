@@ -1,0 +1,16 @@
+@startuml
+skinparam packageStyle rectangle
+
+[GUI]
+[Integration]
+[Swiften] <<library>>
+[libomemo] <<library>>
+[axc] <<library>>
+
+[GUI] -- [Integration]
+[Integration] -- [Swiften]
+[Integration] - [libomemo]
+[libomemo] - [axc]
+
+@enduml
+
