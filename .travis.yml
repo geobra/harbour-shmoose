@@ -10,6 +10,7 @@ install:
     - sudo apt-get -qq install qt5-default libqt5sql5-sqlite libswiften-dev qtdeclarative5-dev qml-module-qtquick2 qml-module-qtquick-controls lcov
 
     - sudo apt-get install systemd # new version nedded by ejabberd
+    - sudo apt-get install asciidoctor plantuml
     - sudo apt-get install xvfb ejabberd
 
 script:
@@ -22,4 +23,21 @@ script:
 
     # testing. build and run
     - ${TRAVIS_BUILD_DIR}/scripts/travis/testing.sh
+
+    # create architecture
+    - cd ${TRAVIS_BUILD_DIR}/doc/architecture/images/
+    - plantuml *.plantuml
+    - cd ..
+    - asciidoctor index.adoc
+    - cd ${TRAVIS_BUILD_DIR}
+
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN_REPO
+  keep_history: true
+  local_dir: ${TRAVIS_BUILD_DIR}/doc/architecture/
+  on:
+    branch: master
 
