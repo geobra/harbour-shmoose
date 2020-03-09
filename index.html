@@ -698,10 +698,36 @@ The user is able to handle contacts. This can be</p>
 <p>To reduce the workload and boost the quality of Shmoose, the client should be build on already existing and prooven components. A XMPP library is used to handle most of the implementation details of the main XEP&#8217;s, needed by a modern client. Additional all the encryption stuff will not be implemented from scratch but also used from already existing libraries.</p>
 </div>
 <div class="paragraph">
+<p>What is leftover to be new developed is the integration between the libraries and the missing XEP&#8217;s which are not provided by the library. Also the GUI part must be written from scratch.</p>
+</div>
+<div class="sect2">
+<h3 id="_overview">4.1. Overview</h3>
+<div class="paragraph">
 <p>TODO
-Map the quality goals to the implementation details</p>
+Map the quality goals to the details</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_building_blocks">4.2. Building Blocks</h3>
+<div class="imageblock">
+<div class="content">
+<img src="./images/building_blocks.png" alt="building blocks">
+</div>
+</div>
+<div class="paragraph">
+<p>The GUI part will be implemented in QML. This allows a looslie coupled graphical interface from the rest of the implementation. On Sailfish OS, there is a proprietary qml extension named silica. This qml extension is not available on other plattforms. Because of this, the GUI part has to be developed separately for different target devices which is possible without touching or even recompiling the rest of the source code.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://swift.im/swiften/api/">Swiften</a>, the main library used by Shmoose is responsible to handle most of the XMPP protocol details.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/gkdr/libomemo">libomemo</a> and <a href="https://github.com/gkdr/axc">axc</a> are used to be able to implement the <a href="https://xmpp.org/extensions/xep-0384.html">OMEMO XEP</a>. Libomemo and axc mainly responsible to implement the encryption details.</p>
+</div>
+<div class="paragraph">
+<p>The integration part puts all the pieces together.</p>
 </div>
 <div style="page-break-after: always;"></div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -985,7 +1011,7 @@ building block instances depicted in this diagram.&gt;</em></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-03-09 20:05:31 UTC
+Last updated 2020-03-09 20:43:57 UTC
 </div>
 </div>
 </body>

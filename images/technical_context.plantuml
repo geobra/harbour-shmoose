@@ -1,10 +1,10 @@
 @startuml
+skinparam packageStyle rectangle
 
 [Shmoose]
-[Server]  
+[Server]
 
-
-[Shmoose] <-> [Server] : XMPP over TCP/IP 
+[Shmoose] <-> [Server] : XMPP over TCP/IP
 
 @enduml
 
