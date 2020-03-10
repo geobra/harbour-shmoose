@@ -1,0 +1,19 @@
+@startuml
+
+
+node "Any Linux OS" {
+  [Shmoose Client Rhs]
+  [XMPP Server]
+  [Shmoose Client Lhs]
+  [Testrunner]
+}
+
+[Shmoose Client Rhs] <--> [XMPP Server]: TCP/IP
+[Shmoose Client Rhs] <--> [Testrunner]: dbus
+
+[Shmoose Client Lhs] <--> [XMPP Server]: TCP/IP
+[Shmoose Client Lhs] <--> [Testrunner]: dbus
+
+
+@enduml
+

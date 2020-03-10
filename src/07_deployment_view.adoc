@@ -5,11 +5,9 @@
 
 
 
-=== Infrastructure Level 1
+=== Production
 
-
-
-_**<Overview Diagram>**_
+image::deployment_smart_phone.png[]
 
 Motivation::
 
@@ -23,20 +21,17 @@ Mapping of Building Blocks to Infrastructure::
 _<description of the mapping>_
 
 
-=== Infrastructure Level 2
+=== Development and testing
 
+image::deployment_testing.png[]
 
+Motivation::
 
-==== _<Infrastructure Element 1>_
+_<explanation in text form>_
 
-_<diagram + explanation>_
+Quality and/or Performance Features::
 
-==== _<Infrastructure Element 2>_
+_<explanation in text form>_
 
-_<diagram + explanation>_
-
-...
-
-==== _<Infrastructure Element n>_
-
-_<diagram + explanation>_
+Mapping of Building Blocks to Infrastructure::
+_<description of the mapping>_

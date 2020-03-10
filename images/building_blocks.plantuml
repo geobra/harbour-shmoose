@@ -2,14 +2,16 @@
 skinparam packageStyle rectangle
 
 [GUI]
-[Integration]
+[Client]
+[Qt] <<library>>
 [Swiften] <<library>>
 [libomemo] <<library>>
 [axc] <<library>>
 
-[GUI] -- [Integration]
-[Integration] -- [Swiften]
-[Integration] - [libomemo]
+[GUI] -- [Client]
+[Client] -- [Qt]
+[Client] -- [Swiften]
+[Client] - [libomemo]
 [libomemo] - [axc]
 
 @enduml
