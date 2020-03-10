@@ -1,0 +1,14 @@
+@startuml
+skinparam packageStyle rectangle
+
+[GUI]
+[Client]
+[XMPP Base] <<library>>
+[E2E Security] <<library>>
+
+[GUI] -- [Client]
+[Client] -- [XMPP Base]
+[Client] - [E2E Security]
+
+@enduml
+

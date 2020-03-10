@@ -1,6 +1,8 @@
 [[section-solution-strategy]]
 == Solution Strategy
 
+image::abstract_solution.png[]
+
 To reduce the workload and boost the quality of Shmoose, the client should be build on already existing and prooven components. A XMPP library is used to handle most of the implementation details of the main XEP's, needed by a modern client. Additional all the encryption stuff will not be implemented from scratch but also used from already existing libraries.
 
 What is leftover to be new developed is the integration between the libraries and the missing XEP's which are not provided by the library. Also the GUI part must be written from scratch.
@@ -9,14 +11,4 @@ What is leftover to be new developed is the integration between the libraries an
 TODO
 Map the quality goals to the details
 
-=== Building Blocks
-image::building_blocks.png[]
-
-The GUI part will be implemented in QML. This allows a looslie coupled graphical interface from the rest of the implementation. On Sailfish OS, there is a proprietary qml extension named silica. This qml extension is not available on other plattforms. Because of this, the GUI part has to be developed separately for different target devices which is possible without touching or even recompiling the rest of the source code.
-
-https://swift.im/swiften/api/[Swiften], the main library used by Shmoose is responsible to handle most of the XMPP protocol details.
-
-https://github.com/gkdr/libomemo[libomemo] and https://github.com/gkdr/axc[axc] are used to be able to implement the https://xmpp.org/extensions/xep-0384.html[OMEMO XEP]. Libomemo and axc mainly responsible to implement the encryption details.
-
-The integration part puts all the pieces together.
 

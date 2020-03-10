@@ -1,0 +1,14 @@
+@startuml
+
+
+node "Sailfish OS\nSmartphone" {
+  [Shmoose]
+}
+
+cloud "Internet" {
+  [XMPP Server]
+}
+
+[Shmoose] <--> [XMPP Server]
+
+@enduml
