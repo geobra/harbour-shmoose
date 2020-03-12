@@ -893,15 +893,7 @@ building block instances depicted in this diagram.&gt;</em></p>
 <dl>
 <dt class="hdlist1">Motivation</dt>
 <dd>
-<p><em>&lt;explanation in text form&gt;</em></p>
-</dd>
-<dt class="hdlist1">Quality and/or Performance Features</dt>
-<dd>
-<p><em>&lt;explanation in text form&gt;</em></p>
-</dd>
-<dt class="hdlist1">Mapping of Building Blocks to Infrastructure</dt>
-<dd>
-<p><em>&lt;description of the mapping&gt;</em></p>
+<p>The production deployment is straiht forward. All the building blocks compile to one unix elf executable. As a matter of fact, the GUI part will be deployed as plain text qml decription files. Shmoose runs direct on the Sailfish OS Smartphone and has to connect to an external XMPP Server.</p>
 </dd>
 </dl>
 </div>
@@ -917,15 +909,15 @@ building block instances depicted in this diagram.&gt;</em></p>
 <dl>
 <dt class="hdlist1">Motivation</dt>
 <dd>
-<p><em>&lt;explanation in text form&gt;</em></p>
+<p>With a runable executable on a desktop environment, one is able to use all the fancy develop and debugging tools. Shmoose is structured in a way that a deployment on any Linux OS is possible.</p>
 </dd>
 <dt class="hdlist1">Quality and/or Performance Features</dt>
 <dd>
-<p><em>&lt;explanation in text form&gt;</em></p>
+<p>To be able to use a full featured desktop development system is quit usefull to reduce the roundtrips of coding, building and deploying to the target systems. This also allows to setup a testing system which tests Shmoose on the outer interfaces.</p>
 </dd>
 <dt class="hdlist1">Mapping of Building Blocks to Infrastructure</dt>
 <dd>
-<p><em>&lt;description of the mapping&gt;</em></p>
+<p>Two instances of Shmoose are running on the Linux System. On both clients, the GUI part is dropped in favour of a dbus interface. Almost all functionality which was accessable through the GUI is now reachable through the dbus interface. Each clients announce his interface on the dbus session bus. The Testrunner connects to each of the clients interfaces. After that, the Testrunner calls both clients through dbus to connect to the XMPP Server, which also runs on the same Linux System. With this setup, any functionality in a Shmoose client can be triggerd and checked for reaction on the other hand side Shmoose client.</p>
 </dd>
 </dl>
 </div>
@@ -1015,7 +1007,7 @@ building block instances depicted in this diagram.&gt;</em></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-03-10 16:25:41 UTC
+Last updated 2020-03-12 20:39:38 UTC
 </div>
 </div>
 </body>
