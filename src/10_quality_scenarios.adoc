@@ -1,13 +1,19 @@
 [[section-quality-scenarios]]
 == Quality Requirements
 
-
-
+Refer to 1.2. Quality Goals. This goals will not be detailed any more.
 
 === Quality Tree
 
-
+tbd
 
 === Quality Scenarios
 
+Reliability
+
+Security
+
+Modularity
+
+Portability
 
