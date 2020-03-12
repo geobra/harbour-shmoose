@@ -1,22 +1,29 @@
 [[section-concepts]]
-== Cross-cutting Concepts
+== (Cross-cutting) Concepts
 
+=== Dependencies
 
+_<explanation>_
 
+=== Modularisation
 
+_<explanation>_
 
-=== _<Concept 1>_
+=== Persistence
+
+_<explanation>_
+
+=== Errorhandling
 
 _<explanation>_
 
 
+=== Logging
 
-=== _<Concept 2>_
+_<explanation>_
+
+
+=== Tests
 
 _<explanation>_
 
-...
-
-=== _<Concept n>_
-
-_<explanation>_
