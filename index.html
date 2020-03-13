@@ -977,30 +977,42 @@ building block instances depicted in this diagram.&gt;</em></p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-quality-scenarios">10. Quality Requirements</h2>
+<h2 id="section-quality-scenarios">10. Quality Requirements and Quality Tree</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Refer to 1.2. Quality Goals. This goals will not be detailed any more.</p>
 </div>
 <div class="sect2">
-<h3 id="_quality_tree">10.1. Quality Tree</h3>
+<h3 id="_quality_scenarios">10.1. Quality Scenarios</h3>
 <div class="paragraph">
-<p>tbd</p>
+<p>Pre-Condition: If not otherwise stated, all the described scenarios are online-scenarios.</p>
 </div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Reliability</dt>
+<dd>
+<p>A user wants to send a message to one of his contacts. After composing and sending the message, the status of that message is displayed within 5 seconds.</p>
+</dd>
+<dt class="hdlist1">Security</dt>
+<dd>
+<p>A user wants to send a message to an other client, which also implements OMEMO E2E Security. After detecting that the other client also supports OMEMO, the client switches automatically to the use of OMEMO Security. This security feature is shown to the user within 2 Seconds.</p>
+</dd>
+</dl>
 </div>
-<div class="sect2">
-<h3 id="_quality_scenarios">10.2. Quality Scenarios</h3>
 <div class="paragraph">
-<p>Reliability</p>
+<p>A user receives an OMEMO encrypted message from an other client. If that messages was alterd in any way, which breaks the integrity of that message, a security alterd must be shown to the user within 1 second.</p>
 </div>
-<div class="paragraph">
-<p>Security</p>
-</div>
-<div class="paragraph">
-<p>Modularity</p>
-</div>
-<div class="paragraph">
-<p>Portability</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Modularity</dt>
+<dd>
+<p>A developer wants to add additional functionality to the client. The developer is able to implement the majority of the code in a separate module. The amount of changes to other code parts of the client is limited to instanciation of that module with the needed dependencies achieved by injection.</p>
+</dd>
+<dt class="hdlist1">Portability</dt>
+<dd>
+<p>A developer wants to port the client to an other operating system. The additional effort is limited to the GUI part with some needed adaptions for the system integration.</p>
+</dd>
+</dl>
 </div>
 <div style="page-break-after: always;"></div>
 </div>
@@ -1010,9 +1022,93 @@ building block instances depicted in this diagram.&gt;</em></p>
 <h2 id="section-technical-risks">11. Risks and Technical Debts</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Choose of <em>right</em> xmpp framework</p>
+<p>The amount of work to be done is dependend on the right components and librarys which are choosen. There are some technical requirements to be met for each library:</p>
+</div>
+<div class="sect2">
+<h3 id="_xmpp_library">11.1. XMPP Library</h3>
+<div class="paragraph">
+<p>Technical requirements:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Majority of XEP&#8217;s available for a modern XMPP client</p>
+</li>
+<li>
+<p>Actively developed and maintained</p>
+</li>
+<li>
+<p>High qualtity</p>
+</li>
+<li>
+<p>Library authors well known in the XMPP community</p>
+</li>
+<li>
+<p>Modern C++ interface</p>
+</li>
+<li>
+<p>Security features available</p>
+</li>
+<li>
+<p>Open Source</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>There are a number of xmpp libraries available which are commonly used, such as:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>libpurpel</p>
+</li>
+<li>
+<p>QXmpp</p>
+</li>
+<li>
+<p>Swiften</p>
+</li>
+<li>
+<p>&#8230;&#8203;</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>After validating some of them, the Swiften library is choosen because it fullfills the most requirments. The only thing which is left over is modern E2E security (Omemo).</p>
+</div>
+<div class="paragraph">
+<p>Nevertheless, the risk of dropping maintainance of that library still exists. Even it is an open source library, there is no guaranty that the authors of that library or even someon else from the XMPP community will actively develop it in the future.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_e2e_security_library">11.2. E2E Security Library</h3>
+<div class="paragraph">
+<p>Technical requirements:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Implementation of OMEMO</p>
+</li>
+<li>
+<p>Actively developed and maintained</p>
+</li>
+<li>
+<p>High qualtity</p>
+</li>
+<li>
+<p>Open Source</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Until today, there are just a few C librarys out there which matches some of this requirements. As far as I know, the best choice would be <a href="https://github.com/gkdr/libomemo">libomeo</a>. The author actively develops this library as a base for the lurch plugin, which adds OMEMO support to libpurple.</p>
+</div>
+<div class="paragraph">
+<p>The integration of this library seems not so difficult, but requires for sure an amount of time to get to know all the functions to implement the XEP in a correct way. As a lack of real alternatives, this library will be choosen in the hope of long and active development and maintainance.</p>
 </div>
 <div style="page-break-after: always;"></div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -1049,7 +1145,7 @@ building block instances depicted in this diagram.&gt;</em></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-03-12 20:57:17 UTC
+Last updated 2020-03-13 18:11:15 UTC
 </div>
 </div>
 </body>

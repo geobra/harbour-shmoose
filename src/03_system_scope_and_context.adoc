@@ -4,8 +4,6 @@
 === Business Context
 image::use_case.png[]
 
-
-
 *User (Actor)* +
 The user is the person who uses the client to communicate with other users. 
 
@@ -40,7 +38,6 @@ The contacts also have states like
 * online
 * offline
 * subscriptions
- 
 
 === Technical Context
 image::technical_context.png[]
