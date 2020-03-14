@@ -15,11 +15,11 @@ Security::
 
 A user wants to send a message to an other client, which also implements OMEMO E2E Security. After detecting that the other client also supports OMEMO, the client switches automatically to the use of OMEMO Security. This security feature is shown to the user within 2 Seconds.
 
-A user receives an OMEMO encrypted message from an other client. If that messages was alterd in any way, which breaks the integrity of that message, a security alterd must be shown to the user within 1 second. 
+A user receives an OMEMO encrypted message from an other client. If that messages was altered in any way, which breaks the integrity of that message, a security alterd must be shown to the user within 1 second. 
 
 Modularity::
 
-A developer wants to add additional functionality to the client. The developer is able to implement the majority of the code in a separate module. The amount of changes to other code parts of the client is limited to instanciation of that module with the needed dependencies achieved by injection.
+A developer wants to add additional functionality to the client. The developer is able to implement the majority of the code in a separate module. The amount of changes to other code parts of the client is limited to instantiation of that module with the needed dependencies achieved by injection.
 
 Portability::
 

@@ -456,20 +456,20 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-introduction-and-goals">1. Introduction and Goals</h2>
+<h2 id="section-introduction-and-goals"><a class="link" href="#section-introduction-and-goals">1. Introduction and Goals</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Shmoose is a XMPP client for Sailfish OS.
-XMPP is an open standard and is using free, open and decentralised servers for communicating with other users.
-Instead of using 'walled garden' instant messaging solutions to communicate with other users, XMPP is federalised and therore more resistent to censorship and outage.</p>
+XMPP is an open standard and is using free, open and decentralized servers for communicating with other users.
+Instead of using 'walled garden' instant messaging solutions to communicate with other users, XMPP is federalized and therefore more resistant to censorship and outage.</p>
 </div>
 <div class="paragraph">
-<p>Shmoose will enable SailfishOS users to use this ecosystem with all the XMPP features a modern instant messanger should provide today.</p>
+<p>Shmoose will enable SailfishOS users to use this ecosystem with all the XMPP features a modern instant messenger should provide today.</p>
 </div>
 <div class="sect2">
-<h3 id="_requirements_overview">1.1. Requirements Overview</h3>
+<h3 id="_requirements_overview"><a class="link" href="#_requirements_overview">1.1. Requirements Overview</a></h3>
 <div class="paragraph">
-<p>This is a list of the highlevel requirements which must be fulfilled.</p>
+<p>This is a list of the high level requirements which must be fulfilled.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -477,7 +477,7 @@ Instead of using 'walled garden' instant messaging solutions to communicate with
 <p>The client shall be able to provide 1to1 communication</p>
 </li>
 <li>
-<p>The client shall be able to provice 1 to many communication (aka rooms in XMPP)</p>
+<p>The client shall be able to provide 1 to many communication (aka rooms in XMPP)</p>
 </li>
 <li>
 <p>The client shall display the status of a sent message</p>
@@ -489,7 +489,7 @@ Instead of using 'walled garden' instant messaging solutions to communicate with
 <p>The client shall be able to distribute pictures</p>
 </li>
 <li>
-<p>The client shall be able to communicat in a secure manner</p>
+<p>The client shall be able to communicate in a secure manner</p>
 <div class="ulist">
 <ul>
 <li>
@@ -505,26 +505,26 @@ Instead of using 'walled garden' instant messaging solutions to communicate with
 </div>
 </div>
 <div class="sect2">
-<h3 id="_quality_goals">1.2. Quality Goals</h3>
+<h3 id="_quality_goals"><a class="link" href="#_quality_goals">1.2. Quality Goals</a></h3>
 <div class="paragraph">
 <p><strong>Reliability</strong><br>
 Each sent message must be guaranteed to be delivered to the receiver. Each received message must be analyzed and processed by the client.</p>
 </div>
 <div class="paragraph">
 <p><strong>Security</strong><br>
-A message must be encrypted to ensure the privacy of the message content. Additional, it must be detected if the  message content was altered in any way to fulfill integrity. Authenticity must be ensured to proove the message is from the assumed message partner.</p>
+A message must be encrypted to ensure the privacy of the message content. Additional, it must be detected if the  message content was altered in any way to fulfill integrity. Authenticity must be ensured to prove the message is from the assumed message partner.</p>
 </div>
 <div class="paragraph">
 <p><strong>Modularity</strong><br>
-Each feature should be loosiely coupled to be able to easily exchange the implementation if necessary.</p>
+Each feature should be loosely coupled to be able to easily exchange the implementation if necessary.</p>
 </div>
 <div class="paragraph">
 <p><strong>Portability</strong><br>
-It should be possible to run the client on the SailfishOS plattform as well as on any desktop linux environment.</p>
+It should be possible to run the client on the SailfishOS platform as well as on any desktop linux environment.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_stakeholders">1.3. Stakeholders</h3>
+<h3 id="_stakeholders"><a class="link" href="#_stakeholders">1.3. Stakeholders</a></h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 20%;">
@@ -542,7 +542,7 @@ It should be possible to run the client on the SailfishOS plattform as well as o
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>Developer</em></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>github / maemo</em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Understanding the structur of the code</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>Understanding the structure of the code</em></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>User</em></p></td>
@@ -561,10 +561,10 @@ It should be possible to run the client on the SailfishOS plattform as well as o
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-architecture-constraints">2. Architecture Constraints</h2>
+<h2 id="section-architecture-constraints"><a class="link" href="#section-architecture-constraints">2. Architecture Constraints</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_organisational">2.1. Organisational</h3>
+<h3 id="_organisational"><a class="link" href="#_organisational">2.1. Organisational</a></h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -573,13 +573,13 @@ It should be possible to run the client on the SailfishOS plattform as well as o
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Uncertain number of developers</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">As this open source project implements a niche protocol (XMPP) on a niche OS (Sailfish) it&#8217;s hardly forseeable how many contributions would be made</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">As this open source project implements a niche protocol (XMPP) on a niche OS (Sailfish) it&#8217;s hardly foreseeable how many contributions would be made</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="sect2">
-<h3 id="_technical">2.2. Technical</h3>
+<h3 id="_technical"><a class="link" href="#_technical">2.2. Technical</a></h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 50%;">
@@ -597,10 +597,10 @@ It should be possible to run the client on the SailfishOS plattform as well as o
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-system-scope-and-context">3. System Scope and Context</h2>
+<h2 id="section-system-scope-and-context"><a class="link" href="#section-system-scope-and-context">3. System Scope and Context</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_business_context">3.1. Business Context</h3>
+<h3 id="_business_context"><a class="link" href="#_business_context">3.1. Business Context</a></h3>
 <div class="imageblock">
 <div class="content">
 <img src="./images/use_case.png" alt="use case">
@@ -620,7 +620,7 @@ A user is able to make private communication with one other user of the network.
 </div>
 <div class="paragraph">
 <p><strong>Communicate in group</strong><br>
-A user is able to communicate witt more then one user at a time. Group communication in the XMPP jargon is done by using rooms.</p>
+A user is able to communicate with more then one user at a time. Group communication in the XMPP jargon is done by using rooms.</p>
 </div>
 <div class="paragraph">
 <p><strong>Send picture</strong><br>
@@ -678,7 +678,7 @@ The user is able to handle contacts. This can be</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_technical_context">3.2. Technical Context</h3>
+<h3 id="_technical_context"><a class="link" href="#_technical_context">3.2. Technical Context</a></h3>
 <div class="imageblock">
 <div class="content">
 <img src="./images/technical_context.png" alt="technical context">
@@ -692,7 +692,7 @@ The user is able to handle contacts. This can be</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-solution-strategy">4. Solution Strategy</h2>
+<h2 id="section-solution-strategy"><a class="link" href="#section-solution-strategy">4. Solution Strategy</a></h2>
 <div class="sectionbody">
 <div class="imageblock">
 <div class="content">
@@ -700,13 +700,13 @@ The user is able to handle contacts. This can be</p>
 </div>
 </div>
 <div class="paragraph">
-<p>To reduce the workload and boost the quality of Shmoose, the client should be build on already existing and prooven components. A XMPP library is used to handle most of the implementation details of the main XEP&#8217;s, needed by a modern client. Additional all the encryption stuff will not be implemented from scratch but also used from already existing libraries.</p>
+<p>To reduce the workload and boost the quality of Shmoose, the client should be build on already existing and proven components. A XMPP library is used to handle most of the implementation details of the main XEP&#8217;s, needed by a modern client. Additional all the encryption stuff will not be implemented from scratch but also used from already existing libraries.</p>
 </div>
 <div class="paragraph">
 <p>What is leftover to be new developed is the integration between the libraries and the missing XEP&#8217;s which are not provided by the library. Also the GUI part must be written from scratch.</p>
 </div>
 <div class="sect2">
-<h3 id="_overview">4.1. Overview</h3>
+<h3 id="_overview"><a class="link" href="#_overview">4.1. Overview</a></h3>
 <div class="paragraph">
 <p>TODO
 Map the quality goals to the details</p>
@@ -716,7 +716,7 @@ Map the quality goals to the details</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-building-block-view">5. Building Block View</h2>
+<h2 id="section-building-block-view"><a class="link" href="#section-building-block-view">5. Building Block View</a></h2>
 <div class="sectionbody">
 <div class="imageblock">
 <div class="content">
@@ -724,7 +724,7 @@ Map the quality goals to the details</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The GUI part will be implemented in QML. This allows a loosely coupled graphical interface from the rest of the implementation. On Sailfish OS, there is a proprietary qml extension named silica. This qml extension is not available on other plattforms. Because of this, the GUI part has to be developed separately for different target devices which is possible without touching or even recompiling the rest of the source code.</p>
+<p>The GUI part will be implemented in QML. This allows a loosely coupled graphical interface from the rest of the implementation. On Sailfish OS, there is a proprietary QML extension named silica. This QML extension is not available on other platforms. Because of this, the GUI part has to be developed separately for different target devices which is possible without touching or even recompiling the rest of the source code.</p>
 </div>
 <div class="paragraph">
 <p><a href="https://swift.im/swiften/api/">Swiften</a>, the main library used by Shmoose is responsible to handle most of the XMPP protocol details.</p>
@@ -736,7 +736,7 @@ Map the quality goals to the details</p>
 <p>The client part puts all the pieces together and makes heavy use of the <a href="https://www.qt.io/download-open-source">Qt library</a>.</p>
 </div>
 <div class="sect2">
-<h3 id="_whitebox_overall_system">5.1. Whitebox Overall System</h3>
+<h3 id="_whitebox_overall_system"><a class="link" href="#_whitebox_overall_system">5.1. Whitebox Overall System</a></h3>
 <div class="paragraph">
 <p><em><strong>&lt;Overview Diagram&gt;</strong></em></p>
 </div>
@@ -757,7 +757,7 @@ Map the quality goals to the details</p>
 </dl>
 </div>
 <div class="sect3">
-<h4 id="_name_black_box_1">5.1.1. &lt;Name black box 1&gt;</h4>
+<h4 id="_name_black_box_1"><a class="link" href="#_name_black_box_1">5.1.1. &lt;Name black box 1&gt;</a></h4>
 <div class="paragraph">
 <p><em>&lt;Purpose/Responsibility&gt;</em></p>
 </div>
@@ -778,38 +778,38 @@ Map the quality goals to the details</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_name_black_box_2">5.1.2. &lt;Name black box 2&gt;</h4>
+<h4 id="_name_black_box_2"><a class="link" href="#_name_black_box_2">5.1.2. &lt;Name black box 2&gt;</a></h4>
 <div class="paragraph">
 <p><em>&lt;black box template&gt;</em></p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_name_black_box_n">5.1.3. &lt;Name black box n&gt;</h4>
+<h4 id="_name_black_box_n"><a class="link" href="#_name_black_box_n">5.1.3. &lt;Name black box n&gt;</a></h4>
 <div class="paragraph">
 <p><em>&lt;black box template&gt;</em></p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_name_interface_1">5.1.4. &lt;Name interface 1&gt;</h4>
+<h4 id="_name_interface_1"><a class="link" href="#_name_interface_1">5.1.4. &lt;Name interface 1&gt;</a></h4>
 <div class="paragraph">
 <p>&#8230;&#8203;</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_name_interface_m">5.1.5. &lt;Name interface m&gt;</h4>
+<h4 id="_name_interface_m"><a class="link" href="#_name_interface_m">5.1.5. &lt;Name interface m&gt;</a></h4>
 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_level_2">5.2. Level 2</h3>
+<h3 id="_level_2"><a class="link" href="#_level_2">5.2. Level 2</a></h3>
 <div class="sect3">
-<h4 id="_white_box_building_block_1">5.2.1. White Box <em>&lt;building block 1&gt;</em></h4>
+<h4 id="_white_box_building_block_1"><a class="link" href="#_white_box_building_block_1">5.2.1. White Box <em>&lt;building block 1&gt;</em></a></h4>
 <div class="paragraph">
 <p><em>&lt;white box template&gt;</em></p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_white_box_building_block_2">5.2.2. White Box <em>&lt;building block 2&gt;</em></h4>
+<h4 id="_white_box_building_block_2"><a class="link" href="#_white_box_building_block_2">5.2.2. White Box <em>&lt;building block 2&gt;</em></a></h4>
 <div class="paragraph">
 <p><em>&lt;white box template&gt;</em></p>
 </div>
@@ -818,28 +818,28 @@ Map the quality goals to the details</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_white_box_building_block_m">5.2.3. White Box <em>&lt;building block m&gt;</em></h4>
+<h4 id="_white_box_building_block_m"><a class="link" href="#_white_box_building_block_m">5.2.3. White Box <em>&lt;building block m&gt;</em></a></h4>
 <div class="paragraph">
 <p><em>&lt;white box template&gt;</em></p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_level_3">5.3. Level 3</h3>
+<h3 id="_level_3"><a class="link" href="#_level_3">5.3. Level 3</a></h3>
 <div class="sect3">
-<h4 id="_white_box_building_block_x_1">5.3.1. White Box &lt;_building block x.1_&gt;</h4>
+<h4 id="_white_box_building_block_x_1"><a class="link" href="#_white_box_building_block_x_1">5.3.1. White Box &lt;_building block x.1_&gt;</a></h4>
 <div class="paragraph">
 <p><em>&lt;white box template&gt;</em></p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_white_box_building_block_x_2">5.3.2. White Box &lt;_building block x.2_&gt;</h4>
+<h4 id="_white_box_building_block_x_2"><a class="link" href="#_white_box_building_block_x_2">5.3.2. White Box &lt;_building block x.2_&gt;</a></h4>
 <div class="paragraph">
 <p><em>&lt;white box template&gt;</em></p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_white_box_building_block_y_1">5.3.3. White Box &lt;_building block y.1_&gt;</h4>
+<h4 id="_white_box_building_block_y_1"><a class="link" href="#_white_box_building_block_y_1">5.3.3. White Box &lt;_building block y.1_&gt;</a></h4>
 <div class="paragraph">
 <p><em>&lt;white box template&gt;</em></p>
 </div>
@@ -849,10 +849,10 @@ Map the quality goals to the details</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-runtime-view">6. Runtime View</h2>
+<h2 id="section-runtime-view"><a class="link" href="#section-runtime-view">6. Runtime View</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_runtime_scenario_1">6.1. &lt;Runtime Scenario 1&gt;</h3>
+<h3 id="_runtime_scenario_1"><a class="link" href="#_runtime_scenario_1">6.1. &lt;Runtime Scenario 1&gt;</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -866,24 +866,24 @@ building block instances depicted in this diagram.&gt;</em></p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_runtime_scenario_2">6.2. &lt;Runtime Scenario 2&gt;</h3>
+<h3 id="_runtime_scenario_2"><a class="link" href="#_runtime_scenario_2">6.2. &lt;Runtime Scenario 2&gt;</a></h3>
 
 </div>
 <div class="sect2">
-<h3 id="">6.3. &#8230;&#8203;</h3>
+<h3 id=""><a class="link" href="#">6.3. &#8230;&#8203;</a></h3>
 
 </div>
 <div class="sect2">
-<h3 id="_runtime_scenario_n">6.4. &lt;Runtime Scenario n&gt;</h3>
+<h3 id="_runtime_scenario_n"><a class="link" href="#_runtime_scenario_n">6.4. &lt;Runtime Scenario n&gt;</a></h3>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-deployment-view">7. Deployment View</h2>
+<h2 id="section-deployment-view"><a class="link" href="#section-deployment-view">7. Deployment View</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_production">7.1. Production</h3>
+<h3 id="_production"><a class="link" href="#_production">7.1. Production</a></h3>
 <div class="imageblock">
 <div class="content">
 <img src="./images/deployment_smart_phone.png" alt="deployment smart phone">
@@ -893,13 +893,13 @@ building block instances depicted in this diagram.&gt;</em></p>
 <dl>
 <dt class="hdlist1">Motivation</dt>
 <dd>
-<p>The production deployment is straiht forward. All the building blocks compile to one unix elf executable. As a matter of fact, the GUI part will be deployed as plain text qml decription files. Shmoose runs direct on the Sailfish OS Smartphone and has to connect to an external XMPP Server.</p>
+<p>The production deployment is straight forward. All the building blocks compile to one unix elf executable. As a matter of fact, the GUI part will be deployed as plain text QML description files. Shmoose runs direct on the Sailfish OS Smart-phone and has to connect to an external XMPP Server.</p>
 </dd>
 </dl>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_development_and_testing">7.2. Development and testing</h3>
+<h3 id="_development_and_testing"><a class="link" href="#_development_and_testing">7.2. Development and testing</a></h3>
 <div class="imageblock">
 <div class="content">
 <img src="./images/deployment_testing.png" alt="deployment testing">
@@ -909,15 +909,15 @@ building block instances depicted in this diagram.&gt;</em></p>
 <dl>
 <dt class="hdlist1">Motivation</dt>
 <dd>
-<p>With a runable executable on a desktop environment, one is able to use all the fancy develop and debugging tools. Shmoose is structured in a way that a deployment on any Linux OS is possible.</p>
+<p>With a runnable executable on a desktop environment, one is able to use all the fancy develop and debugging tools. Shmoose is structured in a way that a deployment on any Linux OS is possible.</p>
 </dd>
 <dt class="hdlist1">Quality and/or Performance Features</dt>
 <dd>
-<p>To be able to use a full featured desktop development system is quit usefull to reduce the roundtrips of coding, building and deploying to the target systems. This also allows to setup a testing system which tests Shmoose on the outer interfaces.</p>
+<p>To be able to use a full featured desktop development system is quit useful to reduce the round trips of coding, building and deploying to the target systems. This also allows to setup a testing system which tests Shmoose on the outer interfaces.</p>
 </dd>
 <dt class="hdlist1">Mapping of Building Blocks to Infrastructure</dt>
 <dd>
-<p>Two instances of Shmoose are running on the Linux System. On both clients, the GUI part is dropped in favour of a dbus interface. Almost all functionality which was accessable through the GUI is now reachable through the dbus interface. Each clients announce his interface on the dbus session bus. The Testrunner connects to each of the clients interfaces. After that, the Testrunner calls both clients through dbus to connect to the XMPP Server, which also runs on the same Linux System. With this setup, any functionality in a Shmoose client can be triggerd and checked for reaction on the other hand side Shmoose client.</p>
+<p>Two instances of Shmoose are running on the Linux System. On both clients, the GUI part is dropped in favour of a dbus interface. Almost all functionality which was accessible through the GUI is now reachable through the dbus interface. Each clients announce his interface on the dbus session bus. The Testrunner connects to each of the clients interfaces. After that, the Testrunner calls both clients through dbus to connect to the XMPP Server, which also runs on the same Linux System. With this setup, any functionality in a Shmoose client can be triggered and checked for reaction on the other hand side Shmoose client.</p>
 </dd>
 </dl>
 </div>
@@ -926,49 +926,73 @@ building block instances depicted in this diagram.&gt;</em></p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-concepts">8. (Cross-cutting) Concepts</h2>
+<h2 id="section-concepts"><a class="link" href="#section-concepts">8. (Cross-cutting) Concepts</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_dependencies">8.1. Dependencies</h3>
+<h3 id="_dependencies_and_modularisation"><a class="link" href="#_dependencies_and_modularisation">8.1. Dependencies and Modularisation</a></h3>
 <div class="paragraph">
-<p><em>&lt;explanation&gt;</em></p>
+<p>Each XEP functionality should be implemented in one module. If there are dependencies to other modules, they should be resolved by 'dependency injection'. Instantiation of a class has to be done as deep as possible in the dependency path. The integration of all modules has to be done in one central integration class.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_modularisation">8.2. Modularisation</h3>
+<h3 id="_persistence"><a class="link" href="#_persistence">8.2. Persistence</a></h3>
 <div class="paragraph">
-<p><em>&lt;explanation&gt;</em></p>
+<p>There a different types of persistence data:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Configuration</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>All configuration items are stored in standard unix ini files, abstracted by the Qt system.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Messages with meta data</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Messages and their meta data are stored in a sqlite3 file. For convenience, a persistence wrapper with a clean C++ interface should be implemented which provides easy access to all necessary functionality.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Shared files</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Shared media files through the XMPP protocol are stored as received in the file system and folder of the client instance.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_persistence">8.3. Persistence</h3>
+<h3 id="_errorhandling"><a class="link" href="#_errorhandling">8.3. Errorhandling</a></h3>
 <div class="paragraph">
-<p><em>&lt;explanation&gt;</em></p>
+<p>tbd</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_errorhandling">8.4. Errorhandling</h3>
+<h3 id="_logging"><a class="link" href="#_logging">8.4. Logging</a></h3>
 <div class="paragraph">
-<p><em>&lt;explanation&gt;</em></p>
+<p>tbd</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_logging">8.5. Logging</h3>
+<h3 id="_tests"><a class="link" href="#_tests">8.5. Tests</a></h3>
 <div class="paragraph">
-<p><em>&lt;explanation&gt;</em></p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_tests">8.6. Tests</h3>
-<div class="paragraph">
-<p><em>&lt;explanation&gt;</em></p>
+<p>Each class should have a separat Unit-Test using the Qt test system. Some tests are only meaningful in a combination of more classes or even during message exchange with an other client. To reflect this, <a href="#_development_and_testing">integration tests</a> must be applied to cover all the critical parts and functions in an automated way.</p>
 </div>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-design-decisions">9. Design Decisions</h2>
+<h2 id="section-design-decisions"><a class="link" href="#section-design-decisions">9. Design Decisions</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>tbd</p>
@@ -977,13 +1001,13 @@ building block instances depicted in this diagram.&gt;</em></p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-quality-scenarios">10. Quality Requirements and Quality Tree</h2>
+<h2 id="section-quality-scenarios"><a class="link" href="#section-quality-scenarios">10. Quality Requirements and Quality Tree</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Refer to 1.2. Quality Goals. This goals will not be detailed any more.</p>
 </div>
 <div class="sect2">
-<h3 id="_quality_scenarios">10.1. Quality Scenarios</h3>
+<h3 id="_quality_scenarios"><a class="link" href="#_quality_scenarios">10.1. Quality Scenarios</a></h3>
 <div class="paragraph">
 <p>Pre-Condition: If not otherwise stated, all the described scenarios are online-scenarios.</p>
 </div>
@@ -1000,13 +1024,13 @@ building block instances depicted in this diagram.&gt;</em></p>
 </dl>
 </div>
 <div class="paragraph">
-<p>A user receives an OMEMO encrypted message from an other client. If that messages was alterd in any way, which breaks the integrity of that message, a security alterd must be shown to the user within 1 second.</p>
+<p>A user receives an OMEMO encrypted message from an other client. If that messages was altered in any way, which breaks the integrity of that message, a security alterd must be shown to the user within 1 second.</p>
 </div>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">Modularity</dt>
 <dd>
-<p>A developer wants to add additional functionality to the client. The developer is able to implement the majority of the code in a separate module. The amount of changes to other code parts of the client is limited to instanciation of that module with the needed dependencies achieved by injection.</p>
+<p>A developer wants to add additional functionality to the client. The developer is able to implement the majority of the code in a separate module. The amount of changes to other code parts of the client is limited to instantiation of that module with the needed dependencies achieved by injection.</p>
 </dd>
 <dt class="hdlist1">Portability</dt>
 <dd>
@@ -1019,13 +1043,13 @@ building block instances depicted in this diagram.&gt;</em></p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-technical-risks">11. Risks and Technical Debts</h2>
+<h2 id="section-technical-risks"><a class="link" href="#section-technical-risks">11. Risks and Technical Debts</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The amount of work to be done is dependend on the right components and librarys which are choosen. There are some technical requirements to be met for each library:</p>
+<p>The amount of work to be done is dependent on the right components and library&#8217;s which are chosen. There are some technical requirements to be met for each library:</p>
 </div>
 <div class="sect2">
-<h3 id="_xmpp_library">11.1. XMPP Library</h3>
+<h3 id="_xmpp_library"><a class="link" href="#_xmpp_library">11.1. XMPP Library</a></h3>
 <div class="paragraph">
 <p>Technical requirements:</p>
 </div>
@@ -1074,14 +1098,14 @@ building block instances depicted in this diagram.&gt;</em></p>
 </ul>
 </div>
 <div class="paragraph">
-<p>After validating some of them, the Swiften library is choosen because it fullfills the most requirments. The only thing which is left over is modern E2E security (Omemo).</p>
+<p>After validating some of them, the Swiften library is chosen because it fulfills the most requirements. The only thing which is left over is modern E2E security (Omemo).</p>
 </div>
 <div class="paragraph">
-<p>Nevertheless, the risk of dropping maintainance of that library still exists. Even it is an open source library, there is no guaranty that the authors of that library or even someon else from the XMPP community will actively develop it in the future.</p>
+<p>Nevertheless, the risk of dropping maintenance of that library still exists. Even it is an open source library, there is no guaranty that the authors of that library or even someone else from the XMPP community will actively develop it in the future.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_e2e_security_library">11.2. E2E Security Library</h3>
+<h3 id="_e2e_security_library"><a class="link" href="#_e2e_security_library">11.2. E2E Security Library</a></h3>
 <div class="paragraph">
 <p>Technical requirements:</p>
 </div>
@@ -1102,17 +1126,17 @@ building block instances depicted in this diagram.&gt;</em></p>
 </ul>
 </div>
 <div class="paragraph">
-<p>Until today, there are just a few C librarys out there which matches some of this requirements. As far as I know, the best choice would be <a href="https://github.com/gkdr/libomemo">libomeo</a>. The author actively develops this library as a base for the lurch plugin, which adds OMEMO support to libpurple.</p>
+<p>Until today, there are just a few C library&#8217;s out there which matches some of this requirements. As for now, the best choice would be to use <a href="https://github.com/gkdr/libomemo">libomeo</a>. The author actively develops this library as a base for the lurch plugin, which adds OMEMO support to libpurple.</p>
 </div>
 <div class="paragraph">
-<p>The integration of this library seems not so difficult, but requires for sure an amount of time to get to know all the functions to implement the XEP in a correct way. As a lack of real alternatives, this library will be choosen in the hope of long and active development and maintainance.</p>
+<p>The integration of this library seems not so difficult, but requires for sure an amount of time to get to know all the functions to implement the XEP in a correct way. As a lack of real alternatives, this library will be chosen in the hope of long and active development and maintenance.</p>
 </div>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="section-glossary">12. Glossary</h2>
+<h2 id="section-glossary"><a class="link" href="#section-glossary">12. Glossary</a></h2>
 <div class="sectionbody">
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1145,7 +1169,7 @@ building block instances depicted in this diagram.&gt;</em></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-03-13 18:11:15 UTC
+Last updated 2020-03-14 20:43:11 UTC
 </div>
 </div>
 </body>

@@ -4,7 +4,7 @@
 === Organisational
 
 |===
-|Uncertain number of developers|As this open source project implements a niche protocol (XMPP) on a niche OS (Sailfish) it's hardly forseeable how many contributions would be made   
+|Uncertain number of developers|As this open source project implements a niche protocol (XMPP) on a niche OS (Sailfish) it's hardly foreseeable how many contributions would be made
 |===
 
 === Technical
