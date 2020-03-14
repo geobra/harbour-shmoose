@@ -8,13 +8,13 @@ image::use_case.png[]
 The user is the person who uses the client to communicate with other users. 
 
 *Network (Actor)* +
-To communicate with other users, a network is necessary where other users interconnect their clients. 
+To communicate with other users, a network is necessary where other users interconnect their clients.
 
 *Communicate 1o1* +
 A user is able to make private communication with one other user of the network.
 
 *Communicate in group* +
-A user is able to communicate witt more then one user at a time. Group communication in the XMPP jargon is done by using rooms.
+A user is able to communicate with more then one user at a time. Group communication in the XMPP jargon is done by using rooms.
 
 *Send picture* +
 A user is able to send pictures. Either by 1o1 messaging or by group messaging.

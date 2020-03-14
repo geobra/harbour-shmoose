@@ -1,29 +1,36 @@
 [[section-concepts]]
 == (Cross-cutting) Concepts
 
-=== Dependencies
+=== Dependencies and Modularisation
 
-_<explanation>_
-
-=== Modularisation
-
-_<explanation>_
+Each XEP functionality should be implemented in one module. If there are dependencies to other modules, they should be resolved by 'dependency injection'. Instantiation of a class has to be done as deep as possible in the dependency path. The integration of all modules has to be done in one central integration class.
 
 === Persistence
 
-_<explanation>_
+There a different types of persistence data:
+
+* Configuration
+
+All configuration items are stored in standard unix ini files, abstracted by the Qt system.
+
+* Messages with meta data
+
+Messages and their meta data are stored in a sqlite3 file. For convenience, a persistence wrapper with a clean C++ interface should be implemented which provides easy access to all necessary functionality.
+
+* Shared files
+
+Shared media files through the XMPP protocol are stored as received in the file system and folder of the client instance.
 
 === Errorhandling
 
-_<explanation>_
-
+tbd
 
 === Logging
 
-_<explanation>_
-
+tbd
 
 === Tests
 
-_<explanation>_
+Each class should have a separat Unit-Test using the Qt test system. Some tests are only meaningful in a combination of more classes or even during message exchange with an other client. To reflect this, link:#_development_and_testing[integration tests] must be applied to cover all the critical parts and functions in an automated way.
+
 

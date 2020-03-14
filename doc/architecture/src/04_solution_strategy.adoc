@@ -3,7 +3,7 @@
 
 image::abstract_solution.png[]
 
-To reduce the workload and boost the quality of Shmoose, the client should be build on already existing and prooven components. A XMPP library is used to handle most of the implementation details of the main XEP's, needed by a modern client. Additional all the encryption stuff will not be implemented from scratch but also used from already existing libraries.
+To reduce the workload and boost the quality of Shmoose, the client should be build on already existing and proven components. A XMPP library is used to handle most of the implementation details of the main XEP's, needed by a modern client. Additional all the encryption stuff will not be implemented from scratch but also used from already existing libraries.
 
 What is leftover to be new developed is the integration between the libraries and the missing XEP's which are not provided by the library. Also the GUI part must be written from scratch.
 

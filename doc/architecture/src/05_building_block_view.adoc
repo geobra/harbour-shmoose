@@ -4,7 +4,7 @@
 == Building Block View
 image::building_blocks.png[]
 
-The GUI part will be implemented in QML. This allows a loosely coupled graphical interface from the rest of the implementation. On Sailfish OS, there is a proprietary qml extension named silica. This qml extension is not available on other plattforms. Because of this, the GUI part has to be developed separately for different target devices which is possible without touching or even recompiling the rest of the source code.
+The GUI part will be implemented in QML. This allows a loosely coupled graphical interface from the rest of the implementation. On Sailfish OS, there is a proprietary QML extension named silica. This QML extension is not available on other platforms. Because of this, the GUI part has to be developed separately for different target devices which is possible without touching or even recompiling the rest of the source code.
 
 https://swift.im/swiften/api/[Swiften], the main library used by Shmoose is responsible to handle most of the XMPP protocol details.
 
