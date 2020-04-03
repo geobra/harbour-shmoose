@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="14"/>
         <source>Shmoose - Xmpp Client</source>
-        <translation>Shmosse - Xmpp Client</translation>
+        <translation>Shmoose - Xmpp Client</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="27"/>
@@ -60,7 +60,7 @@
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="95"/>
         <source>Remove</source>
-        <translation type="unfinished">Entfernen</translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="124"/>
