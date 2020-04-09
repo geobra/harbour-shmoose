@@ -1,35 +1,62 @@
 @startuml
-[ChatMarkers] --> [RosterController]
-[ChatMarkers] --> [Persistence]
-[ChatMarkers] --> [XmlWriter]
-[ConnectionHandler] --> [ReConnectionHandler]
-[ConnectionHandler] --> [IpHeartBeatWatcher]
-[ConnectionHandler] --> [XmppPingController]
-[DiscoInfoHandler] --> [HttpFileUploadManager]
-[FileModel] --> [FileInfo]
-[GcmController] --> [Database]
-[HttpFileUploadManager] --> [XmlHttpUploadContentHandler]
-[HttpFileUploadManager] --> [HttpFileUploader]
-[MessageController] --> [Database]
-[MessageHandler] --> [Persistence]
-[MessageHandler] --> [DownloadManager]
-[MessageHandler] --> [Settings]
-[MessageHandler] --> [ChatMarkers]
-[MucManager] --> [XmlWriter]
-[MucManager] --> [MucCollection]
-[Persistence] --> [GcmController]
-[Persistence] --> [MessageController]
-[PresenceHandler] --> [RosterController]
-[RosterController] --> [PresenceHandler]
-[RosterController] --> [RosterItem]
-[SessionController] --> [Database]
-[Shmoose] --> [Persistence]
-[Shmoose] --> [ConnectionHandler]
-[Shmoose] --> [MessageHandler]
-[Shmoose] --> [Settings]
-[Shmoose] --> [RosterController]
-[Shmoose] --> [HttpFileUploadManager]
-[Shmoose] --> [DiscoInfoHandler]
-[Shmoose] --> [MucManager]
+
+package persistence <<Rectangle>>{
+	class Database
+	class GcmController
+	class MessageController
+	class Persistence
+	class SessionController
+}
+
+package xep <<Rectangle>> {
+	package chatMarkers <<Rectangle>> {
+		class ChatMarkers
+	}
+
+	package httpFileUpload <<Rectangle>> {
+		class DownloadManager
+		class HttpFileUploader
+		class HttpFileUploadManager
+		class XmlHttpUploadContentHandler
+	}
+
+	package xmppPingController <<Rectangle>> {
+		class XmppPingController
+	}
+}
+
+class XmlWriter << globalAccess >>
+
+ChatMarkers --> RosterController
+ChatMarkers --> Persistence
+ConnectionHandler --> ReConnectionHandler
+ConnectionHandler --> IpHeartBeatWatcher
+ConnectionHandler --> XmppPingController
+DiscoInfoHandler --> HttpFileUploadManager
+FileModel --> FileInfo
+GcmController --> Database
+HttpFileUploadManager --> XmlHttpUploadContentHandler
+HttpFileUploadManager --> HttpFileUploader
+MessageController --> Database
+MessageHandler --> Persistence
+MessageHandler --> DownloadManager
+MessageHandler --> Settings
+MessageHandler --> ChatMarkers
+MucManager --> MucCollection
+Persistence --> GcmController
+Persistence --> MessageController
+PresenceHandler --> RosterController
+RosterController --> PresenceHandler
+RosterController --> RosterItem
+SessionController --> Database
+Shmoose --> Persistence
+Shmoose --> ConnectionHandler
+Shmoose --> MessageHandler
+Shmoose --> Settings
+Shmoose --> RosterController
+Shmoose --> HttpFileUploadManager
+Shmoose --> DiscoInfoHandler
+Shmoose --> MucManager
+Shmoose --> FileModel
 @enduml
 
