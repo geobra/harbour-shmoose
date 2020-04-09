@@ -15,9 +15,7 @@ The client part puts all the pieces together and makes heavy use of the https://
 
 === Whitebox Overall System
 
-
-
-_**<Overview Diagram>**_
+image::whitebox.png[]
 
 Motivation::
 
