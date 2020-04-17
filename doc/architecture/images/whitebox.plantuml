@@ -25,6 +25,34 @@ package xep <<Rectangle>> {
 	}
 }
 
+package contacts <<Rectangle>> {
+	class SessionController
+	class RosterItem
+	class PresenceHandler
+	class RosterController
+}
+
+package networkConnection <<Rectangle>> {
+	class ConnectionHandler
+	class ReConnectionHandler
+	class IpHeartBeatWatcher
+}
+
+package room <<Rectangle>> {
+	class MucManager
+	class MucCollection
+}
+
+package client <<Rectangle>> {
+	class Shmoose
+	class FileModel
+	class FileInfo
+	class Settings
+	class MessageHandler
+	class DiscoInfoHandler
+	class XmlWriter
+}
+
 class XmlWriter << globalAccess >>
 
 ChatMarkers --> RosterController
