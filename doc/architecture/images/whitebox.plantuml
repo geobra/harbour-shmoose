@@ -18,6 +18,7 @@ package xep <<Rectangle>> {
 		class HttpFileUploader
 		class HttpFileUploadManager
 		class XmlHttpUploadContentHandler
+		class ImageProcessing
 	}
 
 	package xmppPingController <<Rectangle>> {
@@ -43,7 +44,7 @@ package room <<Rectangle>> {
 	class MucCollection
 }
 
-package client <<Rectangle>> {
+package base <<Rectangle>> {
 	class Shmoose
 	class FileModel
 	class FileInfo
@@ -51,9 +52,13 @@ package client <<Rectangle>> {
 	class MessageHandler
 	class DiscoInfoHandler
 	class XmlWriter
+	class XmlProcessor
+	class System
 }
 
 class XmlWriter << globalAccess >>
+class XmlProcessor << globalAccess >>
+class System << globalAccess >>
 
 ChatMarkers --> RosterController
 ChatMarkers --> Persistence
@@ -65,6 +70,7 @@ FileModel --> FileInfo
 GcmController --> Database
 HttpFileUploadManager --> XmlHttpUploadContentHandler
 HttpFileUploadManager --> HttpFileUploader
+HttpFileUploadManager --> ImageProcessing
 MessageController --> Database
 MessageHandler --> Persistence
 MessageHandler --> DownloadManager

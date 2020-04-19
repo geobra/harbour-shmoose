@@ -21,6 +21,10 @@ INCLUDEPATH += source/persistence
 INCLUDEPATH += source/xep/httpFileUpload
 INCLUDEPATH += source/xep/xmppPing
 INCLUDEPATH += source/xep/chatMarkers
+INCLUDEPATH += source/room
+INCLUDEPATH += source/networkconnection
+INCLUDEPATH += source/contacts
+INCLUDEPATH += source/base
 
 ! contains(DEFINES, SFOS) {
     QMAKE_CXXFLAGS += -Wno-deprecated-declarations -Wno-placement-new -Wno-parentheses
@@ -47,70 +51,69 @@ else {
 
 # on testing, add flags to produce coverage
 contains(DEFINES, DBUS) {
-	QMAKE_CXXFLAGS += -fprofile-arcs -ftest-coverage
-	LIBS += -lgcov
+    QMAKE_CXXFLAGS += -fprofile-arcs -ftest-coverage
+    LIBS += -lgcov
 }
 
-
 SOURCES += \
-	source/Shmoose.cpp \
-	source/RosterItem.cpp \
-        source/ReConnectionHandler.cpp \
-	source/persistence/Database.cpp \
-	source/persistence/MessageController.cpp \
-	source/persistence/SessionController.cpp \
-        source/persistence/GcmController.cpp \
-	source/persistence/Persistence.cpp \
-	source/xep/httpFileUpload/XmlHttpUploadContentHandler.cpp \
-	source/xep/httpFileUpload/HttpFileuploader.cpp \
-	source/xep/httpFileUpload/HttpFileUploadManager.cpp \
-	source/xep/httpFileUpload/DownloadManager.cpp \
-	source/FileModel.cpp \
-	source/ImageProcessing.cpp \
-	source/System.cpp \
-        source/xep/xmppPing/XmppPingController.cpp \
-        source/IpHeartBeatWatcher.cpp \
-        source/MucManager.cpp \
-        source/MucCollection.cpp \
-        source/xep/chatMarkers/ChatMarkers.cpp \
-        source/ConnectionHandler.cpp \
-        source/MessageHandler.cpp \
-        source/PresenceHandler.cpp \
-        source/DiscoInfoHandler.cpp \
-        source/Settings.cpp \
-        source/XmlProcessor.cpp \
-        source/XmlWriter.cpp \
-        source/RosterController.cpp
+    source/base/Shmoose.cpp \
+    source/base/Settings.cpp \
+    source/base/MessageHandler.cpp \
+    source/base/DiscoInfoHandler.cpp \
+    source/base/FileModel.cpp \
+    source/base/XmlWriter.cpp \
+    source/base/System.cpp \
+    source/base/XmlProcessor.cpp \
+    source/persistence/Database.cpp \
+    source/persistence/MessageController.cpp \
+    source/persistence/SessionController.cpp \
+    source/persistence/GcmController.cpp \
+    source/persistence/Persistence.cpp \
+    source/xep/httpFileUpload/XmlHttpUploadContentHandler.cpp \
+    source/xep/httpFileUpload/HttpFileuploader.cpp \
+    source/xep/httpFileUpload/HttpFileUploadManager.cpp \
+    source/xep/httpFileUpload/DownloadManager.cpp \
+    source/xep/httpFileUpload/ImageProcessing.cpp \
+    source/xep/xmppPing/XmppPingController.cpp \
+    source/xep/chatMarkers/ChatMarkers.cpp \
+    source/room/MucManager.cpp \
+    source/room/MucCollection.cpp \
+    source/networkconnection/ConnectionHandler.cpp \
+    source/networkconnection/IpHeartBeatWatcher.cpp \
+    source/networkconnection/ReConnectionHandler.cpp \
+    source/contacts/PresenceHandler.cpp \
+    source/contacts/RosterItem.cpp \
+    source/contacts/RosterController.cpp
 
-HEADERS += source/Shmoose.h \
-	source/RosterItem.h \
-        source/ReConnectionHandler.h \
-	source/persistence/Database.h \
-	source/persistence/MessageController.h \
-	source/persistence/SessionController.h \
-        source/persistence/GcmController.h \
-	source/persistence/Persistence.h \
-	source/xep/httpFileUpload/XmlHttpUploadContentHandler.h \
-	source/xep/httpFileUpload/HttpFileuploader.h \
-	source/xep/httpFileUpload/HttpFileUploadManager.h \
-	source/xep/httpFileUpload/DownloadManager.h \
-	source/xep/xmppPing/PingRequest.h \
-	source/FileModel.h \
-	source/ImageProcessing.h \
-	source/System.h \
-        source/xep/xmppPing/XmppPingController.h \
-        source/IpHeartBeatWatcher.h \
-        source/MucManager.h \
-        source/MucCollection.h \
-        source/xep/chatMarkers/ChatMarkers.h \
-        source/ConnectionHandler.h \
-        source/MessageHandler.h \
-        source/PresenceHandler.h \
-        source/DiscoInfoHandler.h \
-        source/Settings.h \
-        source/XmlProcessor.h \
-        source/XmlWriter.h \
-        source/RosterController.h
+HEADERS += source/base/Shmoose.h \
+    source/base/Settings.h \
+    source/base/MessageHandler.h \
+    source/base/DiscoInfoHandler.h \
+    source/base/FileModel.h \
+    source/base/XmlWriter.h \
+    source/base/System.h \
+    source/base/XmlProcessor.h \
+    source/persistence/Database.h \
+    source/persistence/MessageController.h \
+    source/persistence/SessionController.h \
+    source/persistence/GcmController.h \
+    source/persistence/Persistence.h \
+    source/xep/httpFileUpload/XmlHttpUploadContentHandler.h \
+    source/xep/httpFileUpload/HttpFileuploader.h \
+    source/xep/httpFileUpload/HttpFileUploadManager.h \
+    source/xep/httpFileUpload/DownloadManager.h \
+    source/xep/httpFileUpload/ImageProcessing.h \
+    source/xep/xmppPing/PingRequest.h \
+    source/xep/xmppPing/XmppPingController.h \
+    source/xep/chatMarkers/ChatMarkers.h \
+    source/room/MucManager.h \
+    source/room/MucCollection.h \
+    source/networkconnection/ConnectionHandler.h \
+    source/networkconnection/IpHeartBeatWatcher.h \
+    source/networkconnection/ReConnectionHandler.h \
+    source/contacts/PresenceHandler.h \
+    source/contacts/RosterItem.h \
+    source/contacts/RosterController.h
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \
