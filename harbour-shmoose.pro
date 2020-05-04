@@ -1,9 +1,13 @@
 TARGET = harbour-shmoose
 
-# path to local compiled swift 3 lib
-SWIFT3PATH = ../swift-4.0.2
+# path to local compiled swift lib
+SWIFTPATH = ../swift-4.0.2
 contains(DEFINES, SFOS) {
-    SWIFT3PATH = ../swift-4.0.2-arm
+    SWIFTPATH = ../swift-4.0.2-arm
+}
+
+contains(DEFINES, TRAVIS) {
+	SWIFTPATH = $$_PRO_FILE_PWD_/swift-4.0.2
 }
 
 include($$PWD/swift.pri)
