@@ -5,7 +5,9 @@ set -x
 sudo systemctl stop ejabberd
 #sudo cp ${TRAVIS_BUILD_DIR}/test/config/ejabberd.yml /etc/ejabberd/
 echo "--------------"
-cat /etc/ejabberd/ejabberd.yml
+sudo cat /etc/ejabberd/ejabberd.yml
+echo "--------------"
+sudo cat /var/log/ejabberd/ejabberd.log
 echo "--------------"
 sudo rm -f /var/lib/ejabberd/*
 sudo systemctl start ejabberd
