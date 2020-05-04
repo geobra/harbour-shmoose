@@ -1,8 +1,12 @@
 #! /bin/bash
+set -x
 
 # remove old db and use new config
 sudo systemctl stop ejabberd
-sudo cp ${TRAVIS_BUILD_DIR}/test/config/ejabberd.yml /etc/ejabberd/
+#sudo cp ${TRAVIS_BUILD_DIR}/test/config/ejabberd.yml /etc/ejabberd/
+echo "--------------"
+cat /etc/ejabberd/ejabberd.yml
+echo "--------------"
 sudo rm -f /var/lib/ejabberd/*
 sudo systemctl start ejabberd
 
