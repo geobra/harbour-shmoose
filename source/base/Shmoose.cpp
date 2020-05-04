@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <boost/bind.hpp>
-#include <boost/smart_ptr/make_shared.hpp>
 
 #include <QtConcurrent>
 #include <QDateTime>
@@ -43,7 +42,7 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     mucManager_(new MucManager(this)),
     discoInfoHandler_(new DiscoInfoHandler(httpFileUploadManager_, this)),
     jid_(""), password_(""),
-    version_("0.6.0")
+    version_("0.7.0")
 {
     qApp->setApplicationVersion(version_);
 

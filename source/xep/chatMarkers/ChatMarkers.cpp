@@ -65,8 +65,8 @@ void ChatMarkers::handleMessageReceived(Swift::Message::ref message)
     }
 
     // Then handle the displayed stanza
-    std::vector< boost::shared_ptr<Swift::RawXMLPayload> > xmlPayloads = message->getPayloads<Swift::RawXMLPayload>();
-    for (std::vector<boost::shared_ptr<Swift::RawXMLPayload>>::iterator it = xmlPayloads.begin() ; it != xmlPayloads.end(); ++it)
+    std::vector< std::shared_ptr<Swift::RawXMLPayload> > xmlPayloads = message->getPayloads<Swift::RawXMLPayload>();
+    for (std::vector<std::shared_ptr<Swift::RawXMLPayload>>::iterator it = xmlPayloads.begin() ; it != xmlPayloads.end(); ++it)
     {
         QString rawXml = QString::fromStdString((*it)->getRawXML());
         QString isMsgDisplayed = XmlProcessor::getContentInTag("displayed", "xmlns", rawXml);
@@ -148,7 +148,7 @@ void ChatMarkers::sendDisplayedForJid(const QString& jid)
         XmlWriter xw;
         xw.writeAtomTag("displayed", displayedPayloadContent);
 
-        msg->addPayload(boost::make_shared<Swift::RawXMLPayload>(xw.getXmlResult().toStdString()));
+        msg->addPayload(std::make_shared<Swift::RawXMLPayload>(xw.getXmlResult().toStdString()));
 
         client_->sendMessage(msg);
 

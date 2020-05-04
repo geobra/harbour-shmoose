@@ -1,9 +1,9 @@
 TARGET = harbour-shmoose
 
 # path to local compiled swift 3 lib
-SWIFT3PATH = ../swift-3.0-host
+SWIFT3PATH = ../swift-4.0.2
 contains(DEFINES, SFOS) {
-    SWIFT3PATH = ../swift-3.0-arm
+    SWIFT3PATH = ../swift-4.0.2-arm
 }
 
 include($$PWD/swift.pri)
@@ -27,7 +27,7 @@ INCLUDEPATH += source/contacts
 INCLUDEPATH += source/base
 
 ! contains(DEFINES, SFOS) {
-    QMAKE_CXXFLAGS += -Wno-deprecated-declarations -Wno-placement-new -Wno-parentheses
+    QMAKE_CXXFLAGS += -Wno-deprecated-declarations -Wno-placement-new -Wno-parentheses -Wno-unused-but-set-parameter
 }
 
 contains(DEFINES, SFOS) {

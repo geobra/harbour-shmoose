@@ -53,9 +53,9 @@ void PresenceHandler::handlePresenceChanged(Swift::Presence::ref presence)
 
         if (presence->getType() == Swift::Presence::Available)
         {
-            std::vector<boost::shared_ptr<Swift::Status> > availabilityPayloads = presence->getPayloads<Swift::Status>();
+            std::vector<std::shared_ptr<Swift::Status> > availabilityPayloads = presence->getPayloads<Swift::Status>();
 
-            for (std::vector<boost::shared_ptr<Swift::Status>>::iterator it = availabilityPayloads.begin() ; it != availabilityPayloads.end(); ++it)
+            for (std::vector<std::shared_ptr<Swift::Status>>::iterator it = availabilityPayloads.begin() ; it != availabilityPayloads.end(); ++it)
             {
                 status = QString::fromStdString((*it)->getText());
                 rosterController_->updateStatusForJid(jid, status);

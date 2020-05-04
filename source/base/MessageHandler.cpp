@@ -153,11 +153,11 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     if (message->getPayload<Swift::DeliveryReceiptRequest>())
     {
         // send message receipt
-        Swift::Message::ref receiptReply = boost::make_shared<Swift::Message>();
+        Swift::Message::ref receiptReply = std::make_shared<Swift::Message>();
         receiptReply->setFrom(message->getTo());
         receiptReply->setTo(message->getFrom());
 
-        boost::shared_ptr<Swift::DeliveryReceipt> receipt = boost::make_shared<Swift::DeliveryReceipt>();
+        std::shared_ptr<Swift::DeliveryReceipt> receipt = std::make_shared<Swift::DeliveryReceipt>();
         receipt->setReceivedID(message->getID());
         receiptReply->addPayload(receipt);
         client_->sendMessage(receiptReply);
@@ -186,8 +186,8 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         outOfBandElement.append("</url>");
         outOfBandElement.append("</x>");
 
-        boost::shared_ptr<Swift::RawXMLPayload> outOfBand =
-                boost::make_shared<Swift::RawXMLPayload>(outOfBandElement.toStdString());
+        std::shared_ptr<Swift::RawXMLPayload> outOfBand =
+                std::make_shared<Swift::RawXMLPayload>(outOfBandElement.toStdString());
         msg->addPayload(outOfBand);
     }
 
@@ -198,10 +198,10 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
     }
     msg->setType(messagesTyp);
 
-    msg->addPayload(boost::make_shared<Swift::DeliveryReceiptRequest>());
+    msg->addPayload(std::make_shared<Swift::DeliveryReceiptRequest>());
 
     // add chatMarkers stanza
-    msg->addPayload(boost::make_shared<Swift::RawXMLPayload>(ChatMarkers::getMarkableString().toStdString()));
+    msg->addPayload(std::make_shared<Swift::RawXMLPayload>(ChatMarkers::getMarkableString().toStdString()));
 
     client_->sendMessage(msg);
     persistence_->addMessage( (Swift::Message::Groupchat == messagesTyp) ? true : false,

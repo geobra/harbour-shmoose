@@ -15,6 +15,10 @@ The client part puts all the pieces together and makes heavy use of the https://
 
 === Whitebox Overall System
 
+The whitebox description will mainly concentrate on the 'Client' part, described in the 'Building Block View'. The used librarys Qt and Swiften are accessed from many components in different classes, wheres libomemo and axc are only used in the accordingly OmemoHandler implementation.
+
+The following diagram is a decomposition of the 'Client' implementation.
+
 image::whitebox.png[]
 
 Motivation::
