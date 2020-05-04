@@ -5,242 +5,242 @@
     <name>AboutPage</name>
     <message>
         <source>Shmoose - Xmpp Client</source>
-        <translation type="unfinished"></translation>
+        <translation>Shmoose – Xmpp klijent</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzija</translation>
     </message>
     <message>
         <source>Contributions:</source>
-        <translation type="unfinished"></translation>
+        <translation>Doprinosi:</translation>
     </message>
 </context>
 <context>
     <name>AttachmentPathsPage</name>
     <message>
         <source>Add Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj stazu</translation>
     </message>
     <message>
         <source>Attachment Search Paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Staze za pretraživanje priloga</translation>
     </message>
     <message>
         <source>Deleting</source>
-        <translation type="unfinished"></translation>
+        <translation>Brisanje</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukloni</translation>
     </message>
 </context>
 <context>
     <name>ChatPage</name>
     <message>
         <source>Enter message</source>
-        <translation type="unfinished"></translation>
+        <translation>Upiši poruku</translation>
     </message>
 </context>
 <context>
     <name>ContactsPage</name>
     <message>
         <source>Contacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontakti</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukloni</translation>
     </message>
     <message>
         <source>Join room by address</source>
-        <translation type="unfinished"></translation>
+        <translation>Pristupi sobi s adresom</translation>
     </message>
     <message>
         <source>Add contact</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj kontakt</translation>
     </message>
 </context>
 <context>
     <name>ConversationsPage</name>
     <message>
         <source>Conversations</source>
-        <translation type="unfinished"></translation>
+        <translation>Razgovori</translation>
     </message>
 </context>
 <context>
     <name>CoverPage</name>
     <message>
         <source>online</source>
-        <translation type="unfinished"></translation>
+        <translation>online</translation>
     </message>
     <message>
         <source>offline</source>
-        <translation type="unfinished"></translation>
+        <translation>offline</translation>
     </message>
     <message>
         <source>connected</source>
-        <translation type="unfinished"></translation>
+        <translation>povezano</translation>
     </message>
     <message>
         <source>disconnected</source>
-        <translation type="unfinished"></translation>
+        <translation>nepovezano</translation>
     </message>
 </context>
 <context>
     <name>CreateContactDialog</name>
     <message>
         <source>Add Contact</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj kontakt</translation>
     </message>
     <message>
         <source>id@domain.org</source>
-        <translation type="unfinished"></translation>
+        <translation>id@domain.org</translation>
     </message>
     <message>
         <source>JID</source>
-        <translation type="unfinished"></translation>
+        <translation>JID</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ime</translation>
     </message>
     <message>
         <source>NickName</source>
-        <translation type="unfinished"></translation>
+        <translation>Nadimak</translation>
     </message>
 </context>
 <context>
     <name>ImagePickerPage</name>
     <message>
         <source>Select picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Odaberi sliku</translation>
     </message>
 </context>
 <context>
     <name>JoinRoomDialog</name>
     <message>
         <source>Join Room by address</source>
-        <translation type="unfinished"></translation>
+        <translation>Pristupi sobi s adresom</translation>
     </message>
     <message>
         <source>id@domain.org</source>
-        <translation type="unfinished"></translation>
+        <translation>id@domain.org</translation>
     </message>
     <message>
         <source>Room address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresa sobe</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ime</translation>
     </message>
     <message>
         <source>Room name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ime sobe</translation>
     </message>
 </context>
 <context>
     <name>LoginPage</name>
     <message>
         <source>Welcome to Shmoose</source>
-        <translation type="unfinished"></translation>
+        <translation>Pozdrav u Shmoose</translation>
     </message>
     <message>
         <source>Login to Jabber Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Prijavi se na Jabber poslužitelj</translation>
     </message>
     <message>
         <source>jid@server.com</source>
-        <translation type="unfinished"></translation>
+        <translation>jid@server.com</translation>
     </message>
     <message>
         <source>JID</source>
-        <translation type="unfinished"></translation>
+        <translation>JID</translation>
     </message>
     <message>
         <source>password</source>
-        <translation type="unfinished"></translation>
+        <translation>lozinka</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Lozinka</translation>
     </message>
     <message>
         <source>Save credentials (unencrypted)</source>
-        <translation type="unfinished"></translation>
+        <translation>Spremi vjerodajnice (nešifrirano)</translation>
     </message>
     <message>
         <source>Connect</source>
-        <translation type="unfinished"></translation>
+        <translation>Poveži se</translation>
     </message>
     <message>
         <source>Connecting...</source>
-        <translation type="unfinished"></translation>
+        <translation>Povezivanje …</translation>
     </message>
 </context>
 <context>
     <name>MenuPage</name>
     <message>
         <source>Contacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontakti</translation>
     </message>
     <message>
         <source>Conversations</source>
-        <translation type="unfinished"></translation>
+        <translation>Razgovori</translation>
     </message>
     <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Postavke</translation>
     </message>
     <message>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Informacije</translation>
     </message>
 </context>
 <context>
     <name>MessageStatusPage</name>
     <message>
         <source>Message Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Stanje poruke</translation>
     </message>
 </context>
 <context>
     <name>MessagingPage</name>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiraj</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Stanje</translation>
     </message>
     <message>
         <source>Enter message...</source>
-        <translation type="unfinished"></translation>
+        <translation>Upiši poruku …</translation>
     </message>
 </context>
 <context>
     <name>PreferencesPage</name>
     <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Postavke</translation>
     </message>
     <message>
         <source>Privacy</source>
-        <translation type="unfinished"></translation>
+        <translation>Privatnost</translation>
     </message>
     <message>
         <source>Send Read Notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Pošalji obavijesti za čitanje</translation>
     </message>
     <message>
         <source>Attachments</source>
-        <translation type="unfinished"></translation>
+        <translation>Prilozi</translation>
     </message>
     <message>
         <source>Edit attachment search paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Uredi staze za pretraživanje priloga</translation>
     </message>
 </context>
 </TS>
