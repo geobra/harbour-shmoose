@@ -9,6 +9,7 @@ install:
     - sudo apt-get -qq update
     - sudo apt-get -qq install qt5-default libqt5sql5-sqlite qtdeclarative5-dev qml-module-qtquick2 qml-module-qtquick-controls lcov
 
+    - sudo apt-get install systemd # new version nedded by ejabberd
     - sudo apt-get install asciidoctor plantuml graphviz
     - sudo apt-get install xvfb ejabberd
     - wget -q https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz && tar -xf swift-4.0.2.tar.gz && cd swift-4.0.2 && /bin/bash scons -j 4 Swiften && cd ..
