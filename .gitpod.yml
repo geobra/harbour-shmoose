@@ -1,8 +1,12 @@
 image:
   file: .gitpod.Dockerfile
 
-# List the start up tasks. You can start them in parallel in multiple terminals. See https://www.gitpod.io/docs/44_config_start_tasks/
 tasks:
-- init: echo 'build' # runs during prebuild
-  command: echo "hello"
+- init: echo 'setup workspace' # runs during prebuild
+  command: |
+     ln -fs ~/swift-4.0.2/ /workspace/
+     mkdir build
+     cd build
+     qmake ..
+     make
 
