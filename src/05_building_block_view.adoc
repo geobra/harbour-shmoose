@@ -21,10 +21,11 @@ The following diagram is a decomposition of the 'Client' implementation.
 
 image::whitebox.png[]
 
+The GUI part consists of several QML files, one for each page. It uses a classic Model-View-Controler pattern and will not be discussed in more detail here.
+
 Motivation::
 
-_<text explanation>_
-
+The overall client part is seperated in functional parts as well as in implementation of different XEP's which are not proviced by the swiften library.
 
 Contained Building Blocks::
 _<Description of contained building block (black boxes)>_
