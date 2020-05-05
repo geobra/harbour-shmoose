@@ -7,6 +7,9 @@
 .. image:: https://img.shields.io/lgtm/grade/cpp/g/geobra/harbour-shmoose.svg?logo=lgtm&logoWidth=18 
   :target: https://lgtm.com/projects/g/geobra/harbour-shmoose/context:cpp
 
+.. image:: https://gitpod.io/button/open-in-gitpod.svg
+  :target: https://gitpod.io/#https://github.com/geobra/harbour-shmoose
+
 ===============================================================================
 Shmoose - XMPP Client for Sailfish OS
 ===============================================================================
