@@ -5,8 +5,5 @@ tasks:
 - init: echo 'setup workspace' # runs during prebuild
   command: |
      ln -fs ~/swift-4.0.2/ /workspace/
-     mkdir build
-     cd build
-     qmake ..
-     make
+     echo "build with: mkdir build && cd build && qmake .. && make"
 
