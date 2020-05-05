@@ -1,9 +1,9 @@
 TARGET = harbour-shmoose
 
 # path to local compiled swift lib
-SWIFTPATH = ../swift-4.0.2
+SWIFTPATH = $$_PRO_FILE_PWD_/../swift-4.0.2
 contains(DEFINES, SFOS) {
-    SWIFTPATH = ../swift-4.0.2-arm
+    SWIFTPATH = $$_PRO_FILE_PWD_/../swift-4.0.2-arm
 }
 
 contains(DEFINES, TRAVIS) {
