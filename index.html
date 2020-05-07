@@ -759,11 +759,28 @@ Map the quality goals to the details</p>
 </dd>
 <dt class="hdlist1">Contained Building Blocks</dt>
 <dd>
-<p><em>&lt;Description of contained building block (black boxes)&gt;</em></p>
-</dd>
-<dt class="hdlist1">Important Interfaces</dt>
-<dd>
-<p><em>&lt;Description of important interfaces&gt;</em></p>
+<div class="ulist">
+<ul>
+<li>
+<p>base: Implementation of basic functionality like advertising client capabilities or message handling</p>
+</li>
+<li>
+<p>persistence: Implementations to store send and received data</p>
+</li>
+<li>
+<p>xep: Different implementations for missing functionality in the used xmpp library</p>
+</li>
+<li>
+<p>networkconnection: SFOS specific implementation for handling (re)connections on a mobile device</p>
+</li>
+<li>
+<p>contacts: Handling of xmpp contacts (aka roster)</p>
+</li>
+<li>
+<p>room: Implementation for handling and joining groups</p>
+</li>
+</ul>
+</div>
 </dd>
 </dl>
 </div>
@@ -790,70 +807,10 @@ Map the quality goals to the details</p>
 </div>
 <div class="sect3">
 <h4 id="_name_black_box_2"><a class="link" href="#_name_black_box_2">5.1.2. &lt;Name black box 2&gt;</a></h4>
-<div class="paragraph">
-<p><em>&lt;black box template&gt;</em></p>
-</div>
+
 </div>
 <div class="sect3">
 <h4 id="_name_black_box_n"><a class="link" href="#_name_black_box_n">5.1.3. &lt;Name black box n&gt;</a></h4>
-<div class="paragraph">
-<p><em>&lt;black box template&gt;</em></p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_name_interface_1"><a class="link" href="#_name_interface_1">5.1.4. &lt;Name interface 1&gt;</a></h4>
-<div class="paragraph">
-<p>&#8230;&#8203;</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_name_interface_m"><a class="link" href="#_name_interface_m">5.1.5. &lt;Name interface m&gt;</a></h4>
-
-</div>
-</div>
-<div class="sect2">
-<h3 id="_level_2"><a class="link" href="#_level_2">5.2. Level 2</a></h3>
-<div class="sect3">
-<h4 id="_white_box_building_block_1"><a class="link" href="#_white_box_building_block_1">5.2.1. White Box <em>&lt;building block 1&gt;</em></a></h4>
-<div class="paragraph">
-<p><em>&lt;white box template&gt;</em></p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_white_box_building_block_2"><a class="link" href="#_white_box_building_block_2">5.2.2. White Box <em>&lt;building block 2&gt;</em></a></h4>
-<div class="paragraph">
-<p><em>&lt;white box template&gt;</em></p>
-</div>
-<div class="paragraph">
-<p>&#8230;&#8203;</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_white_box_building_block_m"><a class="link" href="#_white_box_building_block_m">5.2.3. White Box <em>&lt;building block m&gt;</em></a></h4>
-<div class="paragraph">
-<p><em>&lt;white box template&gt;</em></p>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_level_3"><a class="link" href="#_level_3">5.3. Level 3</a></h3>
-<div class="sect3">
-<h4 id="_white_box_building_block_x_1"><a class="link" href="#_white_box_building_block_x_1">5.3.1. White Box &lt;_building block x.1_&gt;</a></h4>
-<div class="paragraph">
-<p><em>&lt;white box template&gt;</em></p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_white_box_building_block_x_2"><a class="link" href="#_white_box_building_block_x_2">5.3.2. White Box &lt;_building block x.2_&gt;</a></h4>
-<div class="paragraph">
-<p><em>&lt;white box template&gt;</em></p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_white_box_building_block_y_1"><a class="link" href="#_white_box_building_block_y_1">5.3.3. White Box &lt;_building block y.1_&gt;</a></h4>
-<div class="paragraph">
-<p><em>&lt;white box template&gt;</em></p>
-</div>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
@@ -1180,7 +1137,7 @@ building block instances depicted in this diagram.&gt;</em></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-05-05 20:05:54 UTC
+Last updated 2020-05-07 20:08:47 UTC
 </div>
 </div>
 </body>
