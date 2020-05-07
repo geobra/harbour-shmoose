@@ -37,6 +37,10 @@ Feature Stack until version 1.0
 * XEP-0198: Stream Management  [done]
 * XEP-0384: OMEMO Encryption [WIP]
 
+-------------------------------------------------------------------------------
+Documentation of the Softwre Architecture
+-------------------------------------------------------------------------------
+`Software Architecture description <https://geobra.github.io/harbour-shmoose/>`_
 
 -------------------------------------------------------------------------------
 Ready-to-use binaries can be found on OpenRepos
@@ -44,7 +48,12 @@ Ready-to-use binaries can be found on OpenRepos
 `Shmoose on OpenRepos <https://openrepos.net/content/schorsch/shmoose>`_
 
 -------------------------------------------------------------------------------
-Installation
+Jump direct into development on gitpod
+-------------------------------------------------------------------------------
+`Ready to use development environment, running in your browser <https://gitpod.io/#https://github.com/geobra/harbour-shmoose>`_
+
+-------------------------------------------------------------------------------
+Build a x86 binary locally for development purposes
 -------------------------------------------------------------------------------
 
 On Linux|GNU, do the following:
