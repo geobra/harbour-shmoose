@@ -56,9 +56,9 @@ Create a working directory::
 
 Fetch the Swift source::
 
- * wget https://swift.im/downloads/releases/swift-3.0/swift-3.0.tar.gz
- * tar -xzvf swift-3.0.tar.gz
- * cd swift-3.0/
+ * wget https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz
+ * tar -xzvf swift-4.0.2.tar.gz
+ * cd swift-4.0.2/
 
 Install all dependencies to build Swiften::
 
@@ -93,10 +93,10 @@ To cross compile for Sailfish OS, do the following:
 
 Fetch the Swift source source::
 
- * wget https://swift.im/downloads/releases/swift-3.0/swift-3.0.tar.gz
- * mkdir swift-3.0-arm
- * cd swift-3.0-arm
- * tar --strip-components=1 -xzvf ../swift-3.0.tar.gz
+ * wget https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz
+ * mkdir swift-4.0.2-arm
+ * cd swift-4.0.2-arm
+ * tar --strip-components=1 -xzvf ../swift-4.0.2.tar.gz
 
 Install all dependencies to build Swiften::
 
