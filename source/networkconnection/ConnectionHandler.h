@@ -36,6 +36,8 @@ private slots:
 private:
     void handleConnected();
     void handleDisconnected(const boost::optional<Swift::ClientError> &error);
+    void handleCarbonsReply(Swift::Payload::ref, Swift::ErrorPayload::ref error);
+    void enableMessageCarbons();
 
     bool connected_;
     bool initialConnectionSuccessfull_;
