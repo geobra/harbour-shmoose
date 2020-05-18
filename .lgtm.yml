@@ -4,13 +4,18 @@ extraction:
       packages:
         - qt5-default
         - libqt5sql5-sqlite
-        - libswiften-dev
         - qtdeclarative5-dev
         - qml-module-qtquick2
         - qml-module-qtquick-controls
+    after_prepare:
+      - cd "$LGTM_WORKSPACE"
+      - wget https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz
+      - tar -xf swift-4.0.2.tar.gz
+      - cd swift-4.0.2
+      - /bin/bash scons Swiften
     configure:
       command:
-      - "mkdir _lgtm_build_dir"
-      - "cd _lgtm_build_dir"
-      - "qmake .. DEFINES+=TRAVIS"
+        - "mkdir _lgtm_build_dir"
+        - "cd _lgtm_build_dir"
+        - "qmake .. DEFINES+=TRAVIS"
 
