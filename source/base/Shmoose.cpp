@@ -13,6 +13,7 @@
 
 #include <Swiften/Elements/DiscoInfo.h>
 #include <Swiften/Elements/DiscoItems.h>
+#include <Swiften/Queries/Requests/EnableCarbonsRequest.h>
 
 #include <Swiften/Base/IDGenerator.h>
 
@@ -128,6 +129,9 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 
     // https://xmpp.org/extensions/xep-0333.html
     discoInfo.addFeature(ChatMarkers::chatMarkersIdentifier.toStdString());
+
+    // https://xmpp.org/extensions/xep-0280.html
+    discoInfo.addFeature(Swift::DiscoInfo::MessageCarbonsFeature);
 
     client_->getDiscoManager()->setDiscoInfo(discoInfo);
 

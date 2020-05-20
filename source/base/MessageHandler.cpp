@@ -5,6 +5,9 @@
 #include "ChatMarkers.h"
 #include "XmlProcessor.h"
 #include "RosterController.h"
+#include <Swiften/Elements/CarbonsReceived.h>
+#include <Swiften/Elements/CarbonsSent.h>
+#include <Swiften/Elements/Forwarded.h>
 
 #include <QUrl>
 
@@ -106,6 +109,33 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     //std::cout << "handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
 
     std::string fromJid = message->getFrom().toBare().toString();
+
+    // XEP 280
+    Swift::JID toJID;
+    bool sentCarbon = false;
+    // If this is a carbon message, we need to retrieve the actual content
+    if (settings_->getJid().compare(QString::fromStdString(fromJid)) == 0) {
+        Swift::CarbonsReceived::ref carbonsReceived;
+        Swift::CarbonsSent::ref carbonsSent;
+        Swift::Forwarded::ref forwarded;
+        Swift::Message::ref forwardedMessage;
+        if ((carbonsReceived = message->getPayload<Swift::CarbonsReceived>()) &&
+            (forwarded = carbonsReceived->getForwarded()) &&
+            (forwardedMessage = std::dynamic_pointer_cast<Swift::Message>(forwarded->getStanza()))) {
+	    // It is the carbon of a message that we received
+            message = forwardedMessage;
+	    fromJid = message->getFrom().toBare().toString();
+        }
+        else if ((carbonsSent = message->getPayload<Swift::CarbonsSent>()) &&
+                 (forwarded = carbonsSent->getForwarded()) &&
+                 (forwardedMessage = std::dynamic_pointer_cast<Swift::Message>(forwarded->getStanza()))) {
+	    // It is the carbon of a message that we sent
+            message = forwardedMessage;
+            toJID = forwardedMessage->getTo();
+	    sentCarbon = true;
+        }
+    }
+
     boost::optional<std::string> fromBody = message->getBody();
 
     if (fromBody)
@@ -132,12 +162,19 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             isGroupMessage = true;
         }
 
-        persistence_->addMessage(isGroupMessage,
-                                 QString::fromStdString(message->getID()),
-                                 QString::fromStdString(fromJid),
-                                 QString::fromStdString(message->getFrom().getResource()),
-                                 theBody, type, 1 );
-
+	if (!sentCarbon) {
+		persistence_->addMessage(isGroupMessage,
+					 QString::fromStdString(message->getID()),
+					 QString::fromStdString(fromJid),
+					 QString::fromStdString(message->getFrom().getResource()),
+					 theBody, type, 1 );
+	} else {
+		persistence_->addMessage(isGroupMessage,
+					 QString::fromStdString(message->getID()),
+					 QString::fromStdString(toJID.toBare().toString()),
+					 QString::fromStdString(toJID.getResource()),
+					 theBody, type, 0 );
+	}
         // xep 0333
         QString currentChatPartner = persistence_->getCurrentChatPartner();
         qDebug() << "fromJid: " << QString::fromStdString(fromJid) << "current: " << currentChatPartner << ", isGroup: " << isGroupMessage << ", appActive? " << appIsActive_;
