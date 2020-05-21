@@ -7,6 +7,7 @@ extraction:
         - qtdeclarative5-dev
         - qml-module-qtquick2
         - qml-module-qtquick-controls
+        - libssl-dev
     after_prepare:
       - cd "$LGTM_WORKSPACE"
       - wget https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz
