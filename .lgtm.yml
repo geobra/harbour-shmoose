@@ -9,7 +9,6 @@ extraction:
         - qml-module-qtquick-controls
         - libssl-dev
     after_prepare:
-      - echo "### here I am: "
       - pwd
       - wget https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz
       - tar -xf swift-4.0.2.tar.gz
@@ -17,9 +16,8 @@ extraction:
       - /bin/bash scons Swiften
     configure:
       command:
-        - echo "### here I am: "
         - pwd
-        - "mkdir _lgtm_build_dir"
-        - "cd _lgtm_build_dir"
-        - "qmake .. DEFINES+=TRAVIS"
+        - mkdir _lgtm_build_dir
+        - cd _lgtm_build_dir
+        - qmake .. DEFINES+=TRAVIS
 
