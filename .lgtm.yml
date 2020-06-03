@@ -13,7 +13,7 @@ extraction:
       - wget https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz
       - tar -xf swift-4.0.2.tar.gz
       - cd swift-4.0.2
-      - /bin/bash scons Swiften
+      - BOOST_BUNDLED=1 LIBMINIUPNPC_BUNDLED=1 LIBNATPMP_BUNDLED=1 ./scons Swiften
     configure:
       command:
         - pwd
