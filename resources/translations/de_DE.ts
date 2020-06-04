@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="14"/>
         <source>Shmoose - Xmpp Client</source>
-        <translation>Shmosse - Xmpp Client</translation>
+        <translation>Shmoose - Xmpp Client</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="27"/>
@@ -16,7 +16,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="34"/>
         <source>Contributions:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mitwirkende:</translation>
     </message>
 </context>
 <context>
@@ -47,7 +47,7 @@
     <message>
         <location filename="../../source/qml/ChatPage.qml" line="164"/>
         <source>Enter message</source>
-        <translation type="unfinished"></translation>
+        <translation>Nachricht eintragen</translation>
     </message>
 </context>
 <context>
@@ -60,7 +60,7 @@
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="95"/>
         <source>Remove</source>
-        <translation type="unfinished">Entfernen</translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="124"/>
@@ -86,22 +86,22 @@
     <message>
         <location filename="../qml/cover/CoverPage.qml" line="32"/>
         <source>online</source>
-        <translation>Online</translation>
+        <translation>online</translation>
     </message>
     <message>
         <location filename="../qml/cover/CoverPage.qml" line="32"/>
         <source>offline</source>
-        <translation>Offline</translation>
+        <translation>offline</translation>
     </message>
     <message>
         <location filename="../qml/cover/CoverPage.qml" line="48"/>
         <source>connected</source>
-        <translation>Verbunden</translation>
+        <translation>verbunden</translation>
     </message>
     <message>
         <location filename="../qml/cover/CoverPage.qml" line="51"/>
         <source>disconnected</source>
-        <translation>Getrennt</translation>
+        <translation>getrennt</translation>
     </message>
 </context>
 <context>
@@ -165,7 +165,7 @@
     <message>
         <location filename="../qml/pages/JoinRoomDialog.qml" line="27"/>
         <source>Room name</source>
-        <translation>Raum Name</translation>
+        <translation>Name des Raums</translation>
     </message>
 </context>
 <context>
@@ -197,12 +197,12 @@
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="48"/>
         <source>password</source>
-        <translation>Password</translation>
+        <translation>Kennwort</translation>
     </message>
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="50"/>
         <source>Password</source>
-        <translation>Password</translation>
+        <translation>Kennwort</translation>
     </message>
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="71"/>
@@ -219,7 +219,7 @@
     <message>
         <location filename="../qml/pages/LoginPage.qml" line="86"/>
         <source>Connecting...</source>
-        <translation>Verbinden...</translation>
+        <translation>Verbinden …</translation>
     </message>
 </context>
 <context>
@@ -250,7 +250,7 @@
     <message>
         <location filename="../qml/pages/MessageStatusPage.qml" line="18"/>
         <source>Message Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Nachrichten-Status</translation>
     </message>
 </context>
 <context>
@@ -263,12 +263,12 @@
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="230"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="287"/>
         <source>Enter message...</source>
-        <translation>Nachricht eingeben...</translation>
+        <translation>Nachricht eingeben …</translation>
     </message>
 </context>
 <context>

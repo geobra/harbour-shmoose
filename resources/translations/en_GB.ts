@@ -16,7 +16,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="34"/>
         <source>Contributions:</source>
-        <translation type="unfinished"></translation>
+        <translation>Contributions:</translation>
     </message>
 </context>
 <context>
@@ -24,22 +24,22 @@
     <message>
         <location filename="../qml/pages/AttachmentPathsPage.qml" line="12"/>
         <source>Add Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Add Path</translation>
     </message>
     <message>
         <location filename="../qml/pages/AttachmentPathsPage.qml" line="23"/>
         <source>Attachment Search Paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Attachment Search Paths</translation>
     </message>
     <message>
         <location filename="../qml/pages/AttachmentPathsPage.qml" line="37"/>
         <source>Deleting</source>
-        <translation type="unfinished"></translation>
+        <translation>Deleting</translation>
     </message>
     <message>
         <location filename="../qml/pages/AttachmentPathsPage.qml" line="42"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove</translation>
     </message>
 </context>
 <context>
@@ -47,7 +47,7 @@
     <message>
         <location filename="../../source/qml/ChatPage.qml" line="164"/>
         <source>Enter message</source>
-        <translation type="unfinished"></translation>
+        <translation>Enter message</translation>
     </message>
 </context>
 <context>
@@ -60,7 +60,7 @@
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="95"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Remove</translation>
     </message>
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="124"/>
@@ -237,7 +237,7 @@
     <message>
         <location filename="../qml/pages/MenuPage.qml" line="62"/>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Settings</translation>
     </message>
     <message>
         <location filename="../qml/pages/MenuPage.qml" line="63"/>
@@ -250,7 +250,7 @@
     <message>
         <location filename="../qml/pages/MessageStatusPage.qml" line="18"/>
         <source>Message Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Message Status</translation>
     </message>
 </context>
 <context>
@@ -263,7 +263,7 @@
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="230"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="287"/>
@@ -276,27 +276,27 @@
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="17"/>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Settings</translation>
     </message>
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="19"/>
         <source>Privacy</source>
-        <translation type="unfinished"></translation>
+        <translation>Privacy</translation>
     </message>
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="24"/>
         <source>Send Read Notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Send Read Notifications</translation>
     </message>
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="30"/>
         <source>Attachments</source>
-        <translation type="unfinished"></translation>
+        <translation>Attachments</translation>
     </message>
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="33"/>
         <source>Edit attachment search paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Edit attachment search paths</translation>
     </message>
 </context>
 </TS>
