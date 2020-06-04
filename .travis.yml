@@ -12,7 +12,7 @@ install:
     - sudo apt-get install systemd # new version nedded by ejabberd
     - sudo apt-get install asciidoctor plantuml graphviz
     - sudo apt-get install xvfb ejabberd
-    - wget -q https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz && tar -xf swift-4.0.2.tar.gz && cd swift-4.0.2 && /bin/bash scons -j 4 Swiften && cd ..
+    - wget --no-check-certificate -q https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz && tar -xf swift-4.0.2.tar.gz && cd swift-4.0.2 && /bin/bash scons -j 4 Swiften && cd ..
 
 script:
     # standard x86 build
