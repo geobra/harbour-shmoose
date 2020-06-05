@@ -14,6 +14,7 @@ extraction:
       - tar -xf swift-4.0.2.tar.gz
       - cd swift-4.0.2
       - sed -i -E "s/(env\[\"BOOST_BUNDLED\"\] = True)/\1\n\1/" BuildTools/SCons/SConstruct
+      - sed -i -E "s/(env\[\"EXPAT_BUNDLED\"\] = True)/\1\n\1/" BuildTools/SCons/SConstruct
       - ./scons Swiften
     configure:
       command:
