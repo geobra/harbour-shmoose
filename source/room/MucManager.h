@@ -24,8 +24,8 @@ signals:
     void newGroupForContactsList(QString groupJid, QString groupName);
     void removeGroupFromContactsList(QString groupJid);
     void roomJoinComplete(QString);
-
     void signalShowMessage(QString headline, QString body);
+    void bookmarksDone();
 
 private:
     Swift::Client* client_;

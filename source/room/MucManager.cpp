@@ -83,6 +83,8 @@ void MucManager::handleBookmarksReady()
             joinRoomIfConfigured(*it);
         }
     }
+
+    emit bookmarksDone();
 }
 
 bool MucManager::isRoomAlreadyBookmarked(const QString& roomJid)

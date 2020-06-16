@@ -5,17 +5,19 @@
 #include <Swiften/Swiften.h>
 
 class HttpFileUploadManager;
+class MamManager;
 
 class DiscoInfoHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit DiscoInfoHandler(HttpFileUploadManager* httpFileUploadManager, QObject *parent = 0);
+    explicit DiscoInfoHandler(HttpFileUploadManager* httpFileUploadManager, MamManager* mamManager, QObject *parent = 0);
     ~DiscoInfoHandler();
 
     void setupWithClient(Swift::Client* client);
 
 signals:
+    void serverHasMam_(bool);
 
 public slots:
 
@@ -26,6 +28,7 @@ private:
     void handleServerDiscoItemsResponse(std::shared_ptr<Swift::DiscoItems> items, Swift::ErrorPayload::ref error);
 
     HttpFileUploadManager* httpFileUploadManager_;
+    MamManager* mamManager_;
     Swift::Client* client_;
 
     Swift::GetDiscoItemsRequest::ref discoItemReq_;

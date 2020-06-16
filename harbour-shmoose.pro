@@ -7,7 +7,7 @@ contains(DEFINES, SFOS) {
 }
 
 contains(DEFINES, TRAVIS) {
-	SWIFTPATH = $$_PRO_FILE_PWD_/swift-4.0.2
+    SWIFTPATH = $$_PRO_FILE_PWD_/swift-4.0.2
 }
 
 include($$PWD/swift.pri)
@@ -23,6 +23,7 @@ contains(DEFINES, DBUS) {
 INCLUDEPATH += source
 INCLUDEPATH += source/persistence
 INCLUDEPATH += source/xep/httpFileUpload
+INCLUDEPATH += source/xep/mam
 INCLUDEPATH += source/xep/xmppPing
 INCLUDEPATH += source/xep/chatMarkers
 INCLUDEPATH += source/room
@@ -78,6 +79,7 @@ SOURCES += \
     source/xep/httpFileUpload/HttpFileUploadManager.cpp \
     source/xep/httpFileUpload/DownloadManager.cpp \
     source/xep/httpFileUpload/ImageProcessing.cpp \
+    source/xep/mam/MamManager.cpp \
     source/xep/xmppPing/XmppPingController.cpp \
     source/xep/chatMarkers/ChatMarkers.cpp \
     source/room/MucManager.cpp \
@@ -107,6 +109,7 @@ HEADERS += source/base/Shmoose.h \
     source/xep/httpFileUpload/HttpFileUploadManager.h \
     source/xep/httpFileUpload/DownloadManager.h \
     source/xep/httpFileUpload/ImageProcessing.h \
+    source/xep/mam/MamManager.h \
     source/xep/xmppPing/PingRequest.h \
     source/xep/xmppPing/XmppPingController.h \
     source/xep/chatMarkers/ChatMarkers.h \

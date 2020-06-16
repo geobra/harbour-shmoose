@@ -25,6 +25,7 @@
 #include "ConnectionHandler.h"
 #include "MessageHandler.h"
 #include "HttpFileUploadManager.h"
+#include "MamManager.h"
 #include "MucManager.h"
 #include "DiscoInfoHandler.h"
 
@@ -40,8 +41,9 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     connectionHandler_(new ConnectionHandler(this)),
     messageHandler_(new MessageHandler(persistence_, settings_, rosterController_, this)),
     httpFileUploadManager_(new HttpFileUploadManager(this)),
+    mamManager_(new MamManager(persistence_, this)),
     mucManager_(new MucManager(this)),
-    discoInfoHandler_(new DiscoInfoHandler(httpFileUploadManager_, this)),
+    discoInfoHandler_(new DiscoInfoHandler(httpFileUploadManager_, mamManager_, this)),
     jid_(""), password_(""),
     version_("0.7.0")
 {
@@ -54,6 +56,10 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
 
     connect(mucManager_, SIGNAL(newGroupForContactsList(QString,QString)), rosterController_, SLOT(addGroupAsContact(QString,QString)));
     connect(mucManager_, SIGNAL(removeGroupFromContactsList(QString)), rosterController_, SLOT(removeGroupFromContacts(QString)) );
+
+    connect(discoInfoHandler_, SIGNAL(serverHasMam_(bool)), mamManager_, SLOT(setServerHasFeatureMam(bool)));
+    connect(mucManager_, SIGNAL(bookmarksDone()), mamManager_, SLOT(requestArchives()));
+    connect(mucManager_, SIGNAL(newGroupForContactsList(QString,QString)), mamManager_, SLOT(receiveRoomWithName(QString, QString)));
 
     // send read notification if app gets active
     connect(this, SIGNAL(signalAppGetsActive(bool)), this, SLOT(sendReadNotification(bool)));
@@ -170,6 +176,9 @@ void Shmoose::intialSetupOnFirstConnection()
 
     // pass the client pointer to the httpFileUploadManager
     httpFileUploadManager_->setupWithClient(client_);
+
+    // init mam
+    mamManager_->setupWithClient(client_);
 
     // init and setup discoInfoHandler
     discoInfoHandler_->setupWithClient(client_);
