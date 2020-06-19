@@ -14,7 +14,7 @@
 #include <QDebug>
 
 MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, RosterController* rosterController, QObject *parent) : QObject(parent),
-    client_(NULL), persistence_(persistence), settings_(settings),
+    client_(nullptr), persistence_(persistence), settings_(settings),
     downloadManager_(new DownloadManager(this)),
     chatMarkers_(new ChatMarkers(persistence_, rosterController, this)),
     appIsActive_(true), unAckedMessageIds_()
@@ -33,9 +33,6 @@ void MessageHandler::setupWithClient(Swift::Client* client)
         // xep 198 stream management and roster operations
         client_->onStanzaAcked.connect(boost::bind(&MessageHandler::handleStanzaAcked, this, _1));
 
-        // simple 'message archive management' for fetched muc history
-        client_->onDataRead.connect(boost::bind(&MessageHandler::handleDataReceived, this, _1));
-
         chatMarkers_->setupWithClient(client_);
     }
 }
@@ -53,56 +50,6 @@ void MessageHandler::handleStanzaAcked(Swift::Stanza::ref stanza)
         }
     }
 }
-
-void MessageHandler::handleDataReceived(Swift::SafeByteArray data)
-{
-    std::string nodeData = Swift::safeByteArrayToString(data);
-    QString qData = QString::fromStdString(nodeData);
-
-    QString xmlnsTag = XmlProcessor::getContentInTag("result", "xmlns", qData);
-
-    if ( xmlnsTag.contains("urn:xmpp:mam:1", Qt::CaseInsensitive) == true )
-    {
-        QString archivedMsg = XmlProcessor::getChildFromNode("message", qData);
-        if (! archivedMsg.isEmpty() )
-        {
-            QString body = XmlProcessor::getContentInTag("message", "body", archivedMsg);
-            if (! body.isEmpty()) // only messages with a body text will be processed
-            {
-                QString id = XmlProcessor::getContentInTag("message", "id", archivedMsg);
-                QString archiveJid = XmlProcessor::getContentInTag("message", "from", archivedMsg);
-
-                QString msgOwnerJid = XmlProcessor::getContentInTag("item", "jid", archivedMsg);
-                QString msgOwnerBareJid = QString::fromStdString(Swift::JID(msgOwnerJid.toStdString()).toBare().toString());
-                QString myBareJid = QString::fromStdString(client_->getJID().toBare().toString());
-
-                Swift::JID jid = Swift::JID(archiveJid.toStdString());
-                QString from = QString::fromStdString(jid.getResource());
-                QString bareJid = QString::fromStdString(jid.toBare());
-
-                qDebug() << "muc mam! body: " << body << ", id: " << id << " , jid: " << bareJid << ", from: " << from;
-
-                if ( (! id.isEmpty()) && (! bareJid.isEmpty()) && (! from.isEmpty()) )
-                {
-                    // FIXME currently, this is only for group messages!
-                    // FIXME has to also check content type. Currently we assume txt
-
-                    bool isGroupMessage = true;
-                    int direction = 1; // incoming
-
-                    // if msg jid is same as my jid, then the msg was from me.
-                    if (msgOwnerBareJid.compare(myBareJid, Qt::CaseInsensitive) == 0)
-                    {
-                        direction = 0; // outgoing
-                    }
-
-                    persistence_->addMessage(isGroupMessage, id, bareJid, from, body, "txt", direction );
-                }
-            }
-        }
-    }
-}
-
 
 void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 {

@@ -10,8 +10,8 @@ class Persistence;
 
 // https://xmpp.org/extensions/xep-0313.html
 // requests the mam for the client jid as soon as mamNs is discovered with disco#info
-// adds all bookmarks to the jids list
-// requests mam for the jids list on signal bookmarks done
+// adds all bookmarks to the jids list to only query the archive one time
+// requests mam for the jids in that list
 class MamManager : public QObject
 {
     Q_OBJECT
@@ -23,24 +23,21 @@ public:
 
 private:
     void requestArchiveForJid(const QString& jid);
-
-    Persistence* persistence_;
+    void handleDataReceived(Swift::SafeByteArray data);
 
     bool serverHasFeature_;
-
     QStringList queridJids_;
+
+    Persistence* persistence_;
     Swift::Client* client_;
 
 public slots:
     void receiveRoomWithName(QString jid, QString name);
-    //void addJidforArchiveQuery(QString jid);
+    void addJidforArchiveQuery(QString jid);
     void setServerHasFeatureMam(bool hasFeature);
-    void requestArchives();
-
 
 private slots:
     void handleConnected();
-
 
 };
 

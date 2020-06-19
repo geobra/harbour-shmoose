@@ -25,7 +25,6 @@ signals:
     void removeGroupFromContactsList(QString groupJid);
     void roomJoinComplete(QString);
     void signalShowMessage(QString headline, QString body);
-    void bookmarksDone();
 
 private:
     Swift::Client* client_;
@@ -44,8 +43,6 @@ private:
 
     void joinRoomIfConfigured(Swift::MUCBookmark const &bookmark);
     void sendUnavailableToRoom(Swift::MUCBookmark bookmark);
-
-    void requestHistoryForRoom(const Swift::JID& roomJid);
 
     bool isRoomAlreadyBookmarked(const QString& roomJid);
 
