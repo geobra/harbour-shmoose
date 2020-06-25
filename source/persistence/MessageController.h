@@ -10,8 +10,8 @@ class MessageController : public QSqlTableModel
     Q_OBJECT
 
 public:
-    explicit MessageController(QObject *parent = 0);
-    MessageController(Database *db, QObject *parent = 0);
+    explicit MessageController(QObject *parent = nullptr);
+    MessageController(Database *db, QObject *parent = nullptr);
 
     bool setup();
 
@@ -19,7 +19,7 @@ public:
     virtual QHash<int, QByteArray> roleNames() const;
 
     void setFilterOnJid(QString const &jidFiler);
-    bool addMessage(bool isGroupMessage, const QString &id, QString const &jid, const QString &resource, QString const &message, const QString &type, unsigned int direction);
+    bool addMessage(const QString &id, QString const &jid, const QString &resource, QString const &message, const QString &type, unsigned int direction);
 
     void markMessageDisplayedConfirmed(QString const &id);
     void markMessageDisplayed(QString const &id);
@@ -39,7 +39,7 @@ private:
     void generateRoleNames();
     virtual void setTable ( const QString &table_name );
     void setMessageStateOfId(QString const &id, const int state);
-    bool isMessageIdInDatabase(QString const &id);
+    bool isMessageIdForJidInDatabase(QString const &id, const QString &jid);
 
     void remarkMessageToReceivedForJidOfId(QString const &id);
     QString getJidOfMessageId(const QString &id);

@@ -111,15 +111,13 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
         if (!sentCarbon)
         {
-            persistence_->addMessage(isGroupMessage,
-                                     QString::fromStdString(message->getID()),
+            persistence_->addMessage(QString::fromStdString(message->getID()),
                                      QString::fromStdString(fromJid),
                                      QString::fromStdString(message->getFrom().getResource()),
                                      theBody, type, 1 );
         } else
         {
-            persistence_->addMessage(isGroupMessage,
-                                     QString::fromStdString(message->getID()),
+            persistence_->addMessage(QString::fromStdString(message->getID()),
                                      QString::fromStdString(toJID.toBare().toString()),
                                      QString::fromStdString(toJID.getResource()),
                                      theBody, type, 0 );
@@ -191,8 +189,7 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
     msg->addPayload(std::make_shared<Swift::RawXMLPayload>(ChatMarkers::getMarkableString().toStdString()));
 
     client_->sendMessage(msg);
-    persistence_->addMessage( (Swift::Message::Groupchat == messagesTyp) ? true : false,
-                              QString::fromStdString(msgId),
+    persistence_->addMessage( QString::fromStdString(msgId),
                               QString::fromStdString(receiverJid.toBare().toString()),
                               QString::fromStdString(receiverJid.getResource()),
                               message, type, 0);

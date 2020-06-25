@@ -180,7 +180,7 @@ void MamManager::handleDataReceived(Swift::SafeByteArray data)
                     // FIXME has to also check content type. Currently we assume txt
 
                     // FIXME provide possibility to alter the date to the real timestamp from mam
-                    persistence_->addMessage(isGroupMessage, id, senderBareJid, resource, body, "txt", direction );
+                    persistence_->addMessage(id, senderBareJid, resource, body, "txt", direction );
                 }
             }
         }

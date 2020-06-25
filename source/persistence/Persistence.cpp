@@ -43,11 +43,11 @@ QString Persistence::getCurrentChatPartner()
     return currentChatPartner_;
 }
 
-void Persistence::addMessage(bool isGroupMessage, QString const &id, QString const &jid, QString const &resource, QString const &message, QString const &type, unsigned int direction)
+void Persistence::addMessage(QString const &id, QString const &jid, QString const &resource, QString const &message, QString const &type, unsigned int direction)
 {
     if (persistenceValid_)
     {
-        if (messageController_->addMessage(isGroupMessage, id, jid, resource, message, type, direction))
+        if (messageController_->addMessage(id, jid, resource, message, type, direction))
         {
             sessionController_->updateSession(jid, message);
 
