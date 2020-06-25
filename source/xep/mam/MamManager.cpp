@@ -52,7 +52,7 @@ void MamManager::setServerHasFeatureMam(bool hasFeature)
     //qDebug() << "MamManager::setServerHasFeatureMam: " << hasFeature;
     serverHasFeature_ = hasFeature;
 
-    // FIXME implement setting for storing ALL your msg in the archive
+    // FIXME implement setting for storing ALL the msg in the archive
 
     requestArchiveForJid(QString::fromStdString(client_->getJID().toBare().toString()));
 }
@@ -106,6 +106,13 @@ void MamManager::requestArchiveForJid(const QString& jid)
 
 void MamManager::handleDataReceived(Swift::SafeByteArray data)
 {
+    // FIXME received and displayed status for msgId's
+
+    bool isGroupMessage = false;
+    QString senderBareJid = "";
+    QString resource = "";
+    int direction = 1; // incoming
+
     std::string nodeData = Swift::safeByteArrayToString(data);
     QString qData = QString::fromStdString(nodeData);
 
@@ -119,39 +126,61 @@ void MamManager::handleDataReceived(Swift::SafeByteArray data)
             QString body = XmlProcessor::getContentInTag("message", "body", archivedMsg);
             if (! body.isEmpty()) // only messages with a body text will be processed
             {
+                QString clientBareJid = QString::fromStdString(client_->getJID().toBare().toString());
+
                 QString id = XmlProcessor::getContentInTag("message", "id", archivedMsg);
-                QString archiveJid = XmlProcessor::getContentInTag("message", "from", archivedMsg);
 
-                QString msgOwnerJid = XmlProcessor::getContentInTag("item", "jid", archivedMsg);
-                QString msgOwnerBareJid = QString::fromStdString(Swift::JID(msgOwnerJid.toStdString()).toBare().toString());
-                QString myBareJid = QString::fromStdString(client_->getJID().toBare().toString());
+                QString fromJid = XmlProcessor::getContentInTag("message", "from", archivedMsg);
+                senderBareJid = QString::fromStdString(Swift::JID(fromJid.toStdString()).toBare().toString());
+                resource = QString::fromStdString(Swift::JID(fromJid.toStdString()).getResource());
 
-                // FIXME check if the answer contains the whole archive or if we have to ask for more
-
-                Swift::JID jid = Swift::JID(archiveJid.toStdString());
-                QString from = QString::fromStdString(jid.getResource());
-                QString bareJid = QString::fromStdString(jid.toBare());
-
-                qDebug() << "muc mam! body: " << body << ", id: " << id << " , jid: " << bareJid << ", from: " << from;
-
-                if ( (! id.isEmpty()) && (! bareJid.isEmpty()) && (! from.isEmpty()) )
+                QString msgType = XmlProcessor::getContentInTag("message", "type", archivedMsg);
+                if (msgType.compare("groupchat", Qt::CaseInsensitive) == 0)
                 {
-                    // FIXME test for 1o1 msges
-                    // FIXME has to also check content type. Currently we assume txt
+                    isGroupMessage = true;
 
-                    bool isGroupMessage = queridJids_.contains(bareJid, Qt::CaseInsensitive);
-
-                    // FIXME check direction
-                    int direction = 1; // incoming
+                    QString msgOwnerJid = XmlProcessor::getContentInTag("item", "jid", archivedMsg);
+                    QString msgOwnerBareJid = QString::fromStdString(Swift::JID(msgOwnerJid.toStdString()).toBare().toString());
 
                     // if msg jid is same as my jid, then the msg was from me.
-                    if (msgOwnerBareJid.compare(myBareJid, Qt::CaseInsensitive) == 0)
+                    if (clientBareJid.compare(msgOwnerBareJid, Qt::CaseInsensitive) == 0)
                     {
                         direction = 0; // outgoing
                     }
+                }
+                else
+                {
+                    // 1o1 msg
+                    // if msg jid is same as my jid, then the msg was from me.
+                    if (clientBareJid.compare(senderBareJid, Qt::CaseInsensitive) == 0)
+                    {
+                        direction = 0; // outgoing
+                        QString toJid = XmlProcessor::getContentInTag("message", "to", archivedMsg);
+                        senderBareJid = QString::fromStdString(Swift::JID(toJid.toStdString()).toBare().toString());
+                        resource = QString::fromStdString(Swift::JID(toJid.toStdString()).getResource());
+                    }
+                }
+
+                // FIXME check if the answer contains the whole archive or if we have to ask for more
+
+                qDebug() << "mam group: " << isGroupMessage << " body: " << body << ", id: " << id << " , jid: " << senderBareJid << ", resource: " << resource << "direction: " << direction;
+
+                bool is1o1OrIsGroupWithResource = false;
+                if (isGroupMessage == false)
+                {
+                    is1o1OrIsGroupWithResource = true;
+                }
+                else if (! resource.isEmpty())
+                {
+                    is1o1OrIsGroupWithResource = true;
+                }
+
+                if ( (! id.isEmpty()) && (! senderBareJid.isEmpty()) && is1o1OrIsGroupWithResource )
+                {
+                    // FIXME has to also check content type. Currently we assume txt
 
                     // FIXME provide possibility to alter the date to the real timestamp from mam
-                    persistence_->addMessage(isGroupMessage, id, bareJid, from, body, "txt", direction );
+                    persistence_->addMessage(isGroupMessage, id, senderBareJid, resource, body, "txt", direction );
                 }
             }
         }

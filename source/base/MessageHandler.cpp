@@ -67,19 +67,19 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         Swift::Forwarded::ref forwarded;
         Swift::Message::ref forwardedMessage;
         if ((carbonsReceived = message->getPayload<Swift::CarbonsReceived>()) &&
-            (forwarded = carbonsReceived->getForwarded()) &&
-            (forwardedMessage = std::dynamic_pointer_cast<Swift::Message>(forwarded->getStanza()))) {
-	    // It is the carbon of a message that we received
+                (forwarded = carbonsReceived->getForwarded()) &&
+                (forwardedMessage = std::dynamic_pointer_cast<Swift::Message>(forwarded->getStanza()))) {
+            // It is the carbon of a message that we received
             message = forwardedMessage;
-	    fromJid = message->getFrom().toBare().toString();
+            fromJid = message->getFrom().toBare().toString();
         }
         else if ((carbonsSent = message->getPayload<Swift::CarbonsSent>()) &&
                  (forwarded = carbonsSent->getForwarded()) &&
                  (forwardedMessage = std::dynamic_pointer_cast<Swift::Message>(forwarded->getStanza()))) {
-	    // It is the carbon of a message that we sent
+            // It is the carbon of a message that we sent
             message = forwardedMessage;
             toJID = forwardedMessage->getTo();
-	    sentCarbon = true;
+            sentCarbon = true;
         }
     }
 
@@ -109,19 +109,22 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             isGroupMessage = true;
         }
 
-	if (!sentCarbon) {
-		persistence_->addMessage(isGroupMessage,
-					 QString::fromStdString(message->getID()),
-					 QString::fromStdString(fromJid),
-					 QString::fromStdString(message->getFrom().getResource()),
-					 theBody, type, 1 );
-	} else {
-		persistence_->addMessage(isGroupMessage,
-					 QString::fromStdString(message->getID()),
-					 QString::fromStdString(toJID.toBare().toString()),
-					 QString::fromStdString(toJID.getResource()),
-					 theBody, type, 0 );
-	}
+        if (!sentCarbon)
+        {
+            persistence_->addMessage(isGroupMessage,
+                                     QString::fromStdString(message->getID()),
+                                     QString::fromStdString(fromJid),
+                                     QString::fromStdString(message->getFrom().getResource()),
+                                     theBody, type, 1 );
+        } else
+        {
+            persistence_->addMessage(isGroupMessage,
+                                     QString::fromStdString(message->getID()),
+                                     QString::fromStdString(toJID.toBare().toString()),
+                                     QString::fromStdString(toJID.getResource()),
+                                     theBody, type, 0 );
+        }
+
         // xep 0333
         QString currentChatPartner = persistence_->getCurrentChatPartner();
         qDebug() << "fromJid: " << QString::fromStdString(fromJid) << "current: " << currentChatPartner << ", isGroup: " << isGroupMessage << ", appActive? " << appIsActive_;
