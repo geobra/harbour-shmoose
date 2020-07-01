@@ -21,7 +21,9 @@ public:
 
     static const QString mamNs;
 
+#ifndef UNIT_TEST
 private:
+#endif
     void requestArchiveForJid(const QString& jid);
     void handleDataReceived(Swift::SafeByteArray data);
 
