@@ -93,7 +93,7 @@ void MamTest::testRoomMamMsgIncoming()
     Swift::SafeByteArray sba = Swift::createSafeByteArray("<message xmlns=\"jabber:client\" to=\"sos@jabber.ccc.de/shmooseDesktop\" from=\"mg@conference.jabber.ccc.de\"> \
                                                           <result xmlns=\"urn:xmpp:mam:2\" id=\"1591439483304165\"> \
                                                            <forwarded xmlns=\"urn:xmpp:forward:0\"> \
-                                                            <message xmlns=\"jabber:client\" from=\"mg@conference.jabber.ccc.de/ms<at>jabber.de\" type=\"groupchat\" id=\"4cb33155-2b57-496a-ad80-2a9c7f31639b\"> \
+                                                            <message xmlns=\"jabber:client\" from=\"mg@conference.jabber.ccc.de/ms(at)jabber.de\" type=\"groupchat\" id=\"4cb33155-2b57-496a-ad80-2a9c7f31639b\"> \
                                                              <x xmlns=\"http://jabber.org/protocol/muc#user\"> \
                                                               <item jid=\"ms@jabber.de/shmoose\"></item> \
                                                              </x> \
@@ -112,7 +112,7 @@ void MamTest::testRoomMamMsgIncoming()
     mamManager_->handleDataReceived(sba);
     QCOMPARE(persistence_->id_, "4cb33155-2b57-496a-ad80-2a9c7f31639b");
     QCOMPARE(persistence_->jid_, "mg@conference.jabber.ccc.de");
-    QCOMPARE(persistence_->resource_, "ms<at>jabber.de");
+    QCOMPARE(persistence_->resource_, "ms(at)jabber.de");
     QCOMPARE(persistence_->message_, "foo msg");
     QCOMPARE(persistence_->type_, "txt");
     QCOMPARE(persistence_->direction_, 1);
