@@ -163,6 +163,64 @@ void MamTest::testMamIqNotComplete()
                                                          </iq>");
 
     mamManager_->handleDataReceived(sba);
+    // FIXME test this!
+}
+
+void MamTest::testMam1o1MsgReceived()
+{
+    Swift::SafeByteArray sba = Swift::createSafeByteArray("<message xmlns=\"jabber:client\" to=\"sos@jabber.ccc.de/shmooseDesktop\" from=\"sos@jabber.ccc.de\"> \
+                                                          <result xmlns=\"urn:xmpp:mam:2\" id=\"1593085793051322\"> \
+                                                           <forwarded xmlns=\"urn:xmpp:forward:0\"> \
+                                                            <message xmlns=\"jabber:client\" lang=\"en\" to=\"ms@jabber.de\" from=\"sos@jabber.ccc.de/Conversations.97pX\"> \
+                                                             <archived xmlns=\"urn:xmpp:mam:tmp\" by=\"sos@jabber.ccc.de\" id=\"1593085793051322\"></archived> \
+                                                             <stanza-id xmlns=\"urn:xmpp:sid:0\" by=\"sos@jabber.ccc.de\" id=\"1593085793051322\"></stanza-id> \
+                                                             <received xmlns=\"urn:xmpp:receipts\" id=\"137e1f50-57bb-48f1-8188-0b13d02a503e\"></received> \
+                                                             <store xmlns=\"urn:xmpp:hints\"></store> \
+                                                            </message> \
+                                                            <delay xmlns=\"urn:xmpp:delay\" from=\"jabber.ccc.de\" stamp=\"2020-06-25T11:49:53.051322Z\"></delay> \
+                                                           </forwarded> \
+                                                          </result> \
+                                                         </message>");
+
+    persistence_->clear();
+    mamManager_->handleDataReceived(sba);
+    QCOMPARE(persistence_->id_, "137e1f50-57bb-48f1-8188-0b13d02a503e");
+    QCOMPARE(persistence_->resource_, "");
+}
+
+void MamTest::testMamGroupMsgReceived()
+{
+    // FIXME
+}
+
+void MamTest::testMamGroupMsgDisplayed()
+{
+    Swift::SafeByteArray sba = Swift::createSafeByteArray("<message xmlns=\"jabber:client\" to=\"sos@jabber.ccc.de/shmooseDesktop\" from=\"mg@conference.jabber.ccc.de\"> \
+                                                          <result xmlns=\"urn:xmpp:mam:2\" id=\"1593636749769775\"> \
+                                                           <forwarded xmlns=\"urn:xmpp:forward:0\"> \
+                                                            <message xmlns=\"jabber:client\" from=\"mg@conference.jabber.ccc.de/hf20\" type=\"groupchat\"> \
+                                                             <x xmlns=\"http://jabber.org/protocol/muc#user\"> \
+                                                              <item jid=\"hf20@jabber.de/Conversations.x7ZH\"></item> \
+                                                             </x> \
+                                                             <archived xmlns=\"urn:xmpp:mam:tmp\" by=\"mg@conference.jabber.ccc.de\" id=\"1593636749769775\"></archived> \
+                                                             <stanza-id xmlns=\"urn:xmpp:sid:0\" by=\"mg@conference.jabber.ccc.de\" id=\"1593636749769775\"></stanza-id> \
+                                                             <displayed xmlns=\"urn:xmpp:chat-markers:0\" id=\"1593636669754332\"></displayed> \
+                                                             <store xmlns=\"urn:xmpp:hints\"></store> \
+                                                            </message> \
+                                                            <delay xmlns=\"urn:xmpp:delay\" from=\"conference.jabber.ccc.de\" stamp=\"2020-07-01T20:52:29.769775Z\"></delay> \
+                                                           </forwarded> \
+                                                          </result> \
+                                                         </message>");
+
+    persistence_->clear();
+    mamManager_->handleDataReceived(sba);
+    QCOMPARE(persistence_->id_, "1593636669754332");
+    QCOMPARE(persistence_->resource_, "hf20");
+}
+
+void MamTest::testMam1o1MsgDisplayed()
+{
+    // FIXME
 }
 
 QTEST_APPLESS_MAIN(MamTest)

@@ -15,6 +15,17 @@ void Persistence::addMessage(const QString &id, QString const &jid, QString cons
     direction_ = direction;
 }
 
+void Persistence::markGroupMessageReceivedByMember(const QString &msgId, const QString &resource)
+{
+    id_ = msgId;
+    resource_ = resource;
+}
+
+void Persistence::markMessageAsReceivedById(const QString &msgId)
+{
+    id_ = msgId;
+}
+
 void Persistence::clear()
 {
     id_ = "";

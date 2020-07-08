@@ -9,6 +9,9 @@ public:
     Persistence();
 
     void addMessage(const QString &id, QString const &jid, QString const &resource, QString const &message, const QString &type, unsigned int direction);
+    void markGroupMessageReceivedByMember(const QString &msgId, const QString &resource);
+    void markMessageAsReceivedById(const QString &msgId);
+
     void clear();
 
     QString id_;

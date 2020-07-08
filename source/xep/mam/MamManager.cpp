@@ -133,7 +133,6 @@ void MamManager::handleDataReceived(Swift::SafeByteArray data)
     {
         processFinIq(qData);
     }
-
 }
 
 void MamManager::processFinIq(const QString& iq)
@@ -171,43 +170,46 @@ void MamManager::processMamMessage(const QString& archivedMsg)
 
     if (! archivedMsg.isEmpty() )
     {
+        QString clientBareJid = QString::fromStdString(client_->getJID().toBare().toString());
+
+        QString id = XmlProcessor::getContentInTag("message", "id", archivedMsg);
+
+        QString fromJid = XmlProcessor::getContentInTag("message", "from", archivedMsg);
+        senderBareJid = QString::fromStdString(Swift::JID(fromJid.toStdString()).toBare().toString());
+        resource = QString::fromStdString(Swift::JID(fromJid.toStdString()).getResource());
+
+        QString msgType = XmlProcessor::getContentInTag("message", "type", archivedMsg);
+        if (msgType.compare("groupchat", Qt::CaseInsensitive) == 0)
+        {
+            isGroupMessage = true;
+
+            QString msgOwnerJid = XmlProcessor::getContentInTag("item", "jid", archivedMsg);
+            QString msgOwnerBareJid = QString::fromStdString(Swift::JID(msgOwnerJid.toStdString()).toBare().toString());
+
+            // if msg jid is same as my jid, then the msg was from me.
+            if (clientBareJid.compare(msgOwnerBareJid, Qt::CaseInsensitive) == 0)
+            {
+                direction = 0; // outgoing
+            }
+        }
+        else
+        {
+            // 1o1 msg
+            // if msg jid is same as my jid, then the msg was from me.
+            if (clientBareJid.compare(senderBareJid, Qt::CaseInsensitive) == 0)
+            {
+                direction = 0; // outgoing
+                QString toJid = XmlProcessor::getContentInTag("message", "to", archivedMsg);
+                senderBareJid = QString::fromStdString(Swift::JID(toJid.toStdString()).toBare().toString());
+                resource = QString::fromStdString(Swift::JID(toJid.toStdString()).getResource());
+            }
+        }
+
+
+        // process msg's with a body
         QString body = XmlProcessor::getContentInTag("message", "body", archivedMsg);
         if (! body.isEmpty()) // only messages with a body text will be processed
         {
-            QString clientBareJid = QString::fromStdString(client_->getJID().toBare().toString());
-
-            QString id = XmlProcessor::getContentInTag("message", "id", archivedMsg);
-
-            QString fromJid = XmlProcessor::getContentInTag("message", "from", archivedMsg);
-            senderBareJid = QString::fromStdString(Swift::JID(fromJid.toStdString()).toBare().toString());
-            resource = QString::fromStdString(Swift::JID(fromJid.toStdString()).getResource());
-
-            QString msgType = XmlProcessor::getContentInTag("message", "type", archivedMsg);
-            if (msgType.compare("groupchat", Qt::CaseInsensitive) == 0)
-            {
-                isGroupMessage = true;
-
-                QString msgOwnerJid = XmlProcessor::getContentInTag("item", "jid", archivedMsg);
-                QString msgOwnerBareJid = QString::fromStdString(Swift::JID(msgOwnerJid.toStdString()).toBare().toString());
-
-                // if msg jid is same as my jid, then the msg was from me.
-                if (clientBareJid.compare(msgOwnerBareJid, Qt::CaseInsensitive) == 0)
-                {
-                    direction = 0; // outgoing
-                }
-            }
-            else
-            {
-                // 1o1 msg
-                // if msg jid is same as my jid, then the msg was from me.
-                if (clientBareJid.compare(senderBareJid, Qt::CaseInsensitive) == 0)
-                {
-                    direction = 0; // outgoing
-                    QString toJid = XmlProcessor::getContentInTag("message", "to", archivedMsg);
-                    senderBareJid = QString::fromStdString(Swift::JID(toJid.toStdString()).toBare().toString());
-                    resource = QString::fromStdString(Swift::JID(toJid.toStdString()).getResource());
-                }
-            }
 
             qDebug() << "mam group: " << isGroupMessage << " body: " << body << ", id: " << id << " , jid: " << senderBareJid << ", resource: " << resource << "direction: " << direction;
 
@@ -227,6 +229,24 @@ void MamManager::processMamMessage(const QString& archivedMsg)
 
                 // FIXME provide possibility to alter the date to the real timestamp from mam
                 persistence_->addMessage(id, senderBareJid, resource, body, "txt", direction );
+            }
+        }
+
+        // process msg's with an 'received' tag
+        QString received = XmlProcessor::getChildFromNode("received", archivedMsg);
+        if (! received.isEmpty())
+        {
+            QString msgId = XmlProcessor::getContentInTag("received", "id", received);
+            qDebug() << "msgId: " << msgId;
+
+
+            if (isGroupMessage == true)
+            {
+                persistence_->markGroupMessageReceivedByMember(msgId, resource);
+            }
+            else
+            {
+                persistence_->markMessageAsReceivedById(msgId);
             }
         }
     }
