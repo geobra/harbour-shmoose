@@ -24,8 +24,12 @@ public:
 #ifndef UNIT_TEST
 private:
 #endif
-    void requestArchiveForJid(const QString& jid);
+    void requestArchiveForJid(const QString& jid, const QString& last = "");
     void handleDataReceived(Swift::SafeByteArray data);
+
+    void processMamMessage(const QString& archivedMsg);
+    void processFinIq(const QString& iq);
+
 
     bool serverHasFeature_;
     QStringList queridJids_;

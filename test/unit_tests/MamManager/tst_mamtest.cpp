@@ -25,6 +25,7 @@ void MamTest::initTestCase()
     client_ = new Swift::Client(Swift::JID("sos@jabber.ccc.de"), "sos", &networkFactories);
 
     mamManager_->setupWithClient(client_);
+    mamManager_->setServerHasFeatureMam(true);
 }
 
 void MamTest::cleanupTestCase()
@@ -149,5 +150,19 @@ void MamTest::testRoomMamMsgOutgoing()
     QCOMPARE(persistence_->direction_, 0);
 }
 
+void MamTest::testMamIqNotComplete()
+{
+    Swift::SafeByteArray sba = Swift::createSafeByteArray("<iq xmlns=\"jabber:client\" lang=\"en\" to=\"sos@jabber.ccc.de/shmooseDesktop\" from=\"mg@conference.jabber.ccc.de\" type=\"result\" id=\"b76a1016-34fa-43ff-a178-4dc01a3082c5\"> \
+                                                          <fin xmlns=\"urn:xmpp:mam:2\" complete=\"false\"> \
+                                                           <set xmlns=\"http://jabber.org/protocol/rsm\"> \
+                                                            <count>56</count> \
+                                                            <first>1593636669754332</first> \
+                                                            <last>1594103375122526</last> \
+                                                           </set> \
+                                                          </fin> \
+                                                         </iq>");
+
+    mamManager_->handleDataReceived(sba);
+}
 
 QTEST_APPLESS_MAIN(MamTest)

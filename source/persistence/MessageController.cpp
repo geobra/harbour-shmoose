@@ -21,7 +21,7 @@ bool MessageController::setup()
 {
     bool returnValue = true;
 
-    setEditStrategy(QSqlTableModel::OnRowChange);
+    setEditStrategy(QSqlTableModel::OnManualSubmit);
     setTable(Database::sqlMsgName_);
 
     // FIXME get column number from name!
@@ -226,6 +226,8 @@ void MessageController::remarkMessageToReceivedForJidOfId(QString const &id)
         }
         else
         {
+            this->submitAll();
+
             // update the model with the changes of the database
             if (select() != true)
             {
@@ -280,6 +282,8 @@ void MessageController::setMessageStateOfId(QString const &id, int const state)
         }
         else
         {
+            this->submitAll();
+
             // update the model with the changes of the database
             if (select() != true)
             {

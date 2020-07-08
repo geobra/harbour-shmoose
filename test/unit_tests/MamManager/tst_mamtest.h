@@ -23,6 +23,8 @@ private slots:
     void testRoomMamMsgIncoming();
     void testRoomMamMsgOutgoing();
 
+    void testMamIqNotComplete();
+
 private:
     Persistence* persistence_;
     MamManager* mamManager_;
