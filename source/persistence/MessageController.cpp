@@ -97,7 +97,7 @@ void MessageController::setTable ( const QString &table_name )
 }
 
 // FIXME use direction enum
-bool MessageController::addMessage(const QString &id, const QString &jid, const QString &resource, const QString &message, const QString &type, unsigned int direction)
+bool MessageController::addMessage(const QString &id, const QString &jid, const QString &resource, const QString &message, const QString &type, unsigned int direction, qint64 timestamp)
 {
     /*
      *   With MaM, it is possible to receive already received msgs again.
@@ -118,7 +118,13 @@ bool MessageController::addMessage(const QString &id, const QString &jid, const 
         record.setValue(Database::sqlMsgMessage_, message);
         record.setValue(Database::sqlMsgDirection_, direction);
         record.setValue(Database::sqlMsgType_, type);
-        record.setValue(Database::sqlTimestamp_, QDateTime::currentDateTimeUtc().toTime_t());
+
+        if (timestamp == 0)
+        {
+            timestamp = QDateTime::currentDateTimeUtc().toTime_t();
+        }
+        record.setValue(Database::sqlTimestamp_, timestamp);
+
 
         if (! this->insertRecord(-1, record))
         {

@@ -12,6 +12,7 @@ const QString MamManager::mamNs = "urn:xmpp:mam:2";
 MamManager::MamManager(Persistence *persistence, QObject *parent) : QObject(parent),
     serverHasFeature_(false), queridJids_(), persistence_(persistence), client_(nullptr)
 {
+    // https://xmpp.org/extensions/attic/xep-0313-0.5.html
 }
 
 void MamManager::setupWithClient(Swift::Client* client)
@@ -57,11 +58,9 @@ void MamManager::setServerHasFeatureMam(bool hasFeature)
 
 void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
 {
-    // https://xmpp.org/extensions/attic/xep-0313-0.5.html
-
     if (serverHasFeature_)
     {
-        qDebug() << "MamManager::requestArchiveForJid: " << jid << ", last: " << last;
+        //qDebug() << "MamManager::requestArchiveForJid: " << jid << ", last: " << last;
 
         // get the date of last week
         QDateTime lastWeek = QDateTime::currentDateTimeUtc().addDays(-14);
@@ -114,8 +113,6 @@ void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
 
 void MamManager::handleDataReceived(Swift::SafeByteArray data)
 {
-    // FIXME received and displayed status for msgId's
-
     std::string nodeData = Swift::safeByteArrayToString(data);
     QString qData = QString::fromStdString(nodeData);
 
@@ -123,8 +120,7 @@ void MamManager::handleDataReceived(Swift::SafeByteArray data)
     QString xmlnsTagMsg = XmlProcessor::getContentInTag("result", "xmlns", qData);
     if ( xmlnsTagMsg.contains(MamManager::mamNs, Qt::CaseInsensitive) == true )
     {
-        QString archivedMsg = XmlProcessor::getChildFromNode("message", qData);
-        processMamMessage(archivedMsg);
+        processMamMessage(qData);
     }
 
     // check iq if the answer contains the whole archive. Request more, if not.
@@ -161,12 +157,14 @@ void MamManager::processFinIq(const QString& iq)
     }
 }
 
-void MamManager::processMamMessage(const QString& archivedMsg)
+void MamManager::processMamMessage(const QString& qData)
 {
     bool isGroupMessage = false;
     QString senderBareJid = "";
     QString resource = "";
-    int direction = 1; // incoming
+    unsigned int direction = 1; // incoming
+
+    QString archivedMsg = XmlProcessor::getChildFromNode("message", qData);
 
     if (! archivedMsg.isEmpty() )
     {
@@ -205,13 +203,25 @@ void MamManager::processMamMessage(const QString& archivedMsg)
             }
         }
 
-
         // process msg's with a body
         QString body = XmlProcessor::getContentInTag("message", "body", archivedMsg);
-        if (! body.isEmpty()) // only messages with a body text will be processed
+        if (! body.isEmpty()) // process messages with a body text
         {
+            // get timestamp of orginal sending
+            qint64 timestamp = 0;
+            QString delay = XmlProcessor::getContentInTag("delay", "stamp", qData);
+            if (! delay.isEmpty())
+            {
+                QDateTime ts = QDateTime::fromString(delay, Qt::ISODate);
+                if (ts.isValid())
+                {
+                    timestamp = ts.toTime_t();
+                }
+            }
 
-            qDebug() << "mam group: " << isGroupMessage << " body: " << body << ", id: " << id << " , jid: " << senderBareJid << ", resource: " << resource << "direction: " << direction;
+            qDebug() << "mam group: " << isGroupMessage << " body: " << body
+                     << ", id: " << id << " , jid: " << senderBareJid << ", resource: "
+                     << resource << "direction: " << direction << ", ts: " << timestamp;
 
             bool is1o1OrIsGroupWithResource = false;
             if (isGroupMessage == false)
@@ -227,8 +237,7 @@ void MamManager::processMamMessage(const QString& archivedMsg)
             {
                 // FIXME has to also check content type. Currently we assume txt
 
-                // FIXME provide possibility to alter the date to the real timestamp from mam
-                persistence_->addMessage(id, senderBareJid, resource, body, "txt", direction );
+                persistence_->addMessage(id, senderBareJid, resource, body, "txt", direction, timestamp);
             }
         }
 
@@ -237,8 +246,7 @@ void MamManager::processMamMessage(const QString& archivedMsg)
         if (! received.isEmpty())
         {
             QString msgId = XmlProcessor::getContentInTag("received", "id", received);
-            qDebug() << "msgId: " << msgId;
-
+            //qDebug() << "msgId: " << msgId;
 
             if (isGroupMessage == true)
             {
@@ -249,5 +257,23 @@ void MamManager::processMamMessage(const QString& archivedMsg)
                 persistence_->markMessageAsReceivedById(msgId);
             }
         }
+
+        // process msg's with an 'displayed' tag
+        QString displayed = XmlProcessor::getChildFromNode("displayed", archivedMsg);
+        if (! displayed.isEmpty())
+        {
+            QString msgId = XmlProcessor::getContentInTag("displayed", "id", displayed);
+            //qDebug() << "msgId: " << msgId;
+
+            if (isGroupMessage == true)
+            {
+                persistence_->markGroupMessageDisplayedByMember(msgId, resource);
+            }
+            else
+            {
+                persistence_->markMessageAsDisplayedId(msgId);
+            }
+        }
+
     }
 }

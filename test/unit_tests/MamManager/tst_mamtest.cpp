@@ -60,6 +60,7 @@ void MamTest::test1o1MamMsgIncoming()
     QCOMPARE(persistence_->message_, "1");
     QCOMPARE(persistence_->type_, "txt");
     QCOMPARE(persistence_->direction_, 1);
+    QCOMPARE(persistence_->timestamp_, 1593026088);
 }
 
 void MamTest::test1o1MamMsgOutgoing()
@@ -87,6 +88,7 @@ void MamTest::test1o1MamMsgOutgoing()
     QCOMPARE(persistence_->message_, "2");
     QCOMPARE(persistence_->type_, "txt");
     QCOMPARE(persistence_->direction_, 0);
+    QCOMPARE(persistence_->timestamp_, 1593026094);
 }
 
 void MamTest::testRoomMamMsgIncoming()
@@ -117,6 +119,7 @@ void MamTest::testRoomMamMsgIncoming()
     QCOMPARE(persistence_->message_, "foo msg");
     QCOMPARE(persistence_->type_, "txt");
     QCOMPARE(persistence_->direction_, 1);
+    QCOMPARE(persistence_->timestamp_, 1591439483);
 }
 
 void MamTest::testRoomMamMsgOutgoing()
@@ -148,6 +151,7 @@ void MamTest::testRoomMamMsgOutgoing()
     QCOMPARE(persistence_->message_, "bar msg");
     QCOMPARE(persistence_->type_, "txt");
     QCOMPARE(persistence_->direction_, 0);
+    QCOMPARE(persistence_->timestamp_, 1593636669);
 }
 
 void MamTest::testMamIqNotComplete()
@@ -185,12 +189,13 @@ void MamTest::testMam1o1MsgReceived()
     persistence_->clear();
     mamManager_->handleDataReceived(sba);
     QCOMPARE(persistence_->id_, "137e1f50-57bb-48f1-8188-0b13d02a503e");
+    QCOMPARE(persistence_->timestamp_, 0);
     QCOMPARE(persistence_->resource_, "");
 }
 
 void MamTest::testMamGroupMsgReceived()
 {
-    // FIXME
+    // No Mam answer for the received status
 }
 
 void MamTest::testMamGroupMsgDisplayed()
@@ -216,11 +221,30 @@ void MamTest::testMamGroupMsgDisplayed()
     mamManager_->handleDataReceived(sba);
     QCOMPARE(persistence_->id_, "1593636669754332");
     QCOMPARE(persistence_->resource_, "hf20");
+    QCOMPARE(persistence_->timestamp_, 0);
 }
 
 void MamTest::testMam1o1MsgDisplayed()
 {
-    // FIXME
+    Swift::SafeByteArray sba = Swift::createSafeByteArray("<message xmlns=\"jabber:client\" to=\"sos@jabber.ccc.de/shmooseDesktop\" from=\"sos@jabber.ccc.de\"> \
+                                                          <result xmlns=\"urn:xmpp:mam:2\" id=\"1594230392715723\"> \
+                                                           <forwarded xmlns=\"urn:xmpp:forward:0\"> \
+                                                            <message xmlns=\"jabber:client\" to=\"sos@jabber.ccc.de/shmooseDesktop\" from=\"hf20@jabber.de/Conversations.x7ZH\" type=\"chat\"> \
+                                                             <archived xmlns=\"urn:xmpp:mam:tmp\" by=\"sos@jabber.ccc.de\" id=\"1594230392715723\"></archived> \
+                                                             <stanza-id xmlns=\"urn:xmpp:sid:0\" by=\"sos@jabber.ccc.de\" id=\"1594230392715723\"></stanza-id> \
+                                                             <displayed xmlns=\"urn:xmpp:chat-markers:0\" id=\"dcd6d05c-9f4c-408b-bedc-f91b796dda6f\"></displayed> \
+                                                             <store xmlns=\"urn:xmpp:hints\"></store> \
+                                                            </message> \
+                                                            <delay xmlns=\"urn:xmpp:delay\" from=\"jabber.ccc.de\" stamp=\"2020-07-08T17:46:32.715723Z\"></delay> \
+                                                           </forwarded> \
+                                                          </result> \
+                                                         </message>");
+
+    persistence_->clear();
+    mamManager_->handleDataReceived(sba);
+    QCOMPARE(persistence_->id_, "dcd6d05c-9f4c-408b-bedc-f91b796dda6f");
+    QCOMPARE(persistence_->timestamp_, 0);
+    QCOMPARE(persistence_->resource_, "");
 }
 
 QTEST_APPLESS_MAIN(MamTest)

@@ -27,7 +27,7 @@ private:
     void requestArchiveForJid(const QString& jid, const QString& last = "");
     void handleDataReceived(Swift::SafeByteArray data);
 
-    void processMamMessage(const QString& archivedMsg);
+    void processMamMessage(const QString& qData);
     void processFinIq(const QString& iq);
 
 
