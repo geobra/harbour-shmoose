@@ -30,11 +30,9 @@ void DiscoInfoHandler::setupWithClient(Swift::Client* client)
         danceFloor_.append(topLevelInfo);
 
         // find additional items on the server
-#if 0
         discoItemReq_ = Swift::GetDiscoItemsRequest::create(Swift::JID(client_->getJID().getDomain()), client_->getIQRouter());
         discoItemReq_->onResponse.connect(boost::bind(&DiscoInfoHandler::handleServerDiscoItemsResponse, this, _1, _2));
         discoItemReq_->send();
-#endif
     }
 }
 
