@@ -21,7 +21,7 @@ bool MessageController::setup()
 {
     bool returnValue = true;
 
-    setEditStrategy(QSqlTableModel::OnRowChange);
+    setEditStrategy(QSqlTableModel::OnManualSubmit);
     setTable(Database::sqlMsgName_);
 
     // FIXME get column number from name!
@@ -97,19 +97,16 @@ void MessageController::setTable ( const QString &table_name )
 }
 
 // FIXME use direction enum
-bool MessageController::addMessage(bool isGroupMessage, const QString &id, const QString &jid, const QString &resource, const QString &message, const QString &type, unsigned int direction)
+bool MessageController::addMessage(const QString &id, const QString &jid, const QString &resource, const QString &message, const QString &type, unsigned int direction, qint64 timestamp)
 {
-    /* received group messages are special
-     * - my own message into a room will be send back to me from the room
-     * - on room (re)joun, the last n messages are (re)send to me
-     * -> here we skip adding received messages if it was a group message AND the message id is already in the database
-    */
+    /*
+     *   With MaM, it is possible to receive already received msgs again.
+     *   Before inserting new msg's it gets checked if that msg id already exists in the db for that jid
+     */
 
     bool messageAdded = false;
 
-    if ( (isGroupMessage == false)
-         || ( (isGroupMessage == true) && (! isMessageIdInDatabase(id)) )
-         )
+    if (! isMessageIdForJidInDatabase(id, jid) )
     {
         messageAdded = true;
 
@@ -121,7 +118,13 @@ bool MessageController::addMessage(bool isGroupMessage, const QString &id, const
         record.setValue(Database::sqlMsgMessage_, message);
         record.setValue(Database::sqlMsgDirection_, direction);
         record.setValue(Database::sqlMsgType_, type);
-        record.setValue(Database::sqlTimestamp_, QDateTime::currentDateTimeUtc().toTime_t());
+
+        if (timestamp == 0)
+        {
+            timestamp = QDateTime::currentDateTimeUtc().toTime_t();
+        }
+        record.setValue(Database::sqlTimestamp_, timestamp);
+
 
         if (! this->insertRecord(-1, record))
         {
@@ -229,6 +232,8 @@ void MessageController::remarkMessageToReceivedForJidOfId(QString const &id)
         }
         else
         {
+            this->submitAll();
+
             // update the model with the changes of the database
             if (select() != true)
             {
@@ -283,6 +288,8 @@ void MessageController::setMessageStateOfId(QString const &id, int const state)
         }
         else
         {
+            this->submitAll();
+
             // update the model with the changes of the database
             if (select() != true)
             {
@@ -296,12 +303,12 @@ void MessageController::setMessageStateOfId(QString const &id, int const state)
     }
 }
 
-bool MessageController::isMessageIdInDatabase(QString const &id)
+bool MessageController::isMessageIdForJidInDatabase(const QString &id, const QString& jid)
 {
     bool returnValue = false;
 
     QSqlQuery query(*(database_->getPointer()));
-    if (! query.exec("select " + Database::sqlId_ + " from " + Database::sqlMsgName_ + " WHERE " + Database::sqlId_ + " = \"" + id +"\""))
+    if (! query.exec("select " + Database::sqlId_ + " from " + Database::sqlMsgName_ + " WHERE " + Database::sqlId_ + " = \"" + id +"\" and " + Database::sqlJid_ + "= \"" + jid + "\""))
     {
         qDebug() << query.lastError().databaseText();
         qDebug() << query.lastError().driverText();

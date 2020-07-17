@@ -1,10 +1,12 @@
 #include "DiscoInfoHandler.h"
 #include "HttpFileUploadManager.h"
+#include "MamManager.h"
 
 #include <QDebug>
 
-DiscoInfoHandler::DiscoInfoHandler(HttpFileUploadManager *httpFileUploadManager, QObject *parent) : QObject(parent),
-    httpFileUploadManager_(httpFileUploadManager), client_(NULL), discoItemReq_(NULL), danceFloor_()
+DiscoInfoHandler::DiscoInfoHandler(HttpFileUploadManager *httpFileUploadManager, MamManager *mamManager, QObject *parent) : QObject(parent),
+    httpFileUploadManager_(httpFileUploadManager), mamManager_(mamManager),
+    client_(NULL), discoItemReq_(NULL), danceFloor_()
 {
 
 }
@@ -43,29 +45,41 @@ void DiscoInfoHandler::handleDiscoServiceWalker(const Swift::JID & jid, std::sha
         qDebug() << "Shmoose::handleDiscoWalkerService feature '" << QString::fromStdString(feature) << "'.";
     }
 #endif
+
     const std::string httpUpload = "urn:xmpp:http:upload";
 
-    if (info->hasFeature(httpUpload))
+    // currently only interessetd in services from the main domain (not conference.domain.org or proxy.domain.org)
+    if (client_->getJID().getDomain().compare(jid.getDomain()) == 0)
     {
-        qDebug() << "has feature urn:xmpp:http:upload";
-        httpFileUploadManager_->setServerHasFeatureHttpUpload(true);
-        httpFileUploadManager_->setUploadServerJid(jid);
-
-        foreach (Swift::Form::ref form, info->getExtensions())
+        if (info->hasFeature(httpUpload))
         {
-            if (form)
+            qDebug() << QString::fromStdString(jid.toString()) << " has feature urn:xmpp:http:upload";
+            httpFileUploadManager_->setServerHasFeatureHttpUpload(true);
+            httpFileUploadManager_->setUploadServerJid(jid);
+
+            foreach (Swift::Form::ref form, info->getExtensions())
             {
-                if ((*form).getFormType() == httpUpload)
+                if (form)
                 {
-                    Swift::FormField::ref formField = (*form).getField("max-file-size");
-                    if (formField)
+                    if ((*form).getFormType() == httpUpload)
                     {
-                        unsigned int maxFileSize = std::stoi((*formField).getTextSingleValue());
-                        //qDebug() << QString::fromStdString((*formField).getName()) << " val: " << maxFileSize;
-                        httpFileUploadManager_->setMaxFileSize(maxFileSize);
+                        Swift::FormField::ref formField = (*form).getField("max-file-size");
+                        if (formField)
+                        {
+                            unsigned int maxFileSize = std::stoi((*formField).getTextSingleValue());
+                            //qDebug() << QString::fromStdString((*formField).getName()) << " val: " << maxFileSize;
+                            httpFileUploadManager_->setMaxFileSize(maxFileSize);
+                        }
                     }
                 }
             }
+        }
+
+        if (info->hasFeature(MamManager::mamNs.toStdString()))
+        {
+            qDebug() << "### " << QString::fromStdString(jid.toString()) << " has " << MamManager::mamNs;
+            //mamManager_->setServerHasFeatureMam(true);
+            emit serverHasMam_(true);
         }
     }
 }

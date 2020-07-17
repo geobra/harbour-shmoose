@@ -17,6 +17,7 @@ class Persistence;
 class HttpFileUploadManager;
 class MucManager;
 class DiscoInfoHandler;
+class MamManager;
 
 class Shmoose : public QObject
 {
@@ -94,6 +95,7 @@ public:
     ConnectionHandler* connectionHandler_;
     MessageHandler* messageHandler_;
     HttpFileUploadManager* httpFileUploadManager_;
+    MamManager *mamManager_;
     MucManager *mucManager_;
     DiscoInfoHandler* discoInfoHandler_;
 
