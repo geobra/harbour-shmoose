@@ -28,6 +28,7 @@
 #include "MamManager.h"
 #include "MucManager.h"
 #include "DiscoInfoHandler.h"
+#include "CryptoHelper.h"
 
 
 #include "System.h"
@@ -249,6 +250,11 @@ bool Shmoose::connectionState() const
 QString Shmoose::getAttachmentPath()
 {
     return System::getAttachmentPath();
+}
+
+QString Shmoose::getLocalFileForUrl(const QString& str)
+{
+    return CryptoHelper::getHashOfString(str, true);
 }
 
 void Shmoose::setHasInetConnection(bool connected)
