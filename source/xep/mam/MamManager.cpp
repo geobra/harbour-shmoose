@@ -1,6 +1,8 @@
 #include "MamManager.h"
 #include "Persistence.h"
 #include "XmlWriter.h"
+#include "ImageProcessing.h"
+#include "DownloadManager.h"
 
 #include <QDateTime>
 #include "XmlProcessor.h"
@@ -10,7 +12,8 @@
 const QString MamManager::mamNs = "urn:xmpp:mam:2";
 
 MamManager::MamManager(Persistence *persistence, QObject *parent) : QObject(parent),
-    serverHasFeature_(false), queridJids_(), persistence_(persistence), client_(nullptr)
+    serverHasFeature_(false), queridJids_(), persistence_(persistence),
+    downloadManager_(new DownloadManager(this)), client_(nullptr)
 {
     // https://xmpp.org/extensions/attic/xep-0313-0.5.html
 }
@@ -233,11 +236,21 @@ void MamManager::processMamMessage(const QString& qData)
                 is1o1OrIsGroupWithResource = true;
             }
 
+            QString type = "txt";
+            if (QUrl(body).isValid()) // it's an url
+            {
+                QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
+                QString bodyEnd = body.trimmed().right(3); // url ends with an image type
+                if (knownImageTypes.contains(bodyEnd))
+                {
+                    type = "image";
+                    downloadManager_->doDownload(QUrl(body));
+                }
+            }
+
             if ( (! id.isEmpty()) && (! senderBareJid.isEmpty()) && is1o1OrIsGroupWithResource )
             {
-                // FIXME has to also check content type. Currently we assume txt
-
-                persistence_->addMessage(id, senderBareJid, resource, body, "txt", direction, timestamp);
+                persistence_->addMessage(id, senderBareJid, resource, body, type, direction, timestamp);
             }
         }
 

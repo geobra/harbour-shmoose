@@ -7,6 +7,7 @@
 #include <Swiften/Swiften.h>
 
 class Persistence;
+class DownloadManager;
 
 // https://xmpp.org/extensions/xep-0313.html
 // requests the mam for the client jid as soon as mamNs is discovered with disco#info
@@ -35,6 +36,7 @@ private:
     QStringList queridJids_;
 
     Persistence* persistence_;
+    DownloadManager* downloadManager_;
     Swift::Client* client_;
 
 public slots:
