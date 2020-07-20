@@ -5,6 +5,7 @@
 #include "DownloadManager.h"
 
 #include <QDateTime>
+#include <QUrl>
 #include "XmlProcessor.h"
 #include <QDebug>
 
