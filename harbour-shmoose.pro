@@ -89,7 +89,8 @@ SOURCES += \
     source/networkconnection/ReConnectionHandler.cpp \
     source/contacts/PresenceHandler.cpp \
     source/contacts/RosterItem.cpp \
-    source/contacts/RosterController.cpp
+    source/contacts/RosterController.cpp \
+    source/base/CryptoHelper.cpp
 
 HEADERS += source/base/Shmoose.h \
     source/base/Settings.h \
@@ -120,7 +121,8 @@ HEADERS += source/base/Shmoose.h \
     source/networkconnection/ReConnectionHandler.h \
     source/contacts/PresenceHandler.h \
     source/contacts/RosterItem.h \
-    source/contacts/RosterController.h
+    source/contacts/RosterController.h \
+    source/base/CryptoHelper.h
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \

@@ -49,6 +49,7 @@
 
 #include "DownloadManager.h"
 #include "System.h"
+#include "CryptoHelper.h"
 
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -63,40 +64,30 @@ DownloadManager::DownloadManager(QObject *parent) : QObject(parent)
 
 void DownloadManager::doDownload(const QUrl &url)
 {
-    QNetworkRequest request(url);
-    QNetworkReply *reply = manager.get(request);
+    // check if file from that url is already local downloaded
+    QString hash = CryptoHelper::getHashOfString(url.toString(), true);
+    QString pathAndFile = System::getAttachmentPath() + QDir::separator() + hash;
 
-    connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrors(QList<QSslError>)));
+    if (QFile::exists(pathAndFile))
+    {
+        qDebug() << "file from " << url.toString() << " already exist localy as " << pathAndFile;
+    }
+    else
+    {
+        QNetworkRequest request(url);
+        QNetworkReply *reply = manager.get(request);
 
-    currentDownloads.append(reply);
+        connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrors(QList<QSslError>)));
+
+        currentDownloads.append(reply);
+    }
 }
 
 QString DownloadManager::saveFileName(const QUrl &url)
 {
-    QString path = url.path();
-    QString basename = QFileInfo(path).fileName();
+    QString hash = CryptoHelper::getHashOfString(url.toString(), true);
 
-    if (basename.isEmpty())
-    {
-        basename = "download";
-    }
-
-    basename = System::getAttachmentPath() + QDir::separator() + basename;
-
-    if (QFile::exists(basename))
-    {
-        // already exists, don't overwrite
-        int i = 0;
-        basename += '.';
-        while (QFile::exists(basename + QString::number(i)))
-        {
-            ++i;
-        }
-
-        basename += QString::number(i);
-    }
-
-    return basename;
+    return System::getAttachmentPath() + QDir::separator() + hash;
 }
 
 bool DownloadManager::saveToDisk(const QString &filename, QIODevice *data)

@@ -170,7 +170,7 @@ Page {
                     onLinkActivated: Qt.openUrlExternally(link)
                 }
                 Image {
-                    source: ( (type === "image") ? attachmentPath + "/" + basename(message) : "");
+                    source: ( (type === "image") ? attachmentPath + "/" + shmoose.getLocalFileForUrl(message) : "");
                     width: Math.min (item.maxContentWidth, sourceSize.width);
                     fillMode: Image.PreserveAspectFit;
                     visible: (type === "image")

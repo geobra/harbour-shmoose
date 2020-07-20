@@ -45,6 +45,8 @@ public:
     Q_INVOKABLE void joinRoom(QString const &roomJid, QString const &roomName);
     Q_INVOKABLE void removeRoom(QString const &roomJid);
 
+    Q_INVOKABLE QString getLocalFileForUrl(const QString& str);
+
     Q_INVOKABLE QString getVersion();
 
     bool connectionState() const;
