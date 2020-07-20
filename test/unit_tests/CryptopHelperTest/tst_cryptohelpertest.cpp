@@ -39,6 +39,23 @@ void cryptohelpertest::test_case1()
     hash = CryptoHelper::getHashOfString(str);
     QCOMPARE(hash, "89968578f7de68eef96b0091f6c478a5");
 
+    str = "http://foo.bar/img.mj";
+    hash = CryptoHelper::getHashOfString(str, true);
+    QCOMPARE(hash, "7e0ee15706a78cb1b63dfbd99546b156.mj");
+
+    str = "http://foo.bar/img.m";
+    hash = CryptoHelper::getHashOfString(str, true);
+    QCOMPARE(hash, "7f5735c78aeea7d340bd81491d6f8fe7.m");
+
+    str = "http://foo.bar/img.";
+    hash = CryptoHelper::getHashOfString(str, true);
+    QCOMPARE(hash, "f2d2f5d3b391a0934d6492ee09df560c");
+
+    hash = CryptoHelper::getHashOfString(str);
+    QCOMPARE(hash, "f2d2f5d3b391a0934d6492ee09df560c");
+
+    hash = CryptoHelper::getHashOfString(str, false);
+    QCOMPARE(hash, "f2d2f5d3b391a0934d6492ee09df560c");
 }
 
 QTEST_APPLESS_MAIN(cryptohelpertest)
