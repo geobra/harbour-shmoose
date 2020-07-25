@@ -115,8 +115,6 @@ ApplicationWindow {
                         height: messageText.height// + msgStatus.height
                         //width: messageText.width
 
-
-
                         readonly property bool alignRight: (direction == 1);
 
                         Column {
@@ -133,21 +131,21 @@ ApplicationWindow {
 
                                 color: (alignRight ? "green" : "lightblue")
 
-                                /*
+/*
                                 anchors {
                                     left: (direction == 0 ? item.right : undefined);
                                     right: (direction == 1 ? item.left : undefined);
                                     //margins: 10
                                 }
-                                */
+*/
 
 
 
                                 Text {
                                     id: messageText
-                                    //horizontalAlignment: (item.alignRight ? Text.AlignLeft : Text.AlignRight)
+                                    horizontalAlignment: (item.alignRight ? Text.AlignLeft : Text.AlignRight)
                                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
-                                    //width: parent.width
+                                    width: parent.width
 
 
                                     text: message
