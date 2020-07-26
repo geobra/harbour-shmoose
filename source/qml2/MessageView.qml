@@ -35,16 +35,6 @@ Rectangle {
 
                         color: (alignRight ? "green" : "lightblue")
 
-/*
-                        anchors {
-                            left: (direction == 0 ? item.right : undefined);
-                            right: (direction == 1 ? item.left : undefined);
-                            //margins: 10
-                        }
-*/
-
-
-
                         Text {
                             id: messageText
                             horizontalAlignment: (item.alignRight ? Text.AlignLeft : Text.AlignRight)
