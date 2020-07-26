@@ -11,25 +11,36 @@ Rectangle {
         width: parent.width
         //anchors.top: parent.bottom
 
-        ScrollView {
-            anchors.left: parent.left
-            //anchors.right: sendbutton.left
-            TextArea {
-                id: texttosend
+        // https://doc.qt.io/qt-5/qml-qtquick-textedit.html
 
-                anchors.fill: parent
+/*
+        Flickable {
+             id: flick
 
-                //width: parent.width - sendbutton.width
-                Layout.preferredWidth: parent.width
-
-                text: "TextArea\n...\n...\n...\n...\n...\n...\n"
-            }
-        }
+             width: 300
+             height: 200
+             //width: parent.width - sendbutton.width
+             contentWidth: edit.paintedWidth
+             contentHeight: edit.paintedHeight
+             clip: true
+*/
+             TextEdit {
+                 id: edit
+                 Layout.fillWidth: true
+                 //width: flick.width
+                 focus: true
+                 wrapMode: TextEdit.Wrap
+                 //onCursorRectangleChanged: flick.ensureVisible(cursorRectangle)
+                 text: "yfasdf asdf asdf asf sdgv sdfsafd sdfgsdfg df sdfgsdgv asdfas<df sdgv dsfg dsfg dgfsdgf df g"
+             }
+//         }
 
         Button {
             id: sendbutton
 
-            anchors.right: parent.right
+            //anchors.right: parent.right
+            //Layout.alignment: Qt.AlignRight
+            Layout.fillWidth: true
 
             //width: 50
             //height: parent.height
