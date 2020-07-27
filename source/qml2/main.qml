@@ -69,7 +69,8 @@ ApplicationWindow {
         spacing: 6
 
         ContactsView {
-            Layout.minimumWidth: 200
+            Layout.minimumWidth: 100
+            Layout.preferredWidth: 200
             Layout.fillHeight: true
         }
 
