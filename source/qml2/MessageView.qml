@@ -5,6 +5,7 @@ import QtQuick.Controls 2.4
 
 Rectangle {
     //color: 'grey'
+    property string attachmentPath: shmoose.getAttachmentPath();
 
     ListView {
         height: parent.height
@@ -16,7 +17,7 @@ Rectangle {
 
                 width: parent.width
                 //height: parent.height
-                height: messageText.height + 10 // + msgStatus.height
+                height: messageText.height + imageView.height + 10 // + msgStatus.height
                 //width: messageText.width
 
                 readonly property bool alignRight: (direction == 1);
@@ -30,7 +31,7 @@ Rectangle {
                     Rectangle {
 
                         width: item.width
-                        height: messageText.height + 5
+                        height: messageText.height + imageView.height + 5
                         //height: messageText.height + msgStatus.height
                         //radius: margin
                         radius: 10
@@ -61,6 +62,21 @@ Rectangle {
                             */
 
                             //onLinkActivated: Qt.openUrlExternally(link)
+                        }
+
+                        Image {
+                            id: imageView
+                            anchors.top: messageText.bottom
+                            source: ( (type === "image") ? attachmentPath + "/" + shmoose.getLocalFileForUrl(message) : "");
+                            width: Math.min (item.width, sourceSize.width);
+                            fillMode: Image.PreserveAspectFit;
+                            visible: (type === "image")
+                            /*
+                            anchors {
+                                left: (item.alignRight ? parent.left : undefined);
+                                right: (!item.alignRight ? parent.right : undefined);
+                            }
+                            */
                         }
 
                         /*
