@@ -48,7 +48,7 @@ ApplicationWindow {
                 text: "Connect"
                 onClicked: {
                     shmoose.settings.SaveCredentials = true;
-                    connectButton.enabled = false;
+                    //connectButton.enabled = false;
                     shmoose.mainConnect(jidField.text, passField.text);
                 }
             }
@@ -56,6 +56,7 @@ ApplicationWindow {
     }
 
     footer: TextEdit {
+        id: footer
         width: 240
         text: "Hello World!"
         font.family: "Helvetica"
@@ -83,8 +84,21 @@ ApplicationWindow {
                 Layout.preferredHeight: 100
             }
         }
+    }
 
-
+    Connections {
+        target: shmoose
+        onConnectionStateChanged: {
+            if (shmoose.connectionState == true) {
+                footer.text = "Connected";
+                connectButton.enabled = false;
+                shmoose.setCurrentChatPartner("")
+            }
+            else {
+                footer.text = "DISconnected"
+                connectButton.enabled = true;
+            }
+        }
     }
 
 }

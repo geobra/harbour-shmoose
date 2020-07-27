@@ -1,7 +1,8 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="main.qml">source/qml/main.qml</file>
-        <file alias="ChatPage.qml">source/qml/ChatPage.qml</file>
-        <file alias="LoginPage.qml">source/qml/LoginPage.qml</file>
+        <file alias="main.qml">source/qml2/main.qml</file>
+        <file alias="ContactsView.qml">source/qml2/ContactsView.qml</file>
+        <file alias="MessageView.qml">source/qml2/MessageView.qml</file>
+        <file alias="SendView.qml">source/qml2/SendView.qml</file>
     </qresource>
 </RCC>

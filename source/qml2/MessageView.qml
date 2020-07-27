@@ -4,7 +4,7 @@ import QtQuick.Controls 2.4
 
 
 Rectangle {
-    color: 'grey'
+    //color: 'grey'
 
     ListView {
         height: parent.height
@@ -16,31 +16,34 @@ Rectangle {
 
                 width: parent.width
                 //height: parent.height
-                height: messageText.height// + msgStatus.height
+                height: messageText.height + 10 // + msgStatus.height
                 //width: messageText.width
 
                 readonly property bool alignRight: (direction == 1);
 
                 Column {
 
-                    //width: parent.width - 50
-                    //spacing: 20
+                    width: parent.width
+                    height: parent.height
+                    //spacing: 10
 
                     Rectangle {
 
                         width: item.width
-                        height: item.height
+                        height: messageText.height + 5
                         //height: messageText.height + msgStatus.height
                         //radius: margin
+                        radius: 10
 
-                        color: (alignRight ? "green" : "lightblue")
+
+                        color: (alignRight ? "cornsilk" : "lightcyan")
 
                         Text {
                             id: messageText
                             horizontalAlignment: (item.alignRight ? Text.AlignLeft : Text.AlignRight)
                             wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
-                            width: parent.width
-
+                            width: parent.width - 20
+                            x: 5
 
                             text: message
 
