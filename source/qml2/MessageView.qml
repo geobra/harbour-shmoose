@@ -4,21 +4,22 @@ import QtQuick.Controls 2.4
 
 
 Rectangle {
-    //color: 'grey'
     property string attachmentPath: shmoose.getAttachmentPath();
 
     ListView {
         height: parent.height
         width: parent.width
 
+        rotation: 180
+
         model: shmoose.persistence.messageController
         delegate: Item {
                 id: item
 
+                rotation: 180
+
                 width: parent.width
-                //height: parent.height
-                height: messageText.height + imageView.height + 10 // + msgStatus.height
-                //width: messageText.width
+                height: messageText.height + imageView.height + timestampText.height + msgStatus.height + 10 // + msgStatus.height
 
                 readonly property bool alignRight: (direction == 1);
 
@@ -26,16 +27,12 @@ Rectangle {
 
                     width: parent.width
                     height: parent.height
-                    //spacing: 10
 
                     Rectangle {
 
                         width: item.width
-                        height: messageText.height + imageView.height + 5
-                        //height: messageText.height + msgStatus.height
-                        //radius: margin
+                        height: messageText.height + imageView.height + timestampText.height + msgStatus.height + 5
                         radius: 10
-
 
                         color: (alignRight ? "cornsilk" : "lightcyan")
 
@@ -44,6 +41,9 @@ Rectangle {
                             horizontalAlignment: (item.alignRight ? Text.AlignLeft : Text.AlignRight)
                             wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
                             width: parent.width - 20
+
+                            font.pixelSize: (type === "image") ? 8 : 14
+
                             x: 5
 
                             text: message
@@ -67,25 +67,32 @@ Rectangle {
                         Image {
                             id: imageView
                             anchors.top: messageText.bottom
-                            source: ( (type === "image") ? attachmentPath + "/" + shmoose.getLocalFileForUrl(message) : "");
+
                             width: Math.min (item.width, sourceSize.width);
                             fillMode: Image.PreserveAspectFit;
                             visible: (type === "image")
-                            /*
-                            anchors {
-                                left: (item.alignRight ? parent.left : undefined);
-                                right: (!item.alignRight ? parent.right : undefined);
-                            }
-                            */
+
+                            source: ( (type === "image") ? attachmentPath + "/" + shmoose.getLocalFileForUrl(message) : "");
                         }
 
-                        /*
+                        Text {
+                            id: timestampText
+
+                            width: parent.width - 20
+                            horizontalAlignment: (item.alignRight ? Text.AlignLeft : Text.AlignRight)
+                            anchors.top: imageView.bottom
+
+                            text: Qt.formatDateTime (new Date (timestamp * 1000), "yyyy-MM-dd hh:mm:ss");
+
+                            color: "dimgrey";
+                            font.pixelSize: 10
+                        }
+
                         Image {
                             id: msgStatus
-                            //source: "img/check.png"
 
                             anchors.right: parent.right
-                            anchors.bottom: parent.bottom
+                            anchors.top: timestampText.bottom
 
                             source: {
                                 if (msgstate == 3) {
@@ -101,7 +108,6 @@ Rectangle {
                             }
 
                         }
-                        */
                     }
                 }
         }
