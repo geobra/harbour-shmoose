@@ -209,6 +209,22 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message, QString 
     messageHandler_->sendMessage(toJid, message, type, isGroup);
 }
 
+void Shmoose::sendMessage(QString const &message, QString const &type)
+{
+    const QString toJid = getCurrentChatPartner();
+
+    if (! toJid.isEmpty())
+    {
+        bool isGroup = rosterController_->isGroup(toJid);
+        messageHandler_->sendMessage(toJid, message, type, isGroup);
+    }
+    else
+    {
+        qDebug() << "tried to send msg without current chat partner selected!";
+    }
+}
+
+
 void Shmoose::sendFile(QString const &toJid, QString const &file)
 {
     if (httpFileUploadManager_->requestToUploadFileForJid(file, toJid) == false)

@@ -4,54 +4,48 @@ import QtQuick.Controls 2.4
 
 
 Rectangle {
-    color: "green"
     RowLayout {
-
-        //height: parent.height
-        width: parent.width
-        //anchors.top: parent.bottom
-
-        // https://doc.qt.io/qt-5/qml-qtquick-textedit.html
-
-/*
-        Flickable {
-             id: flick
-
-             width: 300
-             height: 200
-             //width: parent.width - sendbutton.width
-             contentWidth: edit.paintedWidth
-             contentHeight: edit.paintedHeight
-             clip: true
-*/
-             TextEdit {
-                 id: edit
-                 Layout.fillWidth: true
-                 //width: flick.width
-                 focus: true
-                 wrapMode: TextEdit.Wrap
-                 //onCursorRectangleChanged: flick.ensureVisible(cursorRectangle)
-                 text: "yfasdf asdf asdf asf sdgv sdfsafd sdfgsdfg df sdfgsdgv asdfas<df sdgv dsfg dsfg dgfsdgf df g"
-             }
-//         }
-
-        Button {
-            id: sendbutton
-
-            //anchors.right: parent.right
-            //Layout.alignment: Qt.AlignRight
+        id: layout
+        anchors.fill: parent
+        spacing: 6
+        Rectangle {
+            id: textBoxRect
             Layout.fillWidth: true
+            Layout.minimumHeight: 150
+            color: 'teal'
 
-            //width: 50
-            //height: parent.height
+            ScrollView {
+                id: scroll
+                clip: true
+                Layout.fillWidth: true
+                anchors.fill: parent
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
+                function scrollToBottom() {
+                    contentItem.contentY = edit.height - contentItem.height
+                }
+
+                TextEdit {
+                    id: edit
+                    width: textBoxRect.width
+
+                    readOnly: false
+                    wrapMode: TextEdit.Wrap
+                    text: "a message"
+
+                    //onCursorRectangleChanged: scroll.scrollToBottom()
+                }
+            }
+        }
+        Button {
             text: "send"
+
             onClicked: {
-                console.log("send to: " + shmoose.rosterController.rosterList[roster.currentIndex].jid)
-                shmoose.sendMessage(shmoose.rosterController.rosterList[roster.currentIndex].jid, texttosend.text, "txt")
-                texttosend.text = ""
+                console.log("send to: " + shmoose.getCurrentChatPartner())
+                shmoose.sendMessage(edit.text, "txt")
+                edit.text = ""
             }
         }
     }
-
 }
+
