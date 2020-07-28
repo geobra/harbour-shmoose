@@ -82,7 +82,7 @@ ApplicationWindow {
 
             SendView {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 100
+                Layout.preferredHeight: 50
             }
         }
     }

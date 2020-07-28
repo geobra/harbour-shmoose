@@ -3,7 +3,6 @@ import QtQuick 2.3
 import QtQuick.Controls 2.4
 
 Rectangle {
-    color: 'teal'
 
     ListView {
         id: rosterListView
@@ -14,49 +13,41 @@ Rectangle {
         delegate: Rectangle {
             height: Math.max(img.height, nameText.height + jidText.height) + 10
             width: parent.width
-            //color: "yellow"
 
             Rectangle {
-
+                id: contactsItem
                 height: Math.max(img.height, nameText.height + jidText.height) + 5
                 width: parent.width
                 color: "linen"
+
                 radius: 10
 
 
                 Image {
                     id: img;
-                    //width: height;
                     width: Math.min (50, sourceSize.width);
                     height: Math.min (50, sourceSize.height);
                     source: imagePath != "" ? imagePath : getImage(jid)
-                    /*
-                    anchors {
-                        top: parent.top;
-                        left: parent.left;
-                        bottom: parent.bottom;
-                    }
-
-                    Rectangle {
-                        z: -1;
-                        color: (model.index % 2 ? "black" : "white");
-                        opacity: 0.15;
-                        anchors.fill: parent;
-                    }
-                    */
                 }
+
                 Column {
                     anchors.left: img.right
-                    Text {
+                    Label {
                         id: nameText
 
-                        font.pixelSize: 12
+                        wrapMode: Text.Wrap
+                        font.pixelSize: 14
+                        width: contactsItem.width
+
                         text: name
                     }
-                    Text {
+                    Label {
                         id: jidText
 
+                        wrapMode: Text.Wrap
                         font.pixelSize: 8
+                        width: contactsItem.width
+
                         text: jid
                     }
 
@@ -66,23 +57,27 @@ Rectangle {
                     anchors.fill: parent
                     onClicked: {
                         rosterListView.currentIndex = index
-                        //console.log( "jid: " + rosterListView.currentIndex)
-                        //console.log( "jid: " + shmoose.rosterController.rosterList[rosterListView.currentIndex].jid)
 
                         shmoose.setCurrentChatPartner(shmoose.rosterController.rosterList[rosterListView.currentIndex].jid)
                     }
                 }
-
             }
+        }
 
+        highlight: Rectangle {
+            z: 2
+            color: "grey"
+            radius: 10
+            opacity: 0.3
+            focus: true
         }
     }
 
     function getImage(jid) {
         if (shmoose.rosterController.isGroup(jid)) {
-            return "image://theme/icon-l-image";
+            return "img/baseline_group_black_24dp.png";
         } else {
-            return "image://theme/icon-l-people"
+            return "img/baseline_person_black_24dp.png"
         }
     }
 }
