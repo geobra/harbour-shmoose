@@ -114,10 +114,10 @@ Rectangle {
                                     return "img/read_until_green.png"
                                 }
                                 if (msgstate == 2) {
-                                    return "img/2check.png"
+                                    return "img/done_all.png"
                                 }
                                 if (msgstate == 1) {
-                                    return "img/check.png"
+                                    return "img/done.png"
                                 }
                                 return ""
                             }
