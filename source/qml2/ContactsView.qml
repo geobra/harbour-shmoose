@@ -12,12 +12,12 @@ Rectangle {
 
         model: shmoose.rosterController.rosterList
         delegate: Rectangle {
-            height: nameText.height + jidText.height + subs.height + 10
+            height: nameText.height + jidText.height + avail.height + 10
             width: parent.width
 
             Rectangle {
                 id: contactsItem
-                height: img.height, nameText.height + jidText.height + subs.height + 5
+                height: nameText.height + jidText.height + avail.height + 5
                 width: parent.width
                 color: "linen"
 
@@ -55,6 +55,7 @@ Rectangle {
                     Row {
                         Image {
                             id: subs;
+                            visible: ! shmoose.rosterController.isGroup(jid)
                             source: getSubscriptionImage(subscription);
                         }
                         Image {
