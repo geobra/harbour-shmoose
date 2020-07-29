@@ -93,10 +93,14 @@ ApplicationWindow {
             if (shmoose.connectionState == true) {
                 footer.text = "Connected";
                 connectButton.enabled = false;
+
+                shmoose.setAppIsActive(true)
                 shmoose.setCurrentChatPartner("")
             }
             else {
                 footer.text = "DISconnected"
+
+                shmoose.setAppIsActive(false)
                 connectButton.enabled = true;
             }
         }

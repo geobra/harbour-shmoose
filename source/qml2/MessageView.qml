@@ -19,9 +19,10 @@ Rectangle {
                 rotation: 180
 
                 width: parent.width
-                height: messageText.height + imageView.height + timestampText.height + msgStatus.height + 10 // + msgStatus.height
+                height: messageText.height + imageView.height + timestampText.height + msgStatus.height + resourceText.height + 10
 
                 readonly property bool alignRight: (direction == 1);
+                readonly property bool isGroup : shmoose.rosterController.isGroup(shmoose.getCurrentChatPartner());
 
                 Column {
 
@@ -31,7 +32,7 @@ Rectangle {
                     Rectangle {
 
                         width: item.width
-                        height: messageText.height + imageView.height + timestampText.height + msgStatus.height + 5
+                        height: messageText.height + imageView.height + timestampText.height + msgStatus.height + resourceText.height  + 5
                         radius: 10
 
                         color: (alignRight ? "cornsilk" : "lightcyan")
@@ -40,7 +41,7 @@ Rectangle {
                             id: messageText
                             horizontalAlignment: (item.alignRight ? Text.AlignLeft : Text.AlignRight)
                             wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
-                            width: parent.width - 20
+                            width: item.width - 20
 
                             font.pixelSize: (type === "image") ? 8 : 14
 
@@ -76,11 +77,25 @@ Rectangle {
                         }
 
                         Text {
-                            id: timestampText
+                            id: resourceText
 
-                            width: parent.width - 20
+                            visible: isGroup;
                             horizontalAlignment: (item.alignRight ? Text.AlignLeft : Text.AlignRight)
                             anchors.top: imageView.bottom
+                            width: item.width - 20
+
+                            text: resource;
+
+                            color: "dimgrey";
+                            font.pixelSize: 10
+                        }
+
+                        Text {
+                            id: timestampText
+
+                            width: item.width - 20
+                            horizontalAlignment: (item.alignRight ? Text.AlignLeft : Text.AlignRight)
+                            anchors.top: resourceText.bottom
 
                             text: Qt.formatDateTime (new Date (timestamp * 1000), "yyyy-MM-dd hh:mm:ss");
 

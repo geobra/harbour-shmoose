@@ -37,7 +37,6 @@ Rectangle {
                 ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
                 function scrollToBottom(r) {
-                    //contentItem.contentY = edit.height - contentItem.height
                     if (contentItem.contentX >= r.x)
                         contentItem.contentX = r.x;
                     else if (contentItem.contentX+width <= r.x+r.width)
