@@ -3,6 +3,7 @@
 #include "HttpFileuploader.h"
 #include "ImageProcessing.h"
 #include "System.h"
+#include "CryptoHelper.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -10,6 +11,7 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QDateTime>
+#include <QFileInfo>
 
 #include <QDebug>
 
@@ -149,6 +151,14 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
 void HttpFileUploadManager::successReceived()
 {
     busy_ = false;
+
+    // after successfull upload, the local file must represent the hash of the get url.
+    // -> rename it.
+    const QString hashedFileName = CryptoHelper::getHashOfString(getUrl_, true);
+    QFileInfo localFile(file_->fileName());
+    QString toName = localFile.absolutePath() + QDir::separator() + hashedFileName;
+    QFile::rename(file_->fileName(), toName);
+
     emit fileUploadedForJidToUrl(jid_, getUrl_, "image");
 }
 
