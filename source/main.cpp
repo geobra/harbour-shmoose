@@ -55,6 +55,13 @@ int main(int argc, char *argv[])
     pApp = &app;
 #endif
 
+
+#ifndef SFOS
+    // only needed on Desktop for file picker dialog. On SFOS defaults are already used and config gets written there.
+    pApp->setOrganizationName("shmoose");
+    pApp->setOrganizationDomain("harbour");
+#endif
+
     // i18n
 #ifdef SFOS
     QTranslator shmooseTranslator;

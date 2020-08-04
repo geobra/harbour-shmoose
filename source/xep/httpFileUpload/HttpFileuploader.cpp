@@ -6,7 +6,7 @@
 
 HttpFileUploader::HttpFileUploader(QObject *parent) : QObject(parent),
     networkManager_(new QNetworkAccessManager(parent)), request_(new QNetworkRequest()),
-    file_(NULL)
+    file_(nullptr)
 {
     connect(networkManager_, SIGNAL(finished(QNetworkReply*) ), this, SLOT(putFinished(QNetworkReply*)));
 }
@@ -32,7 +32,7 @@ void HttpFileUploader::upload(QString url, QFile* file)
 
             QNetworkReply *reply = networkManager_->put(*request_, file);
 
-            if (reply != NULL)
+            if (reply != nullptr)
             {
                 //qDebug() << "upload runnging? " << reply->isRunning() << ", error: " << reply->errorString();
 
@@ -69,10 +69,10 @@ void HttpFileUploader::putFinished(QNetworkReply* reply)
     printf("response: %s\n", response.data() );
     printf("reply error %d\n", reply->error() );
 
-    if (file_ != NULL && file_->isOpen())
+    if (file_ != nullptr && file_->isOpen())
     {
         file_->close();
-        file_ = NULL;
+        file_ = nullptr;
     }
 
     if (reply->error() == QNetworkReply::NoError)

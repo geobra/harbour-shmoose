@@ -55,6 +55,7 @@ public slots:
     void sendMessage(QString const &toJid, QString const &message, const QString &type);
     void sendMessage(QString const &message, const QString &type);
     void sendFile(QString const &toJid, QString const &file);
+    void sendFile(QUrl const &file);
 
 private slots:
     void sendReadNotification(bool active);
@@ -70,6 +71,7 @@ signals:
     void connectionStateChanged();
 
     void signalShowMessage(QString headline, QString body);
+    void signalShowStatus(QString headline, QString body);
 
     void signalHasInetConnection(bool connected);
     void signalAppGetsActive(bool active);
@@ -86,7 +88,7 @@ public:
     Persistence* getPersistence();
     Settings* getSettings();
 
-    Swift::Client* client_;
+    Swift::Client* client_{nullptr};
     Swift::ClientXMLTracer* tracer_;
     Swift::SoftwareVersionResponder* softwareVersionResponder_;
     Swift::NetworkFactories *netFactories_;

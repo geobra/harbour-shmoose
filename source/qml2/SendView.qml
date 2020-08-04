@@ -1,7 +1,7 @@
 import QtQuick.Layouts 1.2
 import QtQuick 2.3
 import QtQuick.Controls 2.4
-
+import QtQuick.Dialogs 1.0
 
 Rectangle {
     RowLayout {
@@ -75,10 +75,41 @@ Rectangle {
 
             onClicked: {
                 console.log("send to: " + shmoose.getCurrentChatPartner())
-                shmoose.sendMessage(edit.text, "txt")
+                if (edit.text.startsWith("file://")) {
+                    shmoose.sendFile(edit.text)
+                }
+                else {
+                    shmoose.sendMessage(edit.text, "txt")
+                }
                 edit.text = ""
             }
         }
+        Button {
+            Layout.alignment: Qt.AlignVCenter
+
+            text: "attach"
+
+            onClicked: {
+                console.log("attach")
+                fileDialog.open();
+            }
+        }
+
+        FileDialog {
+            id: fileDialog
+            title: "Please choose a picture"
+            folder: shortcuts.home
+            nameFilters: [ "Image files (*.jpg *.jpeg *.png *.gif)"]
+            onAccepted: {
+                console.log("You chose: " + fileDialog.fileUrl);
+                edit.text = fileDialog.fileUrl.toString();
+            }
+            onRejected: {
+                console.log("Canceled")
+            }
+            Component.onCompleted: visible = false
+        }
+
     }
 }
 

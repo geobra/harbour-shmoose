@@ -106,6 +106,12 @@ ApplicationWindow {
         }
     }
 
+    Connections {
+        target: shmoose
+        onSignalShowStatus: {
+            footer.text = header + " " + body
+        }
+    }
 }
 
 
