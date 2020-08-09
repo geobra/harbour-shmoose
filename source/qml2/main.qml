@@ -109,7 +109,7 @@ ApplicationWindow {
     Connections {
         target: shmoose
         onSignalShowStatus: {
-            footer.text = header + " " + body
+            footer.text = headline + " " + body
         }
     }
 }
