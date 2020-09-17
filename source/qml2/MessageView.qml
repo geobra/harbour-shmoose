@@ -50,20 +50,21 @@ Rectangle {
 
                         text: message
 
-                        /*
-                            // make a hand over the link
-                            MouseArea {
-                                anchors.fill: parent
-                                //acceptedButtons: Qt.NoButton // we don't want to eat clicks on the Text
-                                //cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                onClicked:  {
-                                    shmoose.persistence.gcmController.setFilterOnMsg(id);
-                                    console.log("seen by: " + shmoose.persistence.getResourcesOfNewestDisplayedMsgforJid(shmoose.rosterController.rosterList[roster.currentIndex].jid));
-                                }
-                            }
-                            */
+                    }
 
-                        //onLinkActivated: Qt.openUrlExternally(link)
+                    Image {
+                        visible: isGroup
+                        anchors.left: messageText.right
+                        source: "img/info.png"
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                //console.log("Info " + id + " " + index);
+                                shmoose.persistence.gcmController.setFilterOnMsg(id);
+                                dialog.visible = true;
+                            }
+                        }
                     }
 
                     Image {
@@ -125,33 +126,12 @@ Rectangle {
 
                     }
 
-                    MouseArea {
-                        anchors.fill: parent
-                        acceptedButtons: Qt.LeftButton | Qt.RightButton
-                        onClicked: {
-                            //console.log("Click")
-                            //if (mouse.button === Qt.LeftButton)
-                            //{
-                            //    console.log("Left")
-                            //}
-                            //else
-                            if (mouse.button === Qt.RightButton)
-                            {
-                                console.log("Right");
-                                //console.log(id);
-                                //console.log(shmoose.persistence.gcmController[0].chatmembername)
-                                shmoose.persistence.gcmController.setFilterOnMsg(id);
-                                dialog.visible = true;
-                            }
-                        }
-                    }
-
                     Dialog {
                         id: dialog
-                        title: "Read Status"
-                        standardButtons: Dialog.Ok
+                        title: "Message Status"
+                        //standardButtons: Dialog.Ok
 
-                        height: 200
+                        height: 150
                         width: 400
 
                         onAccepted: console.log("Ok clicked")
