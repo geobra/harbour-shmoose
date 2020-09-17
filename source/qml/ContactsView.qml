@@ -87,9 +87,9 @@ Rectangle {
 
     function getImage(jid) {
         if (shmoose.rosterController.isGroup(jid)) {
-            return "img/baseline_group_black_24dp.png";
+            return "img/group.png";
         } else {
-            return "img/baseline_person_black_24dp.png"
+            return "img/person.png"
         }
     }
 

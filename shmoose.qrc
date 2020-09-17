@@ -1,8 +1,25 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="main.qml">source/qml2/main.qml</file>
-        <file alias="ContactsView.qml">source/qml2/ContactsView.qml</file>
-        <file alias="MessageView.qml">source/qml2/MessageView.qml</file>
-        <file alias="SendView.qml">source/qml2/SendView.qml</file>
+        <file alias="main.qml">source/qml/main.qml</file>
+        <file alias="ContactsView.qml">source/qml/ContactsView.qml</file>
+        <file alias="MessageView.qml">source/qml/MessageView.qml</file>
+        <file alias="SendView.qml">source/qml/SendView.qml</file>
+
+        <file alias="img/info.png">source/qml/img/info.png</file>
+        <file alias="img/read_green.png">source/qml/img/read_green.png</file>
+        <file alias="img/read_until_green.png">source/qml/img/read_until_green.png</file>
+        <file alias="img/2check.png">source/qml/img/2check.png</file>
+        <file alias="img/arrow_both.png">source/qml/img/arrow_both.png</file>
+        <file alias="img/arrow_left.png">source/qml/img/arrow_left.png</file>
+        <file alias="img/arrow_right.png">source/qml/img/arrow_right.png</file>
+        <file alias="img/check.png">source/qml/img/check.png</file>
+        <file alias="img/device_unknown.png">source/qml/img/device_unknown.png</file>
+        <file alias="img/done_all.png">source/qml/img/done_all.png</file>
+        <file alias="img/done.png">source/qml/img/done.png</file>
+        <file alias="img/hourglass.png">source/qml/img/hourglass.png</file>
+        <file alias="img/offline.png">source/qml/img/offline.png</file>
+        <file alias="img/online.png">source/qml/img/online.png</file>
+        <file alias="img/group.png">source/qml/img/group.png</file>
+        <file alias="img/person.png">source/qml/img/person.png</file>
     </qresource>
 </RCC>

@@ -90,8 +90,11 @@ int main(int argc, char *argv[])
 #else
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("shmoose", &shmoose);
-    //engine.load(QUrl("qrc:/main.qml"));
-    engine.load("source/qml2/main.qml");
+#ifdef QMLLIVE_SOURCE
+    engine.load("source/qml/main.qml");
+#else
+    engine.load(QUrl("qrc:/main.qml"));
+#endif
 
     QObject *topLevel = engine.rootObjects().value(0);
     QQuickWindow *window = qobject_cast<QQuickWindow*>(topLevel);

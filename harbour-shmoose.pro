@@ -35,10 +35,10 @@ INCLUDEPATH += source/base
     QMAKE_CXXFLAGS += -Wno-deprecated-declarations -Wno-placement-new -Wno-parentheses -Wno-unused-but-set-parameter
 }
 
-#contains(DEFINES, QMLLIVEHOST) {
-    QMLLIVEPROJECT = "/home/schorsch/tmp/qmllive"
+contains(DEFINES, QMLLIVE_SOURCE) {
+    QMLLIVEPROJECT = $$_PRO_FILE_PWD_/../qmllive
     include($${QMLLIVEPROJECT}/src/src.pri)
-#}
+}
 
 contains(DEFINES, SFOS) {
     LIBS += -liphb
