@@ -44,7 +44,7 @@ private:
     bool hasInetConnection_;
     bool appIsActive_;
 
-    Swift::Client* client_;
+    Swift::Client* client_{nullptr};
     ReConnectionHandler *reConnectionHandler_;
     IpHeartBeatWatcher *ipHeartBeatWatcher_;
     XmppPingController *xmppPingController_;

@@ -16,8 +16,14 @@ ConnectionHandler::ConnectionHandler(QObject *parent) : QObject(parent),
 {
     connect(reConnectionHandler_, SIGNAL(canTryToReconnect()), this, SLOT(tryReconnect()));
 
+#ifdef SFOS
     connect(ipHeartBeatWatcher_, SIGNAL(triggered()), this, SLOT(tryStablishServerConnection()));
     connect(ipHeartBeatWatcher_, SIGNAL(finished()), ipHeartBeatWatcher_, SLOT(deleteLater()));
+#else
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(tryStablishServerConnection()));
+    timer->start(60000 * 20); // 20 minutes
+#endif
 
     ipHeartBeatWatcher_->start();
 }
@@ -34,7 +40,7 @@ ConnectionHandler::~ConnectionHandler()
 
 void ConnectionHandler::setupWithClient(Swift::Client* client)
 {
-    if (client != NULL)
+    if (client != nullptr)
     {
         client_ = client;
 
@@ -111,19 +117,26 @@ void ConnectionHandler::handleDisconnected(const boost::optional<Swift::ClientEr
 
 void ConnectionHandler::tryStablishServerConnection()
 {
-    qDebug() << QTime::currentTime().toString() << " ConnectionHandler::tryStablishServerConnection. clientActive: " << client_->isActive() ;
+    qDebug() << QTime::currentTime().toString() << " ConnectionHandler::tryStablishServerConnection.";
 
-    if (hasInetConnection_ == true
-            && client_->isActive() == true
-            && appIsActive_ == false /* connection wont be droped if app is in use */
-            )
+    if (client_ != nullptr)
     {
-        xmppPingController_->doPing();
-    }
-    else
-    {
-        // test to trigger a reconnect if not connected
-        reConnectionHandler_->isConnected(hasInetConnection_);
+         qDebug() << "  clientActive: " << client_->isActive() ;
+
+        if (hasInetConnection_ == true
+                && client_->isActive() == true
+#ifdef SFOS
+                && appIsActive_ == false /* SFOS specific. Connection wont be droped if app is in use */
+#endif
+                )
+        {
+            xmppPingController_->doPing();
+        }
+        else
+        {
+            // test to trigger a reconnect if not connected
+            reConnectionHandler_->isConnected(hasInetConnection_);
+        }
     }
 }
 

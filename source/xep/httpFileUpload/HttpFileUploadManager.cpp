@@ -3,6 +3,7 @@
 #include "HttpFileuploader.h"
 #include "ImageProcessing.h"
 #include "System.h"
+#include "CryptoHelper.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -10,18 +11,21 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QDateTime>
+#include <QFileInfo>
 
 #include <QDebug>
 
 HttpFileUploadManager::HttpFileUploadManager(QObject *parent) : QObject(parent),
     httpUpload_(new HttpFileUploader(this)),
     serverHasFeatureHttpUpload_(false), maxFileSize_(0),
-    file_(new QFile(this)), jid_(""), client_(NULL),
+    file_(new QFile(this)), jid_(""), client_(nullptr),
     uploadServerJid_(""), statusString_(""), getUrl_(""), busy_(false)
 {
     connect(httpUpload_, SIGNAL(updateStatus(QString)), this, SLOT(updateStatusString(QString)));
     connect(httpUpload_, SIGNAL(uploadSuccess()), this, SLOT(successReceived()));
     connect(httpUpload_, SIGNAL(errorOccurred()), this, SLOT(errorReceived()));
+
+    connect(httpUpload_, SIGNAL(updateStatus(QString)), this, SLOT(generateStatus(QString)));
 
     busy_ = (! this->createAttachmentPath());
 }
@@ -35,7 +39,7 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
 {
     bool returnValue = false;
 
-    if (busy_ == false && client_ != NULL && serverHasFeatureHttpUpload_ == true)
+    if (busy_ == false && client_ != nullptr && serverHasFeatureHttpUpload_ == true)
     {
         QString preparedImageForSending = createTargetImageName(file);
 
@@ -97,7 +101,7 @@ unsigned int HttpFileUploadManager::getMaxFileSize()
 
 void HttpFileUploadManager::requestHttpUploadSlot()
 {
-    if (client_ != NULL)
+    if (client_ != nullptr)
     {
         QString basename = QFileInfo(file_->fileName()).baseName() + "." + QFileInfo(file_->fileName()).completeSuffix();
         std::string uploadRequest = "<request xmlns='urn:xmpp:http:upload'>"
@@ -149,6 +153,14 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
 void HttpFileUploadManager::successReceived()
 {
     busy_ = false;
+
+    // after successfull upload, the local file must represent the hash of the get url.
+    // -> rename it.
+    const QString hashedFileName = CryptoHelper::getHashOfString(getUrl_, true);
+    QFileInfo localFile(file_->fileName());
+    QString toName = localFile.absolutePath() + QDir::separator() + hashedFileName;
+    QFile::rename(file_->fileName(), toName);
+
     emit fileUploadedForJidToUrl(jid_, getUrl_, "image");
 }
 
@@ -183,4 +195,9 @@ QString HttpFileUploadManager::createTargetImageName(QString source)
     qDebug() << "target file: " << targetPath;
 
     return targetPath;
+}
+
+void HttpFileUploadManager::generateStatus(QString status)
+{
+    emit showStatus("Image Upload", status);
 }
