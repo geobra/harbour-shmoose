@@ -28,7 +28,7 @@ Rectangle {
                     id: img;
                     width: Math.min (50, sourceSize.width);
                     height: Math.min (50, sourceSize.height);
-                    source: imagePath != "" ? imagePath : getImage(jid)
+                    source: imagePath != "" ? "file:/" + imagePath : getImage(jid)
                 }
 
                 Column {

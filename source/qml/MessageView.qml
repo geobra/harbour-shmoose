@@ -75,7 +75,7 @@ Rectangle {
                         fillMode: Image.PreserveAspectFit;
                         visible: (type === "image")
 
-                        source: ( (type === "image") ? attachmentPath + "/" + shmoose.getLocalFileForUrl(message) : "");
+                        source: ( (type === "image") ? "file:/" + attachmentPath + "/" + shmoose.getLocalFileForUrl(message) : "");
                     }
 
                     Text {
