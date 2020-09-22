@@ -30,11 +30,15 @@ public:
 
 signals:
     void fileUploadedForJidToUrl(QString, QString, QString);
+    void showStatus(QString, QString);
 
 public slots:
     void updateStatusString(QString string);
     void successReceived();
     void errorReceived();
+
+private slots:
+    void generateStatus(QString status);
 
 private:
     HttpFileUploader* httpUpload_;

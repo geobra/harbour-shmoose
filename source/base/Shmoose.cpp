@@ -76,6 +76,10 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     connect(mucManager_, SIGNAL(signalShowMessage(QString,QString)), this, SIGNAL(signalShowMessage(QString,QString)));
     connect(rosterController_, SIGNAL(signalShowMessage(QString,QString)), this, SIGNAL(signalShowMessage(QString,QString)));
 
+    // show status to user
+    connect(httpFileUploadManager_, SIGNAL(showStatus(QString, QString)), this, SIGNAL(signalShowStatus(QString, QString)));
+
+
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotAboutToQuit()));
 }
 
@@ -109,6 +113,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 
 #ifndef SFOS
     completeJid += "Desktop";
+    setHasInetConnection(true);
 #endif
 
     // setup the xmpp client
@@ -209,6 +214,22 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message, QString 
     messageHandler_->sendMessage(toJid, message, type, isGroup);
 }
 
+void Shmoose::sendMessage(QString const &message, QString const &type)
+{
+    const QString toJid = getCurrentChatPartner();
+
+    if (! toJid.isEmpty())
+    {
+        bool isGroup = rosterController_->isGroup(toJid);
+        messageHandler_->sendMessage(toJid, message, type, isGroup);
+    }
+    else
+    {
+        qDebug() << "tried to send msg without current chat partner selected!";
+    }
+}
+
+
 void Shmoose::sendFile(QString const &toJid, QString const &file)
 {
     if (httpFileUploadManager_->requestToUploadFileForJid(file, toJid) == false)
@@ -216,6 +237,20 @@ void Shmoose::sendFile(QString const &toJid, QString const &file)
         qDebug() << "Shmoose::sendFile failed";
     }
 }
+
+void Shmoose::sendFile(QUrl const &file)
+{
+    const QString toJid = getCurrentChatPartner();
+    QString localFile = file.toLocalFile();
+
+    qDebug() << "sendfile: jid: " << toJid << ", file: " << localFile << ", from url: " << file;
+
+    if (httpFileUploadManager_->requestToUploadFileForJid(localFile, toJid) == false)
+    {
+        qDebug() << "Shmoose::sendFile failed";
+    }
+}
+
 
 void Shmoose::sendReadNotification(bool active)
 {
