@@ -205,7 +205,7 @@ Page {
                 Image {
                     source: {
                         if (msgstate == 3) {
-                            return "../img/read_until_green.png"
+                            return "../img/read_green.png"
                         }
                         if (msgstate == 2) {
                             return "../img/2check.png"

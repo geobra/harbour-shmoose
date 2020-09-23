@@ -214,35 +214,6 @@ int MessageController::getStateOfMessageId(QString const &id)
     return msgState;
 }
 
-void MessageController::remarkMessageToReceivedForJidOfId(QString const &id)
-{
-    QString jid = getJidOfMessageId(id);
-
-    if ( jid.contains("@") ) // jid was found
-    {
-        QSqlQuery query(*(database_->getPointer()));
-        QString sqlQuery = "UPDATE " + Database::sqlMsgName_ + " SET " + Database::sqlMsgState_ + " = " + QString::number(MESSAGE_STATE_RECEIVED)
-                + " WHERE " + Database::sqlMsgState_ + " = " + QString::number(MESSAGE_STATE_DISPLAYED) + " AND " + Database::sqlJid_ + " = \"" + jid + "\"";
-
-        if (! query.exec(sqlQuery))
-        {
-            qDebug() << query.lastError().databaseText();
-            qDebug() << query.lastError().driverText();
-            qDebug() << query.lastError().text();
-        }
-        else
-        {
-            this->submitAll();
-
-            // update the model with the changes of the database
-            if (select() != true)
-            {
-                qDebug() << "error on select in MessageController::addMessage";
-            }
-        }
-    }
-}
-
 void MessageController::markMessageDisplayedConfirmed(QString const &id)
 {
     setMessageStateOfId(id, MESSAGE_STATE_DISPLAYED_CONFIRMED);
@@ -250,9 +221,6 @@ void MessageController::markMessageDisplayedConfirmed(QString const &id)
 
 void MessageController::markMessageDisplayed(QString const &id)
 {
-    // first, remark previous last displayed msg to just received for the jid of that msgId
-    remarkMessageToReceivedForJidOfId(id);
-
     setMessageStateOfId(id, MESSAGE_STATE_DISPLAYED);
 }
 
