@@ -435,4 +435,4 @@ void ClientRoomMsgTest::collectMsgStateChangedRhs(QString msgId, QString jid, in
     stateChangeMsgRhsList_.push_back(mjs);
 }
 
-QTEST_MAIN(ClientRoomMsgTest)
+QTEST_GUILESS_MAIN(ClientRoomMsgTest)
