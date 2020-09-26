@@ -293,4 +293,4 @@ void RosterTest::dumpRosterList(const QString& title)
     }
 }
 
-QTEST_MAIN(RosterTest)
+QTEST_GUILESS_MAIN(RosterTest)

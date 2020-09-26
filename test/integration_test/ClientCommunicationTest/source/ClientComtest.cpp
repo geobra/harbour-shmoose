@@ -302,4 +302,4 @@ void ClientComTest::collectMsgStateRhsChanged(QString msgId, int state)
     stateChangeMsgRhsList_.push_back(msgState);
 }
 
-QTEST_MAIN(ClientComTest)
+QTEST_GUILESS_MAIN(ClientComTest)
