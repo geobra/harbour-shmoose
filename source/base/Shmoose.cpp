@@ -29,6 +29,7 @@
 #include "MucManager.h"
 #include "DiscoInfoHandler.h"
 #include "CryptoHelper.h"
+#include "StanzaId.h"
 
 
 #include "System.h"
@@ -39,6 +40,7 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     rosterController_(new RosterController(this)),
     persistence_(new Persistence(this)),
     settings_(new Settings(this)),
+    stanzaId_(new StanzaId(this)),
     connectionHandler_(new ConnectionHandler(this)),
     messageHandler_(new MessageHandler(persistence_, settings_, rosterController_, this)),
     httpFileUploadManager_(new HttpFileUploadManager(this)),
@@ -120,6 +122,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     client_ = new Swift::Client(Swift::JID(completeJid.toStdString()), pass.toStdString(), netFactories_);
     client_->setAlwaysTrustCertificates();
 
+    stanzaId_->setupWithClient(client_);
     connectionHandler_->setupWithClient(client_);
     messageHandler_->setupWithClient(client_);
 

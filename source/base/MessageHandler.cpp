@@ -3,6 +3,7 @@
 #include "ImageProcessing.h"
 #include "DownloadManager.h"
 #include "ChatMarkers.h"
+#include "StanzaIdPayload.h"
 #include "XmlProcessor.h"
 #include "RosterController.h"
 #include <Swiften/Elements/CarbonsReceived.h>
@@ -109,15 +110,27 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             isGroupMessage = true;
         }
 
+        // xep 0359
+        std::shared_ptr<StanzaIdPayload> stanzaId = message->getPayload<StanzaIdPayload>();
+        QString messageId;
+        if (stanzaId != nullptr)
+        {
+            messageId = QString::fromStdString(stanzaId->getId());
+        }
+        else
+        {
+            messageId = QString::fromStdString(message->getID());
+        }
+
         if (!sentCarbon)
         {
-            persistence_->addMessage(QString::fromStdString(message->getID()),
+            persistence_->addMessage(messageId,
                                      QString::fromStdString(fromJid),
                                      QString::fromStdString(message->getFrom().getResource()),
                                      theBody, type, 1 );
         } else
         {
-            persistence_->addMessage(QString::fromStdString(message->getID()),
+            persistence_->addMessage(messageId,
                                      QString::fromStdString(toJID.toBare().toString()),
                                      QString::fromStdString(toJID.getResource()),
                                      theBody, type, 0 );

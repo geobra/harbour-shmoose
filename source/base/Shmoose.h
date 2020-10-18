@@ -18,6 +18,7 @@ class HttpFileUploadManager;
 class MucManager;
 class DiscoInfoHandler;
 class MamManager;
+class StanzaId;
 
 class Shmoose : public QObject
 {
@@ -102,6 +103,7 @@ public:
     HttpFileUploadManager* httpFileUploadManager_;
     MamManager *mamManager_;
     MucManager *mucManager_;
+    StanzaId *stanzaId_;
     DiscoInfoHandler* discoInfoHandler_;
 
     QString jid_;
