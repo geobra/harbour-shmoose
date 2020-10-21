@@ -110,16 +110,16 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             isGroupMessage = true;
         }
 
-        // xep 0359
-        std::shared_ptr<StanzaIdPayload> stanzaId = message->getPayload<StanzaIdPayload>();
-        QString messageId;
-        if (stanzaId != nullptr)
+        QString messageId = QString::fromStdString(message->getID());
+		if (messageId.length() == 0)
         {
-            messageId = QString::fromStdString(stanzaId->getId());
-        }
-        else
-        {
-            messageId = QString::fromStdString(message->getID());
+            // No message id, try xep 0359
+            std::shared_ptr<StanzaIdPayload> stanzaId = message->getPayload<StanzaIdPayload>();
+            if (stanzaId != nullptr)
+            {
+                QString messageId = QString::fromStdString(stanzaId->getId());
+
+            }
         }
 
         if (!sentCarbon)

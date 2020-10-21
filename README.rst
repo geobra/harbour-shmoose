@@ -32,6 +32,7 @@ Feature Stack until version 1.0
 * XEP-0363: HTTP File Upload [done]
 * XEP-0333: Chat Markers [done]
 * XEP-0313: Message Archive Management [partial]
+* XEP-0359: Unique and Stable Stanza IDs [WIP]
 * XEP-0045: Multi-User Chat [WIP]
 * XEP-0280: Message Carbons [WIP]
 * XEP-0198: Stream Management  [done]
