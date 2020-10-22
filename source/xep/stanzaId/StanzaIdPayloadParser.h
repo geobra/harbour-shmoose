@@ -14,5 +14,5 @@ public:
     void handleCharacterData(const std::string& /* data */);
 
 private:
-    int level_;
+    int level_{0};
 };

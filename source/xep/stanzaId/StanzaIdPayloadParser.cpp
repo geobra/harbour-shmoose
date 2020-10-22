@@ -1,6 +1,6 @@
 #include "StanzaIdPayloadParser.h"
 
-StanzaIdPayloadParser::StanzaIdPayloadParser() : level_(0)
+StanzaIdPayloadParser::StanzaIdPayloadParser()
 {
 }
 

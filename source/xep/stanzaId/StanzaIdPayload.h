@@ -15,6 +15,6 @@ public:
     void setId(const std::string& id);
 
 private:
-    std::string by_;
-    std::string id_;
+    std::string by_{};
+    std::string id_{};
 };
