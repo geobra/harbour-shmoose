@@ -111,14 +111,13 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         }
 
         QString messageId = QString::fromStdString(message->getID());
-		if (messageId.length() == 0)
+        if (messageId.length() == 0)
         {
             // No message id, try xep 0359
             std::shared_ptr<StanzaIdPayload> stanzaId = message->getPayload<StanzaIdPayload>();
             if (stanzaId != nullptr)
             {
-                QString messageId = QString::fromStdString(stanzaId->getId());
-
+                messageId = QString::fromStdString(stanzaId->getId());
             }
         }
 
