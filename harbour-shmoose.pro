@@ -26,6 +26,7 @@ INCLUDEPATH += source/xep/httpFileUpload
 INCLUDEPATH += source/xep/mam
 INCLUDEPATH += source/xep/xmppPing
 INCLUDEPATH += source/xep/chatMarkers
+INCLUDEPATH += source/xep/stanzaId
 INCLUDEPATH += source/room
 INCLUDEPATH += source/networkconnection
 INCLUDEPATH += source/contacts
@@ -87,6 +88,11 @@ SOURCES += \
     source/xep/mam/MamManager.cpp \
     source/xep/xmppPing/XmppPingController.cpp \
     source/xep/chatMarkers/ChatMarkers.cpp \
+    source/xep/stanzaId/StanzaId.cpp \
+    source/xep/stanzaId/StanzaIdPayload.cpp \
+    source/xep/stanzaId/StanzaIdPayloadParser.cpp \
+    source/xep/stanzaId/StanzaIdPayloadParserFactory.cpp \
+    source/xep/stanzaId/StanzaIdPayloadSerializer.cpp \
     source/room/MucManager.cpp \
     source/room/MucCollection.cpp \
     source/networkconnection/ConnectionHandler.cpp \
@@ -119,6 +125,11 @@ HEADERS += source/base/Shmoose.h \
     source/xep/xmppPing/PingRequest.h \
     source/xep/xmppPing/XmppPingController.h \
     source/xep/chatMarkers/ChatMarkers.h \
+    source/xep/stanzaId/StanzaId.h \
+    source/xep/stanzaId/StanzaIdPayload.h \
+    source/xep/stanzaId/StanzaIdPayloadParser.h \
+    source/xep/stanzaId/StanzaIdPayloadParserFactory.h \
+    source/xep/stanzaId/StanzaIdPayloadSerializer.h \
     source/room/MucManager.h \
     source/room/MucCollection.h \
     source/networkconnection/ConnectionHandler.h \

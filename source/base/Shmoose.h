@@ -18,6 +18,7 @@ class HttpFileUploadManager;
 class MucManager;
 class DiscoInfoHandler;
 class MamManager;
+class StanzaId;
 
 class Shmoose : public QObject
 {
@@ -97,6 +98,7 @@ public:
     Persistence* persistence_;
     Settings* settings_;
 
+    StanzaId *stanzaId_;
     ConnectionHandler* connectionHandler_;
     MessageHandler* messageHandler_;
     HttpFileUploadManager* httpFileUploadManager_;
