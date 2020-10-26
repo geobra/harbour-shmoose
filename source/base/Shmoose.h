@@ -98,12 +98,12 @@ public:
     Persistence* persistence_;
     Settings* settings_;
 
+    StanzaId *stanzaId_;
     ConnectionHandler* connectionHandler_;
     MessageHandler* messageHandler_;
     HttpFileUploadManager* httpFileUploadManager_;
     MamManager *mamManager_;
     MucManager *mucManager_;
-    StanzaId *stanzaId_;
     DiscoInfoHandler* discoInfoHandler_;
 
     QString jid_;
