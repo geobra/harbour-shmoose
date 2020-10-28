@@ -46,35 +46,35 @@ void DiscoInfoHandler::handleDiscoServiceWalker(const Swift::JID & jid, std::sha
     }
 #endif
 
+    // check for http-upload
     const std::string httpUpload = "urn:xmpp:http:upload";
-
-    // currently only interessetd in services from the main domain (not conference.domain.org or proxy.domain.org)
-    if (client_->getJID().getDomain().compare(jid.getDomain()) == 0)
+    if (info->hasFeature(httpUpload))
     {
-        if (info->hasFeature(httpUpload))
-        {
-            qDebug() << QString::fromStdString(jid.toString()) << " has feature urn:xmpp:http:upload";
-            httpFileUploadManager_->setServerHasFeatureHttpUpload(true);
-            httpFileUploadManager_->setUploadServerJid(jid);
+        qDebug() << QString::fromStdString(jid.toString()) << " has feature urn:xmpp:http:upload";
+        httpFileUploadManager_->setServerHasFeatureHttpUpload(true);
+        httpFileUploadManager_->setUploadServerJid(jid);
 
-            foreach (Swift::Form::ref form, info->getExtensions())
+        foreach (Swift::Form::ref form, info->getExtensions())
+        {
+            if (form)
             {
-                if (form)
+                if ((*form).getFormType() == httpUpload)
                 {
-                    if ((*form).getFormType() == httpUpload)
+                    Swift::FormField::ref formField = (*form).getField("max-file-size");
+                    if (formField)
                     {
-                        Swift::FormField::ref formField = (*form).getField("max-file-size");
-                        if (formField)
-                        {
-                            unsigned int maxFileSize = std::stoi((*formField).getTextSingleValue());
-                            //qDebug() << QString::fromStdString((*formField).getName()) << " val: " << maxFileSize;
-                            httpFileUploadManager_->setMaxFileSize(maxFileSize);
-                        }
+                        unsigned int maxFileSize = std::stoi((*formField).getTextSingleValue());
+                        //qDebug() << QString::fromStdString((*formField).getName()) << " val: " << maxFileSize;
+                        httpFileUploadManager_->setMaxFileSize(maxFileSize);
                     }
                 }
             }
         }
+    }
 
+    // check for MAM, but only for the main domain (not conference.domain.org or proxy.domain.org)
+    if (client_->getJID().getDomain().compare(jid.getDomain()) == 0)
+    {
         if (info->hasFeature(MamManager::mamNs.toStdString()))
         {
             qDebug() << "### " << QString::fromStdString(jid.toString()) << " has " << MamManager::mamNs;
