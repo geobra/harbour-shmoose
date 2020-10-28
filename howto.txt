@@ -1,0 +1,16 @@
+to be automated:
+----------------
+git clone https://github.com/gkdr/libomemo
+git checkout tags/v0.6.2
+make
+
+git clone https://github.com/gkdr/axc
+git checkout tags/v0.3.3
+git submodule update --init
+make
+cd  axc/lib/libsignal-protocol-c/
+mkdir build
+cmake ..
+make
+
+

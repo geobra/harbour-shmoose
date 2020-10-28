@@ -12,3 +12,8 @@ QString System::getAvatarPath()
 {
     return QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QDir::separator() + "avatar";
 }
+
+QString System::getOmemoPath()
+{
+    return QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QDir::separator() + "omemo";
+}

@@ -29,7 +29,7 @@
 #include "MucManager.h"
 #include "DiscoInfoHandler.h"
 #include "CryptoHelper.h"
-
+#include "Omemo.h"
 
 #include "System.h"
 
@@ -45,6 +45,7 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     mamManager_(new MamManager(persistence_, this)),
     mucManager_(new MucManager(this)),
     discoInfoHandler_(new DiscoInfoHandler(httpFileUploadManager_, mamManager_, this)),
+    omemo_(new Omemo(this)),
     jid_(""), password_(""),
     version_("0.7.0")
 {
@@ -190,6 +191,9 @@ void Shmoose::intialSetupOnFirstConnection()
 
     // init and setup mucManager
     mucManager_->setupWithClient(client_);
+
+    // init and setup omemo stuff
+    omemo_->setupWithClient(client_);
 
     // Save account data
     settings_->setJid(jid_);

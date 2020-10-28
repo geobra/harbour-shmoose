@@ -18,6 +18,7 @@ class HttpFileUploadManager;
 class MucManager;
 class DiscoInfoHandler;
 class MamManager;
+class Omemo;
 
 class Shmoose : public QObject
 {
@@ -103,6 +104,7 @@ public:
     MamManager *mamManager_;
     MucManager *mucManager_;
     DiscoInfoHandler* discoInfoHandler_;
+    Omemo* omemo_;
 
     QString jid_;
     QString password_;

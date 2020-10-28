@@ -76,7 +76,7 @@ Install all dependencies to build Swiften::
 
 Install dependencies to build Shmoose (example for Debian)::
 
- * sudo apt-get install zlib1g-dev libssl-dev libxml2-dev libstdc++-5-dev libqt5quick5 libqt5quickparticles5 libqt5quickwidgets5 libqt5qml5 libqt5network5 libqt5gui5 libqt5core5a qt5-default libglib2.0-dev libpthread-stubs0-dev
+ * sudo apt-get install zlib1g-dev libssl-dev libxml2-dev libstdc++-5-dev libqt5quick5 libqt5quickparticles5 libqt5quickwidgets5 libqt5qml5 libqt5network5 libqt5gui5 libqt5core5a qt5-default libglib2.0-dev libpthread-stubs0-dev libmxml-dev libgcrypt20-dev libglib2.0-dev libsqlite3-dev
 
 Fetch the Shmoose source code::
 

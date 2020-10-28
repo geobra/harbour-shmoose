@@ -26,6 +26,7 @@ INCLUDEPATH += source/xep/httpFileUpload
 INCLUDEPATH += source/xep/mam
 INCLUDEPATH += source/xep/xmppPing
 INCLUDEPATH += source/xep/chatMarkers
+INCLUDEPATH += source/xep/omemo
 INCLUDEPATH += source/room
 INCLUDEPATH += source/networkconnection
 INCLUDEPATH += source/contacts
@@ -43,6 +44,16 @@ contains(DEFINES, QMLLIVE_SOURCE) {
 contains(DEFINES, SFOS) {
     LIBS += -liphb
 }
+
+# omemo
+INCLUDEPATH += libomemo/src
+LIBS += $$_PRO_FILE_PWD_/axc/build/libaxc.a
+LIBS += $$_PRO_FILE_PWD_/axc/lib/libsignal-protocol-c/build/src/libsignal-protocol-c.a
+LIBS += $$_PRO_FILE_PWD_/libomemo/build/libomemo-conversations.a
+LIBS += -lmxml -lgcrypt
+QMAKE_CXXFLAGS += $$system("pkg-config --cflags glib-2.0")
+QMAKE_CFLAGS += $$system("pkg-config --cflags glib-2.0 libxml-2.0")
+QMAKE_LFLAGS += $$system("pkg-config --libs glib-2.0 sqlite3")
 
 QMAKE_CXXFLAGS += -std=c++11
 
@@ -87,6 +98,7 @@ SOURCES += \
     source/xep/mam/MamManager.cpp \
     source/xep/xmppPing/XmppPingController.cpp \
     source/xep/chatMarkers/ChatMarkers.cpp \
+    source/xep/omemo/Omemo.cpp \
     source/room/MucManager.cpp \
     source/room/MucCollection.cpp \
     source/networkconnection/ConnectionHandler.cpp \
@@ -119,6 +131,7 @@ HEADERS += source/base/Shmoose.h \
     source/xep/xmppPing/PingRequest.h \
     source/xep/xmppPing/XmppPingController.h \
     source/xep/chatMarkers/ChatMarkers.h \
+    source/xep/omemo/Omemo.h \
     source/room/MucManager.h \
     source/room/MucCollection.h \
     source/networkconnection/ConnectionHandler.h \
