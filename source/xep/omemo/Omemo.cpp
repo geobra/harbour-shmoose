@@ -1,14 +1,22 @@
 #include "Omemo.h"
 #include "System.h"
 #include "XmlProcessor.h"
+#include "Settings.h"
+#include "System.h"
 
 #include <QDir>
 #include <QDebug>
 
 extern "C" {
 #include "libomemo_crypto.h"
+#include "libomemo_storage.h"
 #include "libomemo.h"
+#include "axc_store.h"
 }
+
+#define LURCH_DB_SUFFIX "_db.sqlite"
+#define LURCH_DB_NAME_OMEMO "omemo"
+#define LURCH_DB_NAME_AXC "axc"
 
 /*
  * https://xmpp.org/extensions/xep-0384.html
@@ -162,6 +170,158 @@ void Omemo::ownDeviceListRequestHandler(QString fromJid, QString items)
 {
     // implements lurch_pep_own_devicelist_request_handler
     qDebug() << "Omemo::ownDeviceListRequestHandler " << fromJid << ", " << items;
+
+    axc_context* axc_ctx_p = nullptr;
+    omemo_devicelist* dl_p = nullptr;
+
+    Settings settings;
+    if (settings.isOmemoInitialized() == false)
+    {
+        qDebug() << "init omemo setup";
+        if (axcPrepare(fromJid.toStdString().c_str()) == true)
+        {
+
+        }
+        else
+        {
+            qDebug() << "error lurch_axc_prepare";
+        }
+    }
+
+    // FIXME continue!
+
+
+}
+
+bool Omemo::axcPrepare(QString fromJid)
+{
+    // implements lurch_axc_prepare
+    int ret_val = 0;
+
+    char * err_msg_dbg = nullptr;
+    axc_context * axc_ctx_p = nullptr;
+    uint32_t device_id = 0;
+    char * db_fn_omemo = nullptr;
+
+    ret_val = axcGetInitCtx(fromJid, &axc_ctx_p);
+    if (ret_val)
+    {
+        err_msg_dbg = g_strdup_printf("failed to get init axc ctx");
+        goto cleanup;
+    }
+
+    ret_val = axc_get_device_id(axc_ctx_p, &device_id);
+    if (!ret_val)
+    {
+        // already installed
+        goto cleanup;
+    }
+
+    db_fn_omemo = unameGetDbFn(fromJid.toStdString().c_str(), (char *)LURCH_DB_NAME_OMEMO);
+
+    while (1)
+    {
+        ret_val = axc_install(axc_ctx_p);
+        if (ret_val)
+        {
+            err_msg_dbg = g_strdup_printf("failed to install axc");
+            goto cleanup;
+        }
+
+        ret_val = axc_get_device_id(axc_ctx_p, &device_id);
+        if (ret_val)
+        {
+            err_msg_dbg = g_strdup_printf("failed to get own device id");
+            goto cleanup;
+        }
+
+        ret_val = omemo_storage_global_device_id_exists(device_id, db_fn_omemo);
+        if (ret_val == 1)
+        {
+            ret_val = axc_db_init_status_set(AXC_DB_NEEDS_ROLLBACK, axc_ctx_p);
+            if (ret_val)
+            {
+                err_msg_dbg = g_strdup_printf("failed to set axc db to rollback");
+                goto cleanup;
+            }
+        } else if (ret_val < 0)
+        {
+            err_msg_dbg = g_strdup_printf("failed to access the db %s", db_fn_omemo);
+            goto cleanup;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+cleanup:
+    if (err_msg_dbg)
+    {
+        //purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
+        qDebug() << "omemo: " << __func__ << ", " << err_msg_dbg << ", " << ret_val;
+        free(err_msg_dbg);
+    }
+    axc_context_destroy_all(axc_ctx_p);
+    free(db_fn_omemo);
+
+    return ret_val;
+
+}
+
+bool Omemo::axcGetInitCtx(QString jid, axc_context** ctx_pp)
+{
+    // implements lurch_axc_get_init_ctx
+    int ret_val = 0;
+    char* err_msg_dbg = nullptr;
+
+    axc_context* ctx_p = nullptr;
+    char* db_fn = nullptr;
+
+    ret_val = axc_context_create(&ctx_p);
+    if (ret_val)
+    {
+        err_msg_dbg = g_strdup_printf("failed to create axc context");
+        goto cleanup;
+    }
+
+    db_fn = unameGetDbFn(myBareJid_.toStdString().c_str(), (char*)LURCH_DB_NAME_AXC);
+    ret_val = axc_context_set_db_fn(ctx_p, db_fn, strlen(db_fn));
+    if (ret_val)
+    {
+        err_msg_dbg = g_strdup_printf("failed to set axc db filename");
+        goto cleanup;
+    }
+
+    ret_val = axc_init(ctx_p);
+    if (ret_val)
+    {
+        err_msg_dbg = g_strdup_printf("failed to init axc context");
+        goto cleanup;
+    }
+
+    *ctx_pp = ctx_p;
+
+cleanup:
+    if (ret_val)
+    {
+        axc_context_destroy_all(ctx_p);
+    }
+    if (err_msg_dbg)
+    {
+        //purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
+        qDebug() << "omemo: " << __func__ << ", " << err_msg_dbg << ", " << ret_val;
+        free(err_msg_dbg);
+    }
+
+    free (db_fn);
+    return ret_val;
+}
+
+char* Omemo::unameGetDbFn(const char * uname, char * which)
+{
+    // impelements lurch_uname_get_db_fn
+    return g_strconcat(System::getOmemoPath().toStdString().c_str(), "/", uname, "_", which, LURCH_DB_SUFFIX, NULL);
 }
 
 void Omemo::handleDataReceived(Swift::SafeByteArray data)

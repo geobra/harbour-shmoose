@@ -23,6 +23,7 @@ public:
     bool getSaveCredentials() const;
     bool getSendReadNotifications() const;
     QStringList getImagePaths();
+    bool isOmemoInitialized();
 
 signals:
     void jidChanged(QString Jid);
@@ -39,6 +40,7 @@ public slots:
     void setImagePaths(QStringList const & ImagePaths);
     void removeImagePath(QString const & Path);
     void addImagePath(QUrl const & Path);
+    void setOmemoInitialized(bool isInitialized);
 
 };
 

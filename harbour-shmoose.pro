@@ -47,6 +47,8 @@ contains(DEFINES, SFOS) {
 
 # omemo
 INCLUDEPATH += libomemo/src
+INCLUDEPATH += axc/src
+INCLUDEPATH += axc/lib/libsignal-protocol-c/src
 LIBS += $$_PRO_FILE_PWD_/axc/build/libaxc.a
 LIBS += $$_PRO_FILE_PWD_/axc/lib/libsignal-protocol-c/build/src/libsignal-protocol-c.a
 LIBS += $$_PRO_FILE_PWD_/libomemo/build/libomemo-conversations.a

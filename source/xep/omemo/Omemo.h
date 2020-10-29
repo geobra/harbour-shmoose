@@ -7,6 +7,10 @@
 
 #include <Swiften/Swiften.h>
 
+extern "C" {
+#include "axc.h"
+}
+
 class Omemo : public QObject
 {
     Q_OBJECT
@@ -23,6 +27,13 @@ private:
     void ownDeviceListRequestHandler(QString fromJid, QString items);
 
     void handleDeviceListResponse(const std::string& str);
+
+    bool axcPrepare(QString fromJid);
+    bool axcGetInitCtx(QString jid, axc_context** ctx_pp);
+    char* unameGetDbFn(const char * uname, char * which);
+
+
+
     void handleDataReceived(Swift::SafeByteArray data);
 
 

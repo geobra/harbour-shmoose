@@ -85,6 +85,18 @@ void Settings::setSendReadNotifications(bool SendReadNotifications)
     emit saveCredentialsChanged(SendReadNotifications);
 }
 
+void Settings::setOmemoInitialized(bool isInitialized)
+{
+    QSettings settings;
+    settings.setValue("omemo/isInitialized", isInitialized);
+}
+
+bool Settings::isOmemoInitialized()
+{
+    QSettings settings;
+    return settings.value("omemo/isInitialized", false).toBool();
+}
+
 QStringList Settings::getImagePaths()
 {
     QSettings settings;
