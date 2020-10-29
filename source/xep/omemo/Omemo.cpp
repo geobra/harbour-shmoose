@@ -1,5 +1,6 @@
 #include "Omemo.h"
 #include "System.h"
+#include "XmlProcessor.h"
 
 #include <QDir>
 #include <QDebug>
@@ -53,6 +54,11 @@ Omemo::Omemo(QObject *parent) : QObject(parent)
 void Omemo::setupWithClient(Swift::Client* client)
 {
     client_ = client;
+
+    myBareJid_ = QString::fromStdString(client_->getJID().toBare().toString());
+
+    client_->onDataRead.connect(boost::bind(&Omemo::handleDataReceived, this, _1));
+
     requestDeviceList(client_->getJID());
 }
 
@@ -87,10 +93,15 @@ void Omemo::requestDeviceList(const Swift::JID& jid)
     Swift::RawRequest::ref requestDeviceList = Swift::RawRequest::create(Swift::IQ::Get, jid.toBare(), deviceListRequestXml, client_->getIQRouter());
     requestDeviceList->onResponse.connect(boost::bind(&Omemo::handleDeviceListResponse, this, _1));
     requestDeviceList->send();
+
+    std::string id{requestDeviceList->getID()};
+    requestedDeviceListJidIdMap_.insert(QString::fromStdString(id), QString::fromStdString(jid.toBare().toString()));
 }
 
 void Omemo::handleDeviceListResponse(const std::string& str)
 {
+    // implements lurch_pep_devicelist_event_handler
+
     qDebug() << "OMEMO: handle device list Response: " << QString::fromStdString(str);
 
     /*
@@ -109,14 +120,54 @@ void Omemo::handleDeviceListResponse(const std::string& str)
     <error type=\"cancel\"><item-not-found xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/></error>
      */
 
-/*
- * see lurch_pep_devicelist_event_handler
- * 1. check if this is our device list?!
- * -> lurch_pep_own_devicelist_request_handler
- * 2. else
- * -> omemo_devicelist_import
- * -> lurch_devicelist_process
- */
+    /*
+     * see lurch_pep_devicelist_event_handler
+     * 1. check if this is our device list?!
+     * -> lurch_pep_own_devicelist_request_handler
+     * 2. else
+     * -> omemo_devicelist_import
+     * -> lurch_devicelist_process
+     */
 
 
+    // determine for whom this device list was requested for
+    QString currentIqId = XmlProcessor::getContentInTag("iq", "id", currentNode_);
+
+    if ( (! currentIqId.isEmpty()) && requestedDeviceListJidIdMap_.contains(currentIqId))
+    {
+        QString jid = requestedDeviceListJidIdMap_.value(currentIqId);
+        requestedDeviceListJidIdMap_.remove(currentIqId);
+
+        //qDebug() << "jid " << jid;
+        // get the items of the request
+        QString items = XmlProcessor::getChildFromNode("items", currentNode_);
+
+        if (! items.isEmpty())
+        {
+            if (myBareJid_.compare(jid, Qt::CaseInsensitive) == 0)
+            {
+                // was a request for my device list
+                ownDeviceListRequestHandler(myBareJid_, items);
+            }
+            else
+            {
+                // requested someone else device list
+                qDebug() << "requested someone else device list";
+            }
+        }
+    }
 }
+
+void Omemo::ownDeviceListRequestHandler(QString fromJid, QString items)
+{
+    // implements lurch_pep_own_devicelist_request_handler
+    qDebug() << "Omemo::ownDeviceListRequestHandler " << fromJid << ", " << items;
+}
+
+void Omemo::handleDataReceived(Swift::SafeByteArray data)
+{
+    // jabber xml stream from swift to xmlnode
+    std::string nodeData = Swift::safeByteArrayToString(data);
+    currentNode_ = QString::fromStdString(nodeData);
+}
+
