@@ -60,6 +60,7 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     connect(mucManager_, SIGNAL(newGroupForContactsList(QString,QString)), rosterController_, SLOT(addGroupAsContact(QString,QString)));
     connect(mucManager_, SIGNAL(removeGroupFromContactsList(QString)), rosterController_, SLOT(removeGroupFromContacts(QString)) );
 
+    connect(discoInfoHandler_, SIGNAL(serverHasHttpUpload_(bool)), this, SIGNAL(signalCanSendFile(bool)));
     connect(discoInfoHandler_, SIGNAL(serverHasMam_(bool)), mamManager_, SLOT(setServerHasFeatureMam(bool)));
     connect(mucManager_, SIGNAL(newGroupForContactsList(QString,QString)), mamManager_, SLOT(receiveRoomWithName(QString, QString)));
 
@@ -283,6 +284,11 @@ Settings* Shmoose::getSettings()
 bool Shmoose::connectionState() const
 {
     return connectionHandler_->isConnected();
+}
+
+bool Shmoose::canSendFile()
+{
+    return httpFileUploadManager_->getServerHasFeatureHttpUpload();
 }
 
 QString Shmoose::getAttachmentPath()

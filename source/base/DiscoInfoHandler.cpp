@@ -56,6 +56,7 @@ void DiscoInfoHandler::handleDiscoServiceWalker(const Swift::JID & jid, std::sha
             qDebug() << QString::fromStdString(jid.toString()) << " has feature urn:xmpp:http:upload";
             httpFileUploadManager_->setServerHasFeatureHttpUpload(true);
             httpFileUploadManager_->setUploadServerJid(jid);
+            emit serverHasHttpUpload_(true);
 
             foreach (Swift::Form::ref form, info->getExtensions())
             {

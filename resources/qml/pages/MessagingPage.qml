@@ -313,7 +313,7 @@ Page {
             icon.source: getSendButtonImage()
             width: 100
             onClicked: {
-                if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0) {
+                if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0 && shmoose.canSendFile()) {
                     sendmsgview.attachmentPath = ""
                     fileModel.searchPath = shmoose.settings.ImagePaths
                     pageStack.push(pageImagePicker)
@@ -342,11 +342,22 @@ Page {
                 sendButton.icon.source = getSendButtonImage()
             }
         }
+        Connections {
+            target: shmoose
+            onSignalCanSendFile: {
+                console.log("HTTP uploads enabled");
+                sendButton.icon.source = getSendButtonImage();
+            }
+        }
     }
 
     function getSendButtonImage() {
         if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0) {
-            return "image://theme/icon-m-attach"
+            if (shmoose.canSendFile()) {
+                return "image://theme/icon-m-attach"
+            } else {
+                return "image://theme/icon-m-enter-accept"
+            }
         } else {
             if (sendmsgview.attachmentPath.length > 0) {
                 return "image://theme/icon-m-media"

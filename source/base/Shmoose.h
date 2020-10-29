@@ -48,6 +48,7 @@ public:
 
     Q_INVOKABLE QString getLocalFileForUrl(const QString& str);
 
+    Q_INVOKABLE bool canSendFile();
     Q_INVOKABLE QString getVersion();
 
     bool connectionState() const;
@@ -70,6 +71,8 @@ signals:
     void settingsChanged();
 
     void connectionStateChanged();
+
+    void signalCanSendFile(bool);
 
     void signalShowMessage(QString headline, QString body);
     void signalShowStatus(QString headline, QString body);
