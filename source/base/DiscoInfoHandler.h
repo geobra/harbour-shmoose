@@ -31,7 +31,6 @@ private:
     MamManager* mamManager_;
     Swift::Client* client_;
 
-    Swift::GetDiscoItemsRequest::ref discoItemReq_;
     QList<std::shared_ptr<Swift::DiscoServiceWalker> > danceFloor_;
 };
 
