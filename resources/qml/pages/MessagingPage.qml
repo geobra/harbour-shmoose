@@ -325,6 +325,7 @@ Page {
                     if (sendmsgview.attachmentPath.length > 0) {
                         shmoose.sendFile(conversationId, sendmsgview.attachmentPath);
                         sendmsgview.attachmentPath = ""
+                        editbox.enabled = true
                     }
 
                     if (msgToSend.length > 0) {
@@ -338,6 +339,8 @@ Page {
             }
             function processAttachment(path) {
                 //console.log(path)
+                editbox.text = basename(path)
+                editbox.enabled = false // disable message edition while sending image
                 sendmsgview.attachmentPath = path
                 sendButton.icon.source = getSendButtonImage()
             }
