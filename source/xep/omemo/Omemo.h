@@ -9,6 +9,7 @@
 
 extern "C" {
 #include "axc.h"
+#include "libomemo.h"
 }
 
 class Omemo : public QObject
@@ -16,6 +17,7 @@ class Omemo : public QObject
     Q_OBJECT
 public:
     explicit Omemo(QObject *parent = nullptr);
+    ~Omemo();
     void setupWithClient(Swift::Client* client);
 
 signals:
@@ -29,10 +31,11 @@ private:
     void handleDeviceListResponse(const std::string& str);
 
     bool axcPrepare(QString fromJid);
-    bool axcGetInitCtx(QString jid, axc_context** ctx_pp);
+    bool axcGetInitCtx(axc_context** ctx_pp);
+    int bundlePublishOwn();
+    int devicelistProcess(omemo_devicelist * dl_in_p);
+
     char* unameGetDbFn(const char * uname, char * which);
-
-
 
     void handleDataReceived(Swift::SafeByteArray data);
 
@@ -41,6 +44,9 @@ private:
     QString deviceListNodeName_{};
     QString currentNode_{};
     QString myBareJid_{};
+    char* uname_{nullptr};
+
+    int uninstall_{0};
 
     QMap<QString, QString> requestedDeviceListJidIdMap_{};
 

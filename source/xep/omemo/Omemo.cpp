@@ -10,7 +10,6 @@
 extern "C" {
 #include "libomemo_crypto.h"
 #include "libomemo_storage.h"
-#include "libomemo.h"
 #include "axc_store.h"
 }
 
@@ -29,6 +28,25 @@ extern "C" {
  * 6. receive and decrypt a message
  */
 
+/*
+ * This file is ported from lurch
+ * https://github.com/gkdr/lurch
+ *
+ * Thank you for all the great work!
+ */
+
+void purple_debug_info (const char *category, const char *format,...)
+{
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+}
+
+void purple_debug_error(const char *category, const char *format,...)
+{
+    purple_debug_info(category, format);
+}
 
 Omemo::Omemo(QObject *parent) : QObject(parent)
 {
@@ -59,11 +77,17 @@ Omemo::Omemo(QObject *parent) : QObject(parent)
     qDebug() << "Omemo::Omemo" << deviceListNodeName_;
 }
 
+Omemo::~Omemo()
+{
+    free(uname_);
+}
+
 void Omemo::setupWithClient(Swift::Client* client)
 {
     client_ = client;
 
     myBareJid_ = QString::fromStdString(client_->getJID().toBare().toString());
+    uname_ = strdup(myBareJid_.toStdString().c_str());
 
     client_->onDataRead.connect(boost::bind(&Omemo::handleDataReceived, this, _1));
 
@@ -160,6 +184,7 @@ void Omemo::handleDeviceListResponse(const std::string& str)
             else
             {
                 // requested someone else device list
+                // FIXME implement me!
                 qDebug() << "requested someone else device list";
             }
         }
@@ -168,29 +193,335 @@ void Omemo::handleDeviceListResponse(const std::string& str)
 
 void Omemo::ownDeviceListRequestHandler(QString fromJid, QString items)
 {
-    // implements lurch_pep_own_devicelist_request_handler
-    qDebug() << "Omemo::ownDeviceListRequestHandler " << fromJid << ", " << items;
+    int ret_val = 0;
+    char * err_msg_dbg = nullptr;
 
-    axc_context* axc_ctx_p = nullptr;
-    omemo_devicelist* dl_p = nullptr;
+    int len = 0;
+    int install = 0;
+    axc_context * axc_ctx_p = nullptr;
+    uint32_t own_id = 0;
+    int needs_publishing = 1;
+    omemo_devicelist * dl_p = nullptr;
+    char * dl_xml = nullptr;
+
+    //int uninstall_ = 0; // FIXME implement me!
 
     Settings settings;
-    if (settings.isOmemoInitialized() == false)
-    {
-        qDebug() << "init omemo setup";
-        if (axcPrepare(fromJid.toStdString().c_str()) == true)
-        {
+    install = (settings.isOmemoInitialized() == false) ? 1 : 0;
 
-        }
-        else
-        {
-            qDebug() << "error lurch_axc_prepare";
-        }
+    if (install && !uninstall_) {
+      purple_debug_info("lurch", "%s: %s\n", __func__, "preparing installation...");
+      ret_val = axcPrepare(uname_);
+      if (ret_val) {
+        err_msg_dbg = g_strdup_printf("failed to prepare axc");
+        goto cleanup;
+      }
+      purple_debug_info("lurch", "%s: %s\n", __func__, "...done");
     }
 
-    // FIXME continue!
+    ret_val = axcGetInitCtx(&axc_ctx_p);
+    if (ret_val) {
+      err_msg_dbg = g_strdup_printf("failed to init axc ctx");
+      goto cleanup;
+    }
+    ret_val = axc_get_device_id(axc_ctx_p, &own_id);
+    if (ret_val) {
+      err_msg_dbg = g_strdup_printf("failed to get own id");
+      goto cleanup;
+    }
+
+    if (items.isEmpty() == true) {
+      purple_debug_info("lurch", "%s: %s\n", __func__, "no devicelist yet, creating it");
+      ret_val = omemo_devicelist_create(uname_, &dl_p);
+      if (ret_val) {
+        err_msg_dbg = g_strdup_printf("failed to create devicelist");
+        goto cleanup;
+      }
+      ret_val = omemo_devicelist_add(dl_p, own_id);
+      if (ret_val) {
+        err_msg_dbg = g_strdup_printf("failed to add own id %i to devicelist", own_id);
+        goto cleanup;
+      }
+    } else {
+      purple_debug_info("lurch", "%s: %s\n", __func__, "comparing received devicelist with cached one");
+      char* pItems = strdup(items.toStdString().c_str());
+      ret_val = omemo_devicelist_import(pItems, uname_, &dl_p);
+      free(pItems);
+      if (ret_val) {
+        err_msg_dbg = g_strdup_printf("failed to import received devicelist");
+        goto cleanup;
+      }
+
+      ret_val = omemo_devicelist_contains_id(dl_p, own_id);
+      if (ret_val == 1) {
+        purple_debug_info("lurch", "%s: %s\n", __func__, "own id was already contained in received devicelist, doing nothing");
+        needs_publishing = 0;
+      } else if (ret_val == 0) {
+        if (!uninstall_) {
+          purple_debug_info("lurch", "%s: %s\n", __func__, "own id was missing, adding it");
+          ret_val = omemo_devicelist_add(dl_p, own_id);
+          if (ret_val) {
+            err_msg_dbg = g_strdup_printf("failed to add own id %i to devicelist", own_id);
+            goto cleanup;
+          }
+        } else {
+          needs_publishing = 0;
+        }
+
+      } else {
+        err_msg_dbg = g_strdup_printf("failed to look up if the devicelist contains the own id");
+        goto cleanup;
+      }
+    }
+
+    if (needs_publishing) {
+      purple_debug_info("lurch", "%s: %s\n", __func__, "devicelist needs publishing...");
+      ret_val = omemo_devicelist_export(dl_p, &dl_xml);
+      if (ret_val) {
+        err_msg_dbg = g_strdup_printf("failed to export new devicelist");
+        goto cleanup;
+      }
+
+      // FIXME implement me!
+      //publish_node_dl_p = xmlnode_from_str(dl_xml, -1);
+      //jabber_pep_publish(js_p, publish_node_dl_p);
+      qDebug() << "FIXME publish node: " << dl_xml;
+#if 0
+      <publish node="eu.siacs.conversations.axolotl.devicelist"><item><list
+      xmlns="eu.siacs.conversations.axolotl"><device id="97133" /><device
+      id="120221" /></list></item></publish>
+#endif
+
+      purple_debug_info("lurch", "%s: \n%s:\n", __func__, "...done");
+    }
+
+    ret_val = bundlePublishOwn();
+    if (ret_val) {
+      err_msg_dbg = g_strdup_printf("failed to publish own bundle");
+      goto cleanup;
+    }
+
+    if (install && !uninstall_) {
+      //purple_account_set_bool(acc_p, LURCH_ACC_SETTING_INITIALIZED, TRUE);
+      settings.setOmemoInitialized(true);
+    }
+
+    ret_val = devicelistProcess(dl_p);
+    if (ret_val) {
+      err_msg_dbg = g_strdup_printf("failed to process the devicelist");
+      goto cleanup;
+    }
+
+  cleanup:
+    if (err_msg_dbg) {
+      purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
+      free(err_msg_dbg);
+    }
+    axc_context_destroy_all(axc_ctx_p);
+    omemo_devicelist_destroy(dl_p);
+    free(dl_xml);
+
+}
+
+int Omemo::devicelistProcess(omemo_devicelist * dl_in_p)
+{
+    // implements lurch_devicelist_process
+    int ret_val = 0;
+    char * err_msg_dbg = nullptr;
+
+    const char * from = nullptr;
+    char * db_fn_omemo = nullptr;
+    axc_context * axc_ctx_p = nullptr;
+    omemo_devicelist * dl_db_p = nullptr;
+    GList * add_l_p = nullptr;
+    GList * del_l_p = nullptr;
+    GList * curr_p = nullptr;
+    uint32_t curr_id = 0;
+    char * bundle_node_name = nullptr;
+
+    char * debug_str = nullptr;
+
+    from = omemo_devicelist_get_owner(dl_in_p);
+    db_fn_omemo = unameGetDbFn(uname_, (char*)LURCH_DB_NAME_OMEMO);
+
+    purple_debug_info("lurch", "%s: processing devicelist from %s for %s\n", __func__, from, uname_);
+
+    ret_val = omemo_storage_user_devicelist_retrieve(from, db_fn_omemo, &dl_db_p);
+    if (ret_val) {
+      err_msg_dbg = g_strdup_printf("failed to retrieve cached devicelist for %s from db %s", from, db_fn_omemo);
+      goto cleanup;
+    }
+
+    omemo_devicelist_export(dl_db_p, &debug_str);
+    purple_debug_info("lurch", "%s: %s\n%s\n", __func__, "cached devicelist is", debug_str);
+
+    ret_val = omemo_devicelist_diff(dl_in_p, dl_db_p, &add_l_p, &del_l_p);
+    if (ret_val) {
+      err_msg_dbg = g_strdup_printf("failed to diff devicelists");
+      goto cleanup;
+    }
+
+    for (curr_p = add_l_p; curr_p; curr_p = curr_p->next) {
+      curr_id = omemo_devicelist_list_data(curr_p);
+      purple_debug_info("lurch", "%s: saving %i for %s to db %s\n", __func__, curr_id, from, db_fn_omemo);
+      ret_val = omemo_storage_user_device_id_save(from, curr_id, db_fn_omemo);
+      if (ret_val) {
+        err_msg_dbg = g_strdup_printf("failed to save %i for %s to %s", curr_id, from, db_fn_omemo);
+        goto cleanup;
+      }
+    }
+
+    ret_val = axcGetInitCtx(&axc_ctx_p);
+    if (ret_val) {
+      err_msg_dbg = g_strdup_printf("failed to init axc ctx");
+      goto cleanup;
+    }
+
+    for (curr_p = del_l_p; curr_p; curr_p = curr_p->next) {
+      curr_id = omemo_devicelist_list_data(curr_p);
+      purple_debug_info("lurch", "%s: deleting %i for %s to db %s\n", __func__, curr_id, from, db_fn_omemo);
+
+      ret_val = omemo_storage_user_device_id_delete(from, curr_id, db_fn_omemo);
+      if (ret_val) {
+        err_msg_dbg = g_strdup_printf("failed to delete %i for %s from %s", curr_id, from, db_fn_omemo);
+        goto cleanup;
+      }
+    }
+
+  cleanup:
+    if (err_msg_dbg) {
+      purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
+      free(err_msg_dbg);
+    }
+    free(db_fn_omemo);
+    omemo_devicelist_destroy(dl_db_p);
+    axc_context_destroy_all(axc_ctx_p);
+    g_list_free_full(add_l_p, free);
+    g_list_free_full(del_l_p, free);
+    free(bundle_node_name);
+    free(debug_str);
+
+    return ret_val;
+
+}
+
+int Omemo::bundlePublishOwn()
+{
+    // implements lurch_bundle_publish_own
+
+    int ret_val = 0;
+    char * err_msg_dbg = nullptr;
+
+    axc_context * axc_ctx_p = nullptr;
+    axc_bundle * axcbundle_p = nullptr;
+    omemo_bundle * omemobundle_p = nullptr;
+    axc_buf * curr_buf_p = nullptr;
+    axc_buf_list_item * next_p = nullptr;
+    char * bundle_xml = nullptr;
+
+    ret_val = axcGetInitCtx(&axc_ctx_p);
+    if (ret_val) {
+      err_msg_dbg = g_strdup_printf("failed to init axc ctx");
+      goto cleanup;
+    }
+
+    ret_val = axc_bundle_collect(AXC_PRE_KEYS_AMOUNT, axc_ctx_p, &axcbundle_p);
+    if (ret_val) {
+      err_msg_dbg = g_strdup_printf("failed to collect axc bundle");
+      goto cleanup;
+    }
+
+    ret_val = omemo_bundle_create(&omemobundle_p);
+    if (ret_val) {
+      err_msg_dbg = g_strdup_printf("failed to create omemo_bundle");
+      goto cleanup;
+    }
+
+    ret_val = omemo_bundle_set_device_id(omemobundle_p, axc_bundle_get_reg_id(axcbundle_p));
+    if (ret_val) {
+      err_msg_dbg = g_strdup_printf("failed to set device id in omemo bundle");
+      goto cleanup;
+    }
+
+    curr_buf_p = axc_bundle_get_signed_pre_key(axcbundle_p);
+    ret_val = omemo_bundle_set_signed_pre_key(omemobundle_p,
+                                              axc_bundle_get_signed_pre_key_id(axcbundle_p),
+                                              axc_buf_get_data(curr_buf_p),
+                                              axc_buf_get_len(curr_buf_p));
+    if(ret_val) {
+      err_msg_dbg = g_strdup_printf("failed to set signed pre key in omemo bundle");
+      goto cleanup;
+    }
+
+    curr_buf_p = axc_bundle_get_signature(axcbundle_p);
+    ret_val = omemo_bundle_set_signature(omemobundle_p,
+                                         axc_buf_get_data(curr_buf_p),
+                                         axc_buf_get_len(curr_buf_p));
+    if (ret_val) {
+      err_msg_dbg = g_strdup_printf("failed to set signature in omemo bundle");
+      goto cleanup;
+    }
+
+    curr_buf_p = axc_bundle_get_identity_key(axcbundle_p);
+    ret_val = omemo_bundle_set_identity_key(omemobundle_p,
+                                            axc_buf_get_data(curr_buf_p),
+                                            axc_buf_get_len(curr_buf_p));
+    if (ret_val) {
+      err_msg_dbg = g_strdup_printf("failed to set public identity key in omemo bundle");
+      goto cleanup;
+    }
+
+    next_p = axc_bundle_get_pre_key_list(axcbundle_p);
+    while (next_p) {
+      curr_buf_p = axc_buf_list_item_get_buf(next_p);
+      ret_val = omemo_bundle_add_pre_key(omemobundle_p,
+                                         axc_buf_list_item_get_id(next_p),
+                                         axc_buf_get_data(curr_buf_p),
+                                         axc_buf_get_len(curr_buf_p));
+      if (ret_val) {
+        err_msg_dbg = g_strdup_printf("failed to add public pre key to omemo bundle");
+        goto cleanup;
+      }
+      next_p = axc_buf_list_item_get_next(next_p);
+    }
+
+    ret_val = omemo_bundle_export(omemobundle_p, &bundle_xml);
+    if (ret_val) {
+      err_msg_dbg = g_strdup_printf("failed to export omemo bundle to xml");
+      goto cleanup;
+    }
+
+    // FIXME implement me!
+    //publish_node_bundle_p = xmlnode_from_str(bundle_xml, -1);
+    //jabber_pep_publish(js_p, publish_node_bundle_p);
+    qDebug() << "FIXME publish node: " << bundle_xml;
+
+#if 0
+    <publish node="eu.siacs.conversations.axolotl.bundles:1204869221"><item><bundle
+    xmlns="eu.siacs.conversations.axolotl"><signedPreKeyPublic
+    signedPreKeyId="0">BUKuCvq0Lk/4CSbr66bYL35wL</signedPreKeyPublic><signedPreKeySignature>js15zgaxFe/0EigcZvVus91jQ==</signedPreKeySignature><identityKey>BdyclsA1St3/J0Qe6</identityKey><prekeys><preKeyPublic
+    preKeyId="1">BflclR0v6t/EGYLYBrEhnRpu8JUvbepCrjgotWdQL0d4</preKeyPublic><preKeyPublic
+    preKeyId="2">BfBC9RmAE9wB6XO8lIqEgRxEYDMLhvkqRvejhrTtrpQH</preKeyPublic><preKeyPublic
+
+    preKeyId="99">BYKIwSoz396g0QjDbcoD2RyQHDoFyxQw9SxAKFibO4tn</preKeyPublic><preKeyPublic
+    preKeyId="100">BepCpvcsEBE80tThStnLagMNehCWxqAHFvqD8s0eobNn</preKeyPublic></prekeys></bundle></item></publish>
+#endif
 
 
+    purple_debug_info("lurch", "%s: published own bundle for %s\n", __func__, uname_);
+
+  cleanup:
+    if (err_msg_dbg) {
+      purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
+      free(err_msg_dbg);
+    }
+
+    axc_context_destroy_all(axc_ctx_p);
+    axc_bundle_destroy(axcbundle_p);
+    omemo_bundle_destroy(omemobundle_p);
+    free(bundle_xml);
+
+    return ret_val;
 }
 
 bool Omemo::axcPrepare(QString fromJid)
@@ -203,7 +534,7 @@ bool Omemo::axcPrepare(QString fromJid)
     uint32_t device_id = 0;
     char * db_fn_omemo = nullptr;
 
-    ret_val = axcGetInitCtx(fromJid, &axc_ctx_p);
+    ret_val = axcGetInitCtx(&axc_ctx_p);
     if (ret_val)
     {
         err_msg_dbg = g_strdup_printf("failed to get init axc ctx");
@@ -269,7 +600,7 @@ cleanup:
 
 }
 
-bool Omemo::axcGetInitCtx(QString jid, axc_context** ctx_pp)
+bool Omemo::axcGetInitCtx(axc_context** ctx_pp)
 {
     // implements lurch_axc_get_init_ctx
     int ret_val = 0;
@@ -309,8 +640,7 @@ cleanup:
     }
     if (err_msg_dbg)
     {
-        //purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
-        qDebug() << "omemo: " << __func__ << ", " << err_msg_dbg << ", " << ret_val;
+        purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
         free(err_msg_dbg);
     }
 
