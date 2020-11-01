@@ -17,6 +17,7 @@ public:
     void setupWithClient(Swift::Client* client);
 
 signals:
+    void serverHasHttpUpload_(bool);
     void serverHasMam_(bool);
 
 public slots:
