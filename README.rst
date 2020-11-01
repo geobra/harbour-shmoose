@@ -7,6 +7,9 @@
 .. image:: https://img.shields.io/lgtm/grade/cpp/g/geobra/harbour-shmoose.svg?logo=lgtm&logoWidth=18 
   :target: https://lgtm.com/projects/g/geobra/harbour-shmoose/context:cpp
 
+.. image:: https://hosted.weblate.org/widgets/shmoose/-/svg-badge.svg
+  :target: https://hosted.weblate.org/engage/shmoose
+
 .. image:: https://gitpod.io/button/open-in-gitpod.svg
   :target: https://gitpod.io/#https://github.com/geobra/harbour-shmoose
 
