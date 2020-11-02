@@ -126,13 +126,13 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             persistence_->addMessage(messageId,
                                      QString::fromStdString(fromJid),
                                      QString::fromStdString(message->getFrom().getResource()),
-                                     theBody, type, 1 );
+                                     theBody, type, isGroupMessage, 1 );
         } else
         {
             persistence_->addMessage(messageId,
                                      QString::fromStdString(toJID.toBare().toString()),
                                      QString::fromStdString(toJID.getResource()),
-                                     theBody, type, 0 );
+                                     theBody, type, isGroupMessage, 0 );
         }
 
         // xep 0333

@@ -19,7 +19,7 @@ public:
     virtual QHash<int, QByteArray> roleNames() const;
 
     void setFilterOnJid(QString const &jidFiler);
-    bool addMessage(const QString &id, QString const &jid, const QString &resource, QString const &message, const QString &type, unsigned int direction, qint64 timestamp = 0);
+    bool addMessage(const QString &id, QString const &jid, const QString &resource, QString const &message, const QString &type, bool isGroupMessage, unsigned int direction, qint64 timestamp = 0);
 
     void markMessageDisplayedConfirmed(QString const &id);
     void markMessageDisplayed(QString const &id);
@@ -30,7 +30,7 @@ public:
     QString getRessourceForMsgId(const QString& msgId);
 
 signals:
-    void signalMessageReceived(QString id, QString jid, QString message);
+    void signalMessageReceived(QString id, QString jid, bool isGroupMessage, QString message);
     void signalMessageStateChanged(QString msgId, int state);
 
 public slots:

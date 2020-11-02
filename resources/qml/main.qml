@@ -86,9 +86,13 @@ ApplicationWindow {
         target: shmoose.persistence.messageController
         onSignalMessageReceived: {
             var currentChatPartner = shmoose.getCurrentChatPartner();
-            if ( applicationActive == false || currentChatPartner.localeCompare(jid) != 0 ) {
-                newMessageNotification(id, jid, message);
+            if ( applicationActive == true 
+                    || currentChatPartner.localeCompare(jid) == 0
+                    || ( isGroupMessage == false && shmoose.settings.DisplayChatNotifications == false )
+                    || ( isGroupMessage == true && shmoose.settings.DisplayGroupchatNotifications == false ) ) {
+                return;
             }
+            newMessageNotification(id, jid, message);
         }
     }
 

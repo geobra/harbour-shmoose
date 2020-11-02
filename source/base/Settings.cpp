@@ -68,6 +68,40 @@ void Settings::setSaveCredentials(bool SaveCredentials)
     emit saveCredentialsChanged(SaveCredentials);
 }
 
+bool Settings::getDisplayChatNotifications() const
+{
+    bool save = true;
+
+    QSettings settings;
+    save = settings.value("notifications/displayChatNotifications", true).toBool();
+
+    return save;
+}
+
+void Settings::setDisplayChatNotifications(bool DisplayChatNotifications)
+{
+    QSettings settings;
+    settings.setValue("notifications/displayChatNotifications", DisplayChatNotifications);
+    emit saveCredentialsChanged(DisplayChatNotifications);
+}
+
+bool Settings::getDisplayGroupchatNotifications() const
+{
+    bool save = true;
+
+    QSettings settings;
+    save = settings.value("notifications/displayGroupchatNotifications", false).toBool();
+
+    return save;
+}
+
+void Settings::setDisplayGroupchatNotifications(bool DisplayGroupchatNotifications)
+{
+    QSettings settings;
+    settings.setValue("notifications/displayGroupchatNotifications", DisplayGroupchatNotifications);
+    emit saveCredentialsChanged(DisplayGroupchatNotifications);
+}
+
 bool Settings::getSendReadNotifications() const
 {
     bool save = true;
