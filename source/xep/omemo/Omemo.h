@@ -29,6 +29,8 @@ private:
     void ownDeviceListRequestHandler(QString fromJid, QString items);
 
     void handleDeviceListResponse(const std::string& str);
+    void publishedDeviceList(const std::string& str);
+    void publishedBundle(const std::string& str);
 
     bool axcPrepare(QString fromJid);
     bool axcGetInitCtx(axc_context** ctx_pp);

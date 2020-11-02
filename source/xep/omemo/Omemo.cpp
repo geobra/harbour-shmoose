@@ -19,6 +19,7 @@ extern "C" {
 
 /*
  * https://xmpp.org/extensions/xep-0384.html
+ * https://conversations.im/omemo/xep-omemo.html
  *
  * 1. check if own id is in my device list. update if necessary. give read access to world
  * 2. check all contacts if they support omemo. must cache that list
@@ -204,6 +205,9 @@ void Omemo::ownDeviceListRequestHandler(QString fromJid, QString items)
     omemo_devicelist * dl_p = nullptr;
     char * dl_xml = nullptr;
 
+    Swift::RawRequest::ref publishPep{};
+    std::string devicelist{};
+
     //int uninstall_ = 0; // FIXME implement me!
 
     Settings settings;
@@ -282,15 +286,10 @@ void Omemo::ownDeviceListRequestHandler(QString fromJid, QString items)
         goto cleanup;
       }
 
-      // FIXME implement me!
-      //publish_node_dl_p = xmlnode_from_str(dl_xml, -1);
-      //jabber_pep_publish(js_p, publish_node_dl_p);
-      qDebug() << "FIXME publish node: " << dl_xml;
-#if 0
-      <publish node="eu.siacs.conversations.axolotl.devicelist"><item><list
-      xmlns="eu.siacs.conversations.axolotl"><device id="97133" /><device
-      id="120221" /></list></item></publish>
-#endif
+      devicelist = "<pubsub xmlns='http://jabber.org/protocol/pubsub'>" + std::string(dl_xml) + "</pubsub>";
+      publishPep = Swift::RawRequest::create(Swift::IQ::Set, uname_, devicelist, client_->getIQRouter());
+      publishPep->onResponse.connect(boost::bind(&Omemo::publishedDeviceList, this, _1));
+      publishPep->send();
 
       purple_debug_info("lurch", "%s: \n%s:\n", __func__, "...done");
     }
@@ -321,6 +320,12 @@ void Omemo::ownDeviceListRequestHandler(QString fromJid, QString items)
     omemo_devicelist_destroy(dl_p);
     free(dl_xml);
 
+}
+
+void Omemo::publishedDeviceList(const std::string& str)
+{
+    // FIXME check if there was an error on device list publishing
+    qDebug() << "OMEMO: publishedDeviceList: " << QString::fromStdString(str);
 }
 
 int Omemo::devicelistProcess(omemo_devicelist * dl_in_p)
@@ -419,6 +424,9 @@ int Omemo::bundlePublishOwn()
     axc_buf_list_item * next_p = nullptr;
     char * bundle_xml = nullptr;
 
+    Swift::RawRequest::ref publishPep{};
+    std::string bundle{};
+
     ret_val = axcGetInitCtx(&axc_ctx_p);
     if (ret_val) {
       err_msg_dbg = g_strdup_printf("failed to init axc ctx");
@@ -491,22 +499,11 @@ int Omemo::bundlePublishOwn()
       goto cleanup;
     }
 
-    // FIXME implement me!
-    //publish_node_bundle_p = xmlnode_from_str(bundle_xml, -1);
-    //jabber_pep_publish(js_p, publish_node_bundle_p);
-    qDebug() << "FIXME publish node: " << bundle_xml;
+    bundle = "<pubsub xmlns='http://jabber.org/protocol/pubsub'>" + std::string(bundle_xml) + "</pubsub>";
 
-#if 0
-    <publish node="eu.siacs.conversations.axolotl.bundles:1204869221"><item><bundle
-    xmlns="eu.siacs.conversations.axolotl"><signedPreKeyPublic
-    signedPreKeyId="0">BUKuCvq0Lk/4CSbr66bYL35wL</signedPreKeyPublic><signedPreKeySignature>js15zgaxFe/0EigcZvVus91jQ==</signedPreKeySignature><identityKey>BdyclsA1St3/J0Qe6</identityKey><prekeys><preKeyPublic
-    preKeyId="1">BflclR0v6t/EGYLYBrEhnRpu8JUvbepCrjgotWdQL0d4</preKeyPublic><preKeyPublic
-    preKeyId="2">BfBC9RmAE9wB6XO8lIqEgRxEYDMLhvkqRvejhrTtrpQH</preKeyPublic><preKeyPublic
-
-    preKeyId="99">BYKIwSoz396g0QjDbcoD2RyQHDoFyxQw9SxAKFibO4tn</preKeyPublic><preKeyPublic
-    preKeyId="100">BepCpvcsEBE80tThStnLagMNehCWxqAHFvqD8s0eobNn</preKeyPublic></prekeys></bundle></item></publish>
-#endif
-
+    publishPep = Swift::RawRequest::create(Swift::IQ::Set, uname_, bundle, client_->getIQRouter());
+    publishPep->onResponse.connect(boost::bind(&Omemo::publishedBundle, this, _1));
+    publishPep->send();
 
     purple_debug_info("lurch", "%s: published own bundle for %s\n", __func__, uname_);
 
@@ -523,6 +520,13 @@ int Omemo::bundlePublishOwn()
 
     return ret_val;
 }
+
+void Omemo::publishedBundle(const std::string& str)
+{
+    // FIXME check if there was an error on bundle publishing
+    qDebug() << "OMEMO: publishedBundle: " << QString::fromStdString(str);
+}
+
 
 bool Omemo::axcPrepare(QString fromJid)
 {
