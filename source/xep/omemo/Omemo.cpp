@@ -185,8 +185,25 @@ void Omemo::handleDeviceListResponse(const std::string& str)
             else
             {
                 // requested someone else device list
-                // FIXME implement me!
                 qDebug() << "requested someone else device list";
+
+                omemo_devicelist* dl_in_p = nullptr;
+                char* pItems = strdup(items.toStdString().c_str());
+
+                if (omemo_devicelist_import(pItems, jid.toStdString().c_str(), &dl_in_p) != 0)
+                {
+                    if(devicelistProcess(jid.toStdString().c_str(), dl_in_p) != 0)
+                    {
+                        qDebug() << "failed to process devicelist";
+                    }
+
+                    omemo_devicelist_destroy(dl_in_p);
+                }
+                else
+                {
+                   qDebug() << "failed to import devicelist";
+                }
+                free(pItems);
             }
         }
     }
@@ -194,6 +211,8 @@ void Omemo::handleDeviceListResponse(const std::string& str)
 
 void Omemo::ownDeviceListRequestHandler(QString fromJid, QString items)
 {
+    // implements 4.3 Announcing support -> device list
+
     int ret_val = 0;
     char * err_msg_dbg = nullptr;
 
@@ -305,7 +324,7 @@ void Omemo::ownDeviceListRequestHandler(QString fromJid, QString items)
       settings.setOmemoInitialized(true);
     }
 
-    ret_val = devicelistProcess(dl_p);
+    ret_val = devicelistProcess(uname_, dl_p);
     if (ret_val) {
       err_msg_dbg = g_strdup_printf("failed to process the devicelist");
       goto cleanup;
@@ -328,7 +347,7 @@ void Omemo::publishedDeviceList(const std::string& str)
     qDebug() << "OMEMO: publishedDeviceList: " << QString::fromStdString(str);
 }
 
-int Omemo::devicelistProcess(omemo_devicelist * dl_in_p)
+int Omemo::devicelistProcess(const char* uname, omemo_devicelist * dl_in_p)
 {
     // implements lurch_devicelist_process
     int ret_val = 0;
@@ -347,9 +366,9 @@ int Omemo::devicelistProcess(omemo_devicelist * dl_in_p)
     char * debug_str = nullptr;
 
     from = omemo_devicelist_get_owner(dl_in_p);
-    db_fn_omemo = unameGetDbFn(uname_, (char*)LURCH_DB_NAME_OMEMO);
+    db_fn_omemo = unameGetDbFn(uname, (char*)LURCH_DB_NAME_OMEMO);
 
-    purple_debug_info("lurch", "%s: processing devicelist from %s for %s\n", __func__, from, uname_);
+    purple_debug_info("lurch", "%s: processing devicelist from %s for %s\n", __func__, from, uname);
 
     ret_val = omemo_storage_user_devicelist_retrieve(from, db_fn_omemo, &dl_db_p);
     if (ret_val) {
@@ -413,6 +432,7 @@ int Omemo::devicelistProcess(omemo_devicelist * dl_in_p)
 int Omemo::bundlePublishOwn()
 {
     // implements lurch_bundle_publish_own
+    // // implements 4.3 Announcing support -> bundle
 
     int ret_val = 0;
     char * err_msg_dbg = nullptr;

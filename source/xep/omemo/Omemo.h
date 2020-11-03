@@ -35,7 +35,7 @@ private:
     bool axcPrepare(QString fromJid);
     bool axcGetInitCtx(axc_context** ctx_pp);
     int bundlePublishOwn();
-    int devicelistProcess(omemo_devicelist * dl_in_p);
+    int devicelistProcess(const char *uname, omemo_devicelist * dl_in_p);
 
     char* unameGetDbFn(const char * uname, char * which);
 
