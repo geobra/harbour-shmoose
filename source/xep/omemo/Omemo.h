@@ -32,7 +32,7 @@ private:
     } lurch_addr;
 
     void requestDeviceList(const Swift::JID& jid);
-    void ownDeviceListRequestHandler(QString fromJid, QString items);
+    void ownDeviceListRequestHandler(QString items);
 
     void handleDeviceListResponse(const std::string& str);
     void publishedDeviceList(const std::string& str);
