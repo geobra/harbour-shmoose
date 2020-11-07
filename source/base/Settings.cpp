@@ -102,6 +102,128 @@ void Settings::setDisplayGroupchatNotifications(bool DisplayGroupchatNotificatio
     emit saveCredentialsChanged(DisplayGroupchatNotifications);
 }
 
+QStringList Settings::getForceOnNotifications() const
+{
+    QSettings settings;
+    QStringList jids;
+
+    jids = settings.value("notifications/forceOnNotifications").toStringList();
+
+    return jids;
+}
+
+void Settings::setForceOnNotifications(QStringList const & ForceOnNotifications)
+{
+    QSettings settings;
+
+    if (ForceOnNotifications.length() > 0)
+    {
+        settings.setValue("notifications/forceOnNotifications", QVariant::fromValue(ForceOnNotifications));
+    }
+    else
+    {
+        settings.remove("notifications/forceOnNotifications");
+    }
+
+    emit forceOnNotificationsChanged(ForceOnNotifications);
+}
+
+void Settings::removeForceOnNotifications(QString const & Jid)
+{
+    QSettings settings;
+    QStringList jids;
+
+    if(settings.contains("notifications/forceOnNotifications"))
+    {
+        jids = settings.value("notifications/forceOnNotifications").toStringList();
+
+        int idx = jids.indexOf(Jid);
+        if(idx >= 0)
+        {
+            jids.removeAt(idx);
+            setForceOnNotifications(jids);
+        }
+    }
+}
+
+void Settings::addForceOnNotifications(QString const & Jid)
+{
+    QSettings settings;
+    QStringList jids;
+
+    if(settings.contains("notifications/forceOnNotifications"))
+    {
+        jids = settings.value("notifications/forceOnNotifications").toStringList();
+    }
+
+    if(!jids.contains(Jid))
+    {
+        jids.append(Jid);
+        setForceOnNotifications(jids);
+    }
+}
+
+QStringList Settings::getForceOffNotifications() const
+{
+    QSettings settings;
+    QStringList jids;
+
+    jids = settings.value("notifications/forceOffNotifications").toStringList();
+
+    return jids;
+}
+
+void Settings::setForceOffNotifications(QStringList const & ForceOffNotifications)
+{
+    QSettings settings;
+
+    if (ForceOffNotifications.length() > 0)
+    {
+        settings.setValue("notifications/forceOffNotifications", QVariant::fromValue(ForceOffNotifications));
+    }
+    else
+    {
+        settings.remove("notifications/forceOffNotifications");
+    }
+
+    emit forceOffNotificationsChanged(ForceOffNotifications);
+}
+
+void Settings::removeForceOffNotifications(QString const & Jid)
+{
+    QSettings settings;
+    QStringList jids;
+
+    if(settings.contains("notifications/forceOffNotifications"))
+    {
+        jids = settings.value("notifications/forceOffNotifications").toStringList();
+
+        int idx = jids.indexOf(Jid);
+        if(idx >= 0)
+        {
+            jids.removeAt(idx);
+            setForceOffNotifications(jids);
+        }
+    }
+}
+
+void Settings::addForceOffNotifications(QString const & Jid)
+{
+    QSettings settings;
+    QStringList jids;
+
+    if(settings.contains("notifications/forceOffNotifications"))
+    {
+        jids = settings.value("notifications/forceOffNotifications").toStringList();
+    }
+
+    if(!jids.contains(Jid))
+    {
+        jids.append(Jid);
+        setForceOffNotifications(jids);
+    }
+}
+
 bool Settings::getSendReadNotifications() const
 {
     bool save = true;

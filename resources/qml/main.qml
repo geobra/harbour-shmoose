@@ -86,11 +86,18 @@ ApplicationWindow {
         target: shmoose.persistence.messageController
         onSignalMessageReceived: {
             var currentChatPartner = shmoose.getCurrentChatPartner();
-            if ( applicationActive == true 
-                    || currentChatPartner.localeCompare(jid) == 0
-                    || ( isGroupMessage == false && shmoose.settings.DisplayChatNotifications == false )
-                    || ( isGroupMessage == true && shmoose.settings.DisplayGroupchatNotifications == false ) ) {
-                return;
+            if ( applicationActive == true || currentChatPartner.localeCompare(jid) == 0 ) {
+                return; // active app/chat, do not send
+            }
+            if ( shmoose.settings.ForceOffNotifications.indexOf(jid) >= 0 ) {
+                return; // notifications disabled for this jid
+            }        
+            if ( shmoose.settings.ForceOnNotifications.indexOf(jid) < 0 ) {
+                // default notification settings apply
+                if ( ( isGroupMessage == false && shmoose.settings.DisplayChatNotifications == false )
+                      || ( isGroupMessage == true && shmoose.settings.DisplayGroupchatNotifications == false ) ) {
+                    return;
+                }
             }
             newMessageNotification(id, jid, message);
         }
