@@ -28,21 +28,21 @@ Page {
             )
             menu: ContextMenu {
                 MenuItem {
-                    text: "Default setting"
+                    text: qsTr("Default setting")
                     onClicked: {
                         shmoose.settings.removeForceOnNotifications(conversationId);
                         shmoose.settings.removeForceOffNotifications(conversationId);
                     }
                 }
                 MenuItem {
-                    text: "On"
+                    text: qsTr("On")
                     onClicked: {
                         shmoose.settings.addForceOnNotifications(conversationId);
                         shmoose.settings.removeForceOffNotifications(conversationId);
                     }
                 }
                 MenuItem {
-                    text: "Off"
+                    text: qsTr("Off")
                     onClicked: {
                         shmoose.settings.removeForceOnNotifications(conversationId);
                         shmoose.settings.addForceOffNotifications(conversationId);
