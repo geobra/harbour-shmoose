@@ -97,7 +97,7 @@ void MessageController::setTable ( const QString &table_name )
 }
 
 // FIXME use direction enum
-bool MessageController::addMessage(const QString &id, const QString &jid, const QString &resource, const QString &message, const QString &type, bool isGroupMessage, unsigned int direction, qint64 timestamp)
+bool MessageController::addMessage(const QString &id, const QString &jid, const QString &resource, const QString &message, const QString &type, unsigned int direction, qint64 timestamp)
 {
     /*
      *   With MaM, it is possible to receive already received msgs again.
@@ -145,7 +145,7 @@ bool MessageController::addMessage(const QString &id, const QString &jid, const 
         {
             if (direction == 1)
             {
-                emit signalMessageReceived(id, jid, isGroupMessage, message);
+                emit signalMessageReceived(id, jid, message);
             }
         }
         else

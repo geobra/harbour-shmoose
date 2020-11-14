@@ -86,6 +86,7 @@ ApplicationWindow {
         target: shmoose.persistence.messageController
         onSignalMessageReceived: {
             var currentChatPartner = shmoose.getCurrentChatPartner();
+            var isGroupMessage = shmoose.rosterController.isGroup(jid);
             if ( applicationActive == true || currentChatPartner.localeCompare(jid) == 0 ) {
                 return; // active app/chat, do not send
             }
