@@ -87,7 +87,7 @@ ApplicationWindow {
         onSignalMessageReceived: {
             var currentChatPartner = shmoose.getCurrentChatPartner();
             var isGroupMessage = shmoose.rosterController.isGroup(jid);
-            if ( applicationActive == true || currentChatPartner.localeCompare(jid) == 0 ) {
+            if ( applicationActive == true && currentChatPartner.localeCompare(jid) == 0 ) {
                 return; // active app/chat, do not send
             }
             if ( shmoose.settings.ForceOffNotifications.indexOf(jid) >= 0 ) {
