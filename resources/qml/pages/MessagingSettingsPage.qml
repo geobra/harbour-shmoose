@@ -16,10 +16,10 @@ Page {
     }
     Column {
         PageHeader {
-            title: conversationId+" settings"
+            title: conversationId+qsTr(" settings")
         }
         ComboBox {
-            label: "Chat notifications"
+            label: qsTr("Chat notifications")
             width: page.width
             currentIndex: (
                 shmoose.settings.ForceOnNotifications.indexOf(conversationId) >= 0 ? 1 :
