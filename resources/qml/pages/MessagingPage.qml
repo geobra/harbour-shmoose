@@ -7,6 +7,9 @@ Page {
     id: page;
 
     onStatusChanged: {
+        if (status === PageStatus.Active) {
+            pageStack.pushAttached(Qt.resolvedUrl("MessagingSettingsPage.qml"),{ 'conversationId': conversationId })
+        }
         if (status == PageStatus.Deactivating) {
             if (_navigation == PageNavigation.Back) {
                 shmoose.setCurrentChatPartner("")
@@ -26,23 +29,13 @@ Page {
         asynchronous: false
         anchors.centerIn: parent;
     }
-    Item {
-        id: banner;
-        height: Theme.itemSizeLarge;
-        anchors {
-            top: parent.top;
-            left: parent.left;
-            right: parent.right;
-        }
 
-        Rectangle {
-            z: -1;
-            color: "black";
-            opacity: 0.15;
-            anchors.fill: parent;
-        }
+    PageHeader {
+        id: banner;
+        title: shmoose.rosterController.getNameForJid(conversationId);
         Image {
             id: avatar;
+            parent: banner.extraContent;
             width: Theme.iconSizeMedium;
             height: width;
             smooth: true;
@@ -50,11 +43,9 @@ Page {
             fillMode: Image.PreserveAspectCrop;
             antialiasing: true;
             anchors {
-                right: parent.right;
                 margins: Theme.paddingMedium;
                 verticalCenter: parent.verticalCenter;
             }
-
             Rectangle {
                 z: -1;
                 color: "black";
@@ -62,61 +53,19 @@ Page {
                 anchors.fill: parent;
             }
         }
-        Column {
-            anchors {
-                right: avatar.left;
-                margins: Theme.paddingMedium;
-                verticalCenter: parent.verticalCenter;
-            }
-
-            Label {
-                text:  shmoose.rosterController.getNameForJid(conversationId);
-                color: Theme.highlightColor;
-                font {
-                    family: Theme.fontFamilyHeading;
-                    pixelSize: Theme.fontSizeLarge;
-                }
-                anchors.right: parent.right;
-            }
-            Label {
-                //text: qsTr ("last seen yesterday, 12:30 PM");
-                text: "";
-                color: Theme.secondaryColor;
-                font {
-                    family: Theme.fontFamilyHeading;
-                    pixelSize: Theme.fontSizeTiny;
-                }
-                anchors.right: parent.right;
-            }
-        }
     }
     SilicaListView {
         id: view;
 
+        verticalLayoutDirection: ListView.BottomToTop;
         clip: true;
-        rotation: 180
+        spacing: Theme.paddingMedium;
 
         model: shmoose.persistence.messageController
 
-        //        header: Item {
-        //            height: view.spacing;
-        //            anchors {
-        //                left: parent.left;
-        //                right: parent.right;
-        //            }
-        //        }
-        //        footer: Item {
-        //            height: view.spacing;
-        //            anchors {
-        //                left: parent.left;
-        //                right: parent.right;
-        //            }
-        //        }
-        spacing: Theme.paddingMedium;
         delegate: ListItem {
             id: item;
 
-            rotation: 180
             contentHeight: shadow.height;
 
             anchors {
