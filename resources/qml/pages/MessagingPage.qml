@@ -119,13 +119,21 @@ Page {
                     onLinkActivated: Qt.openUrlExternally(link)
                 }
                 Image {
-                    source: ( (type === "image") ? attachmentPath + "/" + shmoose.getLocalFileForUrl(message) : "");
+                    id: msgImg
+                    property string picPath: attachmentPath + "/" + shmoose.getLocalFileForUrl(message)
+                    source: ( (type === "image") ? picPath : "");
                     width: Math.min (item.maxContentWidth, sourceSize.width);
                     fillMode: Image.PreserveAspectFit;
                     visible: (type === "image")
                     anchors {
                         left: (item.alignRight ? parent.left : undefined);
                         right: (!item.alignRight ? parent.right : undefined);
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            pageStack.push(Qt.resolvedUrl("ImagePage.qml"),{ 'imgUrl': msgImg.picPath })
+                        }
                     }
                 }
 
