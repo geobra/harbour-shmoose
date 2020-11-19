@@ -57,11 +57,12 @@ ApplicationWindow {
     }
 
     function newMessageNotification(id, jid, body) {
+        var jidName = shmoose.rosterController.getNameForJid(jid)
         var m = messageNotification.createObject(null)
         m.category = "harbour-shmoose-message"
-        m.previewSummary = jid
+        m.previewSummary = jidName
         m.previewBody = body
-        m.summary = jid
+        m.summary = jidName
         m.body = body
         m.clicked.connect(function() {
             mainWindow.activate()
