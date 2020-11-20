@@ -23,8 +23,10 @@ jobs:
          sudo apt-get install asciidoctor plantuml graphviz lcov ejabberd
 
     - name: dump errors
+      continue-on-error: true
       run: |
        journalctl -xe
+       systemctl start ejabberd
        systemctl status ejabberd
 
     - name: Install swift lib
