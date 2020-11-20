@@ -23,7 +23,9 @@ jobs:
          sudo apt-get install asciidoctor plantuml graphviz lcov ejabberd
 
     - name: dump errors
-      run: journalctl -xe
+      run: |
+       journalctl -xe
+       sudo  tail -n 200 /var/log/apt/term.log
 
     - name: Install swift lib
       run: |
