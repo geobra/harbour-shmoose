@@ -10,7 +10,7 @@ jobs:
 
     steps:
     - name: Install Qt
-      uses: jurplel/install-qt-action@v
+      uses: jurplel/install-qt-action@v2
 
     - name: Install swift lib
       run: |
