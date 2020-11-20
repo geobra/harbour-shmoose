@@ -25,7 +25,7 @@ jobs:
     - name: dump errors
       run: |
        journalctl -xe
-       sudo  tail -n 200 /var/log/apt/term.log
+       systemctl status ejabberd
 
     - name: Install swift lib
       run: |
