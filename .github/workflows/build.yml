@@ -17,6 +17,7 @@ jobs:
       uses: jurplel/install-qt-action@v2
 
     - name: Install additional packages
+      continue-on-error: true
       run: |
          sudo systemctl unmask epmd.socket # for ejabberd to get installed
          sudo apt-get install asciidoctor plantuml graphviz lcov ejabberd
