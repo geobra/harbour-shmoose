@@ -20,6 +20,7 @@ jobs:
       run: |
          sudo systemctl unmask epmd.socket # for ejabberd to get installed
          sudo apt-get install asciidoctor plantuml graphviz lcov ejabberd
+         journalctl -xe
 
     - name: Install swift lib
       run: |
