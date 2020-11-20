@@ -26,8 +26,8 @@ jobs:
       continue-on-error: true
       run: |
        journalctl -xe
-       systemctl start ejabberd
-       systemctl status ejabberd
+       sudo systemctl start ejabberd
+       sudo systemctl status ejabberd.service
 
     - name: Install swift lib
       run: |
