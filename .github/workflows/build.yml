@@ -15,6 +15,9 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
 
+    - name: Install additional packages
+      run: apt-get install asciidoctor plantuml graphviz lcov ejabberd
+
     - name: Install swift lib
       run: |
          wget --no-check-certificate -q https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz
@@ -22,10 +25,13 @@ jobs:
          cd swift-4.0.2
          /bin/bash scons -j 4 Swiften
 
-    - name: build shmoose x86
-      run: |
-          mkdir -p buildx86
-          cd buildx86
-          qmake .. DEFINES+=TRAVIS
-          make
+#    - name: build shmoose x86
+#      run: |
+#          mkdir -p buildx86
+#          cd buildx86
+#          qmake .. DEFINES+=TRAVIS
+#          make
+
+    - name: run test
+      run: ./scripts/travis/testing.sh
 
