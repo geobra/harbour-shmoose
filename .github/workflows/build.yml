@@ -17,7 +17,9 @@ jobs:
       uses: jurplel/install-qt-action@v2
 
     - name: Install additional packages
-      run: sudo apt-get install asciidoctor plantuml graphviz lcov ejabberd
+      run: |
+         sudo systemctl unmask epmd.socket # for ejabberd to get installed
+         sudo apt-get install asciidoctor plantuml graphviz lcov ejabberd
 
     - name: Install swift lib
       run: |
