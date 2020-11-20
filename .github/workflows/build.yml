@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
 
@@ -18,4 +21,11 @@ jobs:
          tar -xf swift-4.0.2.tar.gz
          cd swift-4.0.2
          /bin/bash scons -j 4 Swiften
+
+    - name: build shmoose x86
+      run: |
+          mkdir -p buildx86
+          cd buildx86
+          qmake .. DEFINES+=TRAVIS
+          make
 
