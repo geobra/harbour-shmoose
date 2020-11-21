@@ -22,7 +22,7 @@ jobs:
          #sudo systemctl unmask epmd.socket # for ejabberd to get installed
          #sudo apt-get install asciidoctor plantuml graphviz lcov ejabberd
          #sudo apt install ejabberd
-         wget http://archive.ubuntu.com/ubuntu/pool/universe/e/ejabberd/ejabberd_18.01.orig.tar.gz
+         wget http://archive.ubuntu.com/ubuntu/pool/universe/e/ejabberd/ejabberd_18.01-2.debian.tar.xz
          tar -xvf ejabberd_18.01-2.debian.tar.xz
          sed -i s/"set -e"/"set-e\nset-x"/ debian/preinst
          sudo /bin/bash ./debian/preinst
