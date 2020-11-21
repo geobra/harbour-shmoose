@@ -26,10 +26,7 @@ jobs:
     - name: dump errors
       continue-on-error: true
       run: |
-       journalctl -u ejabberd.service
-       sudo systemctl start ejabberd
-       sudo systemctl status ejabberd.service
-       journalctl -u ejabberd.service
+       sudo journalctl -xe
 
 #    - name: Install swift lib
 #      run: |
