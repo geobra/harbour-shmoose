@@ -28,11 +28,15 @@ jobs:
          #sed -i s/"> \/dev\/null"/" "/ debian/preinst
          #sudo /bin/bash ./debian/preinst install
          #find /etc/ejabberd/
-         mkdir -p bin
-         echo -e "#! /bin/bash\nif [ \"\$1\" = \"-d\" ]; then echo \"local.net\"; else /bin/hostname \$*; fi" > bin/hostname
-         cat bin/hostname
-         chmod 755 bin/hostname
-         PATH="$(pwd)/bin:$PATH" sudo -E apt-get install ejabberd
+         #mkdir -p bin
+         #echo -e "#! /bin/bash\nif [ \"\$1\" = \"-d\" ]; then echo \"local.net\"; else /bin/hostname \$*; fi" > bin/hostname
+         #cat bin/hostname
+         #chmod 755 bin/hostname
+         #PATH="$(pwd)/bin:$PATH" sudo -E apt-get install ejabberd
+         sudo mv /bin/hostname /bin/hostname.no
+         sudo apt-get install ejabberd
+         sudo mv /bin/hostname.no /bin/hostname
+
 
     - name: dump errors
       continue-on-error: true
