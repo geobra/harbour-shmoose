@@ -24,7 +24,7 @@ jobs:
          #sudo apt install ejabberd
          wget http://archive.ubuntu.com/ubuntu/pool/universe/e/ejabberd/ejabberd_18.01-2.debian.tar.xz
          tar -xvf ejabberd_18.01-2.debian.tar.xz
-         sed -i s/"set -e"/"set-e\nset-x"/ debian/preinst
+         sed -i s/"set -e"/"set -e\nset -x"/ debian/preinst
          sudo /bin/bash ./debian/preinst
 
     - name: dump errors
