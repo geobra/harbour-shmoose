@@ -25,7 +25,7 @@ jobs:
          wget http://archive.ubuntu.com/ubuntu/pool/universe/e/ejabberd/ejabberd_18.01-2.debian.tar.xz
          tar -xvf ejabberd_18.01-2.debian.tar.xz
          sed -i s/"set -e"/"set -e\nset -x"/ debian/preinst
-         sudo /bin/bash ./debian/preinst
+         sudo /bin/bash ./debian/preinst install
 
     - name: dump errors
       continue-on-error: true
