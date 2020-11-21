@@ -29,9 +29,9 @@ jobs:
          #sudo /bin/bash ./debian/preinst install
          #find /etc/ejabberd/
          mkdir -p bin
-         echo -e "#! /bin/bash\nif [ \"$1\" = \"-d\" ]; then echo \"local.net\"; else /bin/hostname \$*; fi" > bin/hostname
+         echo -e "#! /bin/bash\nif [ \"\$1\" = \"-d\" ]; then echo \"local.net\"; else /bin/hostname \$*; fi" > bin/hostname
          cat bin/hostname
-         chmod 755 /bin/hostname
+         chmod 755 bin/hostname
          PATH="$(pwd)/bin:$PATH" sudo -E apt-get install ejabberd
 
     - name: dump errors
