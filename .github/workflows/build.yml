@@ -28,7 +28,7 @@ jobs:
       run: |
        #sudo journalctl -xe
        sudo tail -n 200 /var/log/syslog
-       sudo find /var/log/
+       sudo tail -n 200 /var/log/dpkg.log
 
 #    - name: Install swift lib
 #      run: |
