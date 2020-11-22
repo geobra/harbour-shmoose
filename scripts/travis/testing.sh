@@ -7,25 +7,25 @@ COVFILE="coverage.info"
 RESULTS="results"
 
 GCOVRESULTSCOMMON="gcovresults"
-RESULTSC1=${TRAVIS_BUILD_DIR}/${RESULTS}/${GCOVRESULTSCOMMON}/c1/
-RESULTSC2=${TRAVIS_BUILD_DIR}/${RESULTS}/${GCOVRESULTSCOMMON}/c2/
-RESULTSC3=${TRAVIS_BUILD_DIR}/${RESULTS}/${GCOVRESULTSCOMMON}/c3/
+RESULTSC1=${GITHUB_WORKSPACE}/${RESULTS}/${GCOVRESULTSCOMMON}/c1/
+RESULTSC2=${GITHUB_WORKSPACE}/${RESULTS}/${GCOVRESULTSCOMMON}/c2/
+RESULTSC3=${GITHUB_WORKSPACE}/${RESULTS}/${GCOVRESULTSCOMMON}/c3/
 
 mkdir -p $RESULTSC1
 mkdir -p $RESULTSC2
 mkdir -p $RESULTSC3
 
-BUILDTEST_PATH_DEPTH=$(echo "${TRAVIS_BUILD_DIR}/${TESTPATH}" | grep -o / | wc -l)
+BUILDTEST_PATH_DEPTH=$(echo "${GITHUB_WORKSPACE}/${TESTPATH}" | grep -o / | wc -l)
 
 collect_coverage_at_path_to_file()
 {
 	RPATH=$1
 	CFILE=$2
 	if [ "$(ls -A $RPATH)" ]; then
-		cp $RPATH/*.gcda ${TRAVIS_BUILD_DIR}/${TESTPATH}/
-		echo "lcov --capture --directory ${TRAVIS_BUILD_DIR}/$TESTPATH --output-file ${TRAVIS_BUILD_DIR}/${RESULTS}/$CFILE"
-		lcov --capture --directory ${TRAVIS_BUILD_DIR}/$TESTPATH --output-file ${TRAVIS_BUILD_DIR}/${RESULTS}/$CFILE
-		rm -f ${TRAVIS_BUILD_DIR}/$TESTPATH/*.gcda
+		cp $RPATH/*.gcda ${GITHUB_WORKSPACE}/${TESTPATH}/
+		echo "lcov --capture --directory ${GITHUB_WORKSPACE}/$TESTPATH --output-file ${GITHUB_WORKSPACE}/${RESULTS}/$CFILE"
+		lcov --capture --directory ${GITHUB_WORKSPACE}/$TESTPATH --output-file ${GITHUB_WORKSPACE}/${RESULTS}/$CFILE
+		rm -f ${GITHUB_WORKSPACE}/$TESTPATH/*.gcda
 	fi
 
 	rm -f $RPATH/*.gcda
@@ -35,15 +35,15 @@ merge_client_coverage_to_file()
 {
 	TFILE=$1
 	APPEND=""
-	for CF in $(find ${TRAVIS_BUILD_DIR}/${RESULTS} -name "*.cov"); do
+	for CF in $(find ${GITHUB_WORKSPACE}/${RESULTS} -name "*.cov"); do
 		if [ -s "$CF" ]; then
 			APPEND="$APPEND -a $CF "
 		fi
 	done
-	echo "lcov $APPEND -o  ${TRAVIS_BUILD_DIR}/$TFILE"
-	lcov $APPEND -o  ${TRAVIS_BUILD_DIR}/$TFILE
+	echo "lcov $APPEND -o  ${GITHUB_WORKSPACE}/$TFILE"
+	lcov $APPEND -o  ${GITHUB_WORKSPACE}/$TFILE
 
-	find ${TRAVIS_BUILD_DIR}/${RESULTS} -type f -name "*.cov" -exec rm -f {} \;
+	find ${GITHUB_WORKSPACE}/${RESULTS} -type f -name "*.cov" -exec rm -f {} \;
 }
 
 # a dbus session is needed
@@ -61,13 +61,13 @@ qmake .. DEFINES+=TRAVIS DEFINES+=DBUS
 make
 
 # build and run the roster test
-${TRAVIS_BUILD_DIR}/scripts/travis/reset_ejabberd.sh
+${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
 export GCOV_PREFIX_STRIP=$BUILDTEST_PATH_DEPTH
-GCOV_PREFIX=$RESULTSC1  ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose lhs &
-GCOV_PREFIX=$RESULTSC2  ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose mhs &
-GCOV_PREFIX=$RESULTSC3  ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose rhs &
+GCOV_PREFIX=$RESULTSC1  ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
+GCOV_PREFIX=$RESULTSC2  ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose mhs &
+GCOV_PREFIX=$RESULTSC3  ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose rhs &
 
-cd ${TRAVIS_BUILD_DIR}/test/integration_test/RosterTest/
+cd ${GITHUB_WORKSPACE}/test/integration_test/RosterTest/
 mkdir build && cd build
 qmake .. && make
  ./RosterTest
@@ -81,11 +81,11 @@ merge_client_coverage_to_file roster.cov
 
 # build and run the plain 1to1 msg test
 killall -9 harbour-shmoose
-${TRAVIS_BUILD_DIR}/scripts/travis/reset_ejabberd.sh
-GCOV_PREFIX=$RESULTSC1  ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose lhs &
-GCOV_PREFIX=$RESULTSC2  ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose rhs &
+${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
+GCOV_PREFIX=$RESULTSC1  ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
+GCOV_PREFIX=$RESULTSC2  ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose rhs &
 
-cd ${TRAVIS_BUILD_DIR}/test/integration_test/ClientCommunicationTest/
+cd ${GITHUB_WORKSPACE}/test/integration_test/ClientCommunicationTest/
 mkdir build && cd build
 qmake .. && make
  ./ClientCommunicationTest
@@ -98,13 +98,13 @@ merge_client_coverage_to_file 1o1.cov
 
 # build the plain room msg test
 killall -9 harbour-shmoose
-${TRAVIS_BUILD_DIR}/scripts/travis/reset_ejabberd.sh
- ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose lhs &
- ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose mhs &
- ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose rhs &
+${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
+ ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
+ ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose mhs &
+ ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose rhs &
 
-${TRAVIS_BUILD_DIR}/scripts/travis/reset_ejabberd.sh
-cd ${TRAVIS_BUILD_DIR}/test/integration_test/ClientRoomMessagingTest/
+${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
+cd ${GITHUB_WORKSPACE}/test/integration_test/ClientRoomMessagingTest/
 mkdir build && cd build
 qmake .. && make
  ./ClientRoomMessagingTest
@@ -119,18 +119,18 @@ merge_client_coverage_to_file room.cov
 
 # merge test tracefiles to final cov
 APPEND=""
-for CF in $(ls ${TRAVIS_BUILD_DIR}/*.cov); do
+for CF in $(ls ${GITHUB_WORKSPACE}/*.cov); do
 	if [ -s "$CF" ]; then
 		APPEND="$APPEND -a $CF "
 	fi
 done
-echo "lcov $APPEND -o ${TRAVIS_BUILD_DIR}/$COVFILE"
-lcov $APPEND -o ${TRAVIS_BUILD_DIR}/$COVFILE
+echo "lcov $APPEND -o ${GITHUB_WORKSPACE}/$COVFILE"
+lcov $APPEND -o ${GITHUB_WORKSPACE}/$COVFILE
 
 # remove system files from /usr and generated moc files
-lcov --remove ${TRAVIS_BUILD_DIR}/$COVFILE '/usr/*' --output-file ${TRAVIS_BUILD_DIR}/$COVFILE
-lcov --remove ${TRAVIS_BUILD_DIR}/$COVFILE '*/test/moc_*' --output-file ${TRAVIS_BUILD_DIR}/$COVFILE
+lcov --remove ${GITHUB_WORKSPACE}/$COVFILE '/usr/*' --output-file ${GITHUB_WORKSPACE}/$COVFILE
+lcov --remove ${GITHUB_WORKSPACE}/$COVFILE '*/test/moc_*' --output-file ${GITHUB_WORKSPACE}/$COVFILE
 
 # Uploading report to CodeCov
-bash <(curl -s https://codecov.io/bash) -f ${TRAVIS_BUILD_DIR}/$COVFILE || echo "failed upload to Codecov"
+bash <(curl -s https://codecov.io/bash) -f ${GITHUB_WORKSPACE}/$COVFILE || echo "failed upload to Codecov"
 
