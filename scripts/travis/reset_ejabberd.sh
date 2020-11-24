@@ -2,9 +2,12 @@
 set -x
 
 # remove old db and use new config
+sudo apt-get remove --purge ejabberd
+sudo mv /bin/hostname /bin/hostname.no
+sudo apt-get install ejabberd
+sudo mv /bin/hostname.no /bin/hostname
 sudo systemctl stop ejabberd
 sudo cp ${GITHUB_WORKSPACE}/test/config/ejabberd.yml /etc/ejabberd/
-sudo rm -rf /var/lib/ejabberd/*
 sudo systemctl start ejabberd
 
 # add all the users and rooms for the tests

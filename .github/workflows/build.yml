@@ -27,9 +27,6 @@ jobs:
          sudo mv /bin/hostname /bin/hostname.no
          sudo apt-get install ejabberd
          sudo mv /bin/hostname.no /bin/hostname
-         echo "--------------- ejabberd conf ---------------"
-         sudo cat /etc/ejabberd/ejabberd.yml
-         echo "--------------- ejabberd conf ---------------"
 
     - name: Install swift lib
       run: |
@@ -43,7 +40,7 @@ jobs:
 #          mkdir -p buildx86
 #          cd buildx86
 #          qmake .. DEFINES+=TRAVIS
-#          make
+#          make -j$(nproc)
 
     - name: run integration tests
       run: ./scripts/travis/testing.sh

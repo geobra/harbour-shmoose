@@ -61,7 +61,7 @@ echo "use $DBUS_SESSION_BUS_ADDRESS as dbus address"
 mkdir $TESTPATH
 cd $TESTPATH
 qmake .. DEFINES+=TRAVIS DEFINES+=DBUS
-make
+make -j$(nproc)
 
 # build and run the roster test
 ${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
@@ -72,7 +72,7 @@ GCOV_PREFIX=$RESULTSC3  ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose rhs &
 
 cd ${GITHUB_WORKSPACE}/test/integration_test/RosterTest/
 mkdir build && cd build
-qmake .. && make
+qmake .. && make -j$(nproc)
  ./RosterTest
 
 # cp trace data to source dir; run lcov and generate test.cov
@@ -90,7 +90,7 @@ GCOV_PREFIX=$RESULTSC2  ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose rhs &
 
 cd ${GITHUB_WORKSPACE}/test/integration_test/ClientCommunicationTest/
 mkdir build && cd build
-qmake .. && make
+qmake .. && make -j$(nproc)
  ./ClientCommunicationTest
 
 # cp trace data to source dir; run lcov and generate test.cov
@@ -109,7 +109,7 @@ ${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
 ${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
 cd ${GITHUB_WORKSPACE}/test/integration_test/ClientRoomMessagingTest/
 mkdir build && cd build
-qmake .. && make
+qmake .. && make -j$(nproc)
  ./ClientRoomMessagingTest
 
 # cp trace data to source dir; run lcov and generate test.cov
