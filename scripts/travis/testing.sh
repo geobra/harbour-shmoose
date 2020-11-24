@@ -35,6 +35,9 @@ merge_client_coverage_to_file()
 {
 	TFILE=$1
 	APPEND=""
+	echo "search for cov files"
+	ls -l ${GITHUB_WORKSPACE}/${RESULTS}
+	find ${GITHUB_WORKSPACE}/${RESULTS} -name "*.cov"
 	for CF in $(find ${GITHUB_WORKSPACE}/${RESULTS} -name "*.cov"); do
 		if [ -s "$CF" ]; then
 			APPEND="$APPEND -a $CF "
