@@ -45,11 +45,3 @@ jobs:
     - name: run integration tests
       run: ./scripts/travis/testing.sh
 
-    - name: generate software architecture documentation
-      run: |
-          cd ${GITHUB_WORKSPACE}/doc/architecture/images/
-          plantuml *.plantuml
-          cd ..
-          asciidoctor index.adoc
-
-
