@@ -207,7 +207,6 @@ void ClientComTest::sendMsgTest()
     QCOMPARE(spyDownloadFinished.count(), 1);
     QList<QVariant> spyArgumentsOfDownload = spyDownloadFinished.takeFirst();
     QString localPath = spyArgumentsOfDownload.at(0).toString();
-    QVERIFY(localPath.contains("64x64-red"));
 
     // quit clients
     interfaceLhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
