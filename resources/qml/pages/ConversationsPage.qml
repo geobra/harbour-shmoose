@@ -4,6 +4,7 @@ import harbour.shmoose 1.0
 
 Page {
     id: page;
+    allowedOrientations: Orientation.All;
 
     SilicaListView {
         id: view;
