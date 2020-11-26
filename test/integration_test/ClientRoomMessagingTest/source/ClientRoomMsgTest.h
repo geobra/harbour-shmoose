@@ -17,6 +17,7 @@ public:
 
 private slots:
     void initTestCase();
+    void cleanupTestCase();
 
     void sendRoomMsgTest();
     void collectMsgStateChangedLhs(QString msgId, QString jid, int state);

@@ -33,6 +33,11 @@ void ClientRoomMsgTest::initTestCase()
     interfaceMhs_ = new DbusInterfaceWrapper(dbusServiceNameMhs, dbusObjectPath, "", QDBusConnection::sessionBus(), this);
 }
 
+void ClientRoomMsgTest::cleanupTestCase()
+{
+    // quit client
+    interfaceMhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
+}
 
 void ClientRoomMsgTest::sendRoomMsgTest()
 {

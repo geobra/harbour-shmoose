@@ -44,7 +44,9 @@ void ClientComTestCommon::initTestCase()
 
 void ClientComTestCommon::cleanupTestCase()
 {
-
+    // quit clients
+    interfaceLhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
+    interfaceRhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
 }
 
 // connection test
