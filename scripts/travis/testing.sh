@@ -43,8 +43,11 @@ merge_client_coverage_to_file()
 			APPEND="$APPEND -a $CF "
 		fi
 	done
-	echo "lcov $APPEND -o  ${GITHUB_WORKSPACE}/$TFILE"
-	lcov $APPEND -o  ${GITHUB_WORKSPACE}/$TFILE
+
+	if [ -n "$APPEND" ]; then
+		echo "lcov $APPEND -o  ${GITHUB_WORKSPACE}/$TFILE"
+		lcov $APPEND -o  ${GITHUB_WORKSPACE}/$TFILE
+	fi
 
 	find ${GITHUB_WORKSPACE}/${RESULTS} -type f -name "*.cov" -exec rm -f {} \;
 }
