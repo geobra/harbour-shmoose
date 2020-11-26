@@ -213,7 +213,7 @@ listen:
   ## To enable secure http upload
   ##
   -
-   port: 5443
+   port: 5280
    ip: "::"
    module: ejabberd_http
    request_handlers:
@@ -695,7 +695,7 @@ modules:
   ##   accesslog: "/var/log/ejabberd/access.log"
   mod_http_upload:
   ##   # docroot: "@HOME@/upload"
-     put_url: "https://@HOST@:5443/upload"
+     put_url: "http://@HOST@:5280/upload"
   ##   thumbnail: false # otherwise needs the identify command from ImageMagick installed
   ## mod_http_upload_quota:
   ##   max_days: 30
