@@ -1,0 +1,25 @@
+name: gh pages update
+
+on: 
+  push:
+    branches:
+    - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: generate software architecture documentation
+      run: |
+          cd ${GITHUB_WORKSPACE}/doc/architecture/images/
+          plantuml *.plantuml
+          cd ..
+          asciidoctor index.adoc
+
+    - name: deploy arch to gh_pages
+      run: ./scripts/deploy_to_gh_pages.sh ${GITHUB_WORKSPACE}/doc/architecture
+      env:
+       GITHUB_TOKEN: ${{ secrets.github_token }}
+       DEPLOY_TOKEN: ${{ secrets.DEPLOYTOKEN }}
+
