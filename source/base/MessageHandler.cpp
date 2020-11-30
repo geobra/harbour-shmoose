@@ -5,6 +5,7 @@
 #include "ChatMarkers.h"
 #include "XmlProcessor.h"
 #include "RosterController.h"
+#include "Omemo.h"
 #include <Swiften/Elements/CarbonsReceived.h>
 #include <Swiften/Elements/CarbonsSent.h>
 #include <Swiften/Elements/Forwarded.h>
@@ -13,8 +14,8 @@
 
 #include <QDebug>
 
-MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, RosterController* rosterController, QObject *parent) : QObject(parent),
-    client_(nullptr), persistence_(persistence), settings_(settings),
+MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, RosterController* rosterController, Omemo* omemo, QObject *parent) : QObject(parent),
+    client_(nullptr), persistence_(persistence), omemo_(omemo), settings_(settings),
     downloadManager_(new DownloadManager(this)),
     chatMarkers_(new ChatMarkers(persistence_, rosterController, this)),
     appIsActive_(true), unAckedMessageIds_()
@@ -83,6 +84,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         }
     }
 
+    // FIXME check if msg contains an <encrypted ... > stanza and call 'messageDecrypt'
     boost::optional<std::string> fromBody = message->getBody();
 
     if (fromBody)
@@ -160,7 +162,32 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
     msg->setFrom(Swift::JID(client_->getJID()));
     msg->setTo(receiverJid);
     msg->setID(msgId);
+
+    Swift::Message::Type messagesTyp = Swift::Message::Chat;
+    if (isGroup == true)
+    {
+        messagesTyp = Swift::Message::Groupchat;
+    }
+
+    msg->setType(messagesTyp);
     msg->setBody(message.toStdString());
+
+// -----------------
+
+    // FIXME for now, always try to encrypt the msg
+    QString qMsg = getSerializedStringFromMessage(msg);
+    std::string cryptMessage = omemo_->messageEncryptIm(qMsg.toStdString());
+    QString encryptedPayload = XmlProcessor::getChildFromNode("encrypted", QString::fromStdString(cryptMessage));
+
+    Swift::RawXMLPayload::ref encPayload(new Swift::RawXMLPayload(encryptedPayload.toStdString() + "<encryption xmlns=\"urn:xmpp:eme:0\" namespace=\"eu.siacs.conversations.axolotl\" name=\"OMEMO\" /><store xmlns=\"urn:xmpp:hints\" />"));
+    msg->addPayload(encPayload);
+
+    // TODO finally, remove the plain text body, if encryption was ok
+    msg->removePayloadOfSameType(std::make_shared<Swift::Body>());
+
+
+
+// -----------------
 
     if(type == "image")
     {
@@ -176,12 +203,6 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         msg->addPayload(outOfBand);
     }
 
-    Swift::Message::Type messagesTyp = Swift::Message::Chat;
-    if (isGroup == true)
-    {
-        messagesTyp = Swift::Message::Groupchat;
-    }
-    msg->setType(messagesTyp);
 
     msg->addPayload(std::make_shared<Swift::DeliveryReceiptRequest>());
 
@@ -196,6 +217,15 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
     unAckedMessageIds_.push_back(QString::fromStdString(msgId));
 
     emit messageSent(QString::fromStdString(msgId));
+}
+
+QString MessageHandler::getSerializedStringFromMessage(Swift::Message::ref msg)
+{
+    Swift::FullPayloadSerializerCollection serializers_;
+    Swift::XMPPSerializer xmppSerializer(&serializers_, Swift::ClientStreamType, true);
+    Swift::SafeByteArray sba = xmppSerializer.serializeElement(msg);
+
+    return QString::fromStdString(Swift::safeByteArrayToString(sba));
 }
 
 void MessageHandler::sendDisplayedForJid(const QString &jid)

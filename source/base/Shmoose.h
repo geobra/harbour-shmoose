@@ -99,12 +99,13 @@ public:
     Settings* settings_;
 
     ConnectionHandler* connectionHandler_;
+    Omemo* omemo_;
     MessageHandler* messageHandler_;
     HttpFileUploadManager* httpFileUploadManager_;
     MamManager *mamManager_;
     MucManager *mucManager_;
     DiscoInfoHandler* discoInfoHandler_;
-    Omemo* omemo_;
+
 
     QString jid_;
     QString password_;

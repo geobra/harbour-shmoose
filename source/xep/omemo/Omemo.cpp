@@ -3,6 +3,7 @@
 #include "XmlProcessor.h"
 #include "Settings.h"
 #include "System.h"
+#include "RawRequestWithFromJid.h"
 
 #include <QDir>
 #include <QDomDocument>
@@ -108,7 +109,6 @@ void Omemo::setupWithClient(Swift::Client* client)
     myBareJid_ = QString::fromStdString(client_->getJID().toBare().toString());
     uname_ = strdup(myBareJid_.toStdString().c_str());
 
-    client_->onDataRead.connect(boost::bind(&Omemo::handleDataReceived, this, _1));
     client_->onConnected.connect(boost::bind(&Omemo::handleConnected, this));
 
     requestDeviceList(client_->getJID());
@@ -142,12 +142,9 @@ void Omemo::requestDeviceList(const Swift::JID& jid)
     // gen the payload
     const std::string deviceListRequestXml = "<pubsub xmlns='http://jabber.org/protocol/pubsub'><items node='" + deviceListNodeName_.toStdString() + "'/></pubsub>";
 
-    Swift::RawRequest::ref requestDeviceList = Swift::RawRequest::create(Swift::IQ::Get, jid.toBare(), deviceListRequestXml, client_->getIQRouter());
-    requestDeviceList->onResponse.connect(boost::bind(&Omemo::handleDeviceListResponse, this, _1));
+    RawRequestWithFromJid::ref requestDeviceList = RawRequestWithFromJid::create(Swift::IQ::Get, jid.toBare(), deviceListRequestXml, client_->getIQRouter());
+    requestDeviceList->onResponse.connect(boost::bind(&Omemo::handleDeviceListResponse, this, _1, _2));
     requestDeviceList->send();
-
-    std::string id{requestDeviceList->getID()};
-    requestedDeviceListJidIdMap_.insert(QString::fromStdString(id), QString::fromStdString(jid.toBare().toString()));
 }
 
 void Omemo::lurch_addr_list_destroy_func(gpointer data) {
@@ -672,6 +669,12 @@ cleanup:
 
 int Omemo::bundleRequestDo(const char * to, uint32_t device_id, lurch_queued_msg * qmsg_p) {
     // lurch_bundle_request_do
+/*
+    FIXME implement me the swift way
+    have a look at Omemo::bundleRequest
+*/
+    qDebug() << "FIXME implement me! Omemo::bundleRequestDo";
+
     int ret_val = 0;
 
     //JabberIq * jiq_p{nullptr};
@@ -684,9 +687,6 @@ int Omemo::bundleRequestDo(const char * to, uint32_t device_id, lurch_queued_msg
 
     purple_debug_info("lurch", "%s: %s is requesting bundle from %s:%i\n", __func__,
                       uname_, to, device_id);
-
-    FIXME implement me the swift way
-    have a look at Omemo::bundleRequest
 
     //jiq_p = jabber_iq_new(js_p, JABBER_IQ_GET);
     //xmlnode_set_attrib(jiq_p->node, "to", to);
@@ -1182,10 +1182,15 @@ std::string Omemo::msgFinalizeEncryption(axc_context * axc_ctx_p, omemo_message 
 
             purple_debug_info("lurch", "%s: %s has device without session %i, requesting bundle\n", __func__, curr_addr.jid, curr_addr.device_id);
 
+            qDebug() << "Fixme! Implement call to lurch_bundle_request_do";
+            exit(1);
+
+/*
             lurch_bundle_request_do(js_p,
                                     curr_addr.jid,
                                     curr_addr.device_id,
                                     qmsg_p);
+*/
 
         }
         //*msg_stanza_pp = (void *) 0;
@@ -1211,7 +1216,7 @@ std::string Omemo::messageEncryptIm(const std::string msg_stanza_pp) {
     // lurch_message_encrypt_im
     int ret_val = 0;
     char * err_msg_dbg{nullptr};
-    int len = 0;
+    //int len = 0;
 
     //PurpleAccount * acc_p{nullptr};
     //char * uname{nullptr};
@@ -1227,6 +1232,8 @@ std::string Omemo::messageEncryptIm(const std::string msg_stanza_pp) {
     GList * addr_l_p{nullptr};
     char * recipient{nullptr};
     char * tempxml{nullptr};
+
+    std::string finalMsg{};
 
     //recipient = jabber_get_bare_jid(xmlnode_get_attrib(*msg_stanza_pp, "to"));
     recipient = strdup(XmlProcessor::getContentInTag("message", "to", QString::fromStdString(msg_stanza_pp)).toStdString().c_str());
@@ -1316,15 +1323,19 @@ std::string Omemo::messageEncryptIm(const std::string msg_stanza_pp) {
     }
 
     //ret_val = lurch_msg_finalize_encryption(purple_connection_get_protocol_data(gc_p), axc_ctx_p, msg_p, addr_l_p, msg_stanza_pp);
-    std::string finalMsg = msgFinalizeEncryption(axc_ctx_p, msg_p, addr_l_p, msg_stanza_pp);
+    finalMsg = msgFinalizeEncryption(axc_ctx_p, msg_p, addr_l_p, msg_stanza_pp);
     if (finalMsg.empty() == true) {
         err_msg_dbg = g_strdup_printf("failed to finalize omemo message");
         goto cleanup;
     }
+    else {
+        return finalMsg;
+    }
 
 cleanup:
     if (err_msg_dbg) {
-        purple_conv_present_error(recipient, purple_connection_get_account(gc_p), LURCH_ERR_STRING_ENCRYPT);
+        //purple_conv_present_error(recipient, purple_connection_get_account(gc_p), LURCH_ERR_STRING_ENCRYPT);
+        // FIXME present to user!
         purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
         free(err_msg_dbg);
         //*msg_stanza_pp = nullptr;
@@ -1580,11 +1591,12 @@ cleanup:
     omemo_message_destroy(msg_p);
 }
 
-void Omemo::handleDeviceListResponse(const std::string& str)
+void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& str)
 {
     // implements lurch_pep_devicelist_event_handler
 
-    qDebug() << "OMEMO: handle device list Response: " << QString::fromStdString(str);
+    QString qJid = QString::fromStdString(jid.toBare().toString());
+    qDebug() << "OMEMO: handle device list Response. Jid: " << qJid << ". list: " << QString::fromStdString(str);
 
     /*
      *  <pubsub xmlns="http://jabber.org/protocol/pubsub">
@@ -1612,55 +1624,45 @@ void Omemo::handleDeviceListResponse(const std::string& str)
      */
 
 
-    // determine for whom this device list was requested for
-    QString currentIqId = XmlProcessor::getContentInTag("iq", "id", currentNode_);
+    // get the items of the request
+    QString items = XmlProcessor::getChildFromNode("items", QString::fromStdString(str));
 
-    if ( (! currentIqId.isEmpty()) && requestedDeviceListJidIdMap_.contains(currentIqId))
+    if (! items.isEmpty())
     {
-        QString jid = requestedDeviceListJidIdMap_.value(currentIqId);
-        requestedDeviceListJidIdMap_.remove(currentIqId);
-
-        //qDebug() << "jid " << jid;
-        // get the items of the request
-        QString items = XmlProcessor::getChildFromNode("items", currentNode_);
-
-        if (! items.isEmpty())
+        if (myBareJid_.compare(qJid, Qt::CaseInsensitive) == 0)
         {
-            if (myBareJid_.compare(jid, Qt::CaseInsensitive) == 0)
+            // was a request for my device list
+            ownDeviceListRequestHandler(items);
+        }
+        else
+        {
+            // requested someone else device list
+            qDebug() << "requested someone else device list";
+
+            omemo_devicelist* dl_in_p = nullptr;
+            char* pItems = strdup(items.toStdString().c_str());
+
+            if (omemo_devicelist_import(pItems, jid.toString().c_str(), &dl_in_p) != 0)
             {
-                // was a request for my device list
-                ownDeviceListRequestHandler(items);
+                if(devicelistProcess(jid.toString().c_str(), dl_in_p) != 0)
+                {
+                    qDebug() << "failed to process devicelist";
+                }
+
+                omemo_devicelist_destroy(dl_in_p);
             }
             else
             {
-                // requested someone else device list
-                qDebug() << "requested someone else device list";
-
-                omemo_devicelist* dl_in_p = nullptr;
-                char* pItems = strdup(items.toStdString().c_str());
-
-                if (omemo_devicelist_import(pItems, jid.toStdString().c_str(), &dl_in_p) != 0)
-                {
-                    if(devicelistProcess(jid.toStdString().c_str(), dl_in_p) != 0)
-                    {
-                        qDebug() << "failed to process devicelist";
-                    }
-
-                    omemo_devicelist_destroy(dl_in_p);
-                }
-                else
-                {
-                    qDebug() << "failed to import devicelist";
-                }
-                free(pItems);
+                qDebug() << "failed to import devicelist";
             }
+            free(pItems);
         }
     }
 }
 
+#if 0
 QString Omemo::encryptMessage(const QString& msg)
 {
-#if 0
     xmlnode* xMsg = xmlnode_from_str(msg.toStdString().c_str(), -1);
     lurch_message_encrypt_im(&purpleConnection_, &xMsg);
 
@@ -1673,8 +1675,8 @@ QString Omemo::encryptMessage(const QString& msg)
     free(xMsg);
 
     return encryptedMessage;
-#endif
 }
+#endif
 
 void Omemo::publishedDeviceList(const std::string& str)
 {
@@ -1704,19 +1706,6 @@ char* Omemo::unameGetDbFn(const char * uname, char * which)
 {
     // impelements lurch_uname_get_db_fn
     return g_strconcat(System::getOmemoPath().toStdString().c_str(), "/", uname, "_", which, LURCH_DB_SUFFIX, NULL);
-}
-
-void Omemo::handleDataReceived(Swift::SafeByteArray data)
-{
-    // jabber xml stream from swift to xmlnode
-    std::string nodeData = Swift::safeByteArrayToString(data);
-    currentNode_ = QString::fromStdString(nodeData);
-
-    if (isEncryptedMessage(QString::fromStdString(nodeData)) == true)
-    {
-        messageDecrypt(nodeData);
-    }
-
 }
 
 bool Omemo::isEncryptedMessage(const QString& xmlNode)

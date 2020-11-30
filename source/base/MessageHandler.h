@@ -10,12 +10,13 @@ class DownloadManager;
 class Persistence;
 class ChatMarkers;
 class RosterController;
+class Omemo;
 
 class MessageHandler : public QObject
 {
     Q_OBJECT
 public:
-    MessageHandler(Persistence* persistence, Settings * settings, RosterController* rosterController, QObject *parent = 0);
+    MessageHandler(Persistence* persistence, Settings * settings, RosterController* rosterController, Omemo* omemo, QObject *parent = 0);
 
     void setupWithClient(Swift::Client* client);
 
@@ -34,6 +35,7 @@ public:
 #endif
     Swift::Client* client_;
     Persistence* persistence_;
+    Omemo* omemo_;
     Settings* settings_;
 
     DownloadManager* downloadManager_;
@@ -45,6 +47,9 @@ public:
     void handleMessageReceived(Swift::Message::ref message);
     void handleStanzaAcked(Swift::Stanza::ref stanza);
     void handleDataReceived(Swift::SafeByteArray data);
+
+    QString getSerializedStringFromMessage(Swift::Message::ref msg);
+
 };
 
 #endif // MESSAGEHANDLER_H

@@ -20,7 +20,8 @@ public:
     explicit Omemo(QObject *parent = nullptr);
     ~Omemo();
     void setupWithClient(Swift::Client* client);
-    QString encryptMessage(const QString& msg);
+    //QString encryptMessage(const QString& msg);
+    std::string messageEncryptIm(const std::string msg_stanza_pp);
 
 
 signals:
@@ -43,14 +44,13 @@ private:
     void requestDeviceList(const Swift::JID& jid);
     void ownDeviceListRequestHandler(QString items);
 
-    void handleDeviceListResponse(const std::string& str);
+    void handleDeviceListResponse(const Swift::JID jid, const std::string &str);
     void publishedDeviceList(const std::string& str);
     void publishedBundle(const std::string& str);
 
     void pepBundleForKeytransport(const std::string from, const std::string& items);
 
     void messageDecrypt(const std::string& message);
-    std::string messageEncryptIm(const std::string msg_stanza_pp);
     std::string msgFinalizeEncryption(axc_context * axc_ctx_p, omemo_message * om_msg_p, GList * addr_l_p, const std::string& msg_stanza_pp);
     int bundleRequestDo(const char * to, uint32_t device_id, lurch_queued_msg * qmsg_p);
 
@@ -72,20 +72,16 @@ private:
     int lurch_export_encrypted(omemo_message * om_msg_p, char ** xml_pp);
     int lurch_queued_msg_create(omemo_message * om_msg_p, GList * recipient_addr_l_p, GList * no_sess_l_p, lurch_queued_msg ** qmsg_pp);
 
-    void handleDataReceived(Swift::SafeByteArray data);
     void handleConnected();
 
     bool isEncryptedMessage(const QString& xmlNode);
 
     Swift::Client* client_{};
     QString deviceListNodeName_{};
-    QString currentNode_{};
     QString myBareJid_{};
     char* uname_{nullptr};
 
     int uninstall_{0};
-
-    QMap<QString, QString> requestedDeviceListJidIdMap_{};
 
     omemo_crypto_provider crypto = {
         .random_bytes_func = omemo_default_crypto_random_bytes,

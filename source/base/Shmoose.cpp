@@ -40,12 +40,12 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     persistence_(new Persistence(this)),
     settings_(new Settings(this)),
     connectionHandler_(new ConnectionHandler(this)),
-    messageHandler_(new MessageHandler(persistence_, settings_, rosterController_, this)),
+    omemo_(new Omemo(this)),
+    messageHandler_(new MessageHandler(persistence_, settings_, rosterController_, omemo_, this)),
     httpFileUploadManager_(new HttpFileUploadManager(this)),
     mamManager_(new MamManager(persistence_, this)),
     mucManager_(new MucManager(this)),
     discoInfoHandler_(new DiscoInfoHandler(httpFileUploadManager_, mamManager_, this)),
-    omemo_(new Omemo(this)),
     jid_(""), password_(""),
     version_("0.7.0")
 {
