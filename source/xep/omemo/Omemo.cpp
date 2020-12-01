@@ -1356,7 +1356,7 @@ cleanup:
 }
 
 
-void Omemo::messageDecrypt(const std::string& message)
+std::string Omemo::messageDecrypt(const std::string& message)
 {
     // lurch_message_decrypt
     int ret_val = 0;
@@ -1384,6 +1384,9 @@ void Omemo::messageDecrypt(const std::string& message)
     //xmlnode * plaintext_msg_node_p = nullptr;
     char * recipient_bare_jid = nullptr;
     char* pMsg{nullptr};
+    std::string decryptedMsg{};
+    std::string sType;
+    std::string sFrom;
 
     //const char * type = xmlnode_get_attrib(*msg_stanza_pp, "type");
     //const char * from = xmlnode_get_attrib(*msg_stanza_pp, "from");
@@ -1391,15 +1394,15 @@ void Omemo::messageDecrypt(const std::string& message)
     const char* from{nullptr};
     QString qsType = XmlProcessor::getContentInTag("message", "type", QString::fromStdString(message));
     QString qsFrom = XmlProcessor::getContentInTag("message", "from", QString::fromStdString(message));
-    if ( (!qsType.isEmpty()) && (!qsFrom.isEmpty()))
-    {
-        type = qsType.toStdString().c_str();
-        from = qsFrom.toStdString().c_str();
-    }
-    else
+    if ( qsType.isEmpty() || qsFrom.isEmpty())
     {
         qDebug() << "from or type not found in message node!";
+        goto cleanup;
     }
+    sType.assign(qsType.toStdString());
+    sFrom.assign(qsFrom.toStdString());
+    type = sType.c_str();
+    from = sFrom.c_str();
 
     if (uninstall_) {
         goto cleanup;
@@ -1548,8 +1551,7 @@ void Omemo::messageDecrypt(const std::string& message)
         goto cleanup;
     }
 
-
-    qDebug() << "decrypted msg: " << xml;
+    decryptedMsg.assign(xml);
 #if 0
     plaintext_msg_node_p = xmlnode_from_str(xml, -1);
 
@@ -1589,6 +1591,8 @@ cleanup:
     free(recipient_bare_jid);
     omemo_message_destroy(keytransport_msg_p);
     omemo_message_destroy(msg_p);
+
+    return decryptedMsg;
 }
 
 void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& str)

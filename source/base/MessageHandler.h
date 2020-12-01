@@ -11,6 +11,8 @@ class Persistence;
 class ChatMarkers;
 class RosterController;
 class Omemo;
+class XMPPMessageParserClient;
+
 
 class MessageHandler : public QObject
 {
@@ -41,12 +43,16 @@ public:
     DownloadManager* downloadManager_;
     ChatMarkers* chatMarkers_;
 
+    XMPPMessageParserClient* xmppMessageParserClient_;
+
     bool appIsActive_;
     QStringList unAckedMessageIds_;
 
-    void handleMessageReceived(Swift::Message::ref message);
+    void handleMessageReceived(Swift::Message::ref aMessage);
     void handleStanzaAcked(Swift::Stanza::ref stanza);
     void handleDataReceived(Swift::SafeByteArray data);
+
+    bool isEncryptedMessage(const QString& xmlNode);
 
     QString getSerializedStringFromMessage(Swift::Message::ref msg);
 

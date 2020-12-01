@@ -6,18 +6,21 @@
 #include "XmlProcessor.h"
 #include "RosterController.h"
 #include "Omemo.h"
+#include "XmppMessageParserClient.h"
+
 #include <Swiften/Elements/CarbonsReceived.h>
 #include <Swiften/Elements/CarbonsSent.h>
 #include <Swiften/Elements/Forwarded.h>
 
 #include <QUrl>
-
+#include <QDomDocument>
 #include <QDebug>
 
 MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, RosterController* rosterController, Omemo* omemo, QObject *parent) : QObject(parent),
     client_(nullptr), persistence_(persistence), omemo_(omemo), settings_(settings),
     downloadManager_(new DownloadManager(this)),
     chatMarkers_(new ChatMarkers(persistence_, rosterController, this)),
+    xmppMessageParserClient_(new XMPPMessageParserClient()),
     appIsActive_(true), unAckedMessageIds_()
 {
 
@@ -52,11 +55,66 @@ void MessageHandler::handleStanzaAcked(Swift::Stanza::ref stanza)
     }
 }
 
-void MessageHandler::handleMessageReceived(Swift::Message::ref message)
+void MessageHandler::handleMessageReceived(Swift::Message::ref aMessage)
 {
     //std::cout << "handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
+    // FIXME check if msg contains an <encrypted ... > stanza and call 'messageDecrypt'
+    Swift::Message* message{nullptr};
+    std::string fromJid{};
 
-    std::string fromJid = message->getFrom().toBare().toString();
+    unsigned int msgEncrypted{0};
+
+    // check if received aMessage is encrypted
+    QString qMsg = getSerializedStringFromMessage(aMessage);
+    if (isEncryptedMessage(qMsg))
+    {
+        msgEncrypted = 1;
+
+        std::string dmsg = omemo_->messageDecrypt(qMsg.toStdString());
+
+
+        QString decryptedMessage = QString::fromStdString(dmsg);
+
+        if (decryptedMessage.isEmpty())
+        {
+            // something went wrong on the decryption. use original encrypted aMessage and go one...
+            message = &(*aMessage);
+        }
+        else
+        {
+            decryptedMessage = "<stream xmlns='http://etherx.jabber.org/streams'>" + decryptedMessage;
+
+            // create a xmpp parser
+            Swift::FullPayloadParserFactoryCollection factories;
+            Swift::PlatformXMLParserFactory xmlParserFactory;
+            Swift::XMPPParser parser(xmppMessageParserClient_, &factories, &xmlParserFactory);
+
+            // parse the decrypted string
+            if (parser.parse(decryptedMessage.toStdString()))
+            {
+                // catch pointer from parsed decrypted string as message pointer
+                message = xmppMessageParserClient_->getMessagePtr();
+                if (message == nullptr)
+                {
+                    message = &(*aMessage);
+                }
+            }
+            else
+            {
+                // failure on xml parsing. use original message
+                message = &(*aMessage);
+            }
+        }
+
+    }
+    else
+    {
+        message = &(*aMessage);
+    }
+
+
+
+    fromJid = message->getFrom().toBare().toString();
 
     // XEP 280
     Swift::JID toJID;
@@ -71,20 +129,19 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
                 (forwarded = carbonsReceived->getForwarded()) &&
                 (forwardedMessage = std::dynamic_pointer_cast<Swift::Message>(forwarded->getStanza()))) {
             // It is the carbon of a message that we received
-            message = forwardedMessage;
+            message = &(*forwardedMessage);
             fromJid = message->getFrom().toBare().toString();
         }
         else if ((carbonsSent = message->getPayload<Swift::CarbonsSent>()) &&
                  (forwarded = carbonsSent->getForwarded()) &&
                  (forwardedMessage = std::dynamic_pointer_cast<Swift::Message>(forwarded->getStanza()))) {
             // It is the carbon of a message that we sent
-            message = forwardedMessage;
+            message = &(*forwardedMessage);
             toJID = forwardedMessage->getTo();
             sentCarbon = true;
         }
-    }
+    }    
 
-    // FIXME check if msg contains an <encrypted ... > stanza and call 'messageDecrypt'
     boost::optional<std::string> fromBody = message->getBody();
 
     if (fromBody)
@@ -226,6 +283,30 @@ QString MessageHandler::getSerializedStringFromMessage(Swift::Message::ref msg)
     Swift::SafeByteArray sba = xmppSerializer.serializeElement(msg);
 
     return QString::fromStdString(Swift::safeByteArrayToString(sba));
+}
+
+// FIXME move to omemo?
+bool MessageHandler::isEncryptedMessage(const QString& xmlNode)
+{
+    bool returnValue = false;
+
+    QDomDocument d;
+    if (d.setContent(xmlNode) == true)
+    {
+        QDomNodeList nodeList = d.elementsByTagName("message");
+        if (!nodeList.isEmpty())
+        {
+            //qDebug() << "found msg";
+            QDomNodeList encList = d.elementsByTagName("encrypted");
+            if (!encList.isEmpty())
+            {
+                //qDebug() << "found enc";
+                returnValue = true;
+            }
+        }
+    }
+
+    return returnValue;
 }
 
 void MessageHandler::sendDisplayedForJid(const QString &jid)

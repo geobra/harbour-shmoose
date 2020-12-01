@@ -101,6 +101,7 @@ SOURCES += \
     source/xep/xmppPing/XmppPingController.cpp \
     source/xep/chatMarkers/ChatMarkers.cpp \
     source/xep/omemo/Omemo.cpp \
+    source/xep/omemo/XmppMessageParserClient.cpp \
     source/room/MucManager.cpp \
     source/room/MucCollection.cpp \
     source/networkconnection/ConnectionHandler.cpp \
@@ -134,6 +135,7 @@ HEADERS += source/base/Shmoose.h \
     source/xep/xmppPing/XmppPingController.h \
     source/xep/chatMarkers/ChatMarkers.h \
     source/xep/omemo/Omemo.h \
+    source/xep/omemo/XmppMessageParserClient.h \
     source/room/MucManager.h \
     source/room/MucCollection.h \
     source/networkconnection/ConnectionHandler.h \

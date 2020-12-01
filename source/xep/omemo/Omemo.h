@@ -22,6 +22,7 @@ public:
     void setupWithClient(Swift::Client* client);
     //QString encryptMessage(const QString& msg);
     std::string messageEncryptIm(const std::string msg_stanza_pp);
+    std::string messageDecrypt(const std::string& message);
 
 
 signals:
@@ -50,7 +51,6 @@ private:
 
     void pepBundleForKeytransport(const std::string from, const std::string& items);
 
-    void messageDecrypt(const std::string& message);
     std::string msgFinalizeEncryption(axc_context * axc_ctx_p, omemo_message * om_msg_p, GList * addr_l_p, const std::string& msg_stanza_pp);
     int bundleRequestDo(const char * to, uint32_t device_id, lurch_queued_msg * qmsg_p);
 
