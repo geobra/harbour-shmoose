@@ -30,6 +30,7 @@ signals:
 
 public slots:
     void slotAppGetsActive(bool active);
+    void sendRawMessageStanza(QString str);
 
 private:
 #ifdef DBUS

@@ -115,6 +115,10 @@ void Omemo::setupWithClient(Swift::Client* client)
     client_->onConnected.connect(boost::bind(&Omemo::handleConnected, this));
 
     requestDeviceList(client_->getJID());
+
+    //FIXME -> failed to import devicelist
+    requestDeviceList("schorsch@jabber.ccc.de");
+
 }
 
 void Omemo::requestDeviceList(const Swift::JID& jid)
@@ -904,8 +908,7 @@ void Omemo::bundleRequestCb(const std::string& fromStr, JabberIqType type, const
       goto cleanup;
     }
 #endif
-    // FIXME send msg_xml!!!
-    std::cout << msg_xml << std::endl;
+    //std::cout << msg_xml << std::endl;
 
 #if 0
     <message from="xxx@jabber-germany.de/shmooseDesktop"
@@ -920,6 +923,7 @@ void Omemo::bundleRequestCb(const std::string& fromStr, JabberIqType type, const
     xmlns="urn:xmpp:eme:0" namespace="eu.siacs.conversations.axolotl"
     name="OMEMO" /><store xmlns="urn:xmpp:hints" /></message>
 #endif
+    emit rawMessageStanzaForSending(QString::fromLatin1(msg_xml));
 
     purple_debug_info("lurch", "sending encrypted msg\n");
     //purple_signal_emit(purple_plugins_find_with_id("prpl-jabber"), "jabber-sending-xmlnode", js_p->gc, &msg_node_p);
@@ -1839,7 +1843,8 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
 {
     // implements lurch_pep_devicelist_event_handler
 
-    QString qJid = QString::fromStdString(jid.toBare().toString());
+    std::string bareJidStr = jid.toBare().toString();
+    QString qJid = QString::fromStdString(bareJidStr);
     qDebug() << "OMEMO: handle device list Response. Jid: " << qJid << ". list: " << QString::fromStdString(str);
 
     /*
@@ -1886,9 +1891,9 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
             omemo_devicelist* dl_in_p = nullptr;
             char* pItems = strdup(items.toStdString().c_str());
 
-            if (omemo_devicelist_import(pItems, jid.toString().c_str(), &dl_in_p) != 0)
+            if (omemo_devicelist_import(pItems, bareJidStr.c_str(), &dl_in_p) != 0)
             {
-                if(devicelistProcess(jid.toString().c_str(), dl_in_p) != 0)
+                if(devicelistProcess(bareJidStr.c_str(), dl_in_p) != 0)
                 {
                     qDebug() << "failed to process devicelist";
                 }

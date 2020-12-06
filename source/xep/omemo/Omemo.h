@@ -28,6 +28,7 @@ public:
 
 
 signals:
+    void rawMessageStanzaForSending(QString);
 
 public slots:
 

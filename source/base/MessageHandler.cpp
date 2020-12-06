@@ -23,7 +23,7 @@ MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, Ro
     xmppMessageParserClient_(new XMPPMessageParserClient()),
     appIsActive_(true), unAckedMessageIds_()
 {
-
+    connect(omemo_, SIGNAL(rawMessageStanzaForSending(QString)), this, SLOT(sendRawMessageStanza(QString)));
 }
 
 void MessageHandler::setupWithClient(Swift::Client* client)
@@ -276,6 +276,35 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
 
     emit messageSent(QString::fromStdString(msgId));
 }
+
+void MessageHandler::sendRawMessageStanza(QString str)
+{
+    // FIXME test this!
+    QString msg = "<stream xmlns='http://etherx.jabber.org/streams'>" + str;
+
+    // create a xmpp parser
+    Swift::FullPayloadParserFactoryCollection factories;
+    Swift::PlatformXMLParserFactory xmlParserFactory;
+    Swift::XMPPParser parser(xmppMessageParserClient_, &factories, &xmlParserFactory);
+
+
+    // parse the string
+    if (parser.parse(msg.toStdString()))
+    {
+        // catch pointer from parsed decrypted string as message pointer
+        Swift::Message* message = xmppMessageParserClient_->getMessagePtr();
+        if (message != nullptr)
+        {
+            client_->sendMessage(std::make_shared<Swift::Message>(*message));
+        }
+    }
+    else
+    {
+        // failure on xml parsing. use original message
+        qDebug() << "failed to parse the msg!";
+    }
+}
+
 
 QString MessageHandler::getSerializedStringFromMessage(Swift::Message::ref msg)
 {
