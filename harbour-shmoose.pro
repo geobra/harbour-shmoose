@@ -145,7 +145,9 @@ HEADERS += source/base/Shmoose.h \
     source/contacts/RosterItem.h \
     source/contacts/RosterController.h \
     source/base/CryptoHelper.h \
-    source/xep/omemo/RawRequestWithFromJid.h
+    source/xep/omemo/RawRequestWithFromJid.h \
+    source/xep/omemo/RawRequestBundle.h \
+    source/xep/omemo/LurchTypes.h
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \

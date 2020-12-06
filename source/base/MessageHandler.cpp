@@ -210,6 +210,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref aMessage)
 
 void MessageHandler::sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup)
 {
+    // FIXME use smart pointer!
     Swift::Message::ref msg(new Swift::Message);
     Swift::JID receiverJid(toJid.toStdString());
 

@@ -4,6 +4,7 @@
 #include "Settings.h"
 #include "System.h"
 #include "RawRequestWithFromJid.h"
+#include "RawRequestBundle.h"
 
 #include <QDir>
 #include <QDomDocument>
@@ -675,6 +676,36 @@ int Omemo::bundleRequestDo(const char * to, uint32_t device_id, lurch_queued_msg
 */
     qDebug() << "FIXME implement me! Omemo::bundleRequestDo";
 
+    /* <iq type='get' to='xxx@jabber.ccc.de' id='xxx@jabber.ccc.de#508164373#-1085008789'>
+        <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+            <items node='eu.siacs.conversations.axolotl.bundles:508164373' max_items='1'/>
+        </pubsub>
+       </iq>
+    */
+
+    Swift::IDGenerator idGenerator;
+
+    std::string toJid{to};
+    //std::string reqId = toJid + "#" + std::to_string(device_id) + "#" + idGenerator.generateID();
+    std::string bundleId = std::to_string(device_id);
+
+    // gen the payload
+    const std::string pubsubXml = "<pubsub xmlns='http://jabber.org/protocol/pubsub'><items node='eu.siacs.conversations.axolotl.bundles:"
+            + std::to_string(device_id) + "' max_items='1'/></pubsub>";
+
+    RawRequestBundle::ref publishPep = RawRequestBundle::create(Swift::IQ::Get,
+                                                                            toJid,
+                                                                            pubsubXml,
+                                                                            client_->getIQRouter(),
+                                                                            bundleId,
+                                                                            qmsg_p
+                                                                        );
+
+    // FIXME pass toJid, device_id and qmsg_p -> make own Class from Request
+    publishPep->onResponse.connect(boost::bind(&Omemo::requestBundleHandler, this, _1, _2, _3, _4));
+    publishPep->send();
+
+#if 0
     int ret_val = 0;
 
     //JabberIq * jiq_p{nullptr};
@@ -722,8 +753,37 @@ cleanup:
     g_free(bundle_node_name);
 
     return ret_val;
+#endif
+
+    return 0;
 }
 
+void Omemo::requestBundleHandler(const Swift::JID& jid, const std::string& bundleId, lurch_queued_msg* qMsg, const std::string& str)
+{
+    // str has pubsub as root node. The cb wants it to be child of iq...
+    std::string bundleResponse = "<iq>" + str + "</iq>";
+
+    std::cout << jid.toString() << ", " << bundleId << ", " << bundleResponse << std::endl;
+
+    FIXME call lurch_bundle_request_cb
+    //exit(1);
+
+#if 0
+    xmlnode* xItems = xmlnode_from_str(bundleResponse.c_str(), -1);
+    if (xItems != NULL)
+    {
+        lurch_bundle_request_cb(&jabberStream_,
+                                requestBundleFrom_.toStdString().c_str(),
+                                JABBER_IQ_SET,
+                                requestBundleStanzaId_.toStdString().c_str(),
+                                xItems,
+                                lurchQueuedMsgPtr_
+                                );
+
+        free(xItems);
+    }
+#endif
+}
 
 void Omemo::pepBundleForKeytransport(const std::string from, const std::string &items)
 {
@@ -1182,16 +1242,13 @@ std::string Omemo::msgFinalizeEncryption(axc_context * axc_ctx_p, omemo_message 
 
             purple_debug_info("lurch", "%s: %s has device without session %i, requesting bundle\n", __func__, curr_addr.jid, curr_addr.device_id);
 
-            qDebug() << "Fixme! Implement call to lurch_bundle_request_do";
-            exit(1);
-
 /*
             lurch_bundle_request_do(js_p,
                                     curr_addr.jid,
                                     curr_addr.device_id,
                                     qmsg_p);
 */
-
+            bundleRequestDo(curr_addr.jid, curr_addr.device_id, qmsg_p);
         }
         //*msg_stanza_pp = (void *) 0;
     }

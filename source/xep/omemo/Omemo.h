@@ -1,6 +1,8 @@
 #ifndef OMEMO_H
 #define OMEMO_H
 
+#include "LurchTypes.h"
+
 #include <QObject>
 #include <QMap>
 #include <QString>
@@ -35,12 +37,7 @@ private:
       uint32_t device_id;
     } lurch_addr;
 
-    typedef struct lurch_queued_msg {
-      omemo_message * om_msg_p;
-      GList * recipient_addr_l_p;
-      GList * no_sess_l_p;
-      GHashTable * sess_handled_p;
-    } lurch_queued_msg;
+    typedef struct lurch_queued_msg lurch_queued_msg;
 
     void requestDeviceList(const Swift::JID& jid);
     void ownDeviceListRequestHandler(QString items);
@@ -48,6 +45,7 @@ private:
     void handleDeviceListResponse(const Swift::JID jid, const std::string &str);
     void publishedDeviceList(const std::string& str);
     void publishedBundle(const std::string& str);
+    void requestBundleHandler(const Swift::JID &jid, const std::string &bundleId, lurch_queued_msg *qMsg, const std::string& str);
 
     void pepBundleForKeytransport(const std::string from, const std::string& items);
 
