@@ -765,7 +765,7 @@ void Omemo::requestBundleHandler(const Swift::JID& jid, const std::string& bundl
 
     std::cout << jid.toString() << ", " << bundleId << ", " << bundleResponse << std::endl;
 
-    FIXME call lurch_bundle_request_cb
+    //FIXME call lurch_bundle_request_cb
     //exit(1);
 
 #if 0
@@ -784,6 +784,154 @@ void Omemo::requestBundleHandler(const Swift::JID& jid, const std::string& bundl
     }
 #endif
 }
+
+#if 0
+void Omemo::BundleRequestCb(JabberStream * js_p, const char * from,
+                                    JabberIqType type, const char * id,
+                                    xmlnode * packet_p, gpointer data_p) {
+#endif
+void Omemo::BundleRequestCb(const std::string& fromStr, JabberIqType type, const std::string& idStr,
+                            const std::string& packet_p, lurch_queued_msg * qmsg_p) {
+
+    // Implements lurch_bundle_request_cb
+  int ret_val{0};
+  char * err_msg_conv{nullptr};
+  char * err_msg_dbg{nullptr};
+
+  //char * uname = (void *) 0;
+  //char ** split = (void *) 0;
+  char * device_id_str{nullptr};;
+  axc_address addr{};
+  axc_context * axc_ctx_p{nullptr};
+  char * recipient{nullptr};
+  //xmlnode * pubsub_node_p = (void *) 0;
+  //xmlnode * items_node_p = (void *) 0;
+  int msg_handled{0};
+  char * addr_key{nullptr};
+  char * msg_xml{nullptr};
+  //xmlnode * msg_node_p = (void *) 0;
+  //lurch_queued_msg * qmsg_p = (lurch_queued_msg *) data_p;
+
+  const char * from = fromStr.c_str();
+
+  //uname = lurch_uname_strip(purple_account_get_username(purple_connection_get_account(js_p->gc)));
+  recipient = omemo_message_get_recipient_name_bare(qmsg_p->om_msg_p);
+
+  if (!from) {
+    // own user
+    from = uname_;
+  }
+
+  //split = g_strsplit(id, "#", 3);
+  device_id_str = idStr.c_str();
+
+  purple_debug_info("lurch", "%s: %s received bundle update from %s:%s\n", __func__, uname_, from, device_id_str);
+
+  addr.name = from;
+  addr.name_len = strnlen(from, JABBER_MAX_LEN_BARE);
+  addr.device_id = strtol(device_id_str, (void *) 0, 10);
+
+  //ret_val = lurch_axc_get_init_ctx(uname_, &axc_ctx_p);
+  ret_val = axcGetInitCtx(&axc_ctx_p);
+  if (ret_val) {
+    err_msg_dbg = "failed to get axc ctx";
+    goto cleanup;
+  }
+
+  if (type == JABBER_IQ_ERROR) {
+    err_msg_conv = g_strdup_printf("The device %s owned by %s does not have a bundle and will be skipped. "
+                                   "The owner should fix this, or remove the device from the list.", device_id_str, from);
+
+  } else {
+#if 0
+    pubsub_node_p = xmlnode_get_child(packet_p, "pubsub");
+    if (!pubsub_node_p) {
+      ret_val = LURCH_ERR;
+      err_msg_dbg = "no <pubsub> node in response";
+      goto cleanup;
+    }
+#endif
+
+    items_node_p = xmlnode_get_child(pubsub_node_p, "items");
+    if (!items_node_p) {
+      ret_val = LURCH_ERR;
+      err_msg_dbg = "no <items> node in response";
+      goto cleanup;
+    }
+
+    ret_val = axc_session_exists_initiated(&addr, axc_ctx_p);
+    if (!ret_val) {
+      ret_val = lurch_bundle_create_session(uname_, from, items_node_p, axc_ctx_p);
+      if (ret_val) {
+        err_msg_dbg = "failed to create a session";
+        goto cleanup;
+      }
+    } else if (ret_val < 0) {
+      err_msg_dbg = "failed to check if session exists";
+      goto cleanup;
+    }
+  }
+
+  addr_key = lurch_queue_make_key_string_s(from, device_id_str);
+  if (!addr_key) {
+    err_msg_dbg = "failed to make a key string";
+    ret_val = LURCH_ERR;
+    goto cleanup;
+  }
+
+  (void) g_hash_table_replace(qmsg_p->sess_handled_p, addr_key, addr_key);
+
+  if (lurch_queued_msg_is_handled(qmsg_p)) {
+    msg_handled = 1;
+  }
+
+  if (msg_handled) {
+    ret_val = lurch_msg_encrypt_for_addrs(qmsg_p->om_msg_p, qmsg_p->recipient_addr_l_p, axc_ctx_p);
+    if (ret_val) {
+      err_msg_dbg = "failed to encrypt the symmetric key";
+      goto cleanup;
+    }
+
+    ret_val = lurch_export_encrypted(qmsg_p->om_msg_p, &msg_xml);
+    if (ret_val) {
+      err_msg_dbg = "failed to export the message to xml";
+      goto cleanup;
+    }
+
+    msg_node_p = xmlnode_from_str(msg_xml, -1);
+    if (!msg_node_p) {
+      err_msg_dbg = "failed to parse xml from string";
+      ret_val = LURCH_ERR;
+      goto cleanup;
+    }
+
+    purple_debug_info("lurch", "sending encrypted msg\n");
+    purple_signal_emit(purple_plugins_find_with_id("prpl-jabber"), "jabber-sending-xmlnode", js_p->gc, &msg_node_p);
+
+    lurch_queued_msg_destroy(qmsg_p);
+  }
+
+cleanup:
+  if (err_msg_conv) {
+    purple_conv_present_error(recipient, purple_connection_get_account(js_p->gc), err_msg_conv);
+    g_free(err_msg_conv);
+  }
+  if (err_msg_dbg) {
+    purple_conv_present_error(recipient, purple_connection_get_account(js_p->gc), LURCH_ERR_STRING_ENCRYPT);
+    purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
+  }
+
+  //free(uname);
+  //g_strfreev(split);
+
+  free(addr_key);
+  //free(recipient);
+  free(msg_xml);
+  //if (msg_node_p) {
+  //  xmlnode_free(msg_node_p);
+  //}
+}
+
 
 void Omemo::pepBundleForKeytransport(const std::string from, const std::string &items)
 {
