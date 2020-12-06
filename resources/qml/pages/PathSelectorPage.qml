@@ -4,6 +4,7 @@ import Qt.labs.folderlistmodel 2.1
 
 Dialog {
     id: page;
+    allowedOrientations: Orientation.All;
 
     property url currentPath
 

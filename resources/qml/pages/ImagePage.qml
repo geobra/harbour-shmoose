@@ -6,6 +6,7 @@ import Sailfish.Silica 1.0
 
 Page {
     id: imagePage
+    allowedOrientations: Orientation.All
 
     property string imgUrl
     property string strHpTitle: ""
