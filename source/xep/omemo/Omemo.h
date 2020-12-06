@@ -65,7 +65,7 @@ private:
     int bundlePublishOwn();
     int devicelistProcess(const char *uname, omemo_devicelist * dl_in_p);
     void accountConnectCb();
-    void BundleRequestCb(const std::string& fromStr, JabberIqType type, const std::string& idStr,
+    void bundleRequestCb(const std::string& fromStr, JabberIqType type, const std::string& idStr,
                                 const std::string& packet_p, lurch_queued_msg *qmsg_p);
 
     char* unameGetDbFn(const char * uname, char * which);
@@ -79,6 +79,10 @@ private:
     int lurch_key_encrypt(const lurch_addr * recipient_addr_p, const uint8_t * key_p, size_t key_len, axc_context * axc_ctx_p, axc_buf ** key_ct_buf_pp);
     int lurch_export_encrypted(omemo_message * om_msg_p, char ** xml_pp);
     int lurch_queued_msg_create(omemo_message * om_msg_p, GList * recipient_addr_l_p, GList * no_sess_l_p, lurch_queued_msg ** qmsg_pp);
+    char* lurch_queue_make_key_string_s(const char * name, const char * device_id);
+    int lurch_queued_msg_is_handled(const lurch_queued_msg * qmsg_p);
+    void lurch_queued_msg_destroy(lurch_queued_msg * qmsg_p);
+
 
     void handleConnected();
 

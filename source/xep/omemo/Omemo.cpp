@@ -10,6 +10,8 @@
 #include <QDomDocument>
 #include <QDebug>
 
+#include <stdlib.h>
+
 extern "C" {
 #include "libomemo_crypto.h"
 #include "libomemo_storage.h"
@@ -670,11 +672,6 @@ cleanup:
 
 int Omemo::bundleRequestDo(const char * to, uint32_t device_id, lurch_queued_msg * qmsg_p) {
     // lurch_bundle_request_do
-/*
-    FIXME implement me the swift way
-    have a look at Omemo::bundleRequest
-*/
-    qDebug() << "FIXME implement me! Omemo::bundleRequestDo";
 
     /* <iq type='get' to='xxx@jabber.ccc.de' id='xxx@jabber.ccc.de#508164373#-1085008789'>
         <pubsub xmlns='http://jabber.org/protocol/pubsub'>
@@ -701,7 +698,6 @@ int Omemo::bundleRequestDo(const char * to, uint32_t device_id, lurch_queued_msg
                                                                             qmsg_p
                                                                         );
 
-    // FIXME pass toJid, device_id and qmsg_p -> make own Class from Request
     publishPep->onResponse.connect(boost::bind(&Omemo::requestBundleHandler, this, _1, _2, _3, _4));
     publishPep->send();
 
@@ -765,8 +761,7 @@ void Omemo::requestBundleHandler(const Swift::JID& jid, const std::string& bundl
 
     std::cout << jid.toString() << ", " << bundleId << ", " << bundleResponse << std::endl;
 
-    //FIXME call lurch_bundle_request_cb
-    //exit(1);
+    bundleRequestCb(jid.toBare().toString(), JABBER_IQ_SET, bundleId, bundleResponse, qMsg);
 
 #if 0
     xmlnode* xItems = xmlnode_from_str(bundleResponse.c_str(), -1);
@@ -790,7 +785,7 @@ void Omemo::BundleRequestCb(JabberStream * js_p, const char * from,
                                     JabberIqType type, const char * id,
                                     xmlnode * packet_p, gpointer data_p) {
 #endif
-void Omemo::BundleRequestCb(const std::string& fromStr, JabberIqType type, const std::string& idStr,
+void Omemo::bundleRequestCb(const std::string& fromStr, JabberIqType type, const std::string& idStr,
                             const std::string& packet_p, lurch_queued_msg * qmsg_p) {
 
     // Implements lurch_bundle_request_cb
@@ -800,7 +795,7 @@ void Omemo::BundleRequestCb(const std::string& fromStr, JabberIqType type, const
 
   //char * uname = (void *) 0;
   //char ** split = (void *) 0;
-  char * device_id_str{nullptr};;
+  const char * device_id_str{nullptr};;
   axc_address addr{};
   axc_context * axc_ctx_p{nullptr};
   char * recipient{nullptr};
@@ -813,6 +808,7 @@ void Omemo::BundleRequestCb(const std::string& fromStr, JabberIqType type, const
   //lurch_queued_msg * qmsg_p = (lurch_queued_msg *) data_p;
 
   const char * from = fromStr.c_str();
+  std::string items{};
 
   //uname = lurch_uname_strip(purple_account_get_username(purple_connection_get_account(js_p->gc)));
   recipient = omemo_message_get_recipient_name_bare(qmsg_p->om_msg_p);
@@ -829,7 +825,7 @@ void Omemo::BundleRequestCb(const std::string& fromStr, JabberIqType type, const
 
   addr.name = from;
   addr.name_len = strnlen(from, JABBER_MAX_LEN_BARE);
-  addr.device_id = strtol(device_id_str, (void *) 0, 10);
+  addr.device_id = strtol(device_id_str, nullptr, 10);
 
   //ret_val = lurch_axc_get_init_ctx(uname_, &axc_ctx_p);
   ret_val = axcGetInitCtx(&axc_ctx_p);
@@ -852,8 +848,9 @@ void Omemo::BundleRequestCb(const std::string& fromStr, JabberIqType type, const
     }
 #endif
 
-    items_node_p = xmlnode_get_child(pubsub_node_p, "items");
-    if (!items_node_p) {
+    //items_node_p = xmlnode_get_child(pubsub_node_p, "items");
+    QString qItems = XmlProcessor::getChildFromNode("items", QString::fromStdString(packet_p));
+    if (qItems.isEmpty() == true) {
       ret_val = LURCH_ERR;
       err_msg_dbg = "no <items> node in response";
       goto cleanup;
@@ -861,7 +858,8 @@ void Omemo::BundleRequestCb(const std::string& fromStr, JabberIqType type, const
 
     ret_val = axc_session_exists_initiated(&addr, axc_ctx_p);
     if (!ret_val) {
-      ret_val = lurch_bundle_create_session(uname_, from, items_node_p, axc_ctx_p);
+      //ret_val = lurch_bundle_create_session(uname_, from, items_node_p, axc_ctx_p);
+      ret_val = bundleCreateSession(from, qItems.toStdString(), axc_ctx_p);
       if (ret_val) {
         err_msg_dbg = "failed to create a session";
         goto cleanup;
@@ -898,26 +896,47 @@ void Omemo::BundleRequestCb(const std::string& fromStr, JabberIqType type, const
       goto cleanup;
     }
 
+#if 0
     msg_node_p = xmlnode_from_str(msg_xml, -1);
     if (!msg_node_p) {
       err_msg_dbg = "failed to parse xml from string";
       ret_val = LURCH_ERR;
       goto cleanup;
     }
+#endif
+    // FIXME send msg_xml!!!
+    std::cout << msg_xml << std::endl;
+
+#if 0
+    <message from="xxx@jabber-germany.de/shmooseDesktop"
+    id="c59d9715-dd20-4f14-95d7-df77e38134a5" to="xxx@jabber.ccc.de"
+    type="chat" xmlns="jabber:client"><encrypted
+    xmlns="eu.siacs.conversations.axolotl"><header sid="123"><key
+    rid="123">sdfsdfsdgf+MNHmiVV1sGfhj3AhjL9FQaIQVgWpmy0L8MpILJcN8iha97ZZokPIBiCOwESnMhqgjYCyJiMwohBeUhETWGpSojf/vMAaZkUOJYZ8tAf1vfIuXj79PNZadMEAAYACIwaxA5sYUni/BRsNWwAXzrLvxOWFvgIgd5qsngNI6DyIQE06UAwhb9XrgtUh5O0ABonJhTs1NeSwUorOHEuQYwAQ==</key><key
+    rid="345">dfgsdfgsdg+GaS+fz8aIQVgWpmy0L8MpILJcN8iha97ZZokPIBiCOwESnMhqgjYCyJiMwohBW/ZDJ6qOUQfyxEhQeXyVCaNwn3fTQvxZ83j3+1bCsFlEAAYACIw5TfyoG22m7Fc/Vasimr+/jClh+Tqr2Tr4DjSFOvMnaVbkLURGdsYzp5V6u8MEQwy4L3rCDYZT0QorOHEuQYwAQ==</key><key
+    rid="678">Mwi1s/dsfgsdgfdfg/wIWIeUjvwPmkSpX1LVdtjGiEFYFqZstC/DKSCyXDfIoWve2WaJDyAYgjsBEpzIaoI2AsiYjMKIQUIcVzbBJlnNjwODA4sQht4a4d4a1MJTUubou166tQnPxAAGAAiMFz+lx48JDfF+kdtOXVa5s20t7VPlDX7lkGyb8wbM1BaribjYs2zUzUoJYf0Hv+2GiQKXUep9uxjKKzhxLkGMMGNwIgE</key><key
+    rid="901">sdfgdsfgdsg/q9hhs6DS/8ckCiynI0SvygJtck0nYliZXi0CegzEAAYACIwNxsoVGjMdwh0w8S++8xFgtDgWesHY7Km7TEv4DFFRcMWbYysZt9wmgLgpW/1klECe2h4sxykTzQorOHEuQYwAA==</key><key
+    rid="12345">dsgdfgdg+rjxZgQ7gC0Z1gEAAYACIwEs62G0nPJsEp7/YMhmJi0H/QZf9OHE77+RsFkz0NlLihS1DLSV1s2Q9xY2ujvmxaSlQQ+JocpPYorOHEuQYwAg==</key><iv>xmVO7Gu1p41lcNF7ZmzVgA==</iv></header><payload>UFzx</payload></encrypted><encryption
+    xmlns="urn:xmpp:eme:0" namespace="eu.siacs.conversations.axolotl"
+    name="OMEMO" /><store xmlns="urn:xmpp:hints" /></message>
+#endif
 
     purple_debug_info("lurch", "sending encrypted msg\n");
-    purple_signal_emit(purple_plugins_find_with_id("prpl-jabber"), "jabber-sending-xmlnode", js_p->gc, &msg_node_p);
+    //purple_signal_emit(purple_plugins_find_with_id("prpl-jabber"), "jabber-sending-xmlnode", js_p->gc, &msg_node_p);
 
     lurch_queued_msg_destroy(qmsg_p);
   }
 
 cleanup:
   if (err_msg_conv) {
-    purple_conv_present_error(recipient, purple_connection_get_account(js_p->gc), err_msg_conv);
+    //purple_conv_present_error(recipient, purple_connection_get_account(js_p->gc), err_msg_conv);
+    // FIXME show error to user!
+    std::cout << err_msg_conv << std::endl;
     g_free(err_msg_conv);
   }
   if (err_msg_dbg) {
-    purple_conv_present_error(recipient, purple_connection_get_account(js_p->gc), LURCH_ERR_STRING_ENCRYPT);
+    //purple_conv_present_error(recipient, purple_connection_get_account(js_p->gc), LURCH_ERR_STRING_ENCRYPT);
+    // FIXME show error to user!
     purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
   }
 
@@ -925,13 +944,29 @@ cleanup:
   //g_strfreev(split);
 
   free(addr_key);
-  //free(recipient);
+  free(recipient);
   free(msg_xml);
   //if (msg_node_p) {
   //  xmlnode_free(msg_node_p);
   //}
 }
 
+char * Omemo::lurch_queue_make_key_string_s(const char * name, const char * device_id) {
+  return g_strconcat(name, "/", device_id, NULL);
+}
+
+int Omemo::lurch_queued_msg_is_handled(const lurch_queued_msg * qmsg_p) {
+  return (g_list_length(qmsg_p->no_sess_l_p) == g_hash_table_size(qmsg_p->sess_handled_p)) ? 1 : 0;
+}
+
+void Omemo::lurch_queued_msg_destroy(lurch_queued_msg * qmsg_p) {
+  if (qmsg_p) {
+    omemo_message_destroy(qmsg_p->om_msg_p);
+    g_list_free_full(qmsg_p->recipient_addr_l_p, free);
+    g_hash_table_destroy(qmsg_p->sess_handled_p);
+    free(qmsg_p);
+  }
+}
 
 void Omemo::pepBundleForKeytransport(const std::string from, const std::string &items)
 {
