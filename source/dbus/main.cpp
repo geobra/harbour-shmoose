@@ -19,6 +19,9 @@ int main(int argc, char *argv[])
 
         qDebug() << "argc: " << argc << ", argv0: " << argv[1];
 
+        app.setOrganizationName("shmoose"  + QString::fromLatin1(argv[1]));
+        app.setOrganizationDomain("harbour" + QString::fromLatin1(argv[1]));
+
         // eventloop
         Swift::QtEventLoop eventLoop;
         Swift::BoostNetworkFactories networkFactories(&eventLoop);

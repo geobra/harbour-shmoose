@@ -117,7 +117,7 @@ void Omemo::setupWithClient(Swift::Client* client)
     requestDeviceList(client_->getJID());
 
     //FIXME -> failed to import devicelist
-    requestDeviceList("schorsch@jabber.ccc.de");
+    requestDeviceList("user2@localhost");
 
 }
 
@@ -1876,24 +1876,26 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
     // get the items of the request
     QString items = XmlProcessor::getChildFromNode("items", QString::fromStdString(str));
 
-    if (! items.isEmpty())
+    // call this methods even with empty 'items'! Its an init path to the bundleList.
+    if (myBareJid_.compare(qJid, Qt::CaseInsensitive) == 0)
     {
-        if (myBareJid_.compare(qJid, Qt::CaseInsensitive) == 0)
+        // was a request for my device list
+        ownDeviceListRequestHandler(items);
+    }
+    else
+    {
+        // requested someone else device list
+        if ( (!items.isEmpty()) && items.startsWith("<items"))
         {
-            // was a request for my device list
-            ownDeviceListRequestHandler(items);
-        }
-        else
-        {
-            // requested someone else device list
-            qDebug() << "requested someone else device list";
+            qDebug() << "requested someone else device list: " << QString::fromStdString(bareJidStr) << ": " << items;
 
             omemo_devicelist* dl_in_p = nullptr;
             char* pItems = strdup(items.toStdString().c_str());
 
-            if (omemo_devicelist_import(pItems, bareJidStr.c_str(), &dl_in_p) != 0)
+            int ret = omemo_devicelist_import(pItems, bareJidStr.c_str(), &dl_in_p);
+            if ( ret == 0)
             {
-                if(devicelistProcess(bareJidStr.c_str(), dl_in_p) != 0)
+                if(devicelistProcess(uname_, dl_in_p) != 0)
                 {
                     qDebug() << "failed to process devicelist";
                 }
@@ -1902,7 +1904,7 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
             }
             else
             {
-                qDebug() << "failed to import devicelist";
+                qDebug() << "failed to import devicelist: " << ret;
             }
             free(pItems);
         }
