@@ -28,7 +28,7 @@ MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, Ro
 
 void MessageHandler::setupWithClient(Swift::Client* client)
 {  
-    if (client != NULL)
+    if (client != nullptr)
     {
         client_ = client;
 
@@ -58,17 +58,16 @@ void MessageHandler::handleStanzaAcked(Swift::Stanza::ref stanza)
 void MessageHandler::handleMessageReceived(Swift::Message::ref aMessage)
 {
     //std::cout << "handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
-    // FIXME check if msg contains an <encrypted ... > stanza and call 'messageDecrypt'
     Swift::Message* message{nullptr};
     std::string fromJid{};
 
-    unsigned int msgEncrypted{0};
+    //unsigned int msgEncrypted{0};
 
     // check if received aMessage is encrypted
     QString qMsg = getSerializedStringFromMessage(aMessage);
     if (isEncryptedMessage(qMsg))
     {
-        msgEncrypted = 1;
+        //msgEncrypted = 1;
 
         std::string dmsg = omemo_->messageDecrypt(qMsg.toStdString());
         QString decryptedMessage = QString::fromStdString(dmsg);

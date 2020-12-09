@@ -100,7 +100,8 @@ private:
     omemo_crypto_provider crypto = {
         .random_bytes_func = omemo_default_crypto_random_bytes,
         .aes_gcm_encrypt_func = omemo_default_crypto_aes_gcm_encrypt,
-        .aes_gcm_decrypt_func = omemo_default_crypto_aes_gcm_decrypt
+        .aes_gcm_decrypt_func = omemo_default_crypto_aes_gcm_decrypt,
+        .user_data_p = nullptr
     };
 };
 

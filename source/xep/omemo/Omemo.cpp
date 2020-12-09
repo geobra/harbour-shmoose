@@ -1,3 +1,7 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+
 #include "Omemo.h"
 #include "System.h"
 #include "XmlProcessor.h"
@@ -57,6 +61,8 @@ extern "C" {
 
 void purple_debug_info (const char *category, const char *format,...)
 {
+    (void) category;
+
     va_list args;
     va_start(args, format);
     vfprintf(stderr, format, args);
@@ -330,7 +336,7 @@ int Omemo::keyEncrypt(const lurch_addr * recipient_addr_p,
 
     axc_addr.name = recipient_addr_p->jid;
     axc_addr.name_len = strnlen(axc_addr.name, JABBER_MAX_LEN_BARE);
-    axc_addr.device_id = recipient_addr_p->device_id;
+    axc_addr.device_id = (int32_t)recipient_addr_p->device_id;
 
     ret_val = axc_message_encrypt_and_serialize(key_buf_p, &axc_addr, axc_ctx_p, &key_ct_buf_p);
     if (ret_val) {
@@ -375,7 +381,7 @@ int Omemo::lurch_key_encrypt(const lurch_addr * recipient_addr_p,
 
   axc_addr.name = recipient_addr_p->jid;
   axc_addr.name_len = strnlen(axc_addr.name, JABBER_MAX_LEN_BARE);
-  axc_addr.device_id = recipient_addr_p->device_id;
+  axc_addr.device_id = (int32_t)recipient_addr_p->device_id;
 
   ret_val = axc_message_encrypt_and_serialize(key_buf_p, &axc_addr, axc_ctx_p, &key_ct_buf_p);
   if (ret_val) {
@@ -414,7 +420,7 @@ int Omemo::lurch_msg_encrypt_for_addrs(omemo_message * om_msg_p, GList * addr_l_
         curr_addr_p = (lurch_addr *) curr_l_p->data;
         addr.name = curr_addr_p->jid;
         addr.name_len = strnlen(addr.name, JABBER_MAX_LEN_BARE);
-        addr.device_id = curr_addr_p->device_id;
+        addr.device_id = (int32_t)curr_addr_p->device_id;
 
         ret_val = axc_session_exists_initiated(&addr, axc_ctx_p);
         if (ret_val < 0) {
@@ -577,7 +583,7 @@ int Omemo::bundleCreateSession(const char* from, const std::string& items, axc_c
     int ret_val{0};
     char * err_msg_dbg{nullptr};
 
-    int len{};
+    //int len{};
     omemo_bundle * om_bundle_p{nullptr};
     axc_address remote_addr{};
     uint32_t pre_key_id{0};
@@ -605,7 +611,7 @@ int Omemo::bundleCreateSession(const char* from, const std::string& items, axc_c
 
     remote_addr.name = from;
     remote_addr.name_len = strnlen(from, JABBER_MAX_LEN_BARE);
-    remote_addr.device_id = omemo_bundle_get_device_id(om_bundle_p);
+    remote_addr.device_id = (int32_t)omemo_bundle_get_device_id(om_bundle_p);
 
     purple_debug_info("lurch", "%s: bundle's device id is %i\n", __func__, remote_addr.device_id);
 
@@ -825,7 +831,7 @@ void Omemo::bundleRequestCb(const std::string& fromStr, JabberIqType type, const
 
   addr.name = from;
   addr.name_len = strnlen(from, JABBER_MAX_LEN_BARE);
-  addr.device_id = strtol(device_id_str, nullptr, 10);
+  addr.device_id = (int32_t)strtol(device_id_str, nullptr, 10);
 
   //ret_val = lurch_axc_get_init_ctx(uname_, &axc_ctx_p);
   ret_val = axcGetInitCtx(&axc_ctx_p);
@@ -904,21 +910,7 @@ void Omemo::bundleRequestCb(const std::string& fromStr, JabberIqType type, const
       goto cleanup;
     }
 #endif
-    //std::cout << msg_xml << std::endl;
 
-#if 0
-    <message from="xxx@jabber-germany.de/shmooseDesktop"
-    id="c59d9715-dd20-4f14-95d7-df77e38134a5" to="xxx@jabber.ccc.de"
-    type="chat" xmlns="jabber:client"><encrypted
-    xmlns="eu.siacs.conversations.axolotl"><header sid="123"><key
-    rid="123">sdfsdfsdgf+MNHmiVV1sGfhj3AhjL9FQaIQVgWpmy0L8MpILJcN8iha97ZZokPIBiCOwESnMhqgjYCyJiMwohBeUhETWGpSojf/vMAaZkUOJYZ8tAf1vfIuXj79PNZadMEAAYACIwaxA5sYUni/BRsNWwAXzrLvxOWFvgIgd5qsngNI6DyIQE06UAwhb9XrgtUh5O0ABonJhTs1NeSwUorOHEuQYwAQ==</key><key
-    rid="345">dfgsdfgsdg+GaS+fz8aIQVgWpmy0L8MpILJcN8iha97ZZokPIBiCOwESnMhqgjYCyJiMwohBW/ZDJ6qOUQfyxEhQeXyVCaNwn3fTQvxZ83j3+1bCsFlEAAYACIw5TfyoG22m7Fc/Vasimr+/jClh+Tqr2Tr4DjSFOvMnaVbkLURGdsYzp5V6u8MEQwy4L3rCDYZT0QorOHEuQYwAQ==</key><key
-    rid="678">Mwi1s/dsfgsdgfdfg/wIWIeUjvwPmkSpX1LVdtjGiEFYFqZstC/DKSCyXDfIoWve2WaJDyAYgjsBEpzIaoI2AsiYjMKIQUIcVzbBJlnNjwODA4sQht4a4d4a1MJTUubou166tQnPxAAGAAiMFz+lx48JDfF+kdtOXVa5s20t7VPlDX7lkGyb8wbM1BaribjYs2zUzUoJYf0Hv+2GiQKXUep9uxjKKzhxLkGMMGNwIgE</key><key
-    rid="901">sdfgdsfgdsg/q9hhs6DS/8ckCiynI0SvygJtck0nYliZXi0CegzEAAYACIwNxsoVGjMdwh0w8S++8xFgtDgWesHY7Km7TEv4DFFRcMWbYysZt9wmgLgpW/1klECe2h4sxykTzQorOHEuQYwAA==</key><key
-    rid="12345">dsgdfgdg+rjxZgQ7gC0Z1gEAAYACIwEs62G0nPJsEp7/YMhmJi0H/QZf9OHE77+RsFkz0NlLihS1DLSV1s2Q9xY2ujvmxaSlQQ+JocpPYorOHEuQYwAg==</key><iv>xmVO7Gu1p41lcNF7ZmzVgA==</iv></header><payload>UFzx</payload></encrypted><encryption
-    xmlns="urn:xmpp:eme:0" namespace="eu.siacs.conversations.axolotl"
-    name="OMEMO" /><store xmlns="urn:xmpp:hints" /></message>
-#endif
     emit rawMessageStanzaForSending(QString::fromLatin1(msg_xml));
 
     purple_debug_info("lurch", "sending encrypted msg\n");
@@ -980,7 +972,7 @@ void Omemo::pepBundleForKeytransport(const std::string from, const std::string &
     omemo_message * msg_p{nullptr};
     axc_address addr{};
     lurch_addr laddr{};
-    axc_buf * key_ct_buf_p;
+    axc_buf * key_ct_buf_p{};
     char * msg_xml{nullptr};
     //xmlnode * msg_node_p{nullptr};
     //void * jabber_handle_p = purple_plugins_find_with_id("prpl-jabber");
@@ -997,7 +989,7 @@ void Omemo::pepBundleForKeytransport(const std::string from, const std::string &
     purple_debug_info("lurch", "%s: %s received bundle from %s:%i\n", __func__, uname_, from.c_str(), addr.device_id);
 
     laddr.jid = g_strndup(addr.name, addr.name_len);
-    laddr.device_id = addr.device_id;
+    laddr.device_id = (uint32_t)addr.device_id;
 
     ret_val = axcGetInitCtx(&axc_ctx_p);
     if (ret_val) {
@@ -1006,7 +998,7 @@ void Omemo::pepBundleForKeytransport(const std::string from, const std::string &
     }
 
     // make sure it's gonna be a pre_key_message
-    ret_val = axc_session_delete(addr.name, addr.device_id, axc_ctx_p);
+    ret_val = axc_session_delete(addr.name, (uint32_t)addr.device_id, axc_ctx_p);
     if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to delete possibly existing session");
         goto cleanup;
@@ -1043,7 +1035,7 @@ void Omemo::pepBundleForKeytransport(const std::string from, const std::string &
     }
 
     ret_val = omemo_message_add_recipient(msg_p,
-                                          addr.device_id,
+                                          (uint32_t)addr.device_id,
                                           axc_buf_get_data(key_ct_buf_p),
                                           axc_buf_get_len(key_ct_buf_p));
     if (ret_val) {
@@ -1311,7 +1303,7 @@ int Omemo::lurch_axc_sessions_exist(GList * addr_l_p, axc_context * axc_ctx_p, G
 
     curr_axc_addr.name = curr_addr_p->jid;
     curr_axc_addr.name_len = strnlen(curr_axc_addr.name, JABBER_MAX_LEN_BARE);
-    curr_axc_addr.device_id = curr_addr_p->device_id;
+    curr_axc_addr.device_id = (int32_t)curr_addr_p->device_id;
 
     ret_val = axc_session_exists_initiated(&curr_axc_addr, axc_ctx_p);
     if (ret_val < 0) {
@@ -1378,6 +1370,7 @@ cleanup:
 
 
 std::string Omemo::msgFinalizeEncryption(axc_context * axc_ctx_p, omemo_message * om_msg_p, GList * addr_l_p, const std::string& msg_stanza_pp) {
+    (void)msg_stanza_pp;
     std::string finalEncMsg{};
     int ret_val = 0;
     char * err_msg_dbg{nullptr};
@@ -1568,9 +1561,6 @@ std::string Omemo::messageEncryptIm(const std::string msg_stanza_pp) {
         err_msg_dbg = g_strdup_printf("failed to finalize omemo message");
         goto cleanup;
     }
-    else {
-        return finalMsg;
-    }
 
 cleanup:
     if (err_msg_dbg) {
@@ -1593,40 +1583,42 @@ cleanup:
     g_list_free_full(own_dl_p, free);
     axc_context_destroy_all(axc_ctx_p);
     free(tempxml);
+
+    return finalMsg;
 }
 
 
 std::string Omemo::messageDecrypt(const std::string& message)
 {
     // lurch_message_decrypt
-    int ret_val = 0;
-    char * err_msg_dbg = nullptr;
-    int len;
+    int ret_val{0};
+    char * err_msg_dbg{nullptr};
+    //int len;
 
-    omemo_message * msg_p = nullptr;
+    omemo_message * msg_p{nullptr};
     //char * uname = nullptr;
-    char * db_fn_omemo = nullptr;
-    axc_context * axc_ctx_p = nullptr;
-    uint32_t own_id = 0;
-    uint8_t * key_p = nullptr;
-    size_t key_len = 0;
-    axc_buf * key_buf_p = nullptr;
-    axc_buf * key_decrypted_p = nullptr;
-    char * sender_name = nullptr;
+    char * db_fn_omemo{nullptr};
+    axc_context * axc_ctx_p{nullptr};
+    uint32_t own_id{0};
+    uint8_t * key_p{nullptr};
+    size_t key_len{0};
+    axc_buf * key_buf_p{nullptr};
+    axc_buf * key_decrypted_p{nullptr};
+    char * sender_name{nullptr};
     axc_address sender_addr{};
-    char * bundle_node_name = nullptr;
-    omemo_message * keytransport_msg_p = nullptr;
-    char * xml = nullptr;
-    char * sender = nullptr;
-    char ** split = nullptr;
-    char * room_name = nullptr;
-    char * buddy_nick = nullptr;
+    char * bundle_node_name{nullptr};
+    omemo_message * keytransport_msg_p{nullptr};
+    char * xml{nullptr};
+    char * sender{nullptr};
+    char ** split{nullptr};
+    char * room_name{nullptr};
+    char * buddy_nick{nullptr};
     //xmlnode * plaintext_msg_node_p = nullptr;
-    char * recipient_bare_jid = nullptr;
+    char * recipient_bare_jid{nullptr};
     char* pMsg{nullptr};
     std::string decryptedMsg{};
-    std::string sType;
-    std::string sFrom;
+    std::string sType{};
+    std::string sFrom{};
 
     //const char * type = xmlnode_get_attrib(*msg_stanza_pp, "type");
     //const char * from = xmlnode_get_attrib(*msg_stanza_pp, "from");
@@ -1743,7 +1735,7 @@ std::string Omemo::messageDecrypt(const std::string& message)
 
     sender_addr.name = sender;
     sender_addr.name_len = strnlen(sender_addr.name, JABBER_MAX_LEN_BARE);
-    sender_addr.device_id = omemo_message_get_sender_id(msg_p);
+    sender_addr.device_id = (int32_t)omemo_message_get_sender_id(msg_p);
 
     ret_val = axc_pre_key_message_process(key_buf_p, &sender_addr, axc_ctx_p, &key_decrypted_p);
     if (ret_val == AXC_ERR_NOT_A_PREKEY_MSG) {
@@ -1758,7 +1750,7 @@ std::string Omemo::messageDecrypt(const std::string& message)
             goto cleanup;
         }
     } else if (ret_val == AXC_ERR_INVALID_KEY_ID) {
-        ret_val = omemo_bundle_get_pep_node_name(sender_addr.device_id, &bundle_node_name);
+        ret_val = omemo_bundle_get_pep_node_name((uint32_t)sender_addr.device_id, &bundle_node_name);
         if (ret_val) {
             err_msg_dbg = g_strdup_printf("failed to get bundle pep node name");
             goto cleanup;
@@ -1988,3 +1980,5 @@ void Omemo::slotRequestDeviceList(QString humanBareJid)
     qDebug() << "request device list for " << humanBareJid;
     requestDeviceList(Swift::JID(humanBareJid.toStdString()));
 }
+
+#pragma GCC diagnostic pop
