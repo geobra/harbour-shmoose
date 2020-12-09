@@ -118,8 +118,6 @@ void Omemo::setupWithClient(Swift::Client* client)
     myBareJid_ = QString::fromStdString(client_->getJID().toBare().toString());
     uname_ = strdup(myBareJid_.toStdString().c_str());
 
-    client_->onConnected.connect(boost::bind(&Omemo::handleConnected, this));
-
     requestDeviceList(client_->getJID());
 }
 
@@ -1903,24 +1901,6 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
     }
 }
 
-#if 0
-QString Omemo::encryptMessage(const QString& msg)
-{
-    xmlnode* xMsg = xmlnode_from_str(msg.toStdString().c_str(), -1);
-    lurch_message_encrypt_im(&purpleConnection_, &xMsg);
-
-    // FIXME check for errors from encryption and xml<->string conversion
-    int len = 0;
-    char* encMsg = xmlnode_to_str(xMsg, &len);
-    QString encryptedMessage = QString::fromUtf8(encMsg);
-
-    free(encMsg);
-    free(xMsg);
-
-    return encryptedMessage;
-}
-#endif
-
 void Omemo::publishedDeviceList(const std::string& str)
 {
     // FIXME check if there was an error on device list publishing
@@ -1931,18 +1911,6 @@ void Omemo::publishedBundle(const std::string& str)
 {
     // FIXME check if there was an error on bundle publishing
     qDebug() << "OMEMO: publishedBundle: " << QString::fromStdString(str);
-}
-
-void Omemo::accountConnectCb()
-{
-    // lurch_account_connect_cb
-    // functionality already reflected in setupWithClient which is called after login
-
-}
-
-void Omemo::handleConnected()
-{
-    accountConnectCb();
 }
 
 char* Omemo::unameGetDbFn(const char * uname, char * which)

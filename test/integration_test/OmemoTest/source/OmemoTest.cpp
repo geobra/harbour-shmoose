@@ -84,7 +84,7 @@ void OmemoTest::sendMsgTest()
     QSignalSpy spySignalConnectionChangedRhs(interfaceRhs_->getInterface(), SIGNAL(signalConnectionStateChanged()));
     interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
     interfaceRhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
-    spySignalConnectionChangedRhs.wait(timeOutConnect_);
+    spySignalConnectionChangedRhs.wait(2*timeOutConnect_);
     QCOMPARE(spySignalConnectionChangedRhs.count(), 1);
     spySignalConnectionChangedRhs.clear();
 
@@ -127,7 +127,7 @@ void OmemoTest::sendMsgTest()
     qDebug() << "sent #2 from 1 to 2 MsgId: " << msgId;
 
     // wait for arrived msgOnWire at other client
-    spyLatestMsgRhs.wait(timeOut_);
+    spyLatestMsgRhs.wait(4*timeOut_);
     QCOMPARE(spyLatestMsgRhs.count(), 1);
     spyArgumentsOfMsg = spyLatestMsgRhs.takeFirst();
     QVERIFY(spyArgumentsOfMsg.at(2).toString() == msgOnWire);
@@ -150,7 +150,7 @@ void OmemoTest::sendMsgTest()
     qDebug() << "sent #3 from 2 to 1 MsgId: " << msgId;
 
     // wait for arrived msgOnWire at other client
-    spyLatestMsgLhs.wait(timeOut_);
+    spyLatestMsgLhs.wait(4*timeOut_);
     QCOMPARE(spyLatestMsgLhs.count(), 1);
     spyArgumentsOfMsg = spyLatestMsgLhs.takeFirst();
     QVERIFY(spyArgumentsOfMsg.at(2).toString() == msgOnWireForUser1);

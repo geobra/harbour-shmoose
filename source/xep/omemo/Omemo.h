@@ -85,9 +85,6 @@ private:
     int lurch_queued_msg_is_handled(const lurch_queued_msg * qmsg_p);
     void lurch_queued_msg_destroy(lurch_queued_msg * qmsg_p);
 
-
-    void handleConnected();
-
     bool isEncryptedMessage(const QString& xmlNode);
 
     Swift::Client* client_{};
