@@ -41,7 +41,7 @@ extern "C" {
  * https://conversations.im/omemo/xep-omemo.html
  *
  * 1. check if own id is in my device list. update if necessary. give read access to world
- * 2. check all contacts if they support omemo. must cache that list
+ * 2. check all contacts if they support omemo. subscribe to 'eu.siacs.conversations.axolotl.devicelist' (new: 'urn:xmpp:omemo:1:devices'). must cache that list
  * 3. create and publish bundle. give read access to world
  * 4. build a session (fetch other clients bundle information)
  * 5. encrypt and send the message
@@ -115,10 +115,6 @@ void Omemo::setupWithClient(Swift::Client* client)
     client_->onConnected.connect(boost::bind(&Omemo::handleConnected, this));
 
     requestDeviceList(client_->getJID());
-
-    //FIXME -> failed to import devicelist
-    requestDeviceList("user2@localhost");
-
 }
 
 void Omemo::requestDeviceList(const Swift::JID& jid)
@@ -1899,6 +1895,10 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
                 {
                     qDebug() << "failed to process devicelist";
                 }
+                else
+                {
+                    emit signalReceivedDeviceListOfJid(qJid);
+                }
 
                 omemo_devicelist_destroy(dl_in_p);
             }
@@ -1980,4 +1980,11 @@ bool Omemo::isEncryptedMessage(const QString& xmlNode)
     }
 
     return returnValue;
+}
+
+// FIXME not just request the device list in this slot but also subscribe to the pep node!
+void Omemo::slotRequestDeviceList(QString humanBareJid)
+{
+    qDebug() << "request device list for " << humanBareJid;
+    requestDeviceList(Swift::JID(humanBareJid.toStdString()));
 }

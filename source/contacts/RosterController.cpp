@@ -133,6 +133,11 @@ bool RosterController::updateSubscriptionForJid(const Swift::JID &jid, RosterIte
             emit rosterListChanged();
             emit subscriptionUpdated(subscription);
 
+            if (subscription == RosterItem::Subscription::SUBSCRIPTION_BOTH)
+            {
+                emit signalHumanBareJidInContacts(localBareJid);
+            }
+
             somethingChanged = true;
             break;
         }
@@ -304,6 +309,7 @@ void RosterController::handleRosterReceived(Swift::ErrorPayload::ref error)
                                                   QString::fromStdString((*it).getName()),
                                                   (RosterItem::Subscription)(*it).getSubscription(), false, this));
 
+                emit signalHumanBareJidInContacts(bareJid);
                 somethingChanged = true;
             }
             else

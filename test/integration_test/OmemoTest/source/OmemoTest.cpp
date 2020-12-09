@@ -27,6 +27,15 @@ void OmemoTest::sendMsgTest()
     addContactTestCommon(interfaceLhs_, user2jid_, "user2");
     addContactTestCommon(interfaceRhs_, user1jid_, "user1");
 
+    // wait for the device list of user2 is available at user1
+    QSignalSpy spyDeviceListReceived(interfaceLhs_->getInterface(), SIGNAL(signalReceivedDeviceListOfJid(QString)));
+    // wait for arrived msgOnWire at other client
+    spyDeviceListReceived.wait(4 * timeOut_);
+    QVERIFY(spyDeviceListReceived.count() > 0);
+    QList<QVariant> spyArgumentsOfDeviceList = spyDeviceListReceived.takeFirst();
+    QVERIFY(spyArgumentsOfDeviceList.at(0).toString() == "user2@localhost");
+
+
     // need to collect more then one signal here. qsignalspy only catches one at a time. Use an own slot to collet them all.
     QObject::connect(interfaceLhs_->getInterface(), SIGNAL(signalMsgState(QString, int)), this, SLOT(collectMsgStateLhsChanged(QString, int)));
     QObject::connect(interfaceRhs_->getInterface(), SIGNAL(signalMsgState(QString, int)), this, SLOT(collectMsgStateRhsChanged(QString, int)));
@@ -49,7 +58,6 @@ void OmemoTest::sendMsgTest()
     QList<QVariant> argumentsMsgForUser2 {user2jid_, msgOnWire};
     interfaceLhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser2);
 
-#if 0
     // check msgId of sent msg
     spyMsgSent.wait(timeOut_);
     QVERIFY(spyMsgSent.count() == 1);
@@ -66,6 +74,7 @@ void OmemoTest::sendMsgTest()
 
     // check the msg status as seen from the sender
     // there must be 2 msg's for the sent msgId. the first with state change to 1, the second with state change to 2.
+#if 0
     spyMsgStateSender.wait(timeOut_);
 
     QCOMPARE(destrcutiveVerfiyStateAndCountOfMsgStates(lhs, msgId, QList<MsgIdState>{{"foo", 1}, {"foo", 2}}), true);
@@ -206,10 +215,11 @@ void OmemoTest::sendMsgTest()
     QString localPath = spyArgumentsOfDownload.at(0).toString();
     QVERIFY(localPath.contains("64x64-red"));
 
+#endif
     // quit clients
     interfaceLhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
     interfaceRhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
-#endif
+
 }
 
 bool OmemoTest::destrcutiveVerfiyStateAndCountOfMsgStates(enum side theSide, const QString& msgIdFilter, QList<MsgIdState> msgsList)

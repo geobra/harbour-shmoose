@@ -29,9 +29,10 @@ public:
 
 signals:
     void rawMessageStanzaForSending(QString);
+    void signalReceivedDeviceListOfJid(QString);
 
 public slots:
-
+    void slotRequestDeviceList(QString humanBareJid);
 private:
     typedef struct lurch_addr {
       char * jid;

@@ -44,6 +44,7 @@ signals:
     void signalRosterListDone();
     void signalMucRoomRemoved(QString);
     void signalSubscriptionUpdated(int);
+    void signalReceivedDeviceListOfJid(QString);
 
 private slots:
     void slotConnectionStateChanged();
@@ -56,6 +57,7 @@ private slots:
     void slotForwardMsgSentToDbus(QString);
     void slotForwardMucRoomRemoved(QString);
     void slotForwardSubscriptionUpdate(RosterItem::Subscription sub);
+    void slotForwardReceivedDeviceListOfJid(QString jid);
 
 private:
     Shmoose* shmoose_;

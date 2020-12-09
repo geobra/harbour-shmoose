@@ -71,8 +71,6 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref aMessage)
         msgEncrypted = 1;
 
         std::string dmsg = omemo_->messageDecrypt(qMsg.toStdString());
-
-
         QString decryptedMessage = QString::fromStdString(dmsg);
 
         if (decryptedMessage.isEmpty())

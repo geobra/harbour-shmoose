@@ -4,6 +4,7 @@
 #include "RosterItem.h"
 #include "MessageController.h"
 #include "MessageHandler.h"
+#include "Omemo.h"
 #include "DownloadManager.h"
 #include "MucManager.h"
 #include "GcmController.h"
@@ -51,6 +52,7 @@ void DbusCommunicator::setupConnections()
     GcmController* gcmCtrl = persistence->getGcmController();
     DownloadManager* downloadMgr = shmoose_->messageHandler_->downloadManager_;
     MessageHandler* msgHandler = shmoose_->messageHandler_;
+    Omemo* omemo = shmoose_->omemo_;
     MucManager* muma = shmoose_->mucManager_;
     RosterController* rc = shmoose_->getRosterController();
 
@@ -64,6 +66,7 @@ void DbusCommunicator::setupConnections()
     connect(muma, SIGNAL(removeGroupFromContactsList(QString)), this, SLOT(slotForwardMucRoomRemoved(QString)));
     connect(rc, SIGNAL(rosterListChanged()), this, SLOT(slotGotRosterEntry()));
     connect(rc, SIGNAL(subscriptionUpdated(RosterItem::Subscription)), this, SLOT(slotForwardSubscriptionUpdate(RosterItem::Subscription)));
+    connect(omemo, SIGNAL(signalReceivedDeviceListOfJid(QString)), this, SLOT(slotForwardReceivedDeviceListOfJid(QString)));
 }
 
 bool DbusCommunicator::tryToConnect(const QString& jid, const QString& pass)
@@ -220,6 +223,17 @@ void DbusCommunicator::slotForwardDownloadMsgToDbus(QString localPath)
 {
     QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalDownloadFinished");
     msg << localPath;
+
+    if(QDBusConnection::sessionBus().send(msg) == false)
+    {
+        qDebug() << "cant send message via dbus";
+    }
+}
+
+void DbusCommunicator::slotForwardReceivedDeviceListOfJid(QString jid)
+{
+    QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalReceivedDeviceListOfJid");
+    msg << jid;
 
     if(QDBusConnection::sessionBus().send(msg) == false)
     {
