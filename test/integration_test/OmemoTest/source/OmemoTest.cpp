@@ -20,6 +20,8 @@ OmemoTest::OmemoTest() : ClientComTestCommon()
 // send msg test
 void OmemoTest::sendMsgTest()
 {
+    QSignalSpy spyDeviceListReceivedLhs(interfaceLhs_->getInterface(), SIGNAL(signalReceivedDeviceListOfJid(QString)));
+
     requestRosterTestCommon(interfaceLhs_);
     requestRosterTestCommon(interfaceRhs_);
 
@@ -27,13 +29,15 @@ void OmemoTest::sendMsgTest()
     addContactTestCommon(interfaceLhs_, user2jid_, "user2");
     addContactTestCommon(interfaceRhs_, user1jid_, "user1");
 
+    // ####################################################
     // wait for the device list of user2 is available at user1
-    QSignalSpy spyDeviceListReceived(interfaceLhs_->getInterface(), SIGNAL(signalReceivedDeviceListOfJid(QString)));
+    // ####################################################
     // wait for arrived msgOnWire at other client
-    spyDeviceListReceived.wait(4 * timeOut_);
-    QVERIFY(spyDeviceListReceived.count() > 0);
-    QList<QVariant> spyArgumentsOfDeviceList = spyDeviceListReceived.takeFirst();
+    spyDeviceListReceivedLhs.wait(6 * timeOut_);
+    QVERIFY(spyDeviceListReceivedLhs.count() > 0);
+    QList<QVariant> spyArgumentsOfDeviceList = spyDeviceListReceivedLhs.takeFirst();
     QVERIFY(spyArgumentsOfDeviceList.at(0).toString() == "user2@localhost");
+    spyDeviceListReceivedLhs.clear();
 
 
     // need to collect more then one signal here. qsignalspy only catches one at a time. Use an own slot to collet them all.
@@ -52,25 +56,106 @@ void OmemoTest::sendMsgTest()
     // ####################################################
     // send msgOnWire from user1 to user2. Both are online.
     // ####################################################
-    QSignalSpy spyLatestMsg(interfaceRhs_->getInterface(), SIGNAL(signalLatestMsg(QString, QString, QString)));
+    QSignalSpy spyLatestMsgRhs(interfaceRhs_->getInterface(), SIGNAL(signalLatestMsg(QString, QString, QString)));
 
-    QSignalSpy spyMsgSent(interfaceLhs_->getInterface(), SIGNAL(signalMsgSent(QString)));
+    QSignalSpy spyMsgSentLhs(interfaceLhs_->getInterface(), SIGNAL(signalMsgSent(QString)));
     QList<QVariant> argumentsMsgForUser2 {user2jid_, msgOnWire};
     interfaceLhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser2);
 
     // check msgId of sent msg
-    spyMsgSent.wait(timeOut_);
-    QVERIFY(spyMsgSent.count() == 1);
-    QList<QVariant> spyArgumentsOfMsgSent = spyMsgSent.takeFirst();
+    spyMsgSentLhs.wait(timeOut_);
+    QVERIFY(spyMsgSentLhs.count() == 1);
+    QList<QVariant> spyArgumentsOfMsgSent = spyMsgSentLhs.takeFirst();
     QString msgId = spyArgumentsOfMsgSent.at(0).toString();
-    qDebug() << "sent MsgId: " << msgId;
+    qDebug() << "sent #1 from 1 to 2 MsgId: " << msgId;
 
     // wait for arrived msgOnWire at other client
-    spyLatestMsg.wait(timeOut_);
-    QCOMPARE(spyLatestMsg.count(), 1);
+    spyLatestMsgRhs.wait(timeOut_);
+    QCOMPARE(spyLatestMsgRhs.count(), 1);
 
-    QList<QVariant> spyArgumentsOfMsg = spyLatestMsg.takeFirst();
+    QList<QVariant> spyArgumentsOfMsg = spyLatestMsgRhs.takeFirst();
     QVERIFY(spyArgumentsOfMsg.at(2).toString() == msgOnWire);
+
+    // ####################################################
+    // disconnect the clients
+    // ####################################################
+    QList<QVariant> argumentsCurrentChatPartnerEmpty {""};
+    // rhs
+    QSignalSpy spySignalConnectionChangedRhs(interfaceRhs_->getInterface(), SIGNAL(signalConnectionStateChanged()));
+    interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
+    interfaceRhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
+    spySignalConnectionChangedRhs.wait(timeOutConnect_);
+    QCOMPARE(spySignalConnectionChangedRhs.count(), 1);
+    spySignalConnectionChangedRhs.clear();
+
+    // lhs
+    QSignalSpy spySignalConnectionChangedLhs(interfaceLhs_->getInterface(), SIGNAL(signalConnectionStateChanged()));
+    interfaceLhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
+    interfaceLhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
+    spySignalConnectionChangedLhs.wait(timeOutConnect_);
+    QCOMPARE(spySignalConnectionChangedLhs.count(), 1);
+    spySignalConnectionChangedLhs.clear();
+
+    // ####################################################
+    // re-connect the clients
+    // ####################################################
+    // rhs
+    QSignalSpy spyDeviceListReceivedRhs(interfaceRhs_->getInterface(), SIGNAL(signalReceivedDeviceListOfJid(QString)));
+    interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
+    spySignalConnectionChangedRhs.wait(timeOutConnect_);
+    QCOMPARE(spySignalConnectionChangedRhs.count(), 1);
+    spySignalConnectionChangedRhs.clear();
+
+    // lhs
+    interfaceLhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
+    spySignalConnectionChangedLhs.wait(timeOutConnect_);
+    QCOMPARE(spySignalConnectionChangedLhs.count(), 1);
+    spySignalConnectionChangedLhs.clear();
+
+    // ####################################################
+    // send msgOnWire from user1 to user2. Both are online.
+    // ####################################################
+    spyMsgSentLhs.clear();
+    spyLatestMsgRhs.clear();
+    interfaceLhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser2);
+
+    // check msgId of sent msg
+    spyMsgSentLhs.wait(timeOut_);
+    QVERIFY(spyMsgSentLhs.count() == 1);
+    spyArgumentsOfMsgSent = spyMsgSentLhs.takeFirst();
+    msgId = spyArgumentsOfMsgSent.at(0).toString();
+    qDebug() << "sent #2 from 1 to 2 MsgId: " << msgId;
+
+    // wait for arrived msgOnWire at other client
+    spyLatestMsgRhs.wait(timeOut_);
+    QCOMPARE(spyLatestMsgRhs.count(), 1);
+    spyArgumentsOfMsg = spyLatestMsgRhs.takeFirst();
+    QVERIFY(spyArgumentsOfMsg.at(2).toString() == msgOnWire);
+
+    // ####################################################
+    // send msgOnWire from user2 to user1. Both are online.
+    // ####################################################
+    QSignalSpy spyMsgSentRhs(interfaceRhs_->getInterface(), SIGNAL(signalMsgSent(QString)));
+    QSignalSpy spyLatestMsgLhs(interfaceLhs_->getInterface(), SIGNAL(signalLatestMsg(QString, QString, QString)));
+
+    QString msgOnWireForUser1{"Hi user1 from user2"};
+    QList<QVariant> argumentsMsgForUser1 {user1jid_, msgOnWireForUser1};
+    interfaceRhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser1);
+
+    // check msgId of sent msg
+    spyMsgSentRhs.wait(timeOut_);
+    QVERIFY(spyMsgSentRhs.count() == 1);
+    spyArgumentsOfMsgSent = spyMsgSentRhs.takeFirst();
+    msgId = spyArgumentsOfMsgSent.at(0).toString();
+    qDebug() << "sent #3 from 2 to 1 MsgId: " << msgId;
+
+    // wait for arrived msgOnWire at other client
+    spyLatestMsgLhs.wait(timeOut_);
+    QCOMPARE(spyLatestMsgLhs.count(), 1);
+    spyArgumentsOfMsg = spyLatestMsgLhs.takeFirst();
+    QVERIFY(spyArgumentsOfMsg.at(2).toString() == msgOnWireForUser1);
+
+
 
     // check the msg status as seen from the sender
     // there must be 2 msg's for the sent msgId. the first with state change to 1, the second with state change to 2.
