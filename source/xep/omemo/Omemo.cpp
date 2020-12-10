@@ -926,7 +926,7 @@ cleanup:
   }
   if (err_msg_dbg) {
     //purple_conv_present_error(recipient, purple_connection_get_account(js_p->gc), LURCH_ERR_STRING_ENCRYPT);
-    // FIXME show error to user!
+    //  FIXME show error to user!
     purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
   }
 
@@ -1760,7 +1760,20 @@ std::string Omemo::messageDecrypt(const std::string& message)
                                 (void *) 0,
                                 lurch_pep_bundle_for_keytransport);
 #endif
-        qDebug() << "FIXME implement me! pep request for " << sender_addr.name << ", " << bundle_node_name << " to call lurch_pep_bundle_for_keytransport";
+#if 0
+        <iq type='get' from='juliet@capulet.lit' to='romeo@montague.lit' id='gfetch0'>
+          <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+            <items node='urn:xmpp:omemo:1:devices'/>
+          </pubsub>
+        </iq>
+#endif
+
+        const std::string bundleRequestXml = "<pubsub xmlns='http://jabber.org/protocol/pubsub'><items node='" + std::string(bundle_node_name) + "'/></pubsub>";
+
+        // FIXME not tested!
+        RawRequestWithFromJid::ref requestDeviceList = RawRequestWithFromJid::create(Swift::IQ::Get, std::string(sender_addr.name), bundleRequestXml, client_->getIQRouter());
+        requestDeviceList->onResponse.connect(boost::bind(&Omemo::pepBundleForKeytransport, this, _1, _2));
+        requestDeviceList->send();
 
     } else if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to prekey msg");
