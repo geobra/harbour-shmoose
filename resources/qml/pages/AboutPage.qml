@@ -32,7 +32,7 @@ Page {
             anchors.horizontalCenter: parent.horizontalCenter
             font.pixelSize: Theme.fontSizeSmall
             color: Theme.secondaryColor
-            text: qsTr("Contributions:") + "<br\>slohse, Caballlero, GNUuser,<br\>eson57, marmistrz"
+            text: qsTr("Contributions:") + "<br\>GNUuser, slohse, mazhe,<br\>rogora, milotype, marmistrz,<br\>eson57, dashinfantry, comradekingu,<br\>Tititesouris, ReleaseRoll"
         }
     }
 
