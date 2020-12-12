@@ -99,11 +99,10 @@ merge_client_coverage_to_file 1o1.cov
 # build the plain room msg test
 killall -9 harbour-shmoose
 ${TRAVIS_BUILD_DIR}/scripts/travis/reset_ejabberd.sh
- ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose lhs &
- ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose mhs &
- ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose rhs &
+GCOV_PREFIX=$RESULTSC1 ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose lhs &
+GCOV_PREFIX=$RESULTSC2 ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose mhs &
+GCOV_PREFIX=$RESULTSC3 ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose rhs &
 
-${TRAVIS_BUILD_DIR}/scripts/travis/reset_ejabberd.sh
 cd ${TRAVIS_BUILD_DIR}/test/integration_test/ClientRoomMessagingTest/
 mkdir build && cd build
 qmake .. && make
@@ -114,8 +113,24 @@ collect_coverage_at_path_to_file "$RESULTSC1" "c1.cov"
 collect_coverage_at_path_to_file "$RESULTSC2" "c2.cov"
 collect_coverage_at_path_to_file "$RESULTSC3" "c3.cov"
 
-merge_client_coverage_to_file room.cov 
+merge_client_coverage_to_file room.cov
 
+# build the omemo msg test
+killall -9 harbour-shmoose
+${TRAVIS_BUILD_DIR}/scripts/travis/reset_ejabberd.sh
+GCOV_PREFIX=$RESULTSC1 ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose lhs &
+GCOV_PREFIX=$RESULTSC2 ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose rhs &
+
+cd ${TRAVIS_BUILD_DIR}/test/integration_test/OmemoTest/
+mkdir build && cd build
+qmake .. && make
+ ./OmemoTest
+
+# cp trace data to source dir; run lcov and generate test.cov
+collect_coverage_at_path_to_file "$RESULTSC1" "c1.cov"
+collect_coverage_at_path_to_file "$RESULTSC2" "c2.cov"
+
+merge_client_coverage_to_file omemo.cov
 
 # merge test tracefiles to final cov
 APPEND=""
