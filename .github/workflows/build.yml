@@ -13,8 +13,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v1
 
-#    - name: Install Qt
-#      uses: jurplel/install-qt-action@v2
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
 
     - name: Install additional packages
       run: sudo apt-get install asciidoctor plantuml graphviz lcov dbus-x11 libmxml-dev libgcrypt20-dev
@@ -28,12 +28,12 @@ jobs:
          sudo apt-get install ejabberd
          sudo mv /bin/hostname.no /bin/hostname
 
-#    - name: Install swift lib
-#      run: |
-#         wget --no-check-certificate -q https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz
-#         tar -xf swift-4.0.2.tar.gz
-#         cd swift-4.0.2
-#         /bin/bash scons -j 4 Swiften
+    - name: Install swift lib
+      run: |
+         wget --no-check-certificate -q https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz
+         tar -xf swift-4.0.2.tar.gz
+         cd swift-4.0.2
+         /bin/bash scons -j 4 Swiften
 
     - name: Install libomemo
       run: |
