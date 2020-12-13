@@ -1,0 +1,47 @@
+name: build_shmoose
+
+on: 
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    #runs-on: ubuntu-20.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+
+    - name: Install additional packages
+      run: sudo apt-get install asciidoctor plantuml graphviz lcov dbus-x11
+
+    # ejabberd fails to install on github env. hostname -d returns a very loooong domain name
+    # this is asked during ejabberd postinst and passed to openssl for a self signed certificate
+    # this fails. There is a fallback in the postinst if hostnae comand  cant be found. lets use this.
+    - name: Install ejabberd 
+      run: |
+         sudo mv /bin/hostname /bin/hostname.no
+         sudo apt-get install ejabberd
+         sudo mv /bin/hostname.no /bin/hostname
+
+    - name: Install swift lib
+      run: |
+         wget --no-check-certificate -q https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz
+         tar -xf swift-4.0.2.tar.gz
+         cd swift-4.0.2
+         /bin/bash scons -j 4 Swiften
+
+#    - name: build shmoose for x86 target
+#      run: |
+#          mkdir -p buildx86
+#          cd buildx86
+#          qmake .. DEFINES+=TRAVIS
+#          make -j$(nproc)
+
+    - name: run integration tests
+      run: ./scripts/travis/testing.sh
+

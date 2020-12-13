@@ -3,6 +3,7 @@ import Sailfish.Silica 1.0
 
 Page {
     id: page;
+    allowedOrientations: Orientation.All;
 
     SilicaFlickable {
         anchors.fill: parent
@@ -15,6 +16,25 @@ Page {
             width: parent.width
 
             PageHeader { title: qsTr("Settings") }
+
+            SectionHeader { text: qsTr("Notifications") }
+
+            TextSwitch {
+                id: chatNotificationSwitch
+                checked: shmoose.settings.DisplayChatNotifications
+                text: qsTr("Display chat notifications")
+                onClicked: {
+                    shmoose.settings.DisplayChatNotifications = chatNotificationSwitch.checked;
+                }
+            }
+            TextSwitch {
+                id: groupchatNotificationSwitch
+                checked: shmoose.settings.DisplayGroupchatNotifications
+                text: qsTr("Display group chat notifications")
+                onClicked: {
+                    shmoose.settings.DisplayGroupchatNotifications = groupchatNotificationSwitch.checked;
+                }
+            }
 
             SectionHeader { text: qsTr("Privacy") }
 

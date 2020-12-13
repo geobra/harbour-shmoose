@@ -57,11 +57,12 @@ ApplicationWindow {
     }
 
     function newMessageNotification(id, jid, body) {
+        var jidName = shmoose.rosterController.getNameForJid(jid)
         var m = messageNotification.createObject(null)
         m.category = "harbour-shmoose-message"
-        m.previewSummary = jid
+        m.previewSummary = jidName
         m.previewBody = body
-        m.summary = jid
+        m.summary = jidName
         m.body = body
         m.clicked.connect(function() {
             mainWindow.activate()
@@ -86,9 +87,21 @@ ApplicationWindow {
         target: shmoose.persistence.messageController
         onSignalMessageReceived: {
             var currentChatPartner = shmoose.getCurrentChatPartner();
-            if ( applicationActive == false || currentChatPartner.localeCompare(jid) != 0 ) {
-                newMessageNotification(id, jid, message);
+            var isGroupMessage = shmoose.rosterController.isGroup(jid);
+            if ( applicationActive == true && currentChatPartner.localeCompare(jid) == 0 ) {
+                return; // active app/chat, do not send
             }
+            if ( shmoose.settings.ForceOffNotifications.indexOf(jid) >= 0 ) {
+                return; // notifications disabled for this jid
+            }        
+            if ( shmoose.settings.ForceOnNotifications.indexOf(jid) < 0 ) {
+                // default notification settings apply
+                if ( ( isGroupMessage == false && shmoose.settings.DisplayChatNotifications == false )
+                      || ( isGroupMessage == true && shmoose.settings.DisplayGroupchatNotifications == false ) ) {
+                    return;
+                }
+            }
+            newMessageNotification(id, jid, message);
         }
     }
 

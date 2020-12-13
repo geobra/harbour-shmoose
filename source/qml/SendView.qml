@@ -87,11 +87,21 @@ Rectangle {
         Button {
             Layout.alignment: Qt.AlignVCenter
 
+            id: attachButton
             text: "attach"
+            enabled: false
 
             onClicked: {
                 console.log("attach")
                 fileDialog.open();
+            }
+        }
+
+        Connections {
+            target: shmoose
+            onSignalCanSendFile: {
+                console.log("HTTP uploads enabled");
+                attachButton.enabled = true;
             }
         }
 

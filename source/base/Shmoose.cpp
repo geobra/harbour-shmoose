@@ -29,7 +29,9 @@
 #include "MucManager.h"
 #include "DiscoInfoHandler.h"
 #include "CryptoHelper.h"
+#include "StanzaId.h"
 #include "Omemo.h"
+
 
 #include "System.h"
 
@@ -39,6 +41,8 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     rosterController_(new RosterController(this)),
     persistence_(new Persistence(this)),
     settings_(new Settings(this)),
+    stanzaId_(new StanzaId(this)),
+    omemo_(new Omemo(this)),
     connectionHandler_(new ConnectionHandler(this)),
     omemo_(new Omemo(this)),
     messageHandler_(new MessageHandler(persistence_, settings_, rosterController_, omemo_, this)),
@@ -59,6 +63,7 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     connect(mucManager_, SIGNAL(newGroupForContactsList(QString,QString)), rosterController_, SLOT(addGroupAsContact(QString,QString)));
     connect(mucManager_, SIGNAL(removeGroupFromContactsList(QString)), rosterController_, SLOT(removeGroupFromContacts(QString)) );
 
+    connect(discoInfoHandler_, SIGNAL(serverHasHttpUpload_(bool)), this, SIGNAL(signalCanSendFile(bool)));
     connect(discoInfoHandler_, SIGNAL(serverHasMam_(bool)), mamManager_, SLOT(setServerHasFeatureMam(bool)));
     connect(mucManager_, SIGNAL(newGroupForContactsList(QString,QString)), mamManager_, SLOT(receiveRoomWithName(QString, QString)));
 
@@ -123,6 +128,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     client_ = new Swift::Client(Swift::JID(completeJid.toStdString()), pass.toStdString(), netFactories_);
     client_->setAlwaysTrustCertificates();
 
+    stanzaId_->setupWithClient(client_);
     connectionHandler_->setupWithClient(client_);
     messageHandler_->setupWithClient(client_);
 
@@ -286,6 +292,11 @@ Settings* Shmoose::getSettings()
 bool Shmoose::connectionState() const
 {
     return connectionHandler_->isConnected();
+}
+
+bool Shmoose::canSendFile()
+{
+    return httpFileUploadManager_->getServerHasFeatureHttpUpload();
 }
 
 QString Shmoose::getAttachmentPath()

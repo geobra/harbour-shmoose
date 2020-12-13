@@ -18,6 +18,7 @@ class HttpFileUploadManager;
 class MucManager;
 class DiscoInfoHandler;
 class MamManager;
+class StanzaId;
 class Omemo;
 
 class Shmoose : public QObject
@@ -48,6 +49,7 @@ public:
 
     Q_INVOKABLE QString getLocalFileForUrl(const QString& str);
 
+    Q_INVOKABLE bool canSendFile();
     Q_INVOKABLE QString getVersion();
 
     bool connectionState() const;
@@ -70,6 +72,8 @@ signals:
     void settingsChanged();
 
     void connectionStateChanged();
+
+    void signalCanSendFile(bool);
 
     void signalShowMessage(QString headline, QString body);
     void signalShowStatus(QString headline, QString body);
@@ -98,6 +102,7 @@ public:
     Persistence* persistence_;
     Settings* settings_;
 
+    StanzaId *stanzaId_;
     ConnectionHandler* connectionHandler_;
     Omemo* omemo_;
     MessageHandler* messageHandler_;
@@ -105,7 +110,6 @@ public:
     MamManager *mamManager_;
     MucManager *mucManager_;
     DiscoInfoHandler* discoInfoHandler_;
-
 
     QString jid_;
     QString password_;

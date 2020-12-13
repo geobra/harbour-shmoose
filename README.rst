@@ -7,6 +7,9 @@
 .. image:: https://img.shields.io/lgtm/grade/cpp/g/geobra/harbour-shmoose.svg?logo=lgtm&logoWidth=18 
   :target: https://lgtm.com/projects/g/geobra/harbour-shmoose/context:cpp
 
+.. image:: https://hosted.weblate.org/widgets/shmoose/-/svg-badge.svg
+  :target: https://hosted.weblate.org/engage/shmoose
+
 .. image:: https://gitpod.io/button/open-in-gitpod.svg
   :target: https://gitpod.io/#https://github.com/geobra/harbour-shmoose
 
@@ -18,6 +21,7 @@ Shmoose builds on and includes code from the following projects:
 
 * XMPP library `Swiften <https://swift.im/swiften.html>`_ from Isode
 * Image picker is from `hangish <https://github.com/rogora/hangish>`_ written by Daniele Rogora
+* Image zoom and pitch page is from `harbour-one <https://github.com/0312birdzhang/harbour-one>`_ written by 0312birdzhang
 
 -------------------------------------------------------------------------------
 Feature Stack until version 1.0
@@ -32,13 +36,14 @@ Feature Stack until version 1.0
 * XEP-0363: HTTP File Upload [done]
 * XEP-0333: Chat Markers [done]
 * XEP-0313: Message Archive Management [partial]
+* XEP-0359: Unique and Stable Stanza IDs [WIP]
 * XEP-0045: Multi-User Chat [WIP]
 * XEP-0280: Message Carbons [WIP]
 * XEP-0198: Stream Management  [done]
 * XEP-0384: OMEMO Encryption [WIP]
 
 -------------------------------------------------------------------------------
-Documentation of the Softwre Architecture
+Documentation of the Software Architecture
 -------------------------------------------------------------------------------
 `Software Architecture description <https://geobra.github.io/harbour-shmoose/>`_
 
@@ -46,6 +51,13 @@ Documentation of the Softwre Architecture
 Ready-to-use binaries can be found on OpenRepos
 -------------------------------------------------------------------------------
 `Shmoose on OpenRepos <https://openrepos.net/content/schorsch/shmoose>`_
+
+Note! starting with Sailfish OS version 3.3.0.16 you need to adjust the suspend settings of your device::
+
+ * pkcon install mce-tool
+ * mcetool -searly
+
+This disables late suspend of the device. Battery drain is only slightly more at my device with this setting. This setting is persistent over reboots and has to be done only once. Without this, the longterm TCP connection will drop after a short amount of time and you won't get notifications on new messages.
 
 -------------------------------------------------------------------------------
 Jump direct into development on gitpod

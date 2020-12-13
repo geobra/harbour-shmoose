@@ -26,6 +26,7 @@ INCLUDEPATH += source/xep/httpFileUpload
 INCLUDEPATH += source/xep/mam
 INCLUDEPATH += source/xep/xmppPing
 INCLUDEPATH += source/xep/chatMarkers
+INCLUDEPATH += source/xep/stanzaId
 INCLUDEPATH += source/xep/omemo
 INCLUDEPATH += source/room
 INCLUDEPATH += source/networkconnection
@@ -100,6 +101,11 @@ SOURCES += \
     source/xep/mam/MamManager.cpp \
     source/xep/xmppPing/XmppPingController.cpp \
     source/xep/chatMarkers/ChatMarkers.cpp \
+    source/xep/stanzaId/StanzaId.cpp \
+    source/xep/stanzaId/StanzaIdPayload.cpp \
+    source/xep/stanzaId/StanzaIdPayloadParser.cpp \
+    source/xep/stanzaId/StanzaIdPayloadParserFactory.cpp \
+    source/xep/stanzaId/StanzaIdPayloadSerializer.cpp \
     source/xep/omemo/Omemo.cpp \
     source/xep/omemo/XmppMessageParserClient.cpp \
     source/room/MucManager.cpp \
@@ -134,8 +140,16 @@ HEADERS += source/base/Shmoose.h \
     source/xep/xmppPing/PingRequest.h \
     source/xep/xmppPing/XmppPingController.h \
     source/xep/chatMarkers/ChatMarkers.h \
+    source/xep/stanzaId/StanzaId.h \
+    source/xep/stanzaId/StanzaIdPayload.h \
+    source/xep/stanzaId/StanzaIdPayloadParser.h \
+    source/xep/stanzaId/StanzaIdPayloadParserFactory.h \
+    source/xep/stanzaId/StanzaIdPayloadSerializer.h \
     source/xep/omemo/Omemo.h \
     source/xep/omemo/XmppMessageParserClient.h \
+    source/xep/omemo/RawRequestWithFromJid.h \
+    source/xep/omemo/RawRequestBundle.h \
+    source/xep/omemo/LurchTypes.h \
     source/room/MucManager.h \
     source/room/MucCollection.h \
     source/networkconnection/ConnectionHandler.h \
@@ -144,10 +158,7 @@ HEADERS += source/base/Shmoose.h \
     source/contacts/PresenceHandler.h \
     source/contacts/RosterItem.h \
     source/contacts/RosterController.h \
-    source/base/CryptoHelper.h \
-    source/xep/omemo/RawRequestWithFromJid.h \
-    source/xep/omemo/RawRequestBundle.h \
-    source/xep/omemo/LurchTypes.h
+    source/base/CryptoHelper.h
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \

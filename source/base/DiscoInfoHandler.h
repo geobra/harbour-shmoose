@@ -17,6 +17,7 @@ public:
     void setupWithClient(Swift::Client* client);
 
 signals:
+    void serverHasHttpUpload_(bool);
     void serverHasMam_(bool);
 
 public slots:
@@ -31,7 +32,6 @@ private:
     MamManager* mamManager_;
     Swift::Client* client_;
 
-    Swift::GetDiscoItemsRequest::ref discoItemReq_;
     QList<std::shared_ptr<Swift::DiscoServiceWalker> > danceFloor_;
 };
 
