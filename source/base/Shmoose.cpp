@@ -42,7 +42,6 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     persistence_(new Persistence(this)),
     settings_(new Settings(this)),
     stanzaId_(new StanzaId(this)),
-    omemo_(new Omemo(this)),
     connectionHandler_(new ConnectionHandler(this)),
     omemo_(new Omemo(this)),
     messageHandler_(new MessageHandler(persistence_, settings_, rosterController_, omemo_, this)),
