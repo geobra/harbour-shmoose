@@ -22,7 +22,7 @@ jobs:
     # ejabberd fails to install on github env. hostname -d returns a very loooong domain name
     # this is asked during ejabberd postinst and passed to openssl for a self signed certificate
     # this fails. There is a fallback in the postinst if hostnae comand  cant be found. lets use this.
-    - name: Install ejabberd 
+    - name: Install ejabberd
       run: |
          sudo mv /bin/hostname /bin/hostname.no
          sudo apt-get install ejabberd
@@ -34,6 +34,27 @@ jobs:
          tar -xf swift-4.0.2.tar.gz
          cd swift-4.0.2
          /bin/bash scons -j 4 Swiften
+
+
+   - name: Install libomemo
+     run : |
+         git clone https://github.com/gkdr/libomemo
+         cd libomemo
+         git checkout tags/v0.6.2
+         make
+
+   - name: Install axc
+     run : |
+         git clone https://github.com/gkdr/axc
+         cd axc
+         git checkout tags/v0.3.3
+         git submodule update --init
+         make
+         cd  lib/libsignal-protocol-c/
+         mkdir build
+         cd build
+         cmake ..
+         make
 
 #    - name: build shmoose for x86 target
 #      run: |
