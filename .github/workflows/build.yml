@@ -1,6 +1,6 @@
 name: build_shmoose
 
-on: 
+on:
   push:
   pull_request:
 
@@ -35,15 +35,15 @@ jobs:
          cd swift-4.0.2
          /bin/bash scons -j 4 Swiften
 
-   - name: Install libomemo
-     run: |
+    - name: Install libomemo
+      run: |
          git clone https://github.com/gkdr/libomemo
          cd libomemo
          git checkout tags/v0.6.2
          make
 
-   - name: Install axc
-     run: |
+    - name: Install axc
+      run: |
          git clone https://github.com/gkdr/axc
          cd axc
          git checkout tags/v0.3.3
