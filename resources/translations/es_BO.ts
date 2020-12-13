@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="15"/>
         <source>Shmoose - Xmpp Client</source>
-        <translation>Shmoose - Un cliente XMPP para Sailfish SO</translation>
+        <translation>Shmoose - Un cliente de XMPP para Sailfish SO</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="28"/>
