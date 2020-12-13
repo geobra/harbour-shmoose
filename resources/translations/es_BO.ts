@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="15"/>
         <source>Shmoose - Xmpp Client</source>
-        <translation>Shmoose - Un cliente XMPP</translation>
+        <translation>Shmoose - Un cliente XMPP para Sailfish SO</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="28"/>
@@ -29,7 +29,7 @@
     <message>
         <location filename="../qml/pages/AttachmentPathsPage.qml" line="24"/>
         <source>Attachment Search Paths</source>
-        <translation>Buscar rutas de adjuntos</translation>
+        <translation>Buscar rutas de archivos</translation>
     </message>
     <message>
         <location filename="../qml/pages/AttachmentPathsPage.qml" line="38"/>
@@ -46,7 +46,7 @@
     <name>ChatPage</name>
     <message>
         <source>Enter message</source>
-        <translation type="vanished">Introducir mensaje</translation>
+        <translation>Introducir mensaje</translation>
     </message>
 </context>
 <context>
@@ -64,7 +64,7 @@
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="125"/>
         <source>Join room by address</source>
-        <translation>Agregar sala</translation>
+        <translation>Unirse a sala</translation>
     </message>
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="132"/>
@@ -136,12 +136,12 @@
     <message>
         <location filename="../qml/pages/ImagePage.qml" line="143"/>
         <source>Loading image...%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Cargando imagen...%1</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImagePage.qml" line="152"/>
         <source>Error loading image</source>
-        <translation type="unfinished"></translation>
+        <translation>Error al cargar la imagen</translation>
     </message>
 </context>
 <context>
@@ -275,7 +275,7 @@
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="245"/>
         <source>Enter message...</source>
-        <translation>Escribir mensaje...</translation>
+        <translation>A b c</translation>
     </message>
 </context>
 <context>
@@ -283,27 +283,27 @@
     <message>
         <location filename="../qml/pages/MessagingSettingsPage.qml" line="20"/>
         <source> settings</source>
-        <translation type="unfinished"></translation>
+        <translation> ajustes</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingSettingsPage.qml" line="23"/>
         <source>Chat notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Notificaciones de charla</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingSettingsPage.qml" line="32"/>
         <source>Default setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajuste predeterminado</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingSettingsPage.qml" line="39"/>
         <source>On</source>
-        <translation type="unfinished"></translation>
+        <translation>Encender</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingSettingsPage.qml" line="46"/>
         <source>Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Apagar</translation>
     </message>
 </context>
 <context>
@@ -316,17 +316,17 @@
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="20"/>
         <source>Notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Notificaciones</translation>
     </message>
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="25"/>
         <source>Display chat notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar notificaciones de charla</translation>
     </message>
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="33"/>
         <source>Display group chat notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar notificaciones de grupos</translation>
     </message>
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="39"/>
@@ -346,7 +346,7 @@
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="53"/>
         <source>Edit attachment search paths</source>
-        <translation>Editar adjuntos de rutas</translation>
+        <translation>Editar archivos de rutas</translation>
     </message>
 </context>
 </TS>
