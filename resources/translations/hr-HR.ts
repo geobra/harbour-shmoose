@@ -39,7 +39,7 @@
     <name>ChatPage</name>
     <message>
         <source>Enter message</source>
-        <translation>Upiši poruku</translation>
+        <translation type="vanished">Upiši poruku</translation>
     </message>
 </context>
 <context>
@@ -108,6 +108,17 @@
     <message>
         <source>NickName</source>
         <translation>Nadimak</translation>
+    </message>
+</context>
+<context>
+    <name>ImagePage</name>
+    <message>
+        <source>Loading image...%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error loading image</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -221,6 +232,29 @@
     </message>
 </context>
 <context>
+    <name>MessagingSettingsPage</name>
+    <message>
+        <source> settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Chat notifications</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default setting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PreferencesPage</name>
     <message>
         <source>Settings</source>
@@ -241,6 +275,18 @@
     <message>
         <source>Edit attachment search paths</source>
         <translation>Uredi staze za pretraživanje priloga</translation>
+    </message>
+    <message>
+        <source>Notifications</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display chat notifications</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display group chat notifications</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

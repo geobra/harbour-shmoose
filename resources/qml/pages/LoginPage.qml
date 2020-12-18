@@ -4,6 +4,7 @@ import harbour.shmoose 1.0
 
 Page {
     id: loginPage
+    allowedOrientations: Orientation.All
     SilicaFlickable {
         anchors.fill: parent;
         contentHeight: loginPageContent.height
