@@ -21,7 +21,7 @@ jobs:
       uses: jurplel/install-qt-action@v2
 
     - name: Install additional packages
-      run: sudo apt-get install asciidoctor plantuml graphviz lcov dbus-x11
+      run: sudo apt-get install lcov dbus-x11
 
     # ejabberd fails to install on github env. hostname -d returns a very loooong domain name
     # this is asked during ejabberd postinst and passed to openssl for a self signed certificate
