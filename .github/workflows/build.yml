@@ -1,8 +1,12 @@
 name: build_shmoose
 
-on: 
+on:
   push:
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   build:
