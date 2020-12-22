@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.com/geobra/harbour-shmoose.svg?branch=master
-    :target: https://travis-ci.com/geobra/harbour-shmoose
+.. image:: https://github.com/geobra/harbour-shmoose/workflows/build_shmoose/badge.svg
+    :target: https://github.com/geobra/harbour-shmoose/actions
 
 .. image:: https://codecov.io/gh/geobra/harbour-shmoose/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/geobra/harbour-shmoose
