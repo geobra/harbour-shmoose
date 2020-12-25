@@ -121,11 +121,11 @@ merge_client_coverage_to_file room.cov
 
 # build the omemo msg test
 killall -9 harbour-shmoose
-${TRAVIS_BUILD_DIR}/scripts/travis/reset_ejabberd.sh
-GCOV_PREFIX=$RESULTSC1 ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose lhs &
-GCOV_PREFIX=$RESULTSC2 ${TRAVIS_BUILD_DIR}/${TESTPATH}/harbour-shmoose rhs &
+${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
+GCOV_PREFIX=$RESULTSC1 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
+GCOV_PREFIX=$RESULTSC2 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose rhs &
 
-cd ${TRAVIS_BUILD_DIR}/test/integration_test/OmemoTest/
+cd ${GITHUB_WORKSPACE}/test/integration_test/OmemoTest/
 mkdir build && cd build
 qmake .. && make
  ./OmemoTest
