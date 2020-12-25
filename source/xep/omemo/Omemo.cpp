@@ -961,7 +961,7 @@ void Omemo::lurch_queued_msg_destroy(lurch_queued_msg * qmsg_p) {
 void Omemo::pepBundleForKeytransport(const std::string from, const std::string &items)
 {
     // lurch_pep_bundle_for_keytransport
-    int ret_val = 0;
+    int ret_val{0};
     char * err_msg_dbg = nullptr;
 
     //char * uname = (void *) 0;
@@ -982,7 +982,17 @@ void Omemo::pepBundleForKeytransport(const std::string from, const std::string &
     //addr.name_len = strnlen(from, JABBER_MAX_LEN_BARE);
     addr.name_len = from.size();
     //addr.device_id = lurch_bundle_name_get_device_id(xmlnode_get_attrib(items_p, "node"));
-    addr.device_id = atoi(XmlProcessor::getContentInTag("item", "id", QString::fromStdString(items)).toStdString().c_str());
+    QString nodesStr = XmlProcessor::getContentInTag("items", "node", QString::fromStdString(items));
+    QStringList nodesStrList = nodesStr.split(":");
+    if (nodesStrList.size() == 2)
+    {
+        addr.device_id = atoi(nodesStrList.at(1).toStdString().c_str());
+    }
+    else
+    {
+        // FIXME show error to user
+        goto cleanup;
+    }
 
     purple_debug_info("lurch", "%s: %s received bundle from %s:%i\n", __func__, uname_, from.c_str(), addr.device_id);
 
@@ -1055,11 +1065,11 @@ void Omemo::pepBundleForKeytransport(const std::string from, const std::string &
         goto cleanup;
     }
 #endif
-    qDebug() << "FIXME implement me! keytransport msg: " << msg_xml;
+
     //purple_signal_emit(jabber_handle_p, "jabber-sending-xmlnode", js_p->gc, &msg_node_p);
+    emit rawMessageStanzaForSending(QString::fromLatin1(msg_xml));
 
     purple_debug_info("lurch", "%s: %s sent keytransportmsg to %s:%i\n", __func__, uname_, from.c_str(), addr.device_id);
-
 
 cleanup:
     if (err_msg_dbg) {
@@ -1755,25 +1765,25 @@ std::string Omemo::messageDecrypt(const std::string& message)
         }
 
 #if 0
+        <iq type='get' from='juliet@capulet.lit' to='romeo@montague.lit' id='gfetch0'>
+          <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+            <items node="eu.siacs.conversations.axolotl.bundles:123"></items>
+          </pubsub>
+        </iq>
+#endif
+#if 0
         jabber_pep_request_item(purple_connection_get_protocol_data(gc_p),
                                 sender_addr.name, bundle_node_name,
                                 (void *) 0,
                                 lurch_pep_bundle_for_keytransport);
 #endif
-#if 0
-        <iq type='get' from='juliet@capulet.lit' to='romeo@montague.lit' id='gfetch0'>
-          <pubsub xmlns='http://jabber.org/protocol/pubsub'>
-            <items node='urn:xmpp:omemo:1:devices'/>
-          </pubsub>
-        </iq>
-#endif
-
         const std::string bundleRequestXml = "<pubsub xmlns='http://jabber.org/protocol/pubsub'><items node='" + std::string(bundle_node_name) + "'/></pubsub>";
-
-        // FIXME not tested!
         RawRequestWithFromJid::ref requestDeviceList = RawRequestWithFromJid::create(Swift::IQ::Get, std::string(sender_addr.name), bundleRequestXml, client_->getIQRouter());
         requestDeviceList->onResponse.connect(boost::bind(&Omemo::pepBundleForKeytransport, this, _1, _2));
         requestDeviceList->send();
+
+        // not in lurch, but needed here imho...
+        goto cleanup;
 
     } else if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to prekey msg");
