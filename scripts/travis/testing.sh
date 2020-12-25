@@ -63,7 +63,9 @@ cd $TESTPATH
 qmake .. DEFINES+=TRAVIS DEFINES+=DBUS
 make -j$(nproc)
 
+##########################
 # build and run the roster test
+##########################
 ${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
 export GCOV_PREFIX_STRIP=$BUILDTEST_PATH_DEPTH
 GCOV_PREFIX=$RESULTSC1  ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
@@ -82,7 +84,9 @@ collect_coverage_at_path_to_file "$RESULTSC3" "c3.cov"
 
 merge_client_coverage_to_file roster.cov 
 
+##########################
 # build and run the plain 1to1 msg test
+##########################
 killall -9 harbour-shmoose
 ${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
 GCOV_PREFIX=$RESULTSC1  ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
@@ -99,7 +103,9 @@ collect_coverage_at_path_to_file "$RESULTSC2" "c2.cov"
 
 merge_client_coverage_to_file 1o1.cov 
 
-# build the plain room msg test
+##########################
+# build and run the plain room msg test
+##########################
 killall -9 harbour-shmoose
 ${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
 GCOV_PREFIX=$RESULTSC1 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
@@ -119,7 +125,9 @@ collect_coverage_at_path_to_file "$RESULTSC3" "c3.cov"
 
 merge_client_coverage_to_file room.cov 
 
-# build the omemo msg test
+##########################
+# build and run a clean omemo msg test
+##########################
 killall -9 harbour-shmoose
 ${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
 GCOV_PREFIX=$RESULTSC1 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
@@ -134,7 +142,22 @@ qmake .. && make
 collect_coverage_at_path_to_file "$RESULTSC1" "c1.cov"
 collect_coverage_at_path_to_file "$RESULTSC2" "c2.cov"
 
-merge_client_coverage_to_file omemo.cov
+merge_client_coverage_to_file omemo1.cov
+
+##########################
+# run omemo test with existing db
+##########################
+killall -9 harbour-shmoose
+GCOV_PREFIX=$RESULTSC1 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
+GCOV_PREFIX=$RESULTSC2 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose rhs &
+
+${GITHUB_WORKSPACE}/test/integration_test/OmemoTest/build/OmemoTest
+
+# cp trace data to source dir; run lcov and generate test.cov
+collect_coverage_at_path_to_file "$RESULTSC1" "c1.cov"
+collect_coverage_at_path_to_file "$RESULTSC2" "c2.cov"
+
+merge_client_coverage_to_file omemo2.cov
 
 # merge test tracefiles to final cov
 APPEND=""
@@ -149,10 +172,6 @@ lcov $APPEND -o ${GITHUB_WORKSPACE}/$COVFILE
 # remove system files from /usr and generated moc files
 lcov --remove ${GITHUB_WORKSPACE}/$COVFILE '/usr/*' --output-file ${GITHUB_WORKSPACE}/$COVFILE
 lcov --remove ${GITHUB_WORKSPACE}/$COVFILE '*/test/moc_*' --output-file ${GITHUB_WORKSPACE}/$COVFILE
-
-echo "##################"
-cat ${GITHUB_WORKSPACE}/$COVFILE
-echo "##################"
 
 # Uploading report to CodeCov
 bash <(curl -s https://codecov.io/bash) -f ${GITHUB_WORKSPACE}/$COVFILE || echo "failed upload to Codecov"
