@@ -150,6 +150,10 @@ lcov $APPEND -o ${GITHUB_WORKSPACE}/$COVFILE
 lcov --remove ${GITHUB_WORKSPACE}/$COVFILE '/usr/*' --output-file ${GITHUB_WORKSPACE}/$COVFILE
 lcov --remove ${GITHUB_WORKSPACE}/$COVFILE '*/test/moc_*' --output-file ${GITHUB_WORKSPACE}/$COVFILE
 
+echo "##################"
+cat ${GITHUB_WORKSPACE}/$COVFILE
+echo "##################"
+
 # Uploading report to CodeCov
 bash <(curl -s https://codecov.io/bash) -f ${GITHUB_WORKSPACE}/$COVFILE || echo "failed upload to Codecov"
 
