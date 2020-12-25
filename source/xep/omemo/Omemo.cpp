@@ -309,54 +309,6 @@ int Omemo::lurch_export_encrypted(omemo_message * om_msg_p, char ** xml_pp) {
   return omemo_message_export_encrypted(om_msg_p, OMEMO_ADD_MSG_EME, xml_pp);
 }
 
-
-int Omemo::keyEncrypt(const lurch_addr * recipient_addr_p,
-                      const uint8_t * key_p,
-                      size_t key_len,
-                      axc_context * axc_ctx_p,
-                      axc_buf ** key_ct_buf_pp)
-{
-    // lurch_key_encrypt
-    int ret_val{0};
-    char * err_msg_dbg{nullptr};
-
-    axc_buf * key_buf_p{nullptr};
-    axc_buf * key_ct_buf_p{nullptr};
-    axc_address axc_addr{};
-
-    purple_debug_info("lurch", "%s: encrypting key for %s:%i\n", __func__, recipient_addr_p->jid, recipient_addr_p->device_id);
-
-    key_buf_p = axc_buf_create(key_p, key_len);
-    if (!key_buf_p) {
-        err_msg_dbg = g_strdup_printf("failed to create buffer for the key");
-        goto cleanup;
-    }
-
-    axc_addr.name = recipient_addr_p->jid;
-    axc_addr.name_len = strnlen(axc_addr.name, JABBER_MAX_LEN_BARE);
-    axc_addr.device_id = (int32_t)recipient_addr_p->device_id;
-
-    ret_val = axc_message_encrypt_and_serialize(key_buf_p, &axc_addr, axc_ctx_p, &key_ct_buf_p);
-    if (ret_val) {
-        err_msg_dbg = g_strdup_printf("failed to encrypt the key");
-        goto cleanup;
-    }
-
-    *key_ct_buf_pp = key_ct_buf_p;
-
-cleanup:
-    if (ret_val) {
-        axc_buf_free(key_ct_buf_p);
-    }
-    if (err_msg_dbg) {
-        purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
-        free(err_msg_dbg);
-    }
-    axc_buf_free(key_buf_p);
-
-    return ret_val;
-}
-
 int Omemo::lurch_key_encrypt(const lurch_addr * recipient_addr_p,
                              const uint8_t * key_p,
                              size_t key_len,
@@ -1032,7 +984,7 @@ void Omemo::pepBundleForKeytransport(const std::string from, const std::string &
         goto cleanup;
     }
 
-    ret_val = keyEncrypt(&laddr,
+    ret_val = lurch_key_encrypt(&laddr,
                          omemo_message_get_key(msg_p),
                          omemo_message_get_key_len(msg_p),
                          axc_ctx_p,

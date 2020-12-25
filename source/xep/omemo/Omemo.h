@@ -72,7 +72,6 @@ private:
 
     char* unameGetDbFn(const char * uname, char * which);
     int bundleCreateSession(const char* from, const std::string& items, axc_context * axc_ctx_p);
-    int keyEncrypt(const lurch_addr * recipient_addr_p, const uint8_t * key_p, size_t key_len, axc_context * axc_ctx_p, axc_buf ** key_ct_buf_pp);
 
     GList* lurch_addr_list_add(GList * addrs_p, const omemo_devicelist * dl_p, const uint32_t * exclude_id_p);
     static void lurch_addr_list_destroy_func(gpointer data);
