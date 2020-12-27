@@ -70,7 +70,7 @@ void OmemoTest::sendMsgTest()
     qDebug() << "sent #1 from 1 to 2 MsgId: " << msgId;
 
     // wait for arrived msgOnWire at other client
-    spyLatestMsgRhs.wait(timeOut_);
+    spyLatestMsgRhs.wait(5*timeOut_);
     QCOMPARE(spyLatestMsgRhs.count(), 1);
 
     QList<QVariant> spyArgumentsOfMsg = spyLatestMsgRhs.takeFirst();
@@ -150,7 +150,7 @@ void OmemoTest::sendMsgTest()
     qDebug() << "sent #3 from 2 to 1 MsgId: " << msgId;
 
     // wait for arrived msgOnWire at other client
-    spyLatestMsgLhs.wait(4*timeOut_);
+    spyLatestMsgLhs.wait(6*timeOut_);
     QCOMPARE(spyLatestMsgLhs.count(), 1);
     spyArgumentsOfMsg = spyLatestMsgLhs.takeFirst();
     QVERIFY(spyArgumentsOfMsg.at(2).toString() == msgOnWireForUser1);
