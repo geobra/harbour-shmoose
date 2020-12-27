@@ -22,12 +22,12 @@ void OmemoTest::sendMsgTest()
 {
     QSignalSpy spyDeviceListReceivedLhs(interfaceLhs_->getInterface(), SIGNAL(signalReceivedDeviceListOfJid(QString)));
 
-    requestRosterTestCommon(interfaceLhs_);
-    requestRosterTestCommon(interfaceRhs_);
+    requestRosterTestCommon(interfaceLhs_, false);
+    requestRosterTestCommon(interfaceRhs_, false);
 
     // add the contacts
-    addContactTestCommon(interfaceLhs_, user2jid_, "user2");
-    addContactTestCommon(interfaceRhs_, user1jid_, "user1");
+    addContactTestCommon(interfaceLhs_, user2jid_, "user2", false);
+    addContactTestCommon(interfaceRhs_, user1jid_, "user1", false);
 
     // ####################################################
     // wait for the device list of user2 is available at user1

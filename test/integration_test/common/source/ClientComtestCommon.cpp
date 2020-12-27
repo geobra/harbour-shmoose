@@ -81,14 +81,19 @@ void ClientComTestCommon::requestRosterTest()
     //requestRosterTestCommon(interfaceRhs_);
 }
 
-void ClientComTestCommon::requestRosterTestCommon(DbusInterfaceWrapper *interface)
+void ClientComTestCommon::requestRosterTestCommon(DbusInterfaceWrapper *interface, bool doCompare)
 {
     QSignalSpy spyNewRosterEntry(interface->getInterface(), SIGNAL(signalNewRosterEntry()));
     interface->callDbusMethodWithArgument("requestRoster", QList<QVariant>());
 
     spyNewRosterEntry.wait(timeOut_);
     // on travis, the inital roster list is empty
-    //QCOMPARE(spyNewRosterEntry.count(), 1);
+#ifdef TRAVIS
+    if (doCompare == true)
+    {
+        QCOMPARE(spyNewRosterEntry.count(), 1);
+    }
+#endif
 }
 
 // add contact test
@@ -98,7 +103,7 @@ void ClientComTestCommon::addContactTest()
     //addContactTestCommon(interfaceRhs_, user1jid_, "user1");
 }
 
-void ClientComTestCommon::addContactTestCommon(DbusInterfaceWrapper *interface, const QString& jid, const QString& name)
+void ClientComTestCommon::addContactTestCommon(DbusInterfaceWrapper *interface, const QString& jid, const QString& name, bool doCompare)
 {
     QSignalSpy spyNewRosterEntry(interface->getInterface(), SIGNAL(signalNewRosterEntry()));
 
@@ -107,8 +112,12 @@ void ClientComTestCommon::addContactTestCommon(DbusInterfaceWrapper *interface, 
 
     spyNewRosterEntry.wait(timeOut_);
 #ifdef TRAVIS
-    QCOMPARE(spyNewRosterEntry.count(), 1); // only on travis where the contact is not already in roster
+    if (doCompare == true)
+    {
+        QCOMPARE(spyNewRosterEntry.count(), 1);
+    }
 #endif
+
 }
 
 void ClientComTestCommon::generatePicture()
