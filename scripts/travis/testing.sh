@@ -151,6 +151,9 @@ killall -9 harbour-shmoose
 GCOV_PREFIX=$RESULTSC1 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
 GCOV_PREFIX=$RESULTSC2 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose rhs &
 
+# wait sometime to get dbus connected
+sleep 5
+
 ${GITHUB_WORKSPACE}/test/integration_test/OmemoTest/build/OmemoTest
 
 # cp trace data to source dir; run lcov and generate test.cov
