@@ -649,19 +649,30 @@ int Omemo::bundleRequestDo(const char * to, uint32_t device_id, lurch_queued_msg
     std::string bundleId = std::to_string(device_id);
 
     // gen the payload
-    const std::string pubsubXml = "<pubsub xmlns='http://jabber.org/protocol/pubsub'><items node='eu.siacs.conversations.axolotl.bundles:"
-            + std::to_string(device_id) + "' max_items='1'/></pubsub>";
+    char* cBundlePep{nullptr};
+    int retVal = omemo_bundle_get_pep_node_name(device_id, &cBundlePep);
+    if (retVal != 0)
+    {
+        qDebug() << "failed to get bundlelist pep node name";
+    }
+    else
+    {
+        const std::string pubsubXml =
+                "<pubsub xmlns='http://jabber.org/protocol/pubsub'><items node='" + std::string(cBundlePep) +"' max_items='1'/></pubsub>";
+        free(cBundlePep);
 
-    RawRequestBundle::ref publishPep = RawRequestBundle::create(Swift::IQ::Get,
-                                                                            toJid,
-                                                                            pubsubXml,
-                                                                            client_->getIQRouter(),
-                                                                            bundleId,
-                                                                            qmsg_p
-                                                                        );
+        RawRequestBundle::ref publishPep = RawRequestBundle::create(Swift::IQ::Get,
+                                                                                toJid,
+                                                                                pubsubXml,
+                                                                                client_->getIQRouter(),
+                                                                                bundleId,
+                                                                                qmsg_p
+                                                                            );
 
-    publishPep->onResponse.connect(boost::bind(&Omemo::requestBundleHandler, this, _1, _2, _3, _4));
-    publishPep->send();
+        publishPep->onResponse.connect(boost::bind(&Omemo::requestBundleHandler, this, _1, _2, _3, _4));
+        publishPep->send();
+    }
+
 
 #if 0
     int ret_val = 0;

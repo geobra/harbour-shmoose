@@ -28,18 +28,23 @@ jobs:
          sudo apt-get install ejabberd
          sudo mv /bin/hostname.no /bin/hostname
 
-    - name: Install swift lib
+#    - name: Install swift lib
+#      run: |
+#         wget --no-check-certificate -q https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz
+#         tar -xf swift-4.0.2.tar.gz
+#         cd swift-4.0.2
+#         /bin/bash scons -j 4 Swiften
+
+    - name: Extract prebuild swiften lib
       run: |
-         wget --no-check-certificate -q https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz
-         tar -xf swift-4.0.2.tar.gz
-         cd swift-4.0.2
-         /bin/bash scons -j 4 Swiften
+         wget https://github.com/geobra/harbour-shmoose/releases/download/swiften-4.0.2-x64/swift-4.0.2-x64.tar.bz2
+         tar -xvf swift-4.0.2-x64.tar.bz2
 
     - name: Install libomemo
       run: |
          git clone https://github.com/gkdr/libomemo
          cd libomemo
-         git checkout tags/v0.6.2
+         git checkout tags/v0.7.0
          make
 
     - name: Install axc
