@@ -39,10 +39,10 @@ jobs:
 #         cd swift-4.0.2
 #         /bin/bash scons -j 4 Swiften
 
-     - name: Extract prebuild swiften xmpp lib
-       run: |
-          wget https://github.com/geobra/harbour-shmoose/releases/download/swiften-4.0.2-x64/swift-4.0.2-x64.tar.bz2
-          tar -xvf swift-4.0.2-x64.tar.bz2
+    - name: Extract prebuild swiften xmpp lib
+      run: |
+         wget https://github.com/geobra/harbour-shmoose/releases/download/swiften-4.0.2-x64/swift-4.0.2-x64.tar.bz2
+         tar -xvf swift-4.0.2-x64.tar.bz2
 
 #    - name: build shmoose for x86 target
 #      run: |
