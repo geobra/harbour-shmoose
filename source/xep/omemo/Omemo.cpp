@@ -2,6 +2,21 @@
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
+/*
+ * #######################################
+ * ## This file is ported from lurch    ##
+ * ## https://github.com/gkdr/lurch     ##
+ * ##                                   ##
+ * ## Thank you for all the great work! ##
+ * #######################################
+ *
+ * As a technical decision, this file tries to be as close as possible to
+ * the original lurch.c source. All the libpurple stuff is stripped away.
+ * The comments on the headers are still the original ones, despite the
+ * fact that some functions take now different parameters. Its done to be
+ * easy diffable with future lurch releases.
+ */
+
 #include "Omemo.h"
 #include "System.h"
 #include "XmlProcessor.h"
@@ -42,7 +57,6 @@ extern "C" {
 
 /*
  * https://xmpp.org/extensions/xep-0384.html
- * https://conversations.im/omemo/xep-omemo.html
  *
  * 1. check if own id is in my device list. update if necessary. give read access to world
  * 2. check all contacts if they support omemo. subscribe to 'eu.siacs.conversations.axolotl.devicelist' (new: 'urn:xmpp:omemo:1:devices'). must cache that list
@@ -50,13 +64,6 @@ extern "C" {
  * 4. build a session (fetch other clients bundle information)
  * 5. encrypt and send the message
  * 6. receive and decrypt a message
- */
-
-/*
- * This file is ported from lurch
- * https://github.com/gkdr/lurch
- *
- * Thank you for all the great work!
  */
 
 void purple_debug_info (const char *category, const char *format,...)
@@ -108,7 +115,7 @@ Omemo::Omemo(QObject *parent) : QObject(parent)
         free(dlNs);
     }
 
-    qDebug() << "Omemo::Omemo" << deviceListNodeName_;
+    //qDebug() << "Omemo::Omemo" << deviceListNodeName_;
 }
 
 Omemo::~Omemo()
@@ -166,6 +173,19 @@ void Omemo::lurch_addr_list_destroy_func(gpointer data) {
   free(addr_p);
 }
 
+/**
+ * Creates a queued msg.
+ * Note that it just saves the pointers, so make sure they are not freed during
+ * the lifetime of this struct and instead use the destroy function when done.
+ *
+ * @param om_msg_p Pointer to the omemo_message.
+ * @param recipient_addr_l_p Pointer to the list of recipient addresses.
+ * @param no_sess_l_p Pointer to the list that contains the addresses that do
+ *                    not have sessions, i.e. for which bundles were requested.
+ * @param cmsg_pp Will point to the pointer of the created queued msg struct.
+ * @return 0 on success, negative on error.
+ */
+
 int Omemo::lurch_queued_msg_create(omemo_message * om_msg_p,
                                    GList * recipient_addr_l_p,
                                    GList * no_sess_l_p,
@@ -203,6 +223,46 @@ cleanup:
     return ret_val;
 }
 
+int Omemo::lurch_queued_msg_is_handled(const lurch_queued_msg * qmsg_p) {
+  return (g_list_length(qmsg_p->no_sess_l_p) == g_hash_table_size(qmsg_p->sess_handled_p)) ? 1 : 0;
+}
+
+/**
+ * Frees all the memory used by the queued msg.
+ */
+void Omemo::lurch_queued_msg_destroy(lurch_queued_msg * qmsg_p) {
+  if (qmsg_p) {
+    omemo_message_destroy(qmsg_p->om_msg_p);
+    g_list_free_full(qmsg_p->recipient_addr_l_p, free);
+    g_hash_table_destroy(qmsg_p->sess_handled_p);
+    free(qmsg_p);
+  }
+}
+
+char * Omemo::lurch_queue_make_key_string_s(const char * name, const char * device_id) {
+  return g_strconcat(name, "/", device_id, NULL);
+}
+
+/**
+ * Returns the db name, has to be g_free()d.
+ *
+ * @param uname The username.
+ * @param which Either LURCH_DB_NAME_OMEMO or LURCH_DB_NAME_AXC
+ * @return The path string.
+ */
+char* Omemo::unameGetDbFn(const char * uname, char * which)
+{
+    // impelements lurch_uname_get_db_fn
+    return g_strconcat(System::getOmemoPath().toStdString().c_str(), "/", uname, "_", which, LURCH_DB_SUFFIX, NULL);
+}
+
+/**
+ * Creates and initializes the axc context.
+ *
+ * @param uname The username.
+ * @param ctx_pp Will point to an initialized axc context on success.
+ * @return 0 on success, negative on error.
+ */
 bool Omemo::axcGetInitCtx(axc_context** ctx_pp)
 {
     // implements lurch_axc_get_init_ctx
@@ -224,13 +284,22 @@ bool Omemo::axcGetInitCtx(axc_context** ctx_pp)
         err_msg_dbg = g_strdup_printf("failed to set axc db filename");
         goto cleanup;
     }
-
+#if 0
+    if (purple_prefs_get_bool(LURCH_PREF_AXC_LOGGING)) {
+        axc_context_set_log_func(ctx_p, lurch_axc_log_func);
+        axc_context_set_log_level(ctx_p, purple_prefs_get_int(LURCH_PREF_AXC_LOGGING_LEVEL));
+    }
+#endif
     ret_val = axc_init(ctx_p);
     if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to init axc context");
         goto cleanup;
     }
-
+#if 0
+    if (purple_prefs_get_bool(LURCH_PREF_AXC_LOGGING)) {
+      signal_context_set_log_function(axc_context_get_axolotl_ctx(ctx_p), lurch_axc_log_func);
+    }
+#endif
     *ctx_pp = ctx_p;
 
 cleanup:
@@ -246,6 +315,14 @@ cleanup:
     return ret_val;
 }
 
+/**
+ * Does the first-time install of the axc DB.
+ * As specified in OMEMO, it checks if the generated device ID already exists.
+ * Therefore, it should be called at a point in time when other entries exist.
+ *
+ * @param uname The username.
+ * @return 0 on success, negative on error.
+ */
 bool Omemo::axcPrepare(QString fromJid)
 {
     // implements lurch_axc_prepare
@@ -300,21 +377,26 @@ bool Omemo::axcPrepare(QString fromJid)
 
 cleanup:
     if (err_msg_dbg) {
-        //purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
-        qDebug() << "omemo: " << __func__ << ", " << err_msg_dbg << ", " << ret_val;
+        purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
         free(err_msg_dbg);
     }
     axc_context_destroy_all(axc_ctx_p);
     free(db_fn_omemo);
 
     return ret_val;
-
 }
 
-int Omemo::lurch_export_encrypted(omemo_message * om_msg_p, char ** xml_pp) {
-  return omemo_message_export_encrypted(om_msg_p, OMEMO_ADD_MSG_EME, xml_pp);
-}
-
+/**
+ * Encrypts a data buffer, usually the omemo symmetric key, using axolotl.
+ * Assumes a valid session already exists.
+ *
+ * @param recipient_addr_p Pointer to the lurch_addr of the recipient.
+ * @param key_p Pointer to the key data.
+ * @param key_len Length of the key data.
+ * @param axc_ctx_p Pointer to the axc_context to use.
+ * @param key_ct_pp Will point to a pointer to an axc_buf containing the key ciphertext on success.
+ * @return 0 on success, negative on error
+ */
 int Omemo::lurch_key_encrypt(const lurch_addr * recipient_addr_p,
                              const uint8_t * key_p,
                              size_t key_len,
@@ -360,7 +442,16 @@ cleanup:
   return ret_val;
 }
 
-
+/**
+ * For each of the recipients, encrypts the symmetric key using the existing axc session,
+ * then adds it to the omemo message.
+ * If the session does not exist, the recipient is skipped.
+ *
+ * @param om_msg_p Pointer to the omemo message.
+ * @param addr_l_p Pointer to the head of a list of the intended recipients' lurch_addrs.
+ * @param axc_ctx_p Pointer to the axc_context to use.
+ * @return 0 on success, negative on error.
+ */
 int Omemo::lurch_msg_encrypt_for_addrs(omemo_message * om_msg_p, GList * addr_l_p, axc_context * axc_ctx_p) {
     int ret_val = 0;
     char * err_msg_dbg{nullptr};
@@ -419,8 +510,12 @@ cleanup:
     return ret_val;
 }
 
-
-
+/**
+ * Collects the information needed for a bundle and publishes it.
+ *
+ * @param uname The username.
+ * @param js_p Pointer to the connection to use for publishing.
+ */
 int Omemo::bundlePublishOwn()
 {
     // implements lurch_bundle_publish_own
@@ -533,6 +628,13 @@ cleanup:
     return ret_val;
 }
 
+/**
+ * Creates an axc session from a received bundle.
+ *
+ * @param uname The own username.
+ * @param from The sender of the bundle.
+ * @param items_p The bundle update as received in the PEP request handler.
+ */
 int Omemo::bundleCreateSession(const char* from, const std::string& items, axc_context * axc_ctx_p)
 {
     // lurch_bundle_create_session
@@ -632,132 +734,17 @@ cleanup:
     return ret_val;
 }
 
-int Omemo::bundleRequestDo(const char * to, uint32_t device_id, lurch_queued_msg * qmsg_p) {
-    // lurch_bundle_request_do
-
-    /* <iq type='get' to='xxx@jabber.ccc.de' id='xxx@jabber.ccc.de#508164373#-1085008789'>
-        <pubsub xmlns='http://jabber.org/protocol/pubsub'>
-            <items node='eu.siacs.conversations.axolotl.bundles:508164373' max_items='1'/>
-        </pubsub>
-       </iq>
-    */
-
-    Swift::IDGenerator idGenerator;
-
-    std::string toJid{to};
-    //std::string reqId = toJid + "#" + std::to_string(device_id) + "#" + idGenerator.generateID();
-    std::string bundleId = std::to_string(device_id);
-
-    // gen the payload
-    char* cBundlePep{nullptr};
-    int retVal = omemo_bundle_get_pep_node_name(device_id, &cBundlePep);
-    if (retVal != 0)
-    {
-        qDebug() << "failed to get bundlelist pep node name";
-    }
-    else
-    {
-        const std::string pubsubXml =
-                "<pubsub xmlns='http://jabber.org/protocol/pubsub'><items node='" + std::string(cBundlePep) +"' max_items='1'/></pubsub>";
-        free(cBundlePep);
-
-        RawRequestBundle::ref publishPep = RawRequestBundle::create(Swift::IQ::Get,
-                                                                                toJid,
-                                                                                pubsubXml,
-                                                                                client_->getIQRouter(),
-                                                                                bundleId,
-                                                                                qmsg_p
-                                                                            );
-
-        publishPep->onResponse.connect(boost::bind(&Omemo::requestBundleHandler, this, _1, _2, _3, _4));
-        publishPep->send();
-    }
-
-
-#if 0
-    int ret_val = 0;
-
-    //JabberIq * jiq_p{nullptr};
-    //xmlnode * pubsub_node_p{nullptr};
-    //char * device_id_str{nullptr};
-    //char * rand_str{nullptr};
-    //char * req_id{nullptr};
-    char * bundle_node_name{nullptr};
-    //xmlnode * items_node_p{nullptr};
-
-    purple_debug_info("lurch", "%s: %s is requesting bundle from %s:%i\n", __func__,
-                      uname_, to, device_id);
-
-    //jiq_p = jabber_iq_new(js_p, JABBER_IQ_GET);
-    //xmlnode_set_attrib(jiq_p->node, "to", to);
-
-    //pubsub_node_p = xmlnode_new_child(jiq_p->node, "pubsub");
-    //xmlnode_set_namespace(pubsub_node_p, "http://jabber.org/protocol/pubsub");
-
-    //device_id_str = g_strdup_printf("%i", device_id);
-    //rand_str = g_strdup_printf("%i", g_random_int());
-    //req_id = g_strconcat(to, "#", device_id_str, "#", rand_str, NULL);
-
-    ret_val = omemo_bundle_get_pep_node_name(device_id, &bundle_node_name);
-    if (ret_val) {
-        purple_debug_error("lurch", "%s: failed to get bundle pep node name for %s:%i\n", __func__, to, device_id);
-        goto cleanup;
-    }
-
-    //items_node_p = xmlnode_new_child(pubsub_node_p, "items");
-    //xmlnode_set_attrib(items_node_p, "node", bundle_node_name);
-    //xmlnode_set_attrib(items_node_p, "max_items", "1");
-
-    //jabber_iq_set_id(jiq_p, req_id);
-    //jabber_iq_set_callback(jiq_p, lurch_bundle_request_cb, qmsg_p);
-
-    //jabber_iq_send(jiq_p);
-
-    purple_debug_info("lurch", "%s: ...request sent\n", __func__);
-
-cleanup:
-    //g_free(device_id_str);
-    //g_free(rand_str);
-    //g_free(req_id);
-    g_free(bundle_node_name);
-
-    return ret_val;
-#endif
-
-    return 0;
+/**
+ * Wraps the omemo_message_export_encrypted message, so that it is called with the same options throughout.
+ */
+int Omemo::lurch_export_encrypted(omemo_message * om_msg_p, char ** xml_pp) {
+  return omemo_message_export_encrypted(om_msg_p, OMEMO_ADD_MSG_EME, xml_pp);
 }
 
-void Omemo::requestBundleHandler(const Swift::JID& jid, const std::string& bundleId, lurch_queued_msg* qMsg, const std::string& str)
-{
-    // str has pubsub as root node. The cb wants it to be child of iq...
-    std::string bundleResponse = "<iq>" + str + "</iq>";
-
-    std::cout << jid.toString() << ", " << bundleId << ", " << bundleResponse << std::endl;
-
-    bundleRequestCb(jid.toBare().toString(), JABBER_IQ_SET, bundleId, bundleResponse, qMsg);
-
-#if 0
-    xmlnode* xItems = xmlnode_from_str(bundleResponse.c_str(), -1);
-    if (xItems != NULL)
-    {
-        lurch_bundle_request_cb(&jabberStream_,
-                                requestBundleFrom_.toStdString().c_str(),
-                                JABBER_IQ_SET,
-                                requestBundleStanzaId_.toStdString().c_str(),
-                                xItems,
-                                lurchQueuedMsgPtr_
-                                );
-
-        free(xItems);
-    }
-#endif
-}
-
-#if 0
-void Omemo::BundleRequestCb(JabberStream * js_p, const char * from,
-                                    JabberIqType type, const char * id,
-                                    xmlnode * packet_p, gpointer data_p) {
-#endif
+/**
+ * Implements JabberIqCallback.
+ * Callback for a bundle request.
+ */
 void Omemo::bundleRequestCb(const std::string& fromStr, JabberIqType type, const std::string& idStr,
                             const std::string& packet_p, lurch_queued_msg * qmsg_p) {
 
@@ -910,22 +897,119 @@ cleanup:
   //}
 }
 
-char * Omemo::lurch_queue_make_key_string_s(const char * name, const char * device_id) {
-  return g_strconcat(name, "/", device_id, NULL);
+/**
+ * Requests a bundle.
+ *
+ * @param js_p Pointer to the JabberStream to use.
+ * @param to The recipient of this request.
+ * @param device_id The ID of the device whose bundle is needed.
+ * @param qmsg_p Pointer to the queued message waiting on (at least) this bundle.
+ * @return 0 on success, negative on error.
+ */
+int Omemo::bundleRequestDo(const char * to, uint32_t device_id, lurch_queued_msg * qmsg_p) {
+    // lurch_bundle_request_do
+
+    /* <iq type='get' to='xxx@jabber.ccc.de' id='xxx@jabber.ccc.de#508164373#-1085008789'>
+        <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+            <items node='eu.siacs.conversations.axolotl.bundles:508164373' max_items='1'/>
+        </pubsub>
+       </iq>
+    */
+
+    Swift::IDGenerator idGenerator;
+
+    std::string toJid{to};
+    //std::string reqId = toJid + "#" + std::to_string(device_id) + "#" + idGenerator.generateID();
+    std::string bundleId = std::to_string(device_id);
+
+    // gen the payload
+    char* cBundlePep{nullptr};
+    int retVal = omemo_bundle_get_pep_node_name(device_id, &cBundlePep);
+    if (retVal != 0)
+    {
+        qDebug() << "failed to get bundlelist pep node name";
+    }
+    else
+    {
+        const std::string pubsubXml =
+                "<pubsub xmlns='http://jabber.org/protocol/pubsub'><items node='" + std::string(cBundlePep) +"' max_items='1'/></pubsub>";
+        free(cBundlePep);
+
+        RawRequestBundle::ref publishPep = RawRequestBundle::create(Swift::IQ::Get,
+                                                                                toJid,
+                                                                                pubsubXml,
+                                                                                client_->getIQRouter(),
+                                                                                bundleId,
+                                                                                qmsg_p
+                                                                            );
+
+        publishPep->onResponse.connect(boost::bind(&Omemo::requestBundleHandler, this, _1, _2, _3, _4));
+        publishPep->send();
+    }
+
+
+#if 0
+    int ret_val = 0;
+
+    JabberIq * jiq_p{nullptr};
+    xmlnode * pubsub_node_p{nullptr};
+    char * device_id_str{nullptr};
+    char * rand_str{nullptr};
+    char * req_id{nullptr};
+    char * bundle_node_name{nullptr};
+    xmlnode * items_node_p{nullptr};
+
+    purple_debug_info("lurch", "%s: %s is requesting bundle from %s:%i\n", __func__,
+                      uname_, to, device_id);
+
+    jiq_p = jabber_iq_new(js_p, JABBER_IQ_GET);
+    xmlnode_set_attrib(jiq_p->node, "to", to);
+
+    pubsub_node_p = xmlnode_new_child(jiq_p->node, "pubsub");
+    xmlnode_set_namespace(pubsub_node_p, "http://jabber.org/protocol/pubsub");
+
+    device_id_str = g_strdup_printf("%i", device_id);
+    rand_str = g_strdup_printf("%i", g_random_int());
+    req_id = g_strconcat(to, "#", device_id_str, "#", rand_str, NULL);
+
+    ret_val = omemo_bundle_get_pep_node_name(device_id, &bundle_node_name);
+    if (ret_val) {
+        purple_debug_error("lurch", "%s: failed to get bundle pep node name for %s:%i\n", __func__, to, device_id);
+        goto cleanup;
+    }
+
+    items_node_p = xmlnode_new_child(pubsub_node_p, "items");
+    xmlnode_set_attrib(items_node_p, "node", bundle_node_name);
+    xmlnode_set_attrib(items_node_p, "max_items", "1");
+
+    jabber_iq_set_id(jiq_p, req_id);
+    jabber_iq_set_callback(jiq_p, lurch_bundle_request_cb, qmsg_p);
+
+    jabber_iq_send(jiq_p);
+
+    purple_debug_info("lurch", "%s: ...request sent\n", __func__);
+
+cleanup:
+    g_free(device_id_str);
+    g_free(rand_str);
+    g_free(req_id);
+    g_free(bundle_node_name);
+
+    return ret_val;
+#endif
+
+    return 0;
 }
 
-int Omemo::lurch_queued_msg_is_handled(const lurch_queued_msg * qmsg_p) {
-  return (g_list_length(qmsg_p->no_sess_l_p) == g_hash_table_size(qmsg_p->sess_handled_p)) ? 1 : 0;
+void Omemo::requestBundleHandler(const Swift::JID& jid, const std::string& bundleId, lurch_queued_msg* qMsg, const std::string& str)
+{
+    // str has pubsub as root node. The cb wants it to be child of iq...
+    std::string bundleResponse = "<iq>" + str + "</iq>";
+
+    //std::cout << jid.toString() << ", " << bundleId << ", " << bundleResponse << std::endl;
+    bundleRequestCb(jid.toBare().toString(), JABBER_IQ_SET, bundleId, bundleResponse, qMsg);
 }
 
-void Omemo::lurch_queued_msg_destroy(lurch_queued_msg * qmsg_p) {
-  if (qmsg_p) {
-    omemo_message_destroy(qmsg_p->om_msg_p);
-    g_list_free_full(qmsg_p->recipient_addr_l_p, free);
-    g_hash_table_destroy(qmsg_p->sess_handled_p);
-    free(qmsg_p);
-  }
-}
 
 void Omemo::pepBundleForKeytransport(const std::string from, const std::string &items)
 {
@@ -1052,6 +1136,14 @@ cleanup:
     free(msg_xml);
 }
 
+/**
+ * Processes a devicelist by updating the database with it.
+ *
+ * @param uname The username.
+ * @param dl_in_p Pointer to the incoming devicelist.
+ * @param js_p Pointer to the JabberStream.
+ * @return 0 on success, negative on error.
+ */
 int Omemo::devicelistProcess(const char* uname, omemo_devicelist * dl_in_p)
 {
     // implements lurch_devicelist_process
@@ -1131,9 +1223,12 @@ cleanup:
     free(debug_str);
 
     return ret_val;
-
 }
 
+/**
+ * A JabberPEPHandler function.
+ * Is used to handle the own devicelist and also perform install-time functions.
+ */
 void Omemo::ownDeviceListRequestHandler(QString items)
 {
     // lurch_pep_own_devicelist_request_handler
@@ -1267,6 +1362,99 @@ cleanup:
 
 }
 
+#if 0
+// FIXME implement me!
+/**
+ * A JabberPEPHandler function.
+ * On receiving a devicelist PEP updates the database entry.
+ */
+static void lurch_pep_devicelist_event_handler(JabberStream * js_p, const char * from, xmlnode * items_p) {
+  int ret_val = 0;
+  int len = 0;
+  char * err_msg_dbg = (void *) 0;
+
+  char * uname = (void *) 0;
+  omemo_devicelist * dl_in_p = (void *) 0;
+
+  uname = lurch_uname_strip(purple_account_get_username(purple_connection_get_account(js_p->gc)));
+  if (!strncmp(uname, from, strnlen(uname, JABBER_MAX_LEN_BARE))) {
+    //own devicelist is dealt with in own handler
+    lurch_pep_own_devicelist_request_handler(js_p, from, items_p);
+    goto cleanup;
+  }
+
+  purple_debug_info("lurch", "%s: %s received devicelist update from %s\n", __func__, uname, from);
+
+  ret_val = omemo_devicelist_import(xmlnode_to_str(items_p, &len), from, &dl_in_p);
+  if (ret_val) {
+    err_msg_dbg = g_strdup_printf("failed to import devicelist");
+    goto cleanup;
+  }
+
+  ret_val = lurch_devicelist_process(uname, dl_in_p, js_p);
+  if(ret_val) {
+    err_msg_dbg = g_strdup_printf("failed to process devicelist");
+    goto cleanup;
+  }
+
+cleanup:
+  if (err_msg_dbg) {
+    purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
+    g_free(err_msg_dbg);
+  }
+  g_free(uname);
+  omemo_devicelist_destroy(dl_in_p);
+}
+#endif
+
+#if 0
+// done in Omemo setupWithClient
+/**
+ * Set as callback for the "account connected" signal.
+ * Requests the own devicelist, as that requires an active connection (as
+ * opposed to just registering PEP handlers).
+ * Also inits the msg queue hashtable.
+ */
+static void lurch_account_connect_cb(PurpleAccount * acc_p) {
+  int ret_val = 0;
+
+  char * uname = (void *) 0;
+  JabberStream * js_p = (void *) 0;
+  char * dl_ns = (void *) 0;
+
+ // purple_account_set_bool(acc_p, LURCH_ACC_SETTING_INITIALIZED, FALSE);
+
+  js_p = purple_connection_get_protocol_data(purple_account_get_connection(acc_p));
+
+  if (strncmp(purple_account_get_protocol_id(acc_p), JABBER_PROTOCOL_ID, strlen(JABBER_PROTOCOL_ID))) {
+    return;
+  }
+
+  ret_val = omemo_devicelist_get_pep_node_name(&dl_ns);
+  if (ret_val) {
+    purple_debug_error("lurch", "%s: %s (%i)\n", __func__, "failed to get devicelist pep node name", ret_val);
+    goto cleanup;
+  }
+  uname = lurch_uname_strip(purple_account_get_username(acc_p));
+  jabber_pep_request_item(js_p, uname, dl_ns, (void *) 0, lurch_pep_own_devicelist_request_handler);
+
+cleanup:
+  g_free(uname);
+  free(dl_ns);
+}
+#endif
+
+/**
+ * For a list of lurch_addrs, checks which ones do not have an active session.
+ * Note that the structs are not copied, the returned list is just a subset
+ * of the pointers of the input list.
+ *
+ * @param addr_l_p A list of pointers to lurch_addr structs.
+ * @param axc_ctx_p The axc_context to use.
+ * @param no_sess_l_pp Will point to a list that contains pointers to those
+ *                     addresses that do not have a session.
+ * @return 0 on success, negative on error.
+ */
 int Omemo::lurch_axc_sessions_exist(GList * addr_l_p, axc_context * axc_ctx_p, GList ** no_sess_l_pp){
   int ret_val = 0;
 
@@ -1301,6 +1489,14 @@ cleanup:
   return ret_val;
 }
 
+/**
+ * Adds an omemo devicelist to a GList of lurch_addrs.
+ *
+ * @param addrs_p Pointer to the list to add to. Remember NULL is a valid GList *.
+ * @param dl_p Pointer to the omemo devicelist to add.
+ * @param exclude_id_p Pointer to an ID that is not to be added. Useful when adding the own devicelist. Can be NULL.
+ * @return Pointer to the updated GList on success, NULL on error.
+ */
 GList* Omemo::lurch_addr_list_add(GList * addrs_p, const omemo_devicelist * dl_p, const uint32_t * exclude_id_p) {
     int ret_val = 0;
 
@@ -1345,7 +1541,22 @@ cleanup:
     }
 }
 
-
+/**
+ * Does the final steps of encrypting the message.
+ * If all devices have sessions, does the actual encrypting.
+ * If not, saves it and sends bundle request to the missing devices so that the message can be sent at a later time.
+ *
+ * Note that if msg_stanza_pp points to NULL, both om_msg_p and addr_l_p must not be freed by the calling function.
+ *
+ * @param js_p          Pointer to the JabberStream to use.
+ * @param axc_ctx_p     Pointer to the axc_context to use.
+ * @param om_msg_p      Pointer to the omemo message.
+ * @param addr_l_p      Pointer to a GList of lurch_addr structs that are supposed to receive the message.
+ * @param msg_stanza_pp Pointer to the pointer to the <message> stanza.
+ *                      Is either changed to point to the encrypted message, or to NULL if the message is to be sent later.
+ * @return 0 on success, negative on error.
+ *
+ */
 std::string Omemo::msgFinalizeEncryption(axc_context * axc_ctx_p, omemo_message * om_msg_p, GList * addr_l_p, const std::string& msg_stanza_pp) {
     (void)msg_stanza_pp;
     std::string finalEncMsg{};
@@ -1421,7 +1632,10 @@ cleanup:
     return finalEncMsg;
 }
 
-
+/**
+ * Set as callback for the "sending xmlnode" signal.
+ * Encrypts the message body, if applicable.
+ */
 std::string Omemo::messageEncryptIm(const std::string msg_stanza_pp) {
     // lurch_message_encrypt_im
     int ret_val = 0;
@@ -1564,7 +1778,198 @@ cleanup:
     return finalMsg;
 }
 
+#if 0
+// FIXME implemt group chat encryption
+static void lurch_message_encrypt_groupchat(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp) {
+  int ret_val = 0;
+  char * err_msg_dbg = (void *) 0;
+  int len;
 
+  char * uname = (void *) 0;
+  char * db_fn_omemo = (void *) 0;
+  axc_context * axc_ctx_p = (void *) 0;
+  uint32_t own_id = 0;
+  char * tempxml = (void *) 0;
+  omemo_message * om_msg_p = (void *) 0;
+  omemo_devicelist * user_dl_p = (void *) 0;
+  GList * addr_l_p = (void *) 0;
+  PurpleConversation * conv_p = (void *) 0;
+  PurpleConvChat * chat_p = (void *) 0;
+  JabberChat * muc_p = (void *) 0;
+  JabberChatMember * curr_muc_member_p = (void *) 0;
+  xmlnode * body_node_p = (void *) 0;
+  GList * curr_item_p = (void *) 0;
+  char * curr_muc_member_jid = (void *) 0;
+  omemo_devicelist * curr_dl_p = (void *) 0;
+
+  const char * to = xmlnode_get_attrib(*msg_stanza_pp, "to");
+
+  uname = lurch_uname_strip(purple_account_get_username(purple_connection_get_account(gc_p)));
+  db_fn_omemo = lurch_uname_get_db_fn(uname, LURCH_DB_NAME_OMEMO);
+
+  ret_val = omemo_storage_chatlist_exists(to, db_fn_omemo);
+  if (ret_val < 0) {
+    err_msg_dbg = g_strdup_printf("failed to access db %s", db_fn_omemo);
+    goto cleanup;
+  } else if (ret_val == 0) {
+    goto cleanup;
+  }
+
+  ret_val = lurch_axc_get_init_ctx(uname, &axc_ctx_p);
+  if (ret_val) {
+    err_msg_dbg = g_strdup_printf("failed to get axc ctx for %s", uname);
+    goto cleanup;
+  }
+
+  ret_val = axc_get_device_id(axc_ctx_p, &own_id);
+  if (ret_val) {
+    err_msg_dbg = g_strdup_printf("failed to get device id");
+    goto cleanup;
+  }
+  tempxml = xmlnode_to_str(*msg_stanza_pp, &len);
+  ret_val = omemo_message_prepare_encryption(tempxml, own_id, &crypto, OMEMO_STRIP_ALL, &om_msg_p);
+  if (ret_val) {
+    err_msg_dbg = g_strdup_printf("failed to construct omemo message");
+    goto cleanup;
+  }
+
+  ret_val = omemo_storage_user_devicelist_retrieve(uname, db_fn_omemo, &user_dl_p);
+  if (ret_val) {
+    err_msg_dbg = g_strdup_printf("failed to retrieve devicelist for %s", uname);
+    goto cleanup;
+  }
+
+  addr_l_p = lurch_addr_list_add(addr_l_p, user_dl_p, &own_id);
+
+  conv_p = purple_find_conversation_with_account(PURPLE_CONV_TYPE_CHAT, to, purple_connection_get_account(gc_p));
+  if (!conv_p) {
+    err_msg_dbg = g_strdup_printf("could not find groupchat %s", to);
+    goto cleanup;
+  }
+
+  chat_p = purple_conversation_get_chat_data(conv_p);
+  muc_p = jabber_chat_find_by_conv(conv_p);
+  if (!muc_p) {
+    err_msg_dbg = g_strdup_printf("could not find muc struct for groupchat %s", to);
+    goto cleanup;
+  }
+
+  for (curr_item_p = g_hash_table_get_values(muc_p->members); curr_item_p; curr_item_p = curr_item_p->next) {
+    curr_muc_member_p = (JabberChatMember *) curr_item_p->data;
+    curr_muc_member_jid = jabber_get_bare_jid(curr_muc_member_p->jid);
+
+    if (!curr_muc_member_jid) {
+      err_msg_dbg = g_strdup_printf("Could not find the JID for %s - the channel needs to be non-anonymous!", curr_muc_member_p->handle);
+      purple_conv_present_error(purple_conversation_get_name(conv_p), purple_connection_get_account(gc_p), err_msg_dbg);
+      g_free(err_msg_dbg);
+      err_msg_dbg = (void *) 0;
+      continue;
+    }
+
+    // libpurple (rightly) assumes that in MUCs the message will come back anyway so it's not written to the chat
+    // but encrypting and decrypting for yourself should not be done with the double ratchet, so the own device is skipped
+    // and the typed message written to the chat window manually without sending
+    if (!g_strcmp0(curr_muc_member_jid, uname)) {
+      body_node_p = xmlnode_get_child(*msg_stanza_pp, "body");
+
+      purple_conv_chat_write(chat_p, curr_muc_member_p->handle, xmlnode_get_data(body_node_p), PURPLE_MESSAGE_SEND, time((void *) 0));
+      continue;
+    }
+
+    ret_val = omemo_storage_user_devicelist_retrieve(curr_muc_member_jid, db_fn_omemo, &curr_dl_p);
+    if (ret_val) {
+      err_msg_dbg = g_strdup_printf("Could not retrieve the devicelist for %s from %s", curr_muc_member_jid, db_fn_omemo);
+      goto cleanup;
+    }
+
+    if (omemo_devicelist_is_empty(curr_dl_p)) {
+      err_msg_dbg = g_strdup_printf("User %s is no OMEMO user (does not have a devicelist). "
+                                    "This user cannot read any incoming encrypted messages and will send his own messages in the clear!",
+                                    curr_muc_member_jid);
+      purple_conv_present_error(purple_conversation_get_name(conv_p), purple_connection_get_account(gc_p), err_msg_dbg);
+      g_free(err_msg_dbg);
+      err_msg_dbg = (void *) 0;
+      continue;
+    }
+
+    addr_l_p = lurch_addr_list_add(addr_l_p, curr_dl_p, (void *) 0);
+    omemo_devicelist_destroy(curr_dl_p);
+    curr_dl_p = (void *) 0;
+  }
+
+  ret_val = lurch_msg_finalize_encryption(purple_connection_get_protocol_data(gc_p), axc_ctx_p, om_msg_p, addr_l_p, msg_stanza_pp);
+  if (ret_val) {
+    err_msg_dbg = g_strdup_printf("failed to finalize msg");
+    goto cleanup;
+  }
+
+  //TODO: properly handle this instead of removing the body completely, necessary for full EME support
+  body_node_p = xmlnode_get_child(*msg_stanza_pp, "body");
+  xmlnode_free(body_node_p);
+
+cleanup:
+  if (err_msg_dbg) {
+    purple_conv_present_error(purple_conversation_get_name(conv_p), purple_connection_get_account(gc_p), LURCH_ERR_STRING_ENCRYPT);
+    purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
+    free(err_msg_dbg);
+    *msg_stanza_pp = (void *) 0;
+  }
+  if (ret_val) {
+    omemo_message_destroy(om_msg_p);
+    g_list_free_full(addr_l_p, lurch_addr_list_destroy_func);
+  }
+
+  free(uname);
+  free(db_fn_omemo);
+  axc_context_destroy_all(axc_ctx_p);
+  free(tempxml);
+  omemo_devicelist_destroy(user_dl_p);
+}
+#endif
+
+#if 0
+// not needed in this Omemo class. Just here for reference to lurch
+static void lurch_xml_sent_cb(PurpleConnection * gc_p, xmlnode ** stanza_pp) {
+  xmlnode * body_node_p      = (void *) 0;
+  xmlnode * encrypted_node_p = (void *) 0;
+  char * node_name           = (void *) 0;
+  const char * type          = (void *) 0;
+
+  if (uninstall) {
+    return;
+  }
+
+  if (!stanza_pp || !*stanza_pp) {
+    return;
+  }
+
+  node_name = (*stanza_pp)->name;
+  type = xmlnode_get_attrib(*stanza_pp, "type");
+
+  if (!g_strcmp0(node_name, "message")) {
+    body_node_p = xmlnode_get_child(*stanza_pp, "body");
+    if (!body_node_p) {
+      return;
+    }
+
+    encrypted_node_p = xmlnode_get_child(*stanza_pp, "encrypted");
+    if (encrypted_node_p) {
+      return;
+    }
+
+    if (!g_strcmp0(type, "chat")) {
+      lurch_message_encrypt_im(gc_p, stanza_pp);
+    } else if (!g_strcmp0(type, "groupchat")) {
+      lurch_message_encrypt_groupchat(gc_p, stanza_pp);
+    }
+  }
+}
+#endif
+
+/**
+ * Callback for the "receiving xmlnode" signal.
+ * Decrypts message, if applicable.
+ */
 std::string Omemo::messageDecrypt(const std::string& message)
 {
     // lurch_message_decrypt
@@ -1925,12 +2330,6 @@ void Omemo::publishedBundle(const std::string& str)
 {
     // FIXME check if there was an error on bundle publishing
     qDebug() << "OMEMO: publishedBundle: " << QString::fromStdString(str);
-}
-
-char* Omemo::unameGetDbFn(const char * uname, char * which)
-{
-    // impelements lurch_uname_get_db_fn
-    return g_strconcat(System::getOmemoPath().toStdString().c_str(), "/", uname, "_", which, LURCH_DB_SUFFIX, NULL);
 }
 
 bool Omemo::isEncryptedMessage(const QString& xmlNode)
