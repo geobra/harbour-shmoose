@@ -1030,12 +1030,16 @@ void Omemo::pepBundleForKeytransport(const std::string from, const std::string &
 
     //uname = lurch_uname_strip(purple_account_get_username(purple_connection_get_account(js_p->gc)));
 
-    // FIXME check the struct if information are parsed correct
+    // items string starts at the <pubsub... > level, strip that away.
+    QString qItems = XmlProcessor::getChildFromNode("items", QString::fromStdString(items));
+
     addr.name = from.c_str();
     //addr.name_len = strnlen(from, JABBER_MAX_LEN_BARE);
     addr.name_len = from.size();
+
     //addr.device_id = lurch_bundle_name_get_device_id(xmlnode_get_attrib(items_p, "node"));
-    QString nodesStr = XmlProcessor::getContentInTag("items", "node", QString::fromStdString(items));
+    QString nodesStr = XmlProcessor::getContentInTag("items", "node", qItems);
+
     QStringList nodesStrList = nodesStr.split(":");
     if (nodesStrList.size() == 2)
     {
@@ -1044,6 +1048,8 @@ void Omemo::pepBundleForKeytransport(const std::string from, const std::string &
     else
     {
         // FIXME show error to user
+        ret_val = LURCH_ERR;
+        err_msg_dbg = "no <items> node in response";
         goto cleanup;
     }
 
@@ -1065,7 +1071,7 @@ void Omemo::pepBundleForKeytransport(const std::string from, const std::string &
         goto cleanup;
     }
 
-    ret_val = bundleCreateSession(from.c_str(), items, axc_ctx_p);
+    ret_val = bundleCreateSession(from.c_str(), qItems.toStdString(), axc_ctx_p);
     if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to create session");
         goto cleanup;
