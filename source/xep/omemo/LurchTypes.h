@@ -10,3 +10,8 @@ struct lurch_queued_msg {
   GList * no_sess_l_p;
   GHashTable * sess_handled_p;
 };
+
+typedef struct lurch_addr {
+  char * jid;
+  uint32_t device_id;
+};

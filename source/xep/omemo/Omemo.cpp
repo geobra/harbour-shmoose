@@ -34,6 +34,7 @@
 extern "C" {
 #include <purple.h>
 #include "lurch_util.h"
+#include "lurch_prep.h"
 #include "libomemo_storage.h"
 #include "axc_store.h"
 }
@@ -146,6 +147,7 @@ void Omemo::requestDeviceList(const Swift::JID& jid)
     requestDeviceList->send();
 }
 
+#if 0
 void Omemo::lurch_addr_list_destroy_func(gpointer data) {
   lurch_addr * addr_p = (lurch_addr *) data;
   free(addr_p->jid);
@@ -170,12 +172,12 @@ int Omemo::lurch_queued_msg_create(omemo_message * om_msg_p,
                                    GList * no_sess_l_p,
                                    lurch_queued_msg ** qmsg_pp) {
     int ret_val = 0;
-    char * err_msg_dbg{nullptr};
+    char * err_msg_dbg = (void *) 0;
 
-    lurch_queued_msg * qmsg_p{nullptr};
-    GHashTable * sess_handled_p{nullptr};
+    lurch_queued_msg * qmsg_p = (void *) 0;
+    GHashTable * sess_handled_p = (void *) 0;
 
-    qmsg_p = (lurch_queued_msg *)malloc(sizeof(lurch_queued_msg));
+    qmsg_p = malloc(sizeof(lurch_queued_msg));
     if (!qmsg_p) {
         ret_val = LURCH_ERR_NOMEM;
         err_msg_dbg = g_strdup_printf("failed to malloc space for queued msg struct");
@@ -223,23 +225,6 @@ char * Omemo::lurch_queue_make_key_string_s(const char * name, const char * devi
 }
 
 /**
- * Returns the db name, has to be g_free()d.
- *
- * @param uname The username.
- * @param which Either LURCH_DB_NAME_OMEMO or LURCH_DB_NAME_AXC
- * @return The path string.
- */
-char* Omemo::unameGetDbFn(const char * uname, char * which)
-{
-    // impelements lurch_uname_get_db_fn
-
-    // FIXME remove me! use lurch_util_uname_get_db_fn
-
-    return g_strconcat(System::getOmemoPath().toStdString().c_str(), "/", uname, "_", which, LURCH_DB_SUFFIX, NULL);
-
-}
-
-/**
  * Does the first-time install of the axc DB.
  * As specified in OMEMO, it checks if the generated device ID already exists.
  * Therefore, it should be called at a point in time when other entries exist.
@@ -247,17 +232,16 @@ char* Omemo::unameGetDbFn(const char * uname, char * which)
  * @param uname The username.
  * @return 0 on success, negative on error.
  */
-bool Omemo::axcPrepare(QString fromJid)
+bool Omemo::lurch_axc_prepare(char * uname)
 {
-    // implements lurch_axc_prepare
     int ret_val = 0;
+    char * err_msg_dbg = (void *) 0;
 
-    char * err_msg_dbg = nullptr;
-    axc_context * axc_ctx_p = nullptr;
+    axc_context * axc_ctx_p = (void *) 0;
     uint32_t device_id = 0;
-    char * db_fn_omemo = nullptr;
+    char * db_fn_omemo = (void *) 0;
 
-    ret_val = lurch_util_axc_get_init_ctx(uname_, &axc_ctx_p);
+    ret_val = lurch_util_axc_get_init_ctx(uname, &axc_ctx_p);
     if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to get init axc ctx");
         goto cleanup;
@@ -269,7 +253,7 @@ bool Omemo::axcPrepare(QString fromJid)
         goto cleanup;
     }
 
-    db_fn_omemo = unameGetDbFn(fromJid.toStdString().c_str(), (char *)LURCH_DB_NAME_OMEMO);
+    db_fn_omemo = lurch_util_uname_get_db_fn(uname, LURCH_DB_NAME_OMEMO);
 
     while (1) {
         ret_val = axc_install(axc_ctx_p);
@@ -366,6 +350,7 @@ cleanup:
   return ret_val;
 }
 
+
 /**
  * For each of the recipients, encrypts the symmetric key using the existing axc session,
  * then adds it to the omemo message.
@@ -433,6 +418,7 @@ cleanup:
 
     return ret_val;
 }
+#endif
 
 /**
  * Collects the information needed for a bundle and publishes it.
@@ -1015,11 +1001,14 @@ void Omemo::pepBundleForKeytransport(const std::string from, const std::string &
         goto cleanup;
     }
 
+#if 0
+    // fixme only commented out because of confilcting types laddr
     ret_val = lurch_key_encrypt(&laddr,
                          omemo_message_get_key(msg_p),
                          omemo_message_get_key_len(msg_p),
                          axc_ctx_p,
                          &key_ct_buf_p);
+#endif
     if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to encrypt key for %s:%i", addr.name, addr.device_id);
         goto cleanup;
@@ -1093,7 +1082,7 @@ int Omemo::devicelistProcess(const char* uname, omemo_devicelist * dl_in_p)
     char * debug_str = nullptr;
 
     from = omemo_devicelist_get_owner(dl_in_p);
-    db_fn_omemo = unameGetDbFn(uname, (char*)LURCH_DB_NAME_OMEMO);
+    db_fn_omemo = lurch_util_uname_get_db_fn(uname, (char*)LURCH_DB_NAME_OMEMO);
 
     purple_debug_info("lurch", "%s: processing devicelist from %s for %s\n", __func__, from, uname);
 
@@ -1185,7 +1174,7 @@ void Omemo::ownDeviceListRequestHandler(QString items)
 
     if (install && !uninstall_) {
         purple_debug_info("lurch", "%s: %s\n", __func__, "preparing installation...");
-        ret_val = axcPrepare(uname_);
+        ret_val = lurch_axc_prepare(uname_);
         if (ret_val) {
             err_msg_dbg = g_strdup_printf("failed to prepare axc");
             goto cleanup;
@@ -1594,7 +1583,7 @@ std::string Omemo::messageEncryptIm(const std::string msg_stanza_pp) {
 
     //acc_p = purple_connection_get_account(gc_p);
     //uname = lurch_uname_strip(purple_account_get_username(acc_p));
-    db_fn_omemo = unameGetDbFn(uname_, (char*)LURCH_DB_NAME_OMEMO);
+    db_fn_omemo = lurch_util_uname_get_db_fn(uname_, (char*)LURCH_DB_NAME_OMEMO);
 
     ret_val = omemo_storage_chatlist_exists(recipient, db_fn_omemo);
     if (ret_val < 0) {
@@ -1961,7 +1950,7 @@ std::string Omemo::messageDecrypt(const std::string& message)
     }
 
     //uname = lurch_uname_strip(purple_account_get_username(purple_connection_get_account(gc_p)));
-    db_fn_omemo = unameGetDbFn(uname_, (char*)LURCH_DB_NAME_OMEMO);
+    db_fn_omemo = lurch_util_uname_get_db_fn(uname_, (char*)LURCH_DB_NAME_OMEMO);
 
     // on prosody and possibly other servers, messages to the own account do not have a recipient
     if (!to) {

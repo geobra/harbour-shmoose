@@ -108,6 +108,7 @@ SOURCES += \
     source/xep/stanzaId/StanzaIdPayloadSerializer.cpp \
     source/xep/omemo/Omemo.cpp \
     source/xep/omemo/mock/purple.c \
+    source/xep/omemo/lurch.c \
     source/xep/omemo/lurch_util.c \
     source/xep/omemo/XmppMessageParserClient.cpp \
     source/room/MucManager.cpp \
@@ -149,6 +150,8 @@ HEADERS += source/base/Shmoose.h \
     source/xep/stanzaId/StanzaIdPayloadSerializer.h \
     source/xep/omemo/Omemo.h \
     source/xep/omemo/mock/purple.h \
+    source/xep/omemo/lurch.h \
+    source/xep/omemo/lurch_prep.h \
     source/xep/omemo/lurch_util.h \
     source/xep/omemo/XmppMessageParserClient.h \
     source/xep/omemo/RawRequestWithFromJid.h \

@@ -62,8 +62,7 @@ private:
     std::string msgFinalizeEncryption(axc_context * axc_ctx_p, omemo_message * om_msg_p, GList * addr_l_p, const std::string& msg_stanza_pp);
     int bundleRequestDo(const char * to, uint32_t device_id, lurch_queued_msg * qmsg_p);
 
-    bool axcPrepare(QString fromJid);
-    //bool axcGetInitCtx(axc_context** ctx_pp);
+    //bool lurch_axc_prepare(char * uname);
     int bundlePublishOwn();
     int devicelistProcess(const char *uname, omemo_devicelist * dl_in_p);
     void accountConnectCb();
@@ -74,15 +73,15 @@ private:
     int bundleCreateSession(const char* from, const std::string& items, axc_context * axc_ctx_p);
 
     GList* lurch_addr_list_add(GList * addrs_p, const omemo_devicelist * dl_p, const uint32_t * exclude_id_p);
-    static void lurch_addr_list_destroy_func(gpointer data);
+    //static void lurch_addr_list_destroy_func(gpointer data);
     int lurch_axc_sessions_exist(GList * addr_l_p, axc_context * axc_ctx_p, GList ** no_sess_l_pp);
-    int lurch_msg_encrypt_for_addrs(omemo_message * om_msg_p, GList * addr_l_p, axc_context * axc_ctx_p);
-    int lurch_key_encrypt(const lurch_addr * recipient_addr_p, const uint8_t * key_p, size_t key_len, axc_context * axc_ctx_p, axc_buf ** key_ct_buf_pp);
+    //int lurch_msg_encrypt_for_addrs(omemo_message * om_msg_p, GList * addr_l_p, axc_context * axc_ctx_p);
+    //int lurch_key_encrypt(const lurch_addr * recipient_addr_p, const uint8_t * key_p, size_t key_len, axc_context * axc_ctx_p, axc_buf ** key_ct_buf_pp);
     int lurch_export_encrypted(omemo_message * om_msg_p, char ** xml_pp);
-    int lurch_queued_msg_create(omemo_message * om_msg_p, GList * recipient_addr_l_p, GList * no_sess_l_p, lurch_queued_msg ** qmsg_pp);
-    char* lurch_queue_make_key_string_s(const char * name, const char * device_id);
-    int lurch_queued_msg_is_handled(const lurch_queued_msg * qmsg_p);
-    void lurch_queued_msg_destroy(lurch_queued_msg * qmsg_p);
+    //int lurch_queued_msg_create(omemo_message * om_msg_p, GList * recipient_addr_l_p, GList * no_sess_l_p, lurch_queued_msg ** qmsg_pp);
+    //char* lurch_queue_make_key_string_s(const char * name, const char * device_id);
+    //int lurch_queued_msg_is_handled(const lurch_queued_msg * qmsg_p);
+    //void lurch_queued_msg_destroy(lurch_queued_msg * qmsg_p);
 
     bool isEncryptedMessage(const QString& xmlNode);
 
