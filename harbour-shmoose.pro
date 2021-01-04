@@ -28,6 +28,7 @@ INCLUDEPATH += source/xep/xmppPing
 INCLUDEPATH += source/xep/chatMarkers
 INCLUDEPATH += source/xep/stanzaId
 INCLUDEPATH += source/xep/omemo
+INCLUDEPATH += source/xep/omemo/mock
 INCLUDEPATH += source/room
 INCLUDEPATH += source/networkconnection
 INCLUDEPATH += source/contacts
@@ -106,6 +107,8 @@ SOURCES += \
     source/xep/stanzaId/StanzaIdPayloadParserFactory.cpp \
     source/xep/stanzaId/StanzaIdPayloadSerializer.cpp \
     source/xep/omemo/Omemo.cpp \
+    source/xep/omemo/mock/purple.c \
+    source/xep/omemo/lurch_util.c \
     source/xep/omemo/XmppMessageParserClient.cpp \
     source/room/MucManager.cpp \
     source/room/MucCollection.cpp \
@@ -145,6 +148,8 @@ HEADERS += source/base/Shmoose.h \
     source/xep/stanzaId/StanzaIdPayloadParserFactory.h \
     source/xep/stanzaId/StanzaIdPayloadSerializer.h \
     source/xep/omemo/Omemo.h \
+    source/xep/omemo/mock/purple.h \
+    source/xep/omemo/lurch_util.h \
     source/xep/omemo/XmppMessageParserClient.h \
     source/xep/omemo/RawRequestWithFromJid.h \
     source/xep/omemo/RawRequestBundle.h \

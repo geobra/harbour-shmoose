@@ -32,7 +32,8 @@
 #include <stdlib.h>
 
 extern "C" {
-#include "libomemo_crypto.h"
+#include <purple.h>
+#include "lurch_util.h"
 #include "libomemo_storage.h"
 #include "axc_store.h"
 }
@@ -42,13 +43,10 @@ extern "C" {
 #define JABBER_MAX_LEN_DOMAIN 1023
 #define JABBER_MAX_LEN_BARE JABBER_MAX_LEN_NODE + JABBER_MAX_LEN_DOMAIN + 1
 
-#define LURCH_DB_SUFFIX "_db.sqlite"
-#define LURCH_DB_NAME_OMEMO "omemo"
-#define LURCH_DB_NAME_AXC "axc"
-
 #define LURCH_ERR           -1000000
 #define LURCH_ERR_NOMEM     -1000001
 #define LURCH_ERR_NO_BUNDLE -1000010
+
 
 #define LURCH_ERR_STRING_ENCRYPT "There was an error encrypting the message and it was not sent. " \
     "You can try again, or try to find the problem by looking at the debug log."
@@ -66,30 +64,11 @@ extern "C" {
  * 6. receive and decrypt a message
  */
 
-void purple_debug_info (const char *category, const char *format,...)
-{
-    (void) category;
-
-    va_list args;
-    va_start(args, format);
-    vfprintf(stderr, format, args);
-    va_end(args);
-}
-
-void purple_debug_error(const char *category, const char *format,...)
-{
-    purple_debug_info(category, format);
-}
-
-void purple_debug_warning(const char *category, const char *format,...)
-{
-    purple_debug_info(category, format);
-}
-
-
 Omemo::Omemo(QObject *parent) : QObject(parent)
 {
     // lurch_plugin_load
+
+    set_omemo_dir(System::getOmemoPath().toStdString().c_str());
 
     // create omemo path if needed
     QString omemoLocation = System::getOmemoPath();
@@ -253,66 +232,11 @@ char * Omemo::lurch_queue_make_key_string_s(const char * name, const char * devi
 char* Omemo::unameGetDbFn(const char * uname, char * which)
 {
     // impelements lurch_uname_get_db_fn
+
+    // FIXME remove me! use lurch_util_uname_get_db_fn
+
     return g_strconcat(System::getOmemoPath().toStdString().c_str(), "/", uname, "_", which, LURCH_DB_SUFFIX, NULL);
-}
 
-/**
- * Creates and initializes the axc context.
- *
- * @param uname The username.
- * @param ctx_pp Will point to an initialized axc context on success.
- * @return 0 on success, negative on error.
- */
-bool Omemo::axcGetInitCtx(axc_context** ctx_pp)
-{
-    // implements lurch_axc_get_init_ctx
-    int ret_val = 0;
-    char* err_msg_dbg = nullptr;
-
-    axc_context* ctx_p = nullptr;
-    char* db_fn = nullptr;
-
-    ret_val = axc_context_create(&ctx_p);
-    if (ret_val) {
-        err_msg_dbg = g_strdup_printf("failed to create axc context");
-        goto cleanup;
-    }
-
-    db_fn = unameGetDbFn(myBareJid_.toStdString().c_str(), (char*)LURCH_DB_NAME_AXC);
-    ret_val = axc_context_set_db_fn(ctx_p, db_fn, strlen(db_fn));
-    if (ret_val) {
-        err_msg_dbg = g_strdup_printf("failed to set axc db filename");
-        goto cleanup;
-    }
-#if 0
-    if (purple_prefs_get_bool(LURCH_PREF_AXC_LOGGING)) {
-        axc_context_set_log_func(ctx_p, lurch_axc_log_func);
-        axc_context_set_log_level(ctx_p, purple_prefs_get_int(LURCH_PREF_AXC_LOGGING_LEVEL));
-    }
-#endif
-    ret_val = axc_init(ctx_p);
-    if (ret_val) {
-        err_msg_dbg = g_strdup_printf("failed to init axc context");
-        goto cleanup;
-    }
-#if 0
-    if (purple_prefs_get_bool(LURCH_PREF_AXC_LOGGING)) {
-      signal_context_set_log_function(axc_context_get_axolotl_ctx(ctx_p), lurch_axc_log_func);
-    }
-#endif
-    *ctx_pp = ctx_p;
-
-cleanup:
-    if (ret_val) {
-        axc_context_destroy_all(ctx_p);
-    }
-    if (err_msg_dbg) {
-        purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
-        free(err_msg_dbg);
-    }
-
-    free (db_fn);
-    return ret_val;
 }
 
 /**
@@ -333,7 +257,7 @@ bool Omemo::axcPrepare(QString fromJid)
     uint32_t device_id = 0;
     char * db_fn_omemo = nullptr;
 
-    ret_val = axcGetInitCtx(&axc_ctx_p);
+    ret_val = lurch_util_axc_get_init_ctx(uname_, &axc_ctx_p);
     if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to get init axc ctx");
         goto cleanup;
@@ -534,7 +458,7 @@ int Omemo::bundlePublishOwn()
     Swift::RawRequest::ref publishPep{};
     std::string bundle{};
 
-    ret_val = axcGetInitCtx(&axc_ctx_p);
+    ret_val = lurch_util_axc_get_init_ctx(uname_, &axc_ctx_p);
     if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to init axc ctx");
         goto cleanup;
@@ -787,8 +711,8 @@ void Omemo::bundleRequestCb(const std::string& fromStr, JabberIqType type, const
   addr.name_len = strnlen(from, JABBER_MAX_LEN_BARE);
   addr.device_id = (int32_t)strtol(device_id_str, nullptr, 10);
 
-  //ret_val = lurch_axc_get_init_ctx(uname_, &axc_ctx_p);
-  ret_val = axcGetInitCtx(&axc_ctx_p);
+  //ret_val = lurch_axc_get_init_ctx(uname, &axc_ctx_p);
+  ret_val = lurch_util_axc_get_init_ctx(uname_, &axc_ctx_p);
   if (ret_val) {
     err_msg_dbg = "failed to get axc ctx";
     goto cleanup;
@@ -1058,7 +982,7 @@ void Omemo::pepBundleForKeytransport(const std::string from, const std::string &
     laddr.jid = g_strndup(addr.name, addr.name_len);
     laddr.device_id = (uint32_t)addr.device_id;
 
-    ret_val = axcGetInitCtx(&axc_ctx_p);
+    ret_val = lurch_util_axc_get_init_ctx(uname_, &axc_ctx_p);
     if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to init axc ctx");
         goto cleanup;
@@ -1198,7 +1122,7 @@ int Omemo::devicelistProcess(const char* uname, omemo_devicelist * dl_in_p)
         }
     }
 
-    ret_val = axcGetInitCtx(&axc_ctx_p);
+    ret_val = lurch_util_axc_get_init_ctx(uname_, &axc_ctx_p);
     if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to init axc ctx");
         goto cleanup;
@@ -1269,7 +1193,7 @@ void Omemo::ownDeviceListRequestHandler(QString items)
         purple_debug_info("lurch", "%s: %s\n", __func__, "...done");
     }
 
-    ret_val = axcGetInitCtx(&axc_ctx_p);
+    ret_val = lurch_util_axc_get_init_ctx(uname_, &axc_ctx_p);
     if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to init axc ctx");
         goto cleanup;
@@ -1681,7 +1605,7 @@ std::string Omemo::messageEncryptIm(const std::string msg_stanza_pp) {
         goto cleanup;
     }
 
-    ret_val = axcGetInitCtx(&axc_ctx_p);
+    ret_val = lurch_util_axc_get_init_ctx(uname_, &axc_ctx_p);
     if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to get axc ctx for %s", uname_);
         goto cleanup;
@@ -2109,7 +2033,7 @@ std::string Omemo::messageDecrypt(const std::string& message)
         goto cleanup;
     }
 
-    ret_val = axcGetInitCtx(&axc_ctx_p);
+    ret_val = lurch_util_axc_get_init_ctx(uname_, &axc_ctx_p);
     if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to get axc ctx for %s", uname_);
         goto cleanup;

@@ -63,7 +63,7 @@ private:
     int bundleRequestDo(const char * to, uint32_t device_id, lurch_queued_msg * qmsg_p);
 
     bool axcPrepare(QString fromJid);
-    bool axcGetInitCtx(axc_context** ctx_pp);
+    //bool axcGetInitCtx(axc_context** ctx_pp);
     int bundlePublishOwn();
     int devicelistProcess(const char *uname, omemo_devicelist * dl_in_p);
     void accountConnectCb();
