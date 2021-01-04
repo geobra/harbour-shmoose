@@ -9,8 +9,9 @@
 #include <glib.h>
 #include <string.h>
 
-#define OMEMO_DIR_LEN 256
-static char omemo_dir[OMEMO_DIR_LEN];
+#define MAX_LEN 256
+static char omemo_dir[MAX_LEN];
+static char fq_user_name[MAX_LEN];
 
 void purple_debug_info (const char *category, const char *format,...);
 
@@ -29,5 +30,16 @@ void set_omemo_dir(const char* dir);
 const char* purple_user_dir();
 
 gchar* purple_base16_encode_chunked(u_int8_t* in, size_t size);
+
+void* purple_connection_get_account(void* foo);
+
+void set_fqn_name(const char *name);
+char* purple_account_get_username(void *foo);
+
+gboolean purple_strequal(const gchar *left, const gchar *right);
+
+char *purple_unescape_text(const char *in);
+
+const char * purple_markup_unescape_entity(const char *text, int *length);
 
 #pragma GCC diagnostic pop

@@ -111,6 +111,8 @@ void Omemo::setupWithClient(Swift::Client* client)
     myBareJid_ = QString::fromStdString(client_->getJID().toBare().toString());
     uname_ = strdup(myBareJid_.toStdString().c_str());
 
+    set_fqn_name(client_->getJID().toString().c_str());
+
     requestDeviceList(client_->getJID());
 }
 
