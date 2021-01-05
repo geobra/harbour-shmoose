@@ -338,8 +338,6 @@ cleanup:
   return ret_val;
 }
 
-#if 0
-
 /**
  * Collects the information needed for a bundle and publishes it.
  *
@@ -451,6 +449,8 @@ cleanup:
 
   return ret_val;
 }
+
+#if 0
 
 /**
  * Parses the device ID from a received bundle update.

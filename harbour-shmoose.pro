@@ -121,7 +121,8 @@ SOURCES += \
     source/contacts/PresenceHandler.cpp \
     source/contacts/RosterItem.cpp \
     source/contacts/RosterController.cpp \
-    source/base/CryptoHelper.cpp
+    source/base/CryptoHelper.cpp \
+    source/xep/omemo/CToCxxProxy.cpp
 
 HEADERS += source/base/Shmoose.h \
     source/base/Settings.h \
@@ -169,7 +170,8 @@ HEADERS += source/base/Shmoose.h \
     source/contacts/PresenceHandler.h \
     source/contacts/RosterItem.h \
     source/contacts/RosterController.h \
-    source/base/CryptoHelper.h
+    source/base/CryptoHelper.h \
+    source/xep/omemo/CToCxxProxy.h
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \

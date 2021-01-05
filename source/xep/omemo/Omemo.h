@@ -26,6 +26,7 @@ public:
     std::string messageEncryptIm(const std::string msg_stanza_pp);
     std::string messageDecrypt(const std::string& message);
 
+    void sendAsPepStanza(char* stz);
 
 signals:
     void rawMessageStanzaForSending(QString);

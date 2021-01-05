@@ -4,6 +4,8 @@
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
+#include "jabber.h"
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <glib.h>

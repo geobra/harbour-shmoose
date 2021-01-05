@@ -24,6 +24,7 @@
 #include "System.h"
 #include "RawRequestWithFromJid.h"
 #include "RawRequestBundle.h"
+#include "CToCxxProxy.h"
 
 #include <QDir>
 #include <QDomDocument>
@@ -70,6 +71,7 @@ Omemo::Omemo(QObject *parent) : QObject(parent)
     // lurch_plugin_load
 
     set_omemo_dir(System::getOmemoPath().toStdString().c_str());
+    CToCxxProxy::getInstance().setOmemoPtr(this);
 
     // create omemo path if needed
     QString omemoLocation = System::getOmemoPath();
@@ -147,6 +149,21 @@ void Omemo::requestDeviceList(const Swift::JID& jid)
     RawRequestWithFromJid::ref requestDeviceList = RawRequestWithFromJid::create(Swift::IQ::Get, jid.toBare(), deviceListRequestXml, client_->getIQRouter());
     requestDeviceList->onResponse.connect(boost::bind(&Omemo::handleDeviceListResponse, this, _1, _2));
     requestDeviceList->send();
+}
+
+void Omemo::sendAsPepStanza(char* stz)
+{
+    QString stanza = QString::fromLatin1(stz);
+    qDebug() << "Omemo::sendAsPepStanza" << stanza;
+
+    // FIXME check what to send via pep.
+    // can be a bundle or a device list.
+    // set callback accordingly
+
+    std::string pubsub = "<pubsub xmlns='http://jabber.org/protocol/pubsub'>" + std::string(stz) + "</pubsub>";
+    Swift::RawRequest::ref publishPep = Swift::RawRequest::create(Swift::IQ::Set, uname_, pubsub, client_->getIQRouter());
+    publishPep->onResponse.connect(boost::bind(&Omemo::publishedBundle, this, _1));
+    publishPep->send();
 }
 
 #if 0
