@@ -1,4 +1,5 @@
 #include "jabber.h"
+#include "CToCxxProxy.h"
 
 void jabber_pep_publish(void* foo, xmlnode *node)
 {
