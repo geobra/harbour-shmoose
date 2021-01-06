@@ -180,5 +180,18 @@ JabberStream* purple_connection_get_protocol_data(void* foo)
     return &jabberStream;
 }
 
+int purple_plugins_find_with_id(char* foo)
+{
+    return 0;
+}
+
+void purple_signal_emit(int foo, char* what, char* bar, xmlnode* node)
+{
+    if (strcmp(what, "jabber-sending-xmlnode") == 0)
+    {
+        char* str = xmlnode_to_str(node, -1);
+        FIXME call rawMessageStanzaForSending(QString::fromLatin1(str));
+    }
+}
 
 #pragma GCC diagnostic pop

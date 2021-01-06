@@ -40,3 +40,11 @@ void lurch_queued_msg_destroy(lurch_queued_msg * qmsg_p);
 
 int lurch_bundle_publish_own(JabberStream * js_p);
 
+void lurch_bundle_request_cb(JabberStream * js_p, const char * from,
+                                    JabberIqType type, const char * id,
+                                    xmlnode * packet_p, gpointer data_p);
+
+int lurch_bundle_create_session(const char * uname,
+                                       const char * from,
+                                       const xmlnode * items_p,
+                                       axc_context * axc_ctx_p);

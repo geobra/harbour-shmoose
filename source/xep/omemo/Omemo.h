@@ -40,6 +40,7 @@ private:
       uint32_t device_id;
     } lurch_addr;
 
+#if 0
     typedef enum {
         JABBER_IQ_SET,
         JABBER_IQ_GET,
@@ -47,6 +48,7 @@ private:
         JABBER_IQ_ERROR,
         JABBER_IQ_NONE
     } JabberIqType;
+#endif
 
     typedef struct lurch_queued_msg lurch_queued_msg;
 
@@ -67,11 +69,11 @@ private:
     int bundlePublishOwn();
     int devicelistProcess(const char *uname, omemo_devicelist * dl_in_p);
     void accountConnectCb();
-    void bundleRequestCb(const std::string& fromStr, JabberIqType type, const std::string& idStr,
-                                const std::string& packet_p, lurch_queued_msg *qmsg_p);
+    //void bundleRequestCb(const std::string& fromStr, JabberIqType type, const std::string& idStr,
+    //                            const std::string& packet_p, lurch_queued_msg *qmsg_p);
 
     char* unameGetDbFn(const char * uname, char * which);
-    int bundleCreateSession(const char* from, const std::string& items, axc_context * axc_ctx_p);
+    //int bundleCreateSession(const char* from, const std::string& items, axc_context * axc_ctx_p);
 
     GList* lurch_addr_list_add(GList * addrs_p, const omemo_devicelist * dl_p, const uint32_t * exclude_id_p);
     //static void lurch_addr_list_destroy_func(gpointer data);

@@ -146,7 +146,7 @@ char * lurch_queue_make_key_string_s(const char * name, const char * device_id) 
  * Does the first-time install of the axc DB.
  * As specified in OMEMO, it checks if the generated device ID already exists.
  * Therefore, it should be called at a point in time when other entries exist.
- * 
+ *
  * If an initialized DB already exists, this function exits with success without doing anything.
  * This is checked by trying to retrieve the device ID from it.
  *
@@ -451,8 +451,6 @@ cleanup:
   return ret_val;
 }
 
-#if 0
-
 /**
  * Parses the device ID from a received bundle update.
  *
@@ -478,7 +476,7 @@ static uint32_t lurch_bundle_name_get_device_id(const char * bundle_node_name) {
  * @param from The sender of the bundle.
  * @param items_p The bundle update as received in the PEP request handler.
  */
-static int lurch_bundle_create_session(const char * uname,
+int lurch_bundle_create_session(const char * uname,
                                        const char * from,
                                        const xmlnode * items_p,
                                        axc_context * axc_ctx_p) {
@@ -589,7 +587,7 @@ static int lurch_export_encrypted(omemo_message * om_msg_p, char ** xml_pp) {
  * Implements JabberIqCallback.
  * Callback for a bundle request.
  */
-static void lurch_bundle_request_cb(JabberStream * js_p, const char * from,
+void lurch_bundle_request_cb(JabberStream * js_p, const char * from,
                                     JabberIqType type, const char * id,
                                     xmlnode * packet_p, gpointer data_p) {
   int ret_val = 0;
@@ -724,6 +722,7 @@ cleanup:
     xmlnode_free(msg_node_p);
   }
 }
+#if 0
 
 /**
  * Requests a bundle.
@@ -1815,7 +1814,7 @@ static void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza
 
     purple_debug_info("lurch", "received omemo message that does not contain a key for this device, skipping\n");
     purple_conv_present_error(to, purple_connection_get_account(gc_p),
-			      "Received omemo message that does not contain a key for this device");
+                  "Received omemo message that does not contain a key for this device");
     goto cleanup;
   }
 

@@ -46,4 +46,8 @@ const char * purple_markup_unescape_entity(const char *text, int *length);
 
 JabberStream* purple_connection_get_protocol_data(void* foo);
 
+int purple_plugins_find_with_id(char* foo);
+
+void purple_signal_emit(int foo, char* what, char* bar, xmlnode* node);
+
 #pragma GCC diagnostic pop

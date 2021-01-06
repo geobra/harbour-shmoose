@@ -563,7 +563,6 @@ cleanup:
 
     return ret_val;
 }
-#endif
 
 /**
  * Creates an axc session from a received bundle.
@@ -755,8 +754,8 @@ void Omemo::bundleRequestCb(const std::string& fromStr, JabberIqType type, const
 
     ret_val = axc_session_exists_initiated(&addr, axc_ctx_p);
     if (!ret_val) {
-      //ret_val = lurch_bundle_create_session(uname_, from, items_node_p, axc_ctx_p);
-      ret_val = bundleCreateSession(from, qItems.toStdString(), axc_ctx_p);
+      ret_val = lurch_bundle_create_session(uname_, from, items_node_p, axc_ctx_p);
+      //ret_val = bundleCreateSession(from, qItems.toStdString(), axc_ctx_p);
       if (ret_val) {
         err_msg_dbg = "failed to create a session";
         goto cleanup;
@@ -833,6 +832,8 @@ cleanup:
   //  xmlnode_free(msg_node_p);
   //}
 }
+#endif
+
 
 /**
  * Requests a bundle.
@@ -944,9 +945,12 @@ void Omemo::requestBundleHandler(const Swift::JID& jid, const std::string& bundl
     std::string bundleResponse = "<iq>" + str + "</iq>";
 
     //std::cout << jid.toString() << ", " << bundleId << ", " << bundleResponse << std::endl;
-    bundleRequestCb(jid.toBare().toString(), JABBER_IQ_SET, bundleId, bundleResponse, qMsg);
-}
+    //bundleRequestCb(jid.toBare().toString(), JABBER_IQ_SET, bundleId, bundleResponse, qMsg);
 
+    std::string id = "foo#bar#" + bundleId;
+    xmlnode* node = xmlnode_from_str(bundleResponse.c_str(), -1);
+    lurch_bundle_request_cb(&jabberStream, jid.toBare().toString().c_str(), JABBER_IQ_SET, id.c_str(), node, qMsg);
+}
 
 void Omemo::pepBundleForKeytransport(const std::string from, const std::string &items)
 {
@@ -962,7 +966,7 @@ void Omemo::pepBundleForKeytransport(const std::string from, const std::string &
     lurch_addr laddr{};
     axc_buf * key_ct_buf_p{};
     char * msg_xml{nullptr};
-    //xmlnode * msg_node_p{nullptr};
+    xmlnode * msg_node_p{nullptr};
     //void * jabber_handle_p = purple_plugins_find_with_id("prpl-jabber");
 
     //uname = lurch_uname_strip(purple_account_get_username(purple_connection_get_account(js_p->gc)));
@@ -1008,7 +1012,8 @@ void Omemo::pepBundleForKeytransport(const std::string from, const std::string &
         goto cleanup;
     }
 
-    ret_val = bundleCreateSession(from.c_str(), qItems.toStdString(), axc_ctx_p);
+    msg_node_p = xmlnode_from_str(qItems.toStdString().c_str(), -1);
+    ret_val = lurch_bundle_create_session(uname_, from.c_str(), msg_node_p, axc_ctx_p);
     if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to create session");
         goto cleanup;
@@ -1529,7 +1534,7 @@ std::string Omemo::msgFinalizeEncryption(axc_context * axc_ctx_p, omemo_message 
             goto cleanup;
         }
 
-        ret_val = lurch_export_encrypted(om_msg_p, &xml);
+        // FIXME call me! ret_val = lurch_export_encrypted(om_msg_p, &xml);
         if (ret_val) {
             err_msg_dbg = g_strdup_printf("failed to export omemo msg to xml");
             goto cleanup;
