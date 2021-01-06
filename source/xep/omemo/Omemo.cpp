@@ -154,15 +154,23 @@ void Omemo::requestDeviceList(const Swift::JID& jid)
 void Omemo::sendAsPepStanza(char* stz)
 {
     QString stanza = QString::fromLatin1(stz);
-    qDebug() << "Omemo::sendAsPepStanza" << stanza;
+    //qDebug() << "Omemo::sendAsPepStanza" << stanza;
 
     // FIXME check what to send via pep.
     // can be a bundle or a device list.
     // set callback accordingly
+    /*
+     * <publish node="eu.siacs.conversations.axolotl.bundles:1456456434"><item><bundle xmlns="eu.siacs.conversations.axolotl">...
+     */
+
+    QString nodeTag = XmlProcessor::getContentInTag("publish", "node", stanza);
 
     std::string pubsub = "<pubsub xmlns='http://jabber.org/protocol/pubsub'>" + std::string(stz) + "</pubsub>";
     Swift::RawRequest::ref publishPep = Swift::RawRequest::create(Swift::IQ::Set, uname_, pubsub, client_->getIQRouter());
-    publishPep->onResponse.connect(boost::bind(&Omemo::publishedBundle, this, _1));
+    if (nodeTag.contains("bundle", Qt::CaseInsensitive))
+    {
+        publishPep->onResponse.connect(boost::bind(&Omemo::publishedBundle, this, _1));
+    }
     publishPep->send();
 }
 
