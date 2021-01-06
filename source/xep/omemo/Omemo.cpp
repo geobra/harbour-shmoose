@@ -437,7 +437,6 @@ cleanup:
 
     return ret_val;
 }
-#endif
 
 /**
  * Collects the information needed for a bundle and publishes it.
@@ -556,6 +555,7 @@ cleanup:
 
     return ret_val;
 }
+#endif
 
 /**
  * Creates an axc session from a received bundle.
@@ -1272,7 +1272,7 @@ void Omemo::ownDeviceListRequestHandler(QString items)
         purple_debug_info("lurch", "%s: \n%s:\n", __func__, "...done");
     }
 
-    ret_val = bundlePublishOwn();
+    ret_val = lurch_bundle_publish_own(purple_connection_get_protocol_data(NULL));
     if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to publish own bundle");
         goto cleanup;
@@ -2124,8 +2124,10 @@ std::string Omemo::messageDecrypt(const std::string& message)
         err_msg_dbg = g_strdup_printf("failed to prekey msg");
         goto cleanup;
     } else {
+        lurch_bundle_publish_own(purple_connection_get_protocol_data(NULL));
         //lurch_bundle_publish_own(purple_connection_get_protocol_data(gc_p));
-        bundlePublishOwn();
+        //lurch_bundle_publish_own(jabberStream);
+        //bundlePublishOwn();
     }
 
     if (!omemo_message_has_payload(msg_p)) {

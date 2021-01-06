@@ -9,3 +9,5 @@ typedef struct JabberStream_ JabberStream;
 struct JabberStream_ {
 char* gc;
 };
+
+static JabberStream jabberStream;

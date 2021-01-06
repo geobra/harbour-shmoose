@@ -344,7 +344,7 @@ cleanup:
  * @param uname The username.
  * @param js_p Pointer to the connection to use for publishing.
  */
-static int lurch_bundle_publish_own(JabberStream * js_p) {
+int lurch_bundle_publish_own(JabberStream * js_p) {
   int ret_val = 0;
   char * err_msg_dbg = (void *) 0;
 
@@ -431,6 +431,7 @@ static int lurch_bundle_publish_own(JabberStream * js_p) {
     goto cleanup;
   }
 
+  fprintf(stderr, "bundle: %s\n", bundle_xml);
   publish_node_bundle_p = xmlnode_from_str(bundle_xml, -1);
   jabber_pep_publish(js_p, publish_node_bundle_p);
 

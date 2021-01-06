@@ -175,4 +175,10 @@ const char * purple_markup_unescape_entity(const char *text, int *length)
     return pln;
 }
 
+JabberStream* purple_connection_get_protocol_data(void* foo)
+{
+    return &jabberStream;
+}
+
+
 #pragma GCC diagnostic pop

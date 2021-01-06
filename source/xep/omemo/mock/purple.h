@@ -44,4 +44,6 @@ char *purple_unescape_text(const char *in);
 
 const char * purple_markup_unescape_entity(const char *text, int *length);
 
+JabberStream* purple_connection_get_protocol_data(void* foo);
+
 #pragma GCC diagnostic pop

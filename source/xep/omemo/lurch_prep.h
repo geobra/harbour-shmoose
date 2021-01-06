@@ -3,7 +3,9 @@
 #include "libomemo.h"
 #include "LurchTypes.h"
 
+#include "jabber.h"
 #include "axc.h"
+
 
 /* FIXME
  * - reduce to a minimum when porting is done
@@ -35,3 +37,6 @@ int lurch_msg_encrypt_for_addrs(omemo_message * om_msg_p, GList * addr_l_p, axc_
 int lurch_queued_msg_is_handled(const lurch_queued_msg * qmsg_p);
 
 void lurch_queued_msg_destroy(lurch_queued_msg * qmsg_p);
+
+int lurch_bundle_publish_own(JabberStream * js_p);
+
