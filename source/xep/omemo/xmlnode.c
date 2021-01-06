@@ -33,6 +33,7 @@
 
 //#include "internal.h"
 //#include "debug.h"
+#include "purple.h"
 
 #include <libxml/parser.h>
 #include <string.h>
