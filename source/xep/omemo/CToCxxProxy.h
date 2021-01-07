@@ -8,6 +8,7 @@ extern "C"
 #endif
 void* CToCxxProxyGetInstance();
 void CToCxxProxySendAsPepStanza(void* proxy, char* stanza);
+void CToCxxProxySendRawMessageStanza(void* proxy, char* stanza);
 #ifdef __cplusplus
 }
 #endif
@@ -22,6 +23,7 @@ public:
     void setOmemoPtr(Omemo* omemo);
 
     void sendAsPepStanza(char* stanza);
+    void sendRawMessageStanza(char* stanza);
 
 private:
     CToCxxProxy() = default;

@@ -26,3 +26,14 @@ void CToCxxProxy::sendAsPepStanza(char* stanza)
 {
     omemo_->sendAsPepStanza(stanza);
 }
+
+extern "C" void CToCxxProxySendRawMessageStanza(void* proxy, char* stanza)
+{
+   static_cast<CToCxxProxy*>(proxy)->sendRawMessageStanza(stanza);
+}
+
+void CToCxxProxy::sendRawMessageStanza(char* stanza)
+{
+    omemo_->rawMessageStanzaForSending(stanza);
+}
+

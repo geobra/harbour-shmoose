@@ -3,6 +3,7 @@
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
 #include "purple.h"
+#include "CToCxxProxy.h"
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -189,9 +190,18 @@ void purple_signal_emit(int foo, char* what, char* bar, xmlnode* node)
 {
     if (strcmp(what, "jabber-sending-xmlnode") == 0)
     {
-        char* str = xmlnode_to_str(node, -1);
-        FIXME call rawMessageStanzaForSending(QString::fromLatin1(str));
+        int len = 0;
+        char* str = xmlnode_to_str(node, &len);
+
+        void* proxy = CToCxxProxyGetInstance();
+        CToCxxProxySendRawMessageStanza(proxy, str);
     }
+}
+
+void purple_conv_present_error(char* from, void* foo, char* msg)
+{
+    // FIXME forward to user interface
+    fprintf(stderr, "msg from %s: %s\n", from, msg);
 }
 
 #pragma GCC diagnostic pop

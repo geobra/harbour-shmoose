@@ -50,4 +50,6 @@ int purple_plugins_find_with_id(char* foo);
 
 void purple_signal_emit(int foo, char* what, char* bar, xmlnode* node);
 
+void purple_conv_present_error(char* from, void* foo, char* msg);
+
 #pragma GCC diagnostic pop
