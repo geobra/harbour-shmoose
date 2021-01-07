@@ -174,8 +174,14 @@ void Omemo::sendAsPepStanza(char* stz)
     publishPep->send();
 }
 
+void Omemo::sendRawMessageStanza(char* stz)
+{
+    QString stanza = QString::fromLatin1(stz);
+    emit rawMessageStanzaForSending(stanza);
+}
+
 #if 0
-void Omemo::lurch_addr_list_destroy_func(gpointer data) {
+void Omemo::lurch_addr_lsendRawMessageStanzaist_destroy_func(gpointer data) {
   lurch_addr * addr_p = (lurch_addr *) data;
   free(addr_p->jid);
   free(addr_p);

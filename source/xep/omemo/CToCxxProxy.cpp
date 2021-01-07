@@ -34,6 +34,6 @@ extern "C" void CToCxxProxySendRawMessageStanza(void* proxy, char* stanza)
 
 void CToCxxProxy::sendRawMessageStanza(char* stanza)
 {
-    omemo_->rawMessageStanzaForSending(stanza);
+    omemo_->sendRawMessageStanza(stanza);
 }
 
