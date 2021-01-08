@@ -15,6 +15,13 @@ struct JabberStream_ {
 char* gc;
 };
 
+typedef struct JabberIq_ JabberIq;
+struct JabberIq_ {
+    xmlnode* node;
+    char* id;
+    gpointer q_msg;
+};
+
 typedef enum {
     JABBER_IQ_SET,
     JABBER_IQ_GET,
@@ -24,6 +31,10 @@ typedef enum {
 } JabberIqType;
 
 static JabberStream jabberStream;
+
+JabberIq* jabber_iq_new(JabberStream *js, JabberIqType type);
+void jabber_iq_set_id(JabberIq *jiq, char* id);
+void jabber_iq_set_callback(JabberIq* jiq, void* cb, gpointer q_msg);
 
 #ifdef __cplusplus
 }

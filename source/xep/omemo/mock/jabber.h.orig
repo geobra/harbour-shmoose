@@ -1,0 +1,24 @@
+#pragma once
+
+#include "xmlnode.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+void jabber_pep_publish(void* foo, xmlnode *node);
+
+// just to have this type as a mock
+typedef struct JabberStream_ JabberStream;
+struct JabberStream_ {
+char* gc;
+};
+
+<<<<<<< HEAD
+static JabberStream jabberStream;
+=======
+#ifdef __cplusplus
+}
+#endif
+>>>>>>> a4a940a3b476b25ce02624af98f016b343456da1

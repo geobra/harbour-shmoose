@@ -722,7 +722,6 @@ cleanup:
     xmlnode_free(msg_node_p);
   }
 }
-#if 0
 
 /**
  * Requests a bundle.
@@ -785,6 +784,7 @@ cleanup:
 
   return ret_val;
 }
+#if 0
 
 /**
  * A JabberPEPHandler function.
