@@ -37,3 +37,12 @@ void CToCxxProxy::sendRawMessageStanza(char* stanza)
     omemo_->sendRawMessageStanza(stanza);
 }
 
+void CToCxxProxySendBundleRequest(void* proxy, char* node, char* id, void* q_msg)
+{
+    static_cast<CToCxxProxy*>(proxy)->sendBundleRequest(node, id, q_msg);
+}
+
+void CToCxxProxy::sendBundleRequest(char* node, char* id, void* q_msg)
+{
+    omemo_->sendBundleRequest(node, id, q_msg);
+}

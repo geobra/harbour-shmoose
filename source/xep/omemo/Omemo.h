@@ -28,6 +28,7 @@ public:
 
     void sendAsPepStanza(char* stz);
     void sendRawMessageStanza(char* stz);
+    void sendBundleRequest(char* node, char* id, void *q_msg);
 
 signals:
     void rawMessageStanzaForSending(QString);
@@ -59,7 +60,7 @@ private:
     void handleDeviceListResponse(const Swift::JID jid, const std::string &str);
     void publishedDeviceList(const std::string& str);
     void publishedBundle(const std::string& str);
-    void requestBundleHandler(const Swift::JID &jid, const std::string &bundleId, lurch_queued_msg *qMsg, const std::string& str);
+    void requestBundleHandler(const Swift::JID &jid, const std::string &bundleId, void *qMsg, const std::string& str);
 
     void pepBundleForKeytransport(const std::string from, const std::string& items);
 
@@ -81,7 +82,7 @@ private:
     int lurch_axc_sessions_exist(GList * addr_l_p, axc_context * axc_ctx_p, GList ** no_sess_l_pp);
     //int lurch_msg_encrypt_for_addrs(omemo_message * om_msg_p, GList * addr_l_p, axc_context * axc_ctx_p);
     //int lurch_key_encrypt(const lurch_addr * recipient_addr_p, const uint8_t * key_p, size_t key_len, axc_context * axc_ctx_p, axc_buf ** key_ct_buf_pp);
-    int lurch_export_encrypted(omemo_message * om_msg_p, char ** xml_pp);
+    //int lurch_export_encrypted(omemo_message * om_msg_p, char ** xml_pp);
     //int lurch_queued_msg_create(omemo_message * om_msg_p, GList * recipient_addr_l_p, GList * no_sess_l_p, lurch_queued_msg ** qmsg_pp);
     //char* lurch_queue_make_key_string_s(const char * name, const char * device_id);
     //int lurch_queued_msg_is_handled(const lurch_queued_msg * qmsg_p);

@@ -180,6 +180,38 @@ void Omemo::sendRawMessageStanza(char* stz)
     emit rawMessageStanzaForSending(stanza);
 }
 
+void Omemo::sendBundleRequest(char* node, char* id, void* q_msg)
+{
+    //node contains
+    /* <iq type='get' to='xxx@jabber.ccc.de' id='xxx@jabber.ccc.de#508164373#-1085008789'>
+        <pubsub xmlns='http://jabber.org/protocol/pubsub'>
+            <items node='eu.siacs.conversations.axolotl.bundles:508164373' max_items='1'/>
+        </pubsub>
+       </iq>
+    */
+
+    QString xmlNode = QString::fromLatin1(node);
+    QString toJid = XmlProcessor::getContentInTag("iq", "to", xmlNode);
+    QString pubSub = XmlProcessor::getChildFromNode("pubsub", xmlNode);
+    QString bundleString = XmlProcessor::getContentInTag("items", "node", xmlNode);
+    QStringList bundleList = bundleString.split(":");
+    if (bundleList.size() == 2)
+    {
+        QString bundleId = bundleList.at(1);
+
+        RawRequestBundle::ref publishPep = RawRequestBundle::create(Swift::IQ::Get,
+                                                                                toJid.toStdString(),
+                                                                                pubSub.toStdString(),
+                                                                                client_->getIQRouter(),
+                                                                                bundleId.toStdString(),
+                                                                                q_msg
+                                                                            );
+
+        publishPep->onResponse.connect(boost::bind(&Omemo::requestBundleHandler, this, _1, _2, _3, _4));
+        publishPep->send();
+    }
+}
+
 #if 0
 void Omemo::lurch_addr_lsendRawMessageStanzaist_destroy_func(gpointer data) {
   lurch_addr * addr_p = (lurch_addr *) data;
@@ -945,7 +977,7 @@ cleanup:
     return 0;
 }
 
-void Omemo::requestBundleHandler(const Swift::JID& jid, const std::string& bundleId, lurch_queued_msg* qMsg, const std::string& str)
+void Omemo::requestBundleHandler(const Swift::JID& jid, const std::string& bundleId, void* qMsg, const std::string& str)
 {
     // str has pubsub as root node. The cb wants it to be child of iq...
     std::string bundleResponse = "<iq>" + str + "</iq>";
@@ -1540,7 +1572,7 @@ std::string Omemo::msgFinalizeEncryption(axc_context * axc_ctx_p, omemo_message 
             goto cleanup;
         }
 
-        // FIXME call me! ret_val = lurch_export_encrypted(om_msg_p, &xml);
+        ret_val = lurch_export_encrypted(om_msg_p, &xml);
         if (ret_val) {
             err_msg_dbg = g_strdup_printf("failed to export omemo msg to xml");
             goto cleanup;
@@ -1563,13 +1595,13 @@ std::string Omemo::msgFinalizeEncryption(axc_context * axc_ctx_p, omemo_message 
 
             purple_debug_info("lurch", "%s: %s has device without session %i, requesting bundle\n", __func__, curr_addr.jid, curr_addr.device_id);
 
-/*
-            lurch_bundle_request_do(js_p,
+
+            lurch_bundle_request_do(&jabberStream,
                                     curr_addr.jid,
                                     curr_addr.device_id,
                                     qmsg_p);
-*/
-            bundleRequestDo(curr_addr.jid, curr_addr.device_id, qmsg_p);
+
+            //bundleRequestDo(curr_addr.jid, curr_addr.device_id, qmsg_p);
         }
         //*msg_stanza_pp = (void *) 0;
     }

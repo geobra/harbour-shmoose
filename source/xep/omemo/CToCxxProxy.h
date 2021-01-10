@@ -9,6 +9,7 @@ extern "C"
 void* CToCxxProxyGetInstance();
 void CToCxxProxySendAsPepStanza(void* proxy, char* stanza);
 void CToCxxProxySendRawMessageStanza(void* proxy, char* stanza);
+void CToCxxProxySendBundleRequest(void* proxy, char* node, char* id, void *q_msg);
 #ifdef __cplusplus
 }
 #endif
@@ -24,6 +25,7 @@ public:
 
     void sendAsPepStanza(char* stanza);
     void sendRawMessageStanza(char* stanza);
+    void sendBundleRequest(char* node, char* id, void* q_msg);
 
 private:
     CToCxxProxy() = default;

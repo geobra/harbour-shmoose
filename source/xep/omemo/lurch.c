@@ -579,7 +579,7 @@ cleanup:
 /**
  * Wraps the omemo_message_export_encrypted message, so that it is called with the same options throughout.
  */
-static int lurch_export_encrypted(omemo_message * om_msg_p, char ** xml_pp) {
+int lurch_export_encrypted(omemo_message * om_msg_p, char ** xml_pp) {
   return omemo_message_export_encrypted(om_msg_p, OMEMO_ADD_MSG_EME, xml_pp);
 }
 
@@ -732,7 +732,7 @@ cleanup:
  * @param qmsg_p Pointer to the queued message waiting on (at least) this bundle.
  * @return 0 on success, negative on error.
  */
-static int lurch_bundle_request_do(JabberStream * js_p,
+int lurch_bundle_request_do(JabberStream * js_p,
                                    const char * to,
                                    uint32_t device_id,
                                    lurch_queued_msg * qmsg_p) {

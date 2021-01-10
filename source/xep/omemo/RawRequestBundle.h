@@ -1,6 +1,6 @@
 #pragma once
 
-#include "LurchTypes.h"
+//#include "LurchTypes.h"
 
 #include <memory>
 #include <typeinfo>
@@ -20,19 +20,19 @@ class RawRequestBundle : public Swift::Request {
 public:
     typedef std::shared_ptr<RawRequestBundle> ref;
 
-    static ref create(Swift::IQ::Type type, const Swift::JID& recipient, const std::string& data, Swift::IQRouter* router, const std::string& bundleId, lurch_queued_msg* qMsg) {
+    static ref create(Swift::IQ::Type type, const Swift::JID& recipient, const std::string& data, Swift::IQRouter* router, const std::string& bundleId, void* qMsg) {
         return ref(new RawRequestBundle(type, recipient, data, router, bundleId, qMsg));
     }
 
-    boost::signals2::signal<void (const Swift::JID&, const std::string&, lurch_queued_msg*, const std::string&)> onResponse;
+    boost::signals2::signal<void (const Swift::JID&, const std::string&, void*, const std::string&)> onResponse;
 
 private:
-    RawRequestBundle(Swift::IQ::Type type, const Swift::JID& receiver, const std::string& data, Swift::IQRouter* router, const std::string& bundleId, lurch_queued_msg* qMsg) :
+    RawRequestBundle(Swift::IQ::Type type, const Swift::JID& receiver, const std::string& data, Swift::IQRouter* router, const std::string& bundleId, void* qMsg) :
         Swift::Request(type, receiver, std::make_shared<Swift::RawXMLPayload>(data), router), receiver_(receiver), bundleId_(bundleId), qMsg_(qMsg) {
     }
     Swift::JID receiver_{};
     std::string bundleId_{};
-    lurch_queued_msg* qMsg_{nullptr};
+    void* qMsg_{nullptr};
 
     virtual void handleResponse(std::shared_ptr<Swift::Payload> payload, Swift::ErrorPayload::ref error) {
         if (error) {

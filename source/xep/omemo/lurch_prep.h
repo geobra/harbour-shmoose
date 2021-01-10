@@ -17,6 +17,7 @@ int lurch_queued_msg_create(omemo_message * om_msg_p,
                                    GList * no_sess_l_p,
                                    lurch_queued_msg ** qmsg_pp);
 
+int lurch_export_encrypted(omemo_message * om_msg_p, char ** xml_pp);
 
 int lurch_axc_prepare(char * uname);
 
@@ -48,3 +49,9 @@ int lurch_bundle_create_session(const char * uname,
                                        const char * from,
                                        const xmlnode * items_p,
                                        axc_context * axc_ctx_p);
+
+int lurch_bundle_request_do(JabberStream * js_p,
+                                   const char * to,
+                                   uint32_t device_id,
+                                   lurch_queued_msg * qmsg_p);
+
