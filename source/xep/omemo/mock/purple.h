@@ -12,6 +12,7 @@
 #include <string.h>
 
 typedef char PurpleAccount;
+typedef void PurpleConnection;
 
 #define MAX_LEN 256
 static char omemo_dir[MAX_LEN];

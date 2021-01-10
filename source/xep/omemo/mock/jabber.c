@@ -54,3 +54,18 @@ void jabber_pep_request_item(JabberStream* js, char* sender, char* bundle, void*
     void* proxy = CToCxxProxyGetInstance();
     CToCxxProxyCreateAndSendBundleRequest(proxy, sender, bundle);
 }
+
+char* jabber_get_bare_jid(const char* jid)
+{
+    char *s = NULL;
+
+    if (jid == NULL) {
+        return NULL;
+    }
+
+    if ((s = strchr(jid, '/'))) {
+        return g_strndup(jid, s - jid);
+    } else {
+        return g_strdup(jid);
+    }
+}

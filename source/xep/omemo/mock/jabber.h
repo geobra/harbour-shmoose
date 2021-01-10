@@ -37,7 +37,7 @@ void jabber_iq_set_id(JabberIq *jiq, char* id);
 void jabber_iq_set_callback(JabberIq* jiq, void* cb, gpointer q_msg);
 void jabber_iq_send(JabberIq* jiq_p);
 void jabber_pep_request_item(JabberStream* js, char* sender, char* bundle, void* foo, void* cb);
-
+char* jabber_get_bare_jid(const char* jid);
 
 #ifdef __cplusplus
 }

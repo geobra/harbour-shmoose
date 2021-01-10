@@ -232,6 +232,18 @@ void Omemo::createAndSendBundleRequest(char* sender, char* bundle)
     requestDeviceList->send();
 }
 
+std::string Omemo::messageEncryptIm(const std::string msg)
+{
+    FIXME check this by debugger
+    xmlnode* node = xmlnode_from_str(msg.c_str(), -1);
+    lurch_message_encrypt_im(nullptr, &node);
+
+    int len = 0;
+    char* cryptedNode = xmlnode_to_str(node, &len);
+
+    return std::string(cryptedNode);
+}
+
 #if 0
 void Omemo::lurch_addr_lsendRawMessageStanzaist_destroy_func(gpointer data) {
   lurch_addr * addr_p = (lurch_addr *) data;
@@ -1461,7 +1473,6 @@ cleanup:
   g_free(uname);
   free(dl_ns);
 }
-#endif
 
 /**
  * For a list of lurch_addrs, checks which ones do not have an active session.
@@ -1796,6 +1807,8 @@ cleanup:
 
     return finalMsg;
 }
+#endif
+
 
 #if 0
 // FIXME implemt group chat encryption

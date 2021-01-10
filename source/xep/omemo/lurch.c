@@ -1186,6 +1186,8 @@ cleanup:
   g_free(uname);
   free(dl_ns);
 }
+#endif
+
 
 /**
  * For a list of lurch_addrs, checks which ones do not have an active session.
@@ -1198,7 +1200,7 @@ cleanup:
  *                     addresses that do not have a session.
  * @return 0 on success, negative on error.
  */
-static int lurch_axc_sessions_exist(GList * addr_l_p, axc_context * axc_ctx_p, GList ** no_sess_l_pp){
+int lurch_axc_sessions_exist(GList * addr_l_p, axc_context * axc_ctx_p, GList ** no_sess_l_pp){
   int ret_val = 0;
 
   GList * no_sess_l_p = (void *) 0;
@@ -1240,7 +1242,7 @@ cleanup:
  * @param exclude_id_p Pointer to an ID that is not to be added. Useful when adding the own devicelist. Can be NULL.
  * @return Pointer to the updated GList on success, NULL on error.
  */
-static GList * lurch_addr_list_add(GList * addrs_p, const omemo_devicelist * dl_p, const uint32_t * exclude_id_p) {
+GList * lurch_addr_list_add(GList * addrs_p, const omemo_devicelist * dl_p, const uint32_t * exclude_id_p) {
   int ret_val = 0;
 
   GList * new_l_p = addrs_p;
@@ -1375,7 +1377,7 @@ cleanup:
  * Set as callback for the "sending xmlnode" signal.
  * Encrypts the message body, if applicable.
  */
-static void lurch_message_encrypt_im(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp) {
+void lurch_message_encrypt_im(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp) {
   int ret_val = 0;
   char * err_msg_dbg = (void *) 0;
   int len = 0;
@@ -1504,6 +1506,8 @@ cleanup:
   axc_context_destroy_all(axc_ctx_p);
   free(tempxml);
 }
+
+#if 0
 
 static void lurch_message_encrypt_groupchat(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp) {
   int ret_val = 0;

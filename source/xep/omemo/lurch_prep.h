@@ -12,6 +12,8 @@
  * - make static as much as possible
  * */
 
+typedef void PurpleConnection;
+
 int lurch_queued_msg_create(omemo_message * om_msg_p,
                                    GList * recipient_addr_l_p,
                                    GList * no_sess_l_p,
@@ -60,3 +62,9 @@ void lurch_pep_bundle_for_keytransport(JabberStream * js_p, const char * from, x
 int lurch_devicelist_process(char * uname, omemo_devicelist * dl_in_p, JabberStream * js_p);
 
 void lurch_pep_own_devicelist_request_handler(JabberStream * js_p, const char * from, xmlnode * items_p);
+
+int lurch_axc_sessions_exist(GList * addr_l_p, axc_context * axc_ctx_p, GList ** no_sess_l_pp);
+
+GList * lurch_addr_list_add(GList * addrs_p, const omemo_devicelist * dl_p, const uint32_t * exclude_id_p);
+
+void lurch_message_encrypt_im(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp);
