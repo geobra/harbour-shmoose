@@ -59,3 +59,4 @@ void lurch_pep_bundle_for_keytransport(JabberStream * js_p, const char * from, x
 
 int lurch_devicelist_process(char * uname, omemo_devicelist * dl_in_p, JabberStream * js_p);
 
+void lurch_pep_own_devicelist_request_handler(JabberStream * js_p, const char * from, xmlnode * items_p);

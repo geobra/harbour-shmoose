@@ -11,6 +11,8 @@
 #include <glib.h>
 #include <string.h>
 
+typedef char PurpleAccount;
+
 #define MAX_LEN 256
 static char omemo_dir[MAX_LEN];
 static char fq_user_name[MAX_LEN];

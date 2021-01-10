@@ -66,6 +66,8 @@ extern "C" {
  * 6. receive and decrypt a message
  */
 
+// FIXME! implement lurch_pep_devicelist_event_handler
+
 Omemo::Omemo(QObject *parent) : QObject(parent)
 {
     // lurch_plugin_load
@@ -1229,7 +1231,6 @@ cleanup:
 
     return ret_val;
 }
-#endif
 
 /**
  * A JabberPEPHandler function.
@@ -1368,6 +1369,7 @@ cleanup:
     free(dl_xml);
 
 }
+#endif
 
 #if 0
 // FIXME implement me!
@@ -2294,7 +2296,10 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
     if (myBareJid_.compare(qJid, Qt::CaseInsensitive) == 0)
     {
         // was a request for my device list
-        ownDeviceListRequestHandler(items);
+        //ownDeviceListRequestHandler(items);
+        xmlnode* itemsNode = xmlnode_from_str(items.toStdString().c_str(), -1);
+        lurch_pep_own_devicelist_request_handler(&jabberStream, uname_, itemsNode);
+        xmlnode_free(itemsNode);
     }
     else
     {

@@ -988,13 +988,12 @@ cleanup:
 
   return ret_val;
 }
-#if 0
 
 /**
  * A JabberPEPHandler function.
  * Is used to handle the own devicelist and also perform install-time functions.
  */
-static void lurch_pep_own_devicelist_request_handler(JabberStream * js_p, const char * from, xmlnode * items_p) {
+void lurch_pep_own_devicelist_request_handler(JabberStream * js_p, const char * from, xmlnode * items_p) {
   int ret_val = 0;
   char * err_msg_dbg = (void *) 0;
 
@@ -1110,6 +1109,8 @@ cleanup:
   omemo_devicelist_destroy(dl_p);
   free(dl_xml);
 }
+#if 0
+
 
 /**
  * A JabberPEPHandler function.
