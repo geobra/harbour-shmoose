@@ -901,7 +901,6 @@ cleanup:
     xmlnode_free(msg_node_p);
   }
 }
-#if 0
 
 /**
  * Processes a devicelist by updating the database with it.
@@ -911,7 +910,7 @@ cleanup:
  * @param js_p Pointer to the JabberStream.
  * @return 0 on success, negative on error.
  */
-static int lurch_devicelist_process(char * uname, omemo_devicelist * dl_in_p, JabberStream * js_p) {
+int lurch_devicelist_process(char * uname, omemo_devicelist * dl_in_p, JabberStream * js_p) {
   int ret_val = 0;
   char * err_msg_dbg = (void *) 0;
 
@@ -989,6 +988,7 @@ cleanup:
 
   return ret_val;
 }
+#if 0
 
 /**
  * A JabberPEPHandler function.

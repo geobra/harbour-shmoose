@@ -1140,7 +1140,6 @@ cleanup:
     axc_buf_free(key_ct_buf_p);
     free(msg_xml);
 }
-#endif
 
 /**
  * Processes a devicelist by updating the database with it.
@@ -1230,6 +1229,7 @@ cleanup:
 
     return ret_val;
 }
+#endif
 
 /**
  * A JabberPEPHandler function.
@@ -1351,7 +1351,8 @@ void Omemo::ownDeviceListRequestHandler(QString items)
         settings.setOmemoInitialized(true);
     }
 
-    ret_val = devicelistProcess(uname_, dl_p);
+    //ret_val = devicelistProcess(uname_, dl_p);
+    ret_val = lurch_devicelist_process(uname_, dl_p, &jabberStream);
     if (ret_val) {
         err_msg_dbg = g_strdup_printf("failed to process the devicelist");
         goto cleanup;
@@ -2308,7 +2309,8 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
             int ret = omemo_devicelist_import(pItems, bareJidStr.c_str(), &dl_in_p);
             if ( ret == 0)
             {
-                if(devicelistProcess(uname_, dl_in_p) != 0)
+                //if(devicelistProcess(uname_, dl_in_p) != 0)
+                if(lurch_devicelist_process(uname_, dl_in_p, &jabberStream) != 0)
                 {
                     qDebug() << "failed to process devicelist";
                 }
