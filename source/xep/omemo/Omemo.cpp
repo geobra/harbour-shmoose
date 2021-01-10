@@ -156,23 +156,33 @@ void Omemo::requestDeviceList(const Swift::JID& jid)
 void Omemo::sendAsPepStanza(char* stz)
 {
     QString stanza = QString::fromLatin1(stz);
-    //qDebug() << "Omemo::sendAsPepStanza" << stanza;
+    qDebug() << "Omemo::sendAsPepStanza" << stanza;
 
     // FIXME check what to send via pep.
     // can be a bundle or a device list.
     // set callback accordingly
     /*
-     * <publish node="eu.siacs.conversations.axolotl.bundles:1456456434"><item><bundle xmlns="eu.siacs.conversations.axolotl">...
+     * <publish node="eu.siacs.conversations.axolotl.bundles:123456"><item><bundle xmlns="eu.siacs.conversations.axolotl">...
+     * <publish node='eu.siacs.conversations.axolotl.devicelist'><item><list xmlns='eu.siacs.conversations.axolotl'>...
      */
 
-    QString nodeTag = XmlProcessor::getContentInTag("publish", "node", stanza);
+    QString publishNodeType = XmlProcessor::getContentInTag("publish", "node", stanza);
 
     std::string pubsub = "<pubsub xmlns='http://jabber.org/protocol/pubsub'>" + std::string(stz) + "</pubsub>";
     Swift::RawRequest::ref publishPep = Swift::RawRequest::create(Swift::IQ::Set, uname_, pubsub, client_->getIQRouter());
-    if (nodeTag.contains("bundle", Qt::CaseInsensitive))
+    if (publishNodeType.contains("bundle", Qt::CaseInsensitive))
     {
         publishPep->onResponse.connect(boost::bind(&Omemo::publishedBundle, this, _1));
     }
+    else if (publishNodeType.contains("devicelist", Qt::CaseInsensitive))
+    {
+        publishPep->onResponse.connect(boost::bind(&Omemo::publishedDeviceList, this, _1));
+    }
+    else
+    {
+        qDebug() << "Error: unknown pep to send: " << stanza;
+    }
+
     publishPep->send();
 }
 
