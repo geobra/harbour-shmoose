@@ -55,3 +55,5 @@ int lurch_bundle_request_do(JabberStream * js_p,
                                    uint32_t device_id,
                                    lurch_queued_msg * qmsg_p);
 
+void lurch_pep_bundle_for_keytransport(JabberStream * js_p, const char * from, xmlnode * items_p);
+

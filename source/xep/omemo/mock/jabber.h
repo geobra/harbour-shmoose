@@ -18,7 +18,7 @@ char* gc;
 typedef struct JabberIq_ JabberIq;
 struct JabberIq_ {
     xmlnode* node;
-    char* id;
+    //char* id;
     void* q_msg;
 };
 
@@ -36,6 +36,8 @@ JabberIq* jabber_iq_new(JabberStream *js, JabberIqType type);
 void jabber_iq_set_id(JabberIq *jiq, char* id);
 void jabber_iq_set_callback(JabberIq* jiq, void* cb, gpointer q_msg);
 void jabber_iq_send(JabberIq* jiq_p);
+void jabber_pep_request_item(JabberStream* js, char* sender, char* bundle, void* foo, void* cb);
+
 
 #ifdef __cplusplus
 }

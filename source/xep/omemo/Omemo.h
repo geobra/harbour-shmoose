@@ -28,7 +28,8 @@ public:
 
     void sendAsPepStanza(char* stz);
     void sendRawMessageStanza(char* stz);
-    void sendBundleRequest(char* node, char* id, void *q_msg);
+    void sendBundleRequest(char* node, void *q_msg);
+    void createAndSendBundleRequest(char* sender, char* bundle);
 
 signals:
     void rawMessageStanzaForSending(QString);

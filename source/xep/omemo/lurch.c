@@ -784,7 +784,6 @@ cleanup:
 
   return ret_val;
 }
-#if 0
 
 /**
  * A JabberPEPHandler function.
@@ -792,7 +791,7 @@ cleanup:
  * the bundle of the sender is requested and a KeyTransport message is sent
  * in response so that a session can still be established.
  */
-static void lurch_pep_bundle_for_keytransport(JabberStream * js_p, const char * from, xmlnode * items_p) {
+void lurch_pep_bundle_for_keytransport(JabberStream * js_p, const char * from, xmlnode * items_p) {
   int ret_val = 0;
   char * err_msg_dbg = (void *) 0;
 
@@ -902,6 +901,7 @@ cleanup:
     xmlnode_free(msg_node_p);
   }
 }
+#if 0
 
 /**
  * Processes a devicelist by updating the database with it.

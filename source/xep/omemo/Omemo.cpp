@@ -180,7 +180,7 @@ void Omemo::sendRawMessageStanza(char* stz)
     emit rawMessageStanzaForSending(stanza);
 }
 
-void Omemo::sendBundleRequest(char* node, char* id, void* q_msg)
+void Omemo::sendBundleRequest(char* node, void* q_msg)
 {
     //node contains
     /* <iq type='get' to='xxx@jabber.ccc.de' id='xxx@jabber.ccc.de#508164373#-1085008789'>
@@ -210,6 +210,14 @@ void Omemo::sendBundleRequest(char* node, char* id, void* q_msg)
         publishPep->onResponse.connect(boost::bind(&Omemo::requestBundleHandler, this, _1, _2, _3, _4));
         publishPep->send();
     }
+}
+
+void Omemo::createAndSendBundleRequest(char* sender, char* bundle)
+{
+    const std::string bundleRequestXml = "<pubsub xmlns='http://jabber.org/protocol/pubsub'><items node='" + std::string(bundle) + "'/></pubsub>";
+    RawRequestWithFromJid::ref requestDeviceList = RawRequestWithFromJid::create(Swift::IQ::Get, std::string(sender), bundleRequestXml, client_->getIQRouter());
+    requestDeviceList->onResponse.connect(boost::bind(&Omemo::pepBundleForKeytransport, this, _1, _2));
+    requestDeviceList->send();
 }
 
 #if 0
@@ -870,8 +878,6 @@ cleanup:
   //  xmlnode_free(msg_node_p);
   //}
 }
-#endif
-
 
 /**
  * Requests a bundle.
@@ -976,6 +982,7 @@ cleanup:
 
     return 0;
 }
+#endif
 
 void Omemo::requestBundleHandler(const Swift::JID& jid, const std::string& bundleId, void* qMsg, const std::string& str)
 {
@@ -990,6 +997,15 @@ void Omemo::requestBundleHandler(const Swift::JID& jid, const std::string& bundl
     lurch_bundle_request_cb(&jabberStream, jid.toBare().toString().c_str(), JABBER_IQ_SET, id.c_str(), node, qMsg);
 }
 
+void Omemo::pepBundleForKeytransport(const std::string from, const std::string &items)
+{
+    xmlnode* itemsNode = xmlnode_from_str(items.c_str(), -1);
+    lurch_pep_bundle_for_keytransport(&jabberStream, from.c_str(), itemsNode);
+
+    xmlnode_free(itemsNode);
+}
+
+#if 0
 void Omemo::pepBundleForKeytransport(const std::string from, const std::string &items)
 {
     // lurch_pep_bundle_for_keytransport
@@ -1124,6 +1140,7 @@ cleanup:
     axc_buf_free(key_ct_buf_p);
     free(msg_xml);
 }
+#endif
 
 /**
  * Processes a devicelist by updating the database with it.
