@@ -76,6 +76,7 @@ else {
 # on testing, add flags to produce coverage
 contains(DEFINES, DBUS) {
     QMAKE_CXXFLAGS += -fprofile-arcs -ftest-coverage
+    QMAKE_CFLAGS += -fprofile-arcs -ftest-coverage
     LIBS += -lgcov
 }
 
@@ -109,8 +110,8 @@ SOURCES += \
     source/xep/omemo/Omemo.cpp \
     source/xep/omemo/mock/purple.c \
     source/xep/omemo/mock/jabber.c \
-    source/xep/omemo/lurch.c \
-    source/xep/omemo/lurch_util.c \
+    source/xep/omemo/lurch/lurch.c \
+    source/xep/omemo/lurch/lurch_util.c \
     source/xep/omemo/xmlnode.c \
     source/xep/omemo/XmppMessageParserClient.cpp \
     source/room/MucManager.cpp \
@@ -154,9 +155,9 @@ HEADERS += source/base/Shmoose.h \
     source/xep/omemo/Omemo.h \
     source/xep/omemo/mock/purple.h \
     source/xep/omemo/mock/jabber.h \
-    source/xep/omemo/lurch.h \
-    source/xep/omemo/lurch_prep.h \
-    source/xep/omemo/lurch_util.h \
+    source/xep/omemo/mock/lurch_prep.h \
+    source/xep/omemo/lurch/lurch.h \
+    source/xep/omemo/lurch/lurch_util.h \
     source/xep/omemo/XmppMessageParserClient.h \
     source/xep/omemo/RawRequestWithFromJid.h \
     source/xep/omemo/RawRequestBundle.h \
