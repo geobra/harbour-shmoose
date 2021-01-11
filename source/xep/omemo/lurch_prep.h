@@ -68,3 +68,5 @@ int lurch_axc_sessions_exist(GList * addr_l_p, axc_context * axc_ctx_p, GList **
 GList * lurch_addr_list_add(GList * addrs_p, const omemo_devicelist * dl_p, const uint32_t * exclude_id_p);
 
 void lurch_message_encrypt_im(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp);
+
+void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp);

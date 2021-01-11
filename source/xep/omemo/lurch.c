@@ -1690,12 +1690,13 @@ static void lurch_xml_sent_cb(PurpleConnection * gc_p, xmlnode ** stanza_pp) {
     }
   }
 }
+#endif
 
 /**
  * Callback for the "receiving xmlnode" signal.
  * Decrypts message, if applicable.
  */
-static void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp) {
+void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp) {
   int ret_val = 0;
   char * err_msg_dbg = (void *) 0;
   int len;
@@ -1720,9 +1721,9 @@ static void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza
   char * buddy_nick = (void *) 0;
   xmlnode * plaintext_msg_node_p = (void *) 0;
   char * recipient_bare_jid = (void *) 0;
-  PurpleConversation * conv_p = (void *) 0;
-  JabberChat * muc_p = (void *) 0;
-  JabberChatMember * muc_member_p = (void *) 0;
+  //PurpleConversation * conv_p = (void *) 0;
+  //JabberChat * muc_p = (void *) 0;
+  //JabberChatMember * muc_member_p = (void *) 0;
 
   const char * type = xmlnode_get_attrib(*msg_stanza_pp, "type");
   const char * from = xmlnode_get_attrib(*msg_stanza_pp, "from");
@@ -1752,7 +1753,9 @@ static void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza
     } else if (ret_val == 1) {
       purple_conv_present_error(sender, purple_connection_get_account(gc_p), "Received encrypted message in blacklisted conversation.");
     }
-  } else if (!g_strcmp0(type, "groupchat")) {
+  }
+#if 0
+  else if (!g_strcmp0(type, "groupchat")) {
     split = g_strsplit(from, "/", 2);
     room_name = split[0];
     buddy_nick = split[1];
@@ -1790,7 +1793,7 @@ static void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza
 
     sender = jabber_get_bare_jid(muc_member_p->jid);
   }
-
+#endif
   ret_val = omemo_message_prepare_decryption(xmlnode_to_str(*msg_stanza_pp, &len), &msg_p);
   if (ret_val) {
     err_msg_dbg = g_strdup_printf("failed import msg for decryption");
@@ -1883,7 +1886,7 @@ static void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza
   }
 
   plaintext_msg_node_p = xmlnode_from_str(xml, -1);
-
+#if 0
   // libpurple doesn't know what to do with incoming messages addressed to someone else, so they need to be written to the conversation manually
   // incoming messages from the own account in MUCs are fine though
   if (!g_strcmp0(sender, uname) && !g_strcmp0(type, "chat")) {
@@ -1894,9 +1897,11 @@ static void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza
     purple_conversation_write(conv_p, uname, xmlnode_get_data(xmlnode_get_child(plaintext_msg_node_p, "body")), PURPLE_MESSAGE_SEND, time((void *) 0));
     *msg_stanza_pp = (void *) 0;
   } else {
+#endif
     *msg_stanza_pp = plaintext_msg_node_p;
+#if 0
   }
-
+#endif
 cleanup:
   if (err_msg_dbg) {
     purple_conv_present_error(sender, purple_connection_get_account(gc_p), LURCH_ERR_STRING_DECRYPT);
@@ -1920,6 +1925,7 @@ cleanup:
   omemo_message_destroy(msg_p);
 }
 
+#if 0
 static void lurch_message_warn(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp) {
   int ret_val = 0;
 

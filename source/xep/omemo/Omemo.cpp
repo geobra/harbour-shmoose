@@ -234,14 +234,38 @@ void Omemo::createAndSendBundleRequest(char* sender, char* bundle)
 
 std::string Omemo::messageEncryptIm(const std::string msg)
 {
-    FIXME check this by debugger
     xmlnode* node = xmlnode_from_str(msg.c_str(), -1);
     lurch_message_encrypt_im(nullptr, &node);
 
     int len = 0;
     char* cryptedNode = xmlnode_to_str(node, &len);
 
-    return std::string(cryptedNode);
+    if (len > 0)
+    {
+        return std::string(cryptedNode);
+    }
+    else
+    {
+        return "";
+    }
+}
+
+std::string Omemo::messageDecrypt(const std::string& message)
+{
+    xmlnode* node = xmlnode_from_str(message.c_str(), -1);
+    lurch_message_decrypt(nullptr, &node);
+
+    int len = 0;
+    char* decryptedNode = xmlnode_to_str(node, &len);
+
+    if (len > 0)
+    {
+        return std::string(decryptedNode);
+    }
+    else
+    {
+        return "";
+    }
 }
 
 #if 0
@@ -1996,7 +2020,6 @@ static void lurch_xml_sent_cb(PurpleConnection * gc_p, xmlnode ** stanza_pp) {
     }
   }
 }
-#endif
 
 /**
  * Callback for the "receiving xmlnode" signal.
@@ -2277,6 +2300,8 @@ cleanup:
 
     return decryptedMsg;
 }
+#endif
+
 
 void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& str)
 {
@@ -2322,7 +2347,6 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
         //ownDeviceListRequestHandler(items);
         xmlnode* itemsNode = xmlnode_from_str(items.toStdString().c_str(), -1);
         lurch_pep_own_devicelist_request_handler(&jabberStream, uname_, itemsNode);
-        xmlnode_free(itemsNode);
     }
     else
     {
