@@ -156,6 +156,9 @@ HEADERS += source/base/Shmoose.h \
     source/xep/omemo/mock/purple.h \
     source/xep/omemo/mock/jabber.h \
     source/xep/omemo/mock/lurch_prep.h \
+    source/xep/omemo/mock/chat.h \
+    source/xep/omemo/mock/jutil.h \
+    source/xep/omemo/mock/pep.h \
     source/xep/omemo/lurch/lurch.h \
     source/xep/omemo/lurch/lurch_util.h \
     source/xep/omemo/XmppMessageParserClient.h \

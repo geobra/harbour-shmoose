@@ -14,6 +14,7 @@
 
 typedef char PurpleAccount;
 typedef void PurpleConnection;
+typedef int PurpleCmdId;
 
 #define MAX_LEN 256
 static char omemo_dir[MAX_LEN];

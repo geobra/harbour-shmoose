@@ -18,6 +18,11 @@
 
 #include <purple.h>
 
+#include "chat.h"
+#include "jabber.h"
+#include "jutil.h"
+#include "pep.h"
+
 #include "libomemo.h"
 #include "libomemo_crypto.h"
 #include "libomemo_storage.h"
@@ -30,7 +35,7 @@
 
 #include "lurch.h"
 #include "lurch_api.h"
-//#include "lurch_cmd_ui.h"
+#include "lurch_cmd_ui.h"
 #include "lurch_util.h"
 
 #ifdef _WIN32
@@ -69,8 +74,8 @@ omemo_crypto_provider crypto = {
 int topic_changed = 0;
 int uninstall = 0;
 
-//PurpleCmdId lurch_cmd_handle_id = 0;
-//PurpleCmdId lurch_cmd_v2_handle_id = 0;
+PurpleCmdId lurch_cmd_handle_id = 0;
+PurpleCmdId lurch_cmd_v2_handle_id = 0;
 
 void lurch_addr_list_destroy_func(gpointer data) {
   lurch_addr * addr_p = (lurch_addr *) data;
