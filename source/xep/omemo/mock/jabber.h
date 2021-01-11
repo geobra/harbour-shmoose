@@ -30,6 +30,7 @@ typedef enum {
     JABBER_IQ_NONE
 } JabberIqType;
 
+// an empty dummy
 static JabberStream jabberStream;
 
 JabberIq* jabber_iq_new(JabberStream *js, JabberIqType type);

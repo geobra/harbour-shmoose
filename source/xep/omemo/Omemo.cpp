@@ -17,6 +17,7 @@ extern "C"
 {
 #include <purple.h>
 #include "lurch_prep.h"
+#include "libomemo_crypto.h"
 }
 
 /*
@@ -292,7 +293,6 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
     if (myBareJid_.compare(qJid, Qt::CaseInsensitive) == 0)
     {
         // was a request for my device list
-        //ownDeviceListRequestHandler(items);
         xmlnode* itemsNode = xmlnode_from_str(items.toStdString().c_str(), -1);
         lurch_pep_own_devicelist_request_handler(&jabberStream, uname_, itemsNode);
     }
@@ -309,7 +309,6 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
             int ret = omemo_devicelist_import(pItems, bareJidStr.c_str(), &dl_in_p);
             if ( ret == 0)
             {
-                //if(devicelistProcess(uname_, dl_in_p) != 0)
                 if(lurch_devicelist_process(uname_, dl_in_p, &jabberStream) != 0)
                 {
                     qDebug() << "failed to process devicelist";

@@ -160,7 +160,6 @@ HEADERS += source/base/Shmoose.h \
     source/xep/omemo/XmppMessageParserClient.h \
     source/xep/omemo/RawRequestWithFromJid.h \
     source/xep/omemo/RawRequestBundle.h \
-    source/xep/omemo/LurchTypes.h \
     source/xep/omemo/xmlnode.h \
     source/room/MucManager.h \
     source/room/MucCollection.h \
