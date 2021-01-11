@@ -90,7 +90,7 @@ void lurch_addr_list_destroy_func(gpointer data) {
  * @param cmsg_pp Will point to the pointer of the created queued msg struct.
  * @return 0 on success, negative on error.
  */
-int lurch_queued_msg_create(omemo_message * om_msg_p,
+static int lurch_queued_msg_create(omemo_message * om_msg_p,
                                    GList * recipient_addr_l_p,
                                    GList * no_sess_l_p,
                                    lurch_queued_msg ** qmsg_pp) {
@@ -127,14 +127,14 @@ cleanup:
   return ret_val;
 }
 
-int lurch_queued_msg_is_handled(const lurch_queued_msg * qmsg_p) {
+static int lurch_queued_msg_is_handled(const lurch_queued_msg * qmsg_p) {
   return (g_list_length(qmsg_p->no_sess_l_p) == g_hash_table_size(qmsg_p->sess_handled_p)) ? 1 : 0;
 }
 
 /**
  * Frees all the memory used by the queued msg.
  */
-void lurch_queued_msg_destroy(lurch_queued_msg * qmsg_p) {
+static void lurch_queued_msg_destroy(lurch_queued_msg * qmsg_p) {
   if (qmsg_p) {
     omemo_message_destroy(qmsg_p->om_msg_p);
     g_list_free_full(qmsg_p->recipient_addr_l_p, free);
@@ -143,7 +143,7 @@ void lurch_queued_msg_destroy(lurch_queued_msg * qmsg_p) {
   }
 }
 
-char * lurch_queue_make_key_string_s(const char * name, const char * device_id) {
+static char * lurch_queue_make_key_string_s(const char * name, const char * device_id) {
   return g_strconcat(name, "/", device_id, NULL);
 }
 
@@ -151,14 +151,14 @@ char * lurch_queue_make_key_string_s(const char * name, const char * device_id) 
  * Does the first-time install of the axc DB.
  * As specified in OMEMO, it checks if the generated device ID already exists.
  * Therefore, it should be called at a point in time when other entries exist.
- *
+ * 
  * If an initialized DB already exists, this function exits with success without doing anything.
  * This is checked by trying to retrieve the device ID from it.
  *
  * @param uname The username.
  * @return 0 on success, negative on error.
  */
-int lurch_axc_prepare(char * uname) {
+static int lurch_axc_prepare(char * uname) {
   int ret_val = 0;
   char * err_msg_dbg = (void *) 0;
 
@@ -230,7 +230,7 @@ cleanup:
  * @param key_ct_pp Will point to a pointer to an axc_buf containing the key ciphertext on success.
  * @return 0 on success, negative on error
  */
-int lurch_key_encrypt(const lurch_addr * recipient_addr_p,
+static int lurch_key_encrypt(const lurch_addr * recipient_addr_p,
                              const uint8_t * key_p,
                              size_t key_len,
                              axc_context * axc_ctx_p,
@@ -285,7 +285,7 @@ cleanup:
  * @param axc_ctx_p Pointer to the axc_context to use.
  * @return 0 on success, negative on error.
  */
-int lurch_msg_encrypt_for_addrs(omemo_message * om_msg_p, GList * addr_l_p, axc_context * axc_ctx_p) {
+static int lurch_msg_encrypt_for_addrs(omemo_message * om_msg_p, GList * addr_l_p, axc_context * axc_ctx_p) {
   int ret_val = 0;
   char * err_msg_dbg = (void *) 0;
 
@@ -349,7 +349,7 @@ cleanup:
  * @param uname The username.
  * @param js_p Pointer to the connection to use for publishing.
  */
-int lurch_bundle_publish_own(JabberStream * js_p) {
+static int lurch_bundle_publish_own(JabberStream * js_p) {
   int ret_val = 0;
   char * err_msg_dbg = (void *) 0;
 
@@ -436,7 +436,6 @@ int lurch_bundle_publish_own(JabberStream * js_p) {
     goto cleanup;
   }
 
-  fprintf(stderr, "bundle: %s\n", bundle_xml);
   publish_node_bundle_p = xmlnode_from_str(bundle_xml, -1);
   jabber_pep_publish(js_p, publish_node_bundle_p);
 
@@ -481,7 +480,7 @@ static uint32_t lurch_bundle_name_get_device_id(const char * bundle_node_name) {
  * @param from The sender of the bundle.
  * @param items_p The bundle update as received in the PEP request handler.
  */
-int lurch_bundle_create_session(const char * uname,
+static int lurch_bundle_create_session(const char * uname,
                                        const char * from,
                                        const xmlnode * items_p,
                                        axc_context * axc_ctx_p) {
@@ -584,7 +583,7 @@ cleanup:
 /**
  * Wraps the omemo_message_export_encrypted message, so that it is called with the same options throughout.
  */
-int lurch_export_encrypted(omemo_message * om_msg_p, char ** xml_pp) {
+static int lurch_export_encrypted(omemo_message * om_msg_p, char ** xml_pp) {
   return omemo_message_export_encrypted(om_msg_p, OMEMO_ADD_MSG_EME, xml_pp);
 }
 
@@ -737,7 +736,7 @@ cleanup:
  * @param qmsg_p Pointer to the queued message waiting on (at least) this bundle.
  * @return 0 on success, negative on error.
  */
-int lurch_bundle_request_do(JabberStream * js_p,
+static int lurch_bundle_request_do(JabberStream * js_p,
                                    const char * to,
                                    uint32_t device_id,
                                    lurch_queued_msg * qmsg_p) {
@@ -1205,7 +1204,7 @@ cleanup:
  *                     addresses that do not have a session.
  * @return 0 on success, negative on error.
  */
-int lurch_axc_sessions_exist(GList * addr_l_p, axc_context * axc_ctx_p, GList ** no_sess_l_pp){
+static int lurch_axc_sessions_exist(GList * addr_l_p, axc_context * axc_ctx_p, GList ** no_sess_l_pp){
   int ret_val = 0;
 
   GList * no_sess_l_p = (void *) 0;
@@ -1247,7 +1246,7 @@ cleanup:
  * @param exclude_id_p Pointer to an ID that is not to be added. Useful when adding the own devicelist. Can be NULL.
  * @return Pointer to the updated GList on success, NULL on error.
  */
-GList * lurch_addr_list_add(GList * addrs_p, const omemo_devicelist * dl_p, const uint32_t * exclude_id_p) {
+static GList * lurch_addr_list_add(GList * addrs_p, const omemo_devicelist * dl_p, const uint32_t * exclude_id_p) {
   int ret_val = 0;
 
   GList * new_l_p = addrs_p;
