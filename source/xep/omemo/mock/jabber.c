@@ -1,3 +1,9 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+
 #include "jabber.h"
 #include "CToCxxProxy.h"
 
@@ -69,3 +75,5 @@ char* jabber_get_bare_jid(const char* jid)
         return g_strdup(jid);
     }
 }
+
+#pragma GCC diagnostic pop

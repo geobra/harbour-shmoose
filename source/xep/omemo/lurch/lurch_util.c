@@ -1,3 +1,6 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
+
 #include <string.h>
 #include <purple.h>
 
@@ -164,3 +167,4 @@ cleanup:
   return printable;
 }
 
+#pragma GCC diagnostic pop

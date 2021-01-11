@@ -1,5 +1,8 @@
 #pragma once
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
 #include "xmlnode.h"
 
 #ifdef __cplusplus
@@ -43,3 +46,5 @@ char* jabber_get_bare_jid(const char* jid);
 #ifdef __cplusplus
 }
 #endif
+
+#pragma GCC diagnostic pop

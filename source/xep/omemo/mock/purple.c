@@ -1,6 +1,10 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 
 #include "purple.h"
 #include "CToCxxProxy.h"
@@ -54,7 +58,6 @@ void set_omemo_dir(const char* dir)
         len = MAX_LEN -1;
     }
     memcpy(omemo_dir, dir, len);
-    //fprintf(stderr, "->%s\n", omemo_dir);
 }
 
 const char* purple_user_dir()
@@ -62,9 +65,23 @@ const char* purple_user_dir()
     return omemo_dir;
 }
 
-gchar* purple_base16_encode_chunked(u_int8_t* in, size_t size)
+gchar* purple_base16_encode_chunked(const guchar *data, gsize len)
 {
-    // FIXME IMPLEMENT ME!
+    // from libpurple: util.c
+    gsize i;
+    gchar *ascii = NULL;
+
+    g_return_val_if_fail(data != NULL, NULL);
+    g_return_val_if_fail(len > 0,   NULL);
+
+    ascii = g_malloc(len * 3 + 1);
+
+    for (i = 0; i < len; i++)
+        g_snprintf(&ascii[i * 3], 4, "%02hhx:", data[i]);
+
+    ascii[len * 3 - 1] = 0;
+
+    return ascii;
 }
 
 void* purple_connection_get_account(void* foo)

@@ -1,3 +1,15 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-conversion"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wpadded"
+#pragma GCC diagnostic ignored "-Wmissing-variable-declarations"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic ignored "-Wpedantic"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
+
 #include <glib.h>
 
 #include <inttypes.h>
@@ -5,13 +17,6 @@
 #include <time.h>
 
 #include <purple.h>
-
-#if 0
-#include "chat.h"
-#include "jabber.h"
-#include "jutil.h"
-#include "pep.h"
-#endif
 
 #include "libomemo.h"
 #include "libomemo_crypto.h"
@@ -2674,3 +2679,5 @@ lurch_plugin_init(PurplePlugin * plugin_p) {
 PURPLE_INIT_PLUGIN(lurch, lurch_plugin_init, info)
 
 #endif
+
+#pragma GCC diagnostic pop

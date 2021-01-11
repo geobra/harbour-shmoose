@@ -2,6 +2,9 @@
  * @file xmlnode.c XML DOM functions
  */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 // from libpidgin 2.13.0
 
 /* purple
@@ -884,3 +887,5 @@ xmlnode_get_next_twin(xmlnode *node)
 
 	return NULL;
 }
+
+#pragma GCC diagnostic pop

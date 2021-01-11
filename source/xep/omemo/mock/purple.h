@@ -3,6 +3,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#pragma GCC diagnostic ignored "-Wunused-variable"
 
 #include "jabber.h"
 
@@ -34,7 +35,7 @@ void set_omemo_dir(const char* dir);
 
 const char* purple_user_dir();
 
-gchar* purple_base16_encode_chunked(u_int8_t* in, size_t size);
+gchar* purple_base16_encode_chunked(const guchar *data, gsize len);
 
 void* purple_connection_get_account(void* foo);
 
