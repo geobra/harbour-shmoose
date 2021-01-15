@@ -18,6 +18,8 @@ extern "C"
 #include <purple.h>
 #include "lurch_prep.h"
 #include "libomemo_crypto.h"
+#include "libomemo_storage.h"
+#include "lurch_util.h"
 }
 
 /*
@@ -290,7 +292,7 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
 
     std::string bareJidStr = jid.toBare().toString();
     QString qJid = QString::fromStdString(bareJidStr);
-    qDebug() << "OMEMO: handle device list Response. Jid: " << qJid << ". list: " << QString::fromStdString(str);
+    //qDebug() << "OMEMO: handle device list Response. Jid: " << qJid << ". list: " << QString::fromStdString(str);
 
     /*
      *  <pubsub xmlns="http://jabber.org/protocol/pubsub">
@@ -410,4 +412,53 @@ QString Omemo::getSerializedStringFromMessage(Swift::Message::ref msg)
     Swift::SafeByteArray sba = xmppSerializer.serializeElement(msg);
 
     return QString::fromStdString(Swift::safeByteArrayToString(sba));
+}
+
+bool Omemo::exchangePlainBodyByOmemoStanzas(Swift::Message::ref msg)
+{
+    bool returnValue{false};
+
+    QString qMsg = getSerializedStringFromMessage(msg);
+    if (qMsg.isEmpty() == false)
+    {
+        std::string cryptMessage = messageEncryptIm(qMsg.toStdString());
+        if (cryptMessage.empty() == false)
+        {
+            QString encryptedPayload = XmlProcessor::getChildFromNode("encrypted", QString::fromStdString(cryptMessage));
+            if (encryptedPayload.isEmpty() == false)
+            {
+                // FIXME generate the "eu.siacs.conversations.axolotl" namespace from libomemo!
+                Swift::RawXMLPayload::ref encPayload = std::make_shared<Swift::RawXMLPayload>(
+                            encryptedPayload.toStdString()
+                            + "<encryption xmlns=\"urn:xmpp:eme:0\" namespace=\"eu.siacs.conversations.axolotl\" name=\"OMEMO\" /><store xmlns=\"urn:xmpp:hints\" />"
+                        );
+                msg->addPayload(encPayload);
+
+                msg->removePayloadOfSameType(std::make_shared<Swift::Body>());
+            }
+        }
+    }
+
+    return returnValue;
+}
+
+bool Omemo::isOmemoUser(const QString& bareJid)
+{
+    bool returnValue{false};
+
+    char * db_fn_omemo = lurch_util_uname_get_db_fn(client_->getJID().toBare().toString().c_str(), LURCH_DB_NAME_OMEMO);
+    omemo_devicelist * dl_p{nullptr};
+
+    // determine if recipient is omemo user
+    int ret_val = omemo_storage_user_devicelist_retrieve(bareJid.toStdString().c_str(), db_fn_omemo, &dl_p);
+    if (ret_val)
+    {
+        returnValue = false;
+    }
+    else
+    {
+        returnValue = true;
+    }
+
+    return returnValue;
 }

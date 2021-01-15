@@ -173,8 +173,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
 void MessageHandler::sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup)
 {
-    // FIXME use smart pointer!
-    Swift::Message::ref msg(new Swift::Message);
+    Swift::Message::ref msg = std::make_shared<Swift::Message>();
     Swift::JID receiverJid(toJid.toStdString());
 
     Swift::IDGenerator idGenerator;
@@ -193,22 +192,16 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
     msg->setType(messagesTyp);
     msg->setBody(message.toStdString());
 
-// -----------------
-
-    // FIXME for now, always try to encrypt the msg
-    QString qMsg = getSerializedStringFromMessage(msg);
-    std::string cryptMessage = omemo_->messageEncryptIm(qMsg.toStdString());
-    QString encryptedPayload = XmlProcessor::getChildFromNode("encrypted", QString::fromStdString(cryptMessage));
-
-    Swift::RawXMLPayload::ref encPayload(new Swift::RawXMLPayload(encryptedPayload.toStdString() + "<encryption xmlns=\"urn:xmpp:eme:0\" namespace=\"eu.siacs.conversations.axolotl\" name=\"OMEMO\" /><store xmlns=\"urn:xmpp:hints\" />"));
-    msg->addPayload(encPayload);
-
-    // TODO finally, remove the plain text body, if encryption was ok
-    msg->removePayloadOfSameType(std::make_shared<Swift::Body>());
-
-
-
-// -----------------
+    // FIXME add setting to force not to send omemo enc msg
+    if (omemo_->isOmemoUser(toJid) == true)
+    {
+        bool success = omemo_->exchangePlainBodyByOmemoStanzas(msg);
+        if (success == false)
+        {
+            // FIXME show to user and stop sending!
+            qDebug() << "failed to encrypt msg for " << toJid;
+        }
+    }
 
     if(type == "image")
     {
@@ -266,16 +259,6 @@ void MessageHandler::sendRawMessageStanza(QString str)
         // failure on xml parsing. use original message
         qDebug() << "failed to parse the msg!";
     }
-}
-
-
-QString MessageHandler::getSerializedStringFromMessage(Swift::Message::ref msg)
-{
-    Swift::FullPayloadSerializerCollection serializers_;
-    Swift::XMPPSerializer xmppSerializer(&serializers_, Swift::ClientStreamType, true);
-    Swift::SafeByteArray sba = xmppSerializer.serializeElement(msg);
-
-    return QString::fromStdString(Swift::safeByteArrayToString(sba));
 }
 
 void MessageHandler::sendDisplayedForJid(const QString &jid)

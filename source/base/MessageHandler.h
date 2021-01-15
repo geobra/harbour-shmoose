@@ -1,5 +1,4 @@
-#ifndef MESSAGEHANDLER_H
-#define MESSAGEHANDLER_H
+#pragma once
 
 #include <QObject>
 #include <QStringList>
@@ -12,7 +11,6 @@ class ChatMarkers;
 class RosterController;
 class Omemo;
 class XMPPMessageParserClient;
-
 
 class MessageHandler : public QObject
 {
@@ -52,9 +50,4 @@ public:
     void handleMessageReceived(Swift::Message::ref message);
     void handleStanzaAcked(Swift::Stanza::ref stanza);
     void handleDataReceived(Swift::SafeByteArray data);
-
-    QString getSerializedStringFromMessage(Swift::Message::ref msg);
-
 };
-
-#endif // MESSAGEHANDLER_H

@@ -12,13 +12,17 @@ public:
     explicit Omemo(QObject *parent = nullptr);
     ~Omemo();
     void setupWithClient(Swift::Client* client);
+
     std::string messageEncryptIm(const std::string msg);
+    bool exchangePlainBodyByOmemoStanzas(Swift::Message::ref msg);
     int decryptMessageIfEncrypted(Swift::Message::ref aMessage);
 
     void sendAsPepStanza(char* stz);
     void sendRawMessageStanza(char* stz);
     void sendBundleRequest(char* node, void *q_msg);
     void createAndSendBundleRequest(char* sender, char* bundle);
+
+    bool isOmemoUser(const QString& bareJid);
 
 signals:
     void rawMessageStanzaForSending(QString);

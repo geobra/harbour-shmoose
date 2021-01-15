@@ -28,6 +28,7 @@ INCLUDEPATH += source/xep/xmppPing
 INCLUDEPATH += source/xep/chatMarkers
 INCLUDEPATH += source/xep/stanzaId
 INCLUDEPATH += source/xep/omemo
+INCLUDEPATH += source/xep/omemo/lurch
 INCLUDEPATH += source/xep/omemo/mock
 INCLUDEPATH += source/room
 INCLUDEPATH += source/networkconnection
