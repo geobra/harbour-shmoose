@@ -122,9 +122,9 @@ void Omemo::requestDeviceList(const Swift::JID& jid)
 void Omemo::sendAsPepStanza(char* stz)
 {
     QString stanza = QString::fromLatin1(stz);
-    qDebug() << "Omemo::sendAsPepStanza" << stanza;
+    //qDebug() << "Omemo::sendAsPepStanza" << stanza;
 
-    // FIXME check what to send via pep.
+    // check what to send via pep.
     // can be a bundle or a device list.
     // set callback accordingly
     /*
@@ -214,6 +214,38 @@ std::string Omemo::messageEncryptIm(const std::string msg)
     {
         return "";
     }
+}
+
+int Omemo::decryptMessageIfEncrypted(Swift::Message::ref aMessage)
+{
+    int returnValue{0};
+
+    // check if received aMessage is encrypted
+    QString qMsg = getSerializedStringFromMessage(aMessage);
+    if (isEncryptedMessage(qMsg))
+    {
+        std::string dmsg = messageDecrypt(qMsg.toStdString());
+        QString decryptedMessage{QString::fromStdString(dmsg)};
+
+        if (decryptedMessage.isEmpty())
+        {
+            // something went wrong on the decryption.
+            returnValue = 2;
+        }
+        else
+        {
+            QString body = XmlProcessor::getContentInElement("body", decryptedMessage);
+            aMessage->setBody(body.toStdString());
+            returnValue = 0;
+        }
+    }
+    else
+    {
+        // was not an encrypted msg
+        returnValue = 1;
+    }
+
+    return returnValue;
 }
 
 std::string Omemo::messageDecrypt(const std::string& message)
@@ -369,4 +401,13 @@ void Omemo::slotRequestDeviceList(QString humanBareJid)
 {
     qDebug() << "request device list for " << humanBareJid;
     requestDeviceList(Swift::JID(humanBareJid.toStdString()));
+}
+
+QString Omemo::getSerializedStringFromMessage(Swift::Message::ref msg)
+{
+    Swift::FullPayloadSerializerCollection serializers_;
+    Swift::XMPPSerializer xmppSerializer(&serializers_, Swift::ClientStreamType, true);
+    Swift::SafeByteArray sba = xmppSerializer.serializeElement(msg);
+
+    return QString::fromStdString(Swift::safeByteArrayToString(sba));
 }

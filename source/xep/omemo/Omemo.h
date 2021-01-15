@@ -13,7 +13,7 @@ public:
     ~Omemo();
     void setupWithClient(Swift::Client* client);
     std::string messageEncryptIm(const std::string msg);
-    std::string messageDecrypt(const std::string& message);
+    int decryptMessageIfEncrypted(Swift::Message::ref aMessage);
 
     void sendAsPepStanza(char* stz);
     void sendRawMessageStanza(char* stz);
@@ -28,6 +28,7 @@ public slots:
     void slotRequestDeviceList(QString humanBareJid);
 
 private:
+    std::string messageDecrypt(const std::string& message);
     void requestDeviceList(const Swift::JID& jid);
     void handleDeviceListResponse(const Swift::JID jid, const std::string &str);
     void publishedDeviceList(const std::string& str);
@@ -35,6 +36,7 @@ private:
     void requestBundleHandler(const Swift::JID &jid, const std::string &bundleId, void *qMsg, const std::string& str);
     void pepBundleForKeytransport(const std::string from, const std::string& items);
     bool isEncryptedMessage(const QString& xmlNode);
+    QString getSerializedStringFromMessage(Swift::Message::ref msg);
 
     Swift::Client* client_{};
     QString deviceListNodeName_{};

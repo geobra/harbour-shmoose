@@ -49,11 +49,9 @@ public:
     bool appIsActive_;
     QStringList unAckedMessageIds_;
 
-    void handleMessageReceived(Swift::Message::ref aMessage);
+    void handleMessageReceived(Swift::Message::ref message);
     void handleStanzaAcked(Swift::Stanza::ref stanza);
     void handleDataReceived(Swift::SafeByteArray data);
-
-    bool isEncryptedMessage(const QString& xmlNode);
 
     QString getSerializedStringFromMessage(Swift::Message::ref msg);
 

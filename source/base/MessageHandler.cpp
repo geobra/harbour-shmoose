@@ -56,63 +56,17 @@ void MessageHandler::handleStanzaAcked(Swift::Stanza::ref stanza)
     }
 }
 
-void MessageHandler::handleMessageReceived(Swift::Message::ref aMessage)
+void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 {
     //std::cout << "handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
-    Swift::Message* message{nullptr};
-    std::string fromJid{};
 
-    //unsigned int msgEncrypted{0};
-
-    // check if received aMessage is encrypted
-    QString qMsg = getSerializedStringFromMessage(aMessage);
-    if (isEncryptedMessage(qMsg))
+    auto success = omemo_->decryptMessageIfEncrypted(message);
+    if (success == 1 || success == 2) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
     {
-        //msgEncrypted = 1;
-
-        std::string dmsg = omemo_->messageDecrypt(qMsg.toStdString());
-        QString decryptedMessage = QString::fromStdString(dmsg);
-
-        if (decryptedMessage.isEmpty())
-        {
-            // something went wrong on the decryption. use original encrypted aMessage and go one...
-            message = &(*aMessage);
-        }
-        else
-        {
-            decryptedMessage = "<stream xmlns='http://etherx.jabber.org/streams'>" + decryptedMessage;
-
-            // create a xmpp parser
-            Swift::FullPayloadParserFactoryCollection factories;
-            Swift::PlatformXMLParserFactory xmlParserFactory;
-            Swift::XMPPParser parser(xmppMessageParserClient_, &factories, &xmlParserFactory);
-
-            // parse the decrypted string
-            if (parser.parse(decryptedMessage.toStdString()))
-            {
-                // catch pointer from parsed decrypted string as message pointer
-                message = xmppMessageParserClient_->getMessagePtr();
-                if (message == nullptr)
-                {
-                    message = &(*aMessage);
-                }
-            }
-            else
-            {
-                // failure on xml parsing. use original message
-                message = &(*aMessage);
-            }
-        }
-
-    }
-    else
-    {
-        message = &(*aMessage);
+        qDebug() << "decryptMessageIfEncrypted (1: was not encrypted, 2: error during decryption). code: " << success;
     }
 
-
-
-    fromJid = message->getFrom().toBare().toString();
+    std::string fromJid = message->getFrom().toBare().toString();
 
     // XEP 280
     Swift::JID toJID;
@@ -127,14 +81,14 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref aMessage)
                 (forwarded = carbonsReceived->getForwarded()) &&
                 (forwardedMessage = std::dynamic_pointer_cast<Swift::Message>(forwarded->getStanza()))) {
             // It is the carbon of a message that we received
-            message = &(*forwardedMessage);
+            message = forwardedMessage;
             fromJid = message->getFrom().toBare().toString();
         }
         else if ((carbonsSent = message->getPayload<Swift::CarbonsSent>()) &&
                  (forwarded = carbonsSent->getForwarded()) &&
                  (forwardedMessage = std::dynamic_pointer_cast<Swift::Message>(forwarded->getStanza()))) {
             // It is the carbon of a message that we sent
-            message = &(*forwardedMessage);
+            message = forwardedMessage;
             toJID = forwardedMessage->getTo();
             sentCarbon = true;
         }
@@ -322,30 +276,6 @@ QString MessageHandler::getSerializedStringFromMessage(Swift::Message::ref msg)
     Swift::SafeByteArray sba = xmppSerializer.serializeElement(msg);
 
     return QString::fromStdString(Swift::safeByteArrayToString(sba));
-}
-
-// FIXME move to omemo?
-bool MessageHandler::isEncryptedMessage(const QString& xmlNode)
-{
-    bool returnValue = false;
-
-    QDomDocument d;
-    if (d.setContent(xmlNode) == true)
-    {
-        QDomNodeList nodeList = d.elementsByTagName("message");
-        if (!nodeList.isEmpty())
-        {
-            //qDebug() << "found msg";
-            QDomNodeList encList = d.elementsByTagName("encrypted");
-            if (!encList.isEmpty())
-            {
-                //qDebug() << "found enc";
-                returnValue = true;
-            }
-        }
-    }
-
-    return returnValue;
 }
 
 void MessageHandler::sendDisplayedForJid(const QString &jid)

@@ -86,3 +86,40 @@ QString XmlProcessor::getContentInTag(const QString& tag, const QString& param, 
 
     return content;
 }
+
+QString XmlProcessor::getContentInElement(const QString& element, const QString &xml)
+{
+    //qDebug() << "get: " << path << " with " << param;
+
+    QString content = "";
+
+    QDomDocument d;
+    d.setContent(xml);
+
+    QDomNodeList nodeList = d.elementsByTagName(element);
+
+    //qDebug() << "Count" << nodeList.count();
+
+    for (int i = 0; i < nodeList.size(); i++)
+    {
+        if (nodeList.at(i).isElement())
+        {
+            //qDebug() << "is Element!";
+            QDomElement first_title = nodeList.at(i).toElement();
+
+            if (! first_title.isNull())
+            {
+                content = first_title.text();
+                //qDebug() << "childElement! " << first_title.text();
+            }
+        }
+
+        if (content.size() > 0)
+        {
+            // break on the first match...
+            break;
+        }
+    }
+
+    return content;
+}
