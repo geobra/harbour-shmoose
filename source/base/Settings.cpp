@@ -241,16 +241,16 @@ void Settings::setSendReadNotifications(bool SendReadNotifications)
     emit saveCredentialsChanged(SendReadNotifications);
 }
 
-void Settings::setOmemoInitialized(bool isInitialized)
+void Settings::setOmemoForSendingOff(bool omemoForSendingOff)
 {
     QSettings settings;
-    settings.setValue("omemo/isInitialized", isInitialized);
+    settings.setValue("omemo/omemoForSendingOff", omemoForSendingOff);
 }
 
-bool Settings::isOmemoInitialized()
+bool Settings::isOmemoForSendingOff()
 {
     QSettings settings;
-    return settings.value("omemo/isInitialized", false).toBool();
+    return settings.value("omemo/omemoForSendingOff", false).toBool();
 }
 
 QStringList Settings::getImagePaths()

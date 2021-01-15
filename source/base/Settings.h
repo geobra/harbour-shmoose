@@ -31,7 +31,7 @@ public:
     QStringList getForceOffNotifications() const;
     bool getSendReadNotifications() const;
     QStringList getImagePaths();
-    bool isOmemoInitialized();
+    bool isOmemoForSendingOff();
 
 signals:
     void jidChanged(QString Jid);
@@ -60,7 +60,7 @@ public slots:
     void setImagePaths(QStringList const & ImagePaths);
     void removeImagePath(QString const & Path);
     void addImagePath(QUrl const & Path);
-    void setOmemoInitialized(bool isInitialized);
+    void setOmemoForSendingOff(bool isInitialized);
 
 };
 

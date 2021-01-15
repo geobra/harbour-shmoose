@@ -192,14 +192,16 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
     msg->setType(messagesTyp);
     msg->setBody(message.toStdString());
 
-    // FIXME add setting to force not to send omemo enc msg
-    if (omemo_->isOmemoUser(toJid) == true)
+    Settings settings;
+    if ( (omemo_->isOmemoUser(toJid) == true) && (settings.isOmemoForSendingOff() == false) )
     {
         bool success = omemo_->exchangePlainBodyByOmemoStanzas(msg);
         if (success == false)
         {
             // FIXME show to user and stop sending!
             qDebug() << "failed to encrypt msg for " << toJid;
+
+            return;
         }
     }
 
