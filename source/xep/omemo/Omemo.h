@@ -22,6 +22,7 @@ public:
     void sendBundleRequest(char* node, void *q_msg);
     void createAndSendBundleRequest(char* sender, char* bundle);
 
+    void setCurrentChatPartner(const QString& jid);
     bool isOmemoUser(const QString& bareJid);
 
 signals:

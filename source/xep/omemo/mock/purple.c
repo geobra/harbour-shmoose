@@ -100,6 +100,17 @@ void set_fqn_name(const char* name)
     memcpy(fq_user_name, name, len);
 }
 
+void set_current_chat_partner(const char *jid)
+{
+    memset(current_char_partner, '\0', MAX_LEN);
+    size_t len = strlen(jid);
+    if (len > MAX_LEN -1 )
+    {
+        len = MAX_LEN -1;
+    }
+    memcpy(current_char_partner, jid, len);
+}
+
 char* purple_account_get_username(void* foo)
 {
     return fq_user_name;
@@ -220,5 +231,43 @@ void purple_conv_present_error(char* from, void* foo, char* msg)
     // FIXME forward to user interface
     fprintf(stderr, "msg from %s: %s\n", from, msg);
 }
+
+void* purple_conversation_get_account(PurpleConversation * conv_p)
+{
+    return NULL;
+}
+
+void* purple_conversation_get_gc(PurpleConversation * conv_p)
+{
+    return NULL;
+}
+
+enum PurpleConvTyp purple_conversation_get_type (PurpleConversation * conv_p)
+{
+    // FIXME for now, always return
+    return PURPLE_CONV_TYPE_IM;
+}
+
+char* purple_conversation_get_name(PurpleConversation * conv_p)
+{
+    return current_char_partner;
+}
+
+void purple_conversation_autoset_title(PurpleConversation * conv_p)
+{
+
+}
+
+void purple_conversation_write(PurpleConversation * conv_p, char* id, char* msg, enum PurpleFlags fags, time_t time)
+{
+    // FIXME Forward as replay to user
+    fprintf(stderr, "%s: %s\n", id, msg);
+}
+
+void lurch_topic_update_im(PurpleConversation * conv_p)
+{}
+
+void lurch_topic_update_chat(PurpleConversation * conv_p)
+{}
 
 #pragma GCC diagnostic pop

@@ -89,6 +89,11 @@ void Omemo::setupWithClient(Swift::Client* client)
     requestDeviceList(client_->getJID());
 }
 
+void Omemo::setCurrentChatPartner(const QString& jid)
+{
+    set_current_chat_partner(jid.toStdString().c_str());
+}
+
 void Omemo::determineNamespace(const QString& nsDl)
 {
     QString seperator = ".";
@@ -455,7 +460,6 @@ bool Omemo::exchangePlainBodyByOmemoStanzas(Swift::Message::ref msg)
             QString encryptedPayload = XmlProcessor::getChildFromNode("encrypted", QString::fromStdString(cryptMessage));
             if (encryptedPayload.isEmpty() == false)
             {
-                // FIXME generate the "eu.siacs.conversations.axolotl" namespace from libomemo!
                 Swift::RawXMLPayload::ref encPayload = std::make_shared<Swift::RawXMLPayload>(
                             encryptedPayload.toStdString()
                             + "<encryption xmlns=\"urn:xmpp:eme:0\" namespace=\"" + namespace_.toStdString() + "\" name=\"OMEMO\" /><store xmlns=\"urn:xmpp:hints\" />"

@@ -2,6 +2,7 @@
 
 #include "libomemo.h"
 #include "jabber.h"
+#include "purple.h"
 
 typedef void PurpleConnection;
 

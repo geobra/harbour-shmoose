@@ -2148,8 +2148,9 @@ static void lurch_conv_updated_cb(PurpleConversation * conv_p, PurpleConvUpdateT
     }
   }
 }
+#endif
 
-static PurpleCmdRet lurch_cmd_func(PurpleConversation * conv_p,
+enum PurpleCmdRet lurch_cmd_func(PurpleConversation * conv_p,
                                    const gchar * cmd,
                                    gchar ** args,
                                    gchar ** error,
@@ -2507,6 +2508,7 @@ cleanup:
   }
 }
 
+#if 0
 /**
  * Actions to perform on plugin load.
  * Inits the crypto and registers signal and PEP handlers.

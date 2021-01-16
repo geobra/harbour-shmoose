@@ -211,6 +211,9 @@ void Shmoose::setCurrentChatPartner(QString const &jid)
 {
     persistence_->setCurrentChatPartner(jid);
 
+    // omemo does not have access to persistence. share the informaion separat.
+    omemo_->setCurrentChatPartner(jid);
+
     sendReadNotification(true);
 }
 
