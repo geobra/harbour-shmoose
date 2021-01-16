@@ -67,7 +67,8 @@ Omemo::Omemo(QObject *parent) : QObject(parent)
         free(dlNs);
     }
 
-    //qDebug() << "Omemo::Omemo" << deviceListNodeName_;
+    // determine current omemo namespace to use.
+    determineNamespace(deviceListNodeName_);
 }
 
 Omemo::~Omemo()
@@ -86,6 +87,26 @@ void Omemo::setupWithClient(Swift::Client* client)
     set_fqn_name(client_->getJID().toString().c_str());
 
     requestDeviceList(client_->getJID());
+}
+
+void Omemo::determineNamespace(const QString& nsDl)
+{
+    QString seperator = ".";
+    if (nsDl.indexOf(seperator) == -1)
+    {
+        seperator = ":";
+    }
+
+    auto nsList = nsDl.split(seperator);
+
+    for (auto i = 0; i < nsList.size() - 1; i++)
+    {
+        namespace_ += nsList.at(i);
+        if (i < nsList.size() - 2)
+        {
+            namespace_ += seperator;
+        }
+    }
 }
 
 void Omemo::requestDeviceList(const Swift::JID& jid)
@@ -398,11 +419,18 @@ bool Omemo::isEncryptedMessage(const QString& xmlNode)
     return returnValue;
 }
 
-// FIXME not just request the device list in this slot but also subscribe to the pep node!
-void Omemo::slotRequestDeviceList(QString humanBareJid)
+void Omemo::slotInitialRequestDeviceList(QString humanBareJid)
 {
-    qDebug() << "request device list for " << humanBareJid;
-    requestDeviceList(Swift::JID(humanBareJid.toStdString()));
+    qDebug() << "slotInitialRequestDeviceList for " << humanBareJid;
+
+    // only make a request for a deivelist of a jid, if not already locally present
+    // future devicelist updates will be received by pep
+
+    // FIXME first implement pep update
+    //if (isOmemoUser(humanBareJid) == false)
+    {
+        requestDeviceList(Swift::JID(humanBareJid.toStdString()));
+    }
 }
 
 QString Omemo::getSerializedStringFromMessage(Swift::Message::ref msg)
@@ -430,11 +458,13 @@ bool Omemo::exchangePlainBodyByOmemoStanzas(Swift::Message::ref msg)
                 // FIXME generate the "eu.siacs.conversations.axolotl" namespace from libomemo!
                 Swift::RawXMLPayload::ref encPayload = std::make_shared<Swift::RawXMLPayload>(
                             encryptedPayload.toStdString()
-                            + "<encryption xmlns=\"urn:xmpp:eme:0\" namespace=\"eu.siacs.conversations.axolotl\" name=\"OMEMO\" /><store xmlns=\"urn:xmpp:hints\" />"
+                            + "<encryption xmlns=\"urn:xmpp:eme:0\" namespace=\"" + namespace_.toStdString() + "\" name=\"OMEMO\" /><store xmlns=\"urn:xmpp:hints\" />"
                         );
                 msg->addPayload(encPayload);
 
                 msg->removePayloadOfSameType(std::make_shared<Swift::Body>());
+
+                returnValue = true;
             }
         }
     }

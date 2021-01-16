@@ -29,9 +29,10 @@ signals:
     void signalReceivedDeviceListOfJid(QString);
 
 public slots:
-    void slotRequestDeviceList(QString humanBareJid);
+    void slotInitialRequestDeviceList(QString humanBareJid);
 
 private:
+    void determineNamespace(const QString& nsDl);
     std::string messageDecrypt(const std::string& message);
     void requestDeviceList(const Swift::JID& jid);
     void handleDeviceListResponse(const Swift::JID jid, const std::string &str);
@@ -45,6 +46,7 @@ private:
     Swift::Client* client_{};
     QString deviceListNodeName_{};
     QString myBareJid_{};
+    QString namespace_{};
     char* uname_{nullptr};
 
     int uninstall_{0};
