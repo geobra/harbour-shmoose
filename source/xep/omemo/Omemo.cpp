@@ -476,15 +476,19 @@ bool Omemo::exchangePlainBodyByOmemoStanzas(Swift::Message::ref msg)
     return returnValue;
 }
 
-void Omemo::callLurchCmd(const QStringList& sl)
+void Omemo::callLurchCmd(const std::vector<std::string>& sl)
 {
     std::vector<char*> cstrings;
     cstrings.reserve(sl.size());
 
-    for(int i = 1; i < sl.size(); ++i)
-        cstrings.push_back(const_cast<char*>(sl[i].toStdString().c_str()));
+    for(size_t i = 0; i < sl.size(); ++i)
+    {
+        cstrings[i] = const_cast<char*>(sl[i].data());
+    }
 
-    lurch_cmd_func(nullptr, "", &cstrings[0], nullptr, nullptr);
+    char** p_str_array = cstrings.data();
+
+    lurch_cmd_func(nullptr, "", p_str_array, nullptr, nullptr);
 }
 
 bool Omemo::isOmemoUser(const QString& bareJid)

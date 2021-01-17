@@ -175,7 +175,14 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
 {
     if (message.startsWith("/lurch") == true)
     {
-        auto sl = message.split(" ");
+        std::vector<std::string> sl;
+        for (auto string: message.split(" "))
+        {
+            if (string.compare("/lurch") != 0)
+            {
+                sl.push_back(string.toStdString());
+            }
+        }
         omemo_->callLurchCmd(sl);
     }
     else
