@@ -28,7 +28,7 @@ MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, Ro
 }
 
 void MessageHandler::setupWithClient(Swift::Client* client)
-{  
+{
     if (client != nullptr)
     {
         client_ = client;
@@ -92,7 +92,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             toJID = forwardedMessage->getTo();
             sentCarbon = true;
         }
-    }    
+    }
 
     boost::optional<std::string> fromBody = message->getBody();
 
@@ -173,66 +173,74 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
 void MessageHandler::sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup)
 {
-    Swift::Message::ref msg = std::make_shared<Swift::Message>();
-    Swift::JID receiverJid(toJid.toStdString());
-
-    Swift::IDGenerator idGenerator;
-    std::string msgId = idGenerator.generateID();
-
-    msg->setFrom(Swift::JID(client_->getJID()));
-    msg->setTo(receiverJid);
-    msg->setID(msgId);
-
-    Swift::Message::Type messagesTyp = Swift::Message::Chat;
-    if (isGroup == true)
+    if (message.startsWith("/lurch") == true)
     {
-        messagesTyp = Swift::Message::Groupchat;
+        auto sl = message.split(" ");
+        omemo_->callLurchCmd(sl);
     }
-
-    msg->setType(messagesTyp);
-    msg->setBody(message.toStdString());
-
-    Settings settings;
-    if ( (omemo_->isOmemoUser(toJid) == true) && (settings.isOmemoForSendingOff() == false) )
+    else
     {
-        bool success = omemo_->exchangePlainBodyByOmemoStanzas(msg);
-        if (success == false)
+        Swift::Message::ref msg = std::make_shared<Swift::Message>();
+        Swift::JID receiverJid(toJid.toStdString());
+
+        Swift::IDGenerator idGenerator;
+        std::string msgId = idGenerator.generateID();
+
+        msg->setFrom(Swift::JID(client_->getJID()));
+        msg->setTo(receiverJid);
+        msg->setID(msgId);
+
+        Swift::Message::Type messagesTyp = Swift::Message::Chat;
+        if (isGroup == true)
         {
-            // FIXME show to user and stop sending!
-            qDebug() << "failed to encrypt msg for " << toJid;
-
-            return;
+            messagesTyp = Swift::Message::Groupchat;
         }
+
+        msg->setType(messagesTyp);
+        msg->setBody(message.toStdString());
+
+        Settings settings;
+        if ( (omemo_->isOmemoUser(toJid) == true) && (settings.isOmemoForSendingOff() == false) )
+        {
+            bool success = omemo_->exchangePlainBodyByOmemoStanzas(msg);
+            if (success == false)
+            {
+                // FIXME show to user and stop sending!
+                qDebug() << "failed to encrypt msg for " << toJid;
+
+                return;
+            }
+        }
+
+        if(type == "image")
+        {
+            QString outOfBandElement("");
+            outOfBandElement.append("<x xmlns=\"jabber:x:oob\">");
+            outOfBandElement.append("<url>");
+            outOfBandElement.append(message);
+            outOfBandElement.append("</url>");
+            outOfBandElement.append("</x>");
+
+            std::shared_ptr<Swift::RawXMLPayload> outOfBand =
+                    std::make_shared<Swift::RawXMLPayload>(outOfBandElement.toStdString());
+            msg->addPayload(outOfBand);
+        }
+
+
+        msg->addPayload(std::make_shared<Swift::DeliveryReceiptRequest>());
+
+        // add chatMarkers stanza
+        msg->addPayload(std::make_shared<Swift::RawXMLPayload>(ChatMarkers::getMarkableString().toStdString()));
+
+        client_->sendMessage(msg);
+        persistence_->addMessage( QString::fromStdString(msgId),
+                                  QString::fromStdString(receiverJid.toBare().toString()),
+                                  QString::fromStdString(receiverJid.getResource()),
+                                  message, type, 0);
+        unAckedMessageIds_.push_back(QString::fromStdString(msgId));
+
+        emit messageSent(QString::fromStdString(msgId));
     }
-
-    if(type == "image")
-    {
-        QString outOfBandElement("");
-        outOfBandElement.append("<x xmlns=\"jabber:x:oob\">");
-        outOfBandElement.append("<url>");
-        outOfBandElement.append(message);
-        outOfBandElement.append("</url>");
-        outOfBandElement.append("</x>");
-
-        std::shared_ptr<Swift::RawXMLPayload> outOfBand =
-                std::make_shared<Swift::RawXMLPayload>(outOfBandElement.toStdString());
-        msg->addPayload(outOfBand);
-    }
-
-
-    msg->addPayload(std::make_shared<Swift::DeliveryReceiptRequest>());
-
-    // add chatMarkers stanza
-    msg->addPayload(std::make_shared<Swift::RawXMLPayload>(ChatMarkers::getMarkableString().toStdString()));
-
-    client_->sendMessage(msg);
-    persistence_->addMessage( QString::fromStdString(msgId),
-                              QString::fromStdString(receiverJid.toBare().toString()),
-                              QString::fromStdString(receiverJid.getResource()),
-                              message, type, 0);
-    unAckedMessageIds_.push_back(QString::fromStdString(msgId));
-
-    emit messageSent(QString::fromStdString(msgId));
 }
 
 void MessageHandler::sendRawMessageStanza(QString str)

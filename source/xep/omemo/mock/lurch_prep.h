@@ -19,3 +19,9 @@ void lurch_pep_own_devicelist_request_handler(JabberStream * js_p, const char * 
 void lurch_message_encrypt_im(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp);
 
 void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp);
+
+enum PurpleCmdRet lurch_cmd_func(PurpleConversation * conv_p,
+                                   const gchar * cmd,
+                                   gchar ** args,
+                                   gchar ** error,
+                                   void * data_p);

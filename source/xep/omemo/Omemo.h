@@ -23,6 +23,7 @@ public:
     void createAndSendBundleRequest(char* sender, char* bundle);
 
     void setCurrentChatPartner(const QString& jid);
+    void callLurchCmd(const QStringList& sl);
     bool isOmemoUser(const QString& bareJid);
 
 signals:
