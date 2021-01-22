@@ -213,7 +213,7 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
             if (success == false)
             {
                 // FIXME show to user and stop sending!
-                qDebug() << "failed to encrypt msg for " << toJid;
+                qDebug() << "################################## failed to encrypt msg for " << toJid;
 
                 return;
             }

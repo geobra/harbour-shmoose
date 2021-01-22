@@ -1118,14 +1118,12 @@ cleanup:
   omemo_devicelist_destroy(dl_p);
   free(dl_xml);
 }
-#if 0
-
 
 /**
  * A JabberPEPHandler function.
  * On receiving a devicelist PEP updates the database entry.
  */
-static void lurch_pep_devicelist_event_handler(JabberStream * js_p, const char * from, xmlnode * items_p) {
+void lurch_pep_devicelist_event_handler(JabberStream * js_p, const char * from, xmlnode * items_p) {
   int ret_val = 0;
   int len = 0;
   char * err_msg_dbg = (void *) 0;
@@ -1163,6 +1161,7 @@ cleanup:
   omemo_devicelist_destroy(dl_in_p);
 }
 
+#if 0
 /**
  * Set as callback for the "account connected" signal.
  * Requests the own devicelist, as that requires an active connection (as opposed to just registering PEP handlers).

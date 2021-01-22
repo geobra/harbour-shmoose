@@ -85,7 +85,7 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     connect(httpFileUploadManager_, SIGNAL(showStatus(QString, QString)), this, SIGNAL(signalShowStatus(QString, QString)));
 
     // pass new human jids from roster to omemo to ask initial for theire device list
-    connect(rosterController_, SIGNAL(signalHumanBareJidInContacts(QString)), omemo_, SLOT(slotInitialRequestDeviceList(QString)));
+    connect(rosterController_, SIGNAL(signalHumanBareJidInContacts(QString)), omemo_, SLOT(slotPepSubscribeToBareJidIfOmemoAvailable(QString)));
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotAboutToQuit()));
 }
@@ -151,6 +151,9 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 
     // https://xmpp.org/extensions/xep-0280.html
     discoInfo.addFeature(Swift::DiscoInfo::MessageCarbonsFeature);
+
+    // omemo
+    discoInfo.addFeature(omemo_->getFeature().toStdString());
 
     client_->getDiscoManager()->setDiscoInfo(discoInfo);
 

@@ -25,3 +25,5 @@ enum PurpleCmdRet lurch_cmd_func(PurpleConversation * conv_p,
                                    gchar ** args,
                                    gchar ** error,
                                    void * data_p);
+
+void lurch_pep_devicelist_event_handler(JabberStream * js_p, const char * from, xmlnode * items_p);

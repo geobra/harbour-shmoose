@@ -34,7 +34,7 @@ extern "C"
  * 6. receive and decrypt a message
  */
 
-// FIXME! implement lurch_pep_devicelist_event_handler
+// FIXME overall! check if returned pointer from xmlnode_from_str has to be freed!
 
 Omemo::Omemo(QObject *parent) : QObject(parent)
 {
@@ -86,7 +86,15 @@ void Omemo::setupWithClient(Swift::Client* client)
 
     set_fqn_name(client_->getJID().toString().c_str());
 
+    // only for work on the updated pep device list, which comes in as a message
+    client_->onMessageReceived.connect(boost::bind(&Omemo::handleMessageReceived, this, _1));
+
     requestDeviceList(client_->getJID());
+}
+
+QString Omemo::getFeature()
+{
+    return deviceListNodeName_;
 }
 
 void Omemo::setCurrentChatPartner(const QString& jid)
@@ -163,7 +171,9 @@ void Omemo::sendAsPepStanza(char* stz)
     QString publishNodeType = XmlProcessor::getContentInTag("publish", "node", stanza);
 
     std::string pubsub = "<pubsub xmlns='http://jabber.org/protocol/pubsub'>" + std::string(stz) + "</pubsub>";
-    Swift::RawRequest::ref publishPep = Swift::RawRequest::create(Swift::IQ::Set, uname_, pubsub, client_->getIQRouter());
+
+    // set empty ("") receiver so that the pep gets distributed to all pubsubs
+    Swift::RawRequest::ref publishPep = Swift::RawRequest::create(Swift::IQ::Set, "", pubsub, client_->getIQRouter());
     if (publishNodeType.contains("bundle", Qt::CaseInsensitive))
     {
         publishPep->onResponse.connect(boost::bind(&Omemo::publishedBundle, this, _1));
@@ -424,18 +434,22 @@ bool Omemo::isEncryptedMessage(const QString& xmlNode)
     return returnValue;
 }
 
-void Omemo::slotInitialRequestDeviceList(QString humanBareJid)
+void Omemo::slotPepSubscribeToBareJidIfOmemoAvailable(QString bareJid)
 {
-    qDebug() << "slotInitialRequestDeviceList for " << humanBareJid;
+    qDebug() << "slotPepSubscribeToBareJidIfOmemoAvailable for " << bareJid;
 
+    pepSubscribeToDevicelistForJid(bareJid);
+
+#if 0
     // only make a request for a deivelist of a jid, if not already locally present
     // future devicelist updates will be received by pep
 
     // FIXME first implement pep update
     //if (isOmemoUser(humanBareJid) == false)
     {
-        requestDeviceList(Swift::JID(humanBareJid.toStdString()));
+        //requestDeviceList(Swift::JID(humanBareJid.toStdString()));
     }
+#endif
 }
 
 QString Omemo::getSerializedStringFromMessage(Swift::Message::ref msg)
@@ -510,4 +524,69 @@ bool Omemo::isOmemoUser(const QString& bareJid)
     }
 
     return returnValue;
+}
+
+void Omemo::pepSubscribeToDevicelistForJid(const QString& jid)
+{
+    // needs full jid!
+    std::string deviceListPepSubscribe{"<pubsub xmlns='http://jabber.org/protocol/pubsub'>"};
+    deviceListPepSubscribe += std::string("<subscribe node='") + deviceListNodeName_.toStdString() +
+            std::string("' jid='" ) + client_->getJID().toString() + std::string("'/></pubsub>");
+
+    RawRequestWithFromJid::ref requestDeviceList = RawRequestWithFromJid::create(Swift::IQ::Set, jid.toStdString(), deviceListPepSubscribe, client_->getIQRouter());
+    requestDeviceList->onResponse.connect(boost::bind(&Omemo::handleDevicelistSubscriptionResponse, this, _1, _2));
+    requestDeviceList->send();
+}
+
+void Omemo::handleDevicelistSubscriptionResponse(const Swift::JID jid, const std::string& str)
+{
+    std::cout << "handleDevicelistSubscriptionResponse: " << jid.toString() << ", str: " << str << std::endl;
+
+    // FIXME warn user on error
+
+#if 0
+    <iq xmlns="jabber:client" lang="en" to="user1@localhost/shmooseDesktop" from="user2@localhost" type="result" id="8d88f035-c589-4a8e-9fe1-1375a8ec83ec">
+     <pubsub xmlns="http://jabber.org/protocol/pubsub">
+      <subscription subscription="subscribed" subid="64B54BFA7C38F" node="eu.siacs.conversations.axolotl.devicelist" jid="user1@localhost/shmooseDesktop"></subscription>
+     </pubsub>
+    </iq>
+#endif
+
+#if 0
+    <error type="cancel"><feature-not-implemented xmlns="urn:ietf:params:xml:ns:xmpp-stanzas"/></error>
+#endif
+}
+
+void Omemo::handleMessageReceived(Swift::Message::ref message)
+{
+    // FIXME! implement lurch_pep_devicelist_event_handler
+#if 0
+    <message from='juliet@capulet.lit'
+             to='romeo@montague.lit'
+             type='headline'
+             id='update_01'>
+      <event xmlns='http://jabber.org/protocol/pubsub#event'>
+        <items node='urn:xmpp:omemo:1:devices'>
+          <item id='current'>
+            <devices xmlns='urn:xmpp:omemo:1'>
+              <device id='12345' />
+              <device id='4223' label='Gajim on Ubuntu Linux' />
+            </devices>
+          </item>
+        </items>
+      </event>
+    </message>
+#endif
+
+    QString msg = getSerializedStringFromMessage(message);
+
+    QString from = XmlProcessor::getContentInTag("message", "from", msg);
+    QString items = XmlProcessor::getChildFromNode("items", msg);
+    xmlnode* xItems = xmlnode_from_str(items.toStdString().c_str(), -1);
+
+    if (! items.isEmpty())
+    {
+        qDebug() << "Omemo::handleMessageReceived" << items;
+        lurch_pep_devicelist_event_handler(&jabberStream, from.toStdString().c_str(), xItems);
+    }
 }
