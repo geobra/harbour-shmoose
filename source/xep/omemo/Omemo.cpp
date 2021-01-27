@@ -438,7 +438,9 @@ void Omemo::slotPepSubscribeToBareJidIfOmemoAvailable(QString bareJid)
 {
     qDebug() << "slotPepSubscribeToBareJidIfOmemoAvailable for " << bareJid;
 
-    pepSubscribeToDevicelistForJid(bareJid);
+    // should be automatically handled by standard presence pep!
+    //pepSubscribeToDevicelistForJid(bareJid);
+
 
 #if 0
     // only make a request for a deivelist of a jid, if not already locally present
@@ -450,6 +452,7 @@ void Omemo::slotPepSubscribeToBareJidIfOmemoAvailable(QString bareJid)
         //requestDeviceList(Swift::JID(humanBareJid.toStdString()));
     }
 #endif
+    //requestDeviceList(Swift::JID(bareJid.toStdString()));
 }
 
 QString Omemo::getSerializedStringFromMessage(Swift::Message::ref msg)

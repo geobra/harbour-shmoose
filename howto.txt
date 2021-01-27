@@ -2,7 +2,7 @@ to be automated:
 ----------------
 git clone https://github.com/gkdr/libomemo
 cd libomemo
-git checkout tags/v0.6.2
+git checkout tags/v0.7.0
 make
 cd ..
 

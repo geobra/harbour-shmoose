@@ -154,6 +154,9 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 
     // omemo
     discoInfo.addFeature(omemo_->getFeature().toStdString());
+    discoInfo.addFeature(omemo_->getFeature().toStdString() + "+notify");
+
+    client_->getDiscoManager()->setCapsNode("https://github.com/geobra/harbour-shmoose");
 
     client_->getDiscoManager()->setDiscoInfo(discoInfo);
 
