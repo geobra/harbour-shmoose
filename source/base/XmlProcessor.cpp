@@ -1,16 +1,59 @@
 #include "XmlProcessor.h"
 
-#include <QDomComment>
+#include <QDebug>
 
 QString XmlProcessor::getChildFromNode(const QString& childElement, const QString &xml)
 {
-    QString returnXml = "";
+    QString returnXml{};
 
     QDomDocument d;
     d.setContent(xml);
 
     QDomElement root = d.firstChildElement();
     QDomNode n = root.firstChildElement();
+
+    int loopCounter{0};
+
+    while(n.isNull() == false)
+    {
+        returnXml = searchThroughChilds(n, childElement);
+        if (returnXml.isEmpty() == false)
+        {
+            break;
+        }
+        else
+        {
+            // travers the rest of the tree
+            n = n.nextSibling();
+            while (n.isNull() == true && n.hasChildNodes() == true)
+            {
+                n = n.firstChild();
+                n = n.nextSibling();
+
+                // in case this is a really big xml struct, dont get stuck here. This should not happen!
+                loopCounter++;
+                if (loopCounter > 1000)
+                {
+                    break;
+                }
+            }
+        }
+
+        // in case this is a really big xml struct, dont get stuck here. This should not happen!
+        loopCounter++;
+        if (loopCounter > 1000)
+        {
+            break;
+        }
+
+    }
+
+    return returnXml;
+}
+
+QString XmlProcessor::searchThroughChilds(QDomNode n, const QString& childElement)
+{
+    QString returnXml{};
 
     while(n.isNull() == false)
     {
@@ -24,18 +67,18 @@ QString XmlProcessor::getChildFromNode(const QString& childElement, const QStrin
         }
         else
         {
-            QDomNode tmp;
+            QDomNode sn = n.nextSibling();
+            if (sn.isNull() == false)
+            {
+                // also search through sibling if any
+                returnXml = searchThroughChilds(sn, childElement);
+                if (returnXml.isEmpty() == false)
+                {
+                    break;
+                }
+            }
 
-            tmp = n.nextSibling();
-            if (tmp.isNull() || tmp.nodeName().isEmpty())
-            {
-                // try the next child
-                n = n.firstChild();
-            }
-            else
-            {
-                n= tmp;
-            }
+            n = n.firstChild();
         }
     }
 

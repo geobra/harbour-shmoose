@@ -579,6 +579,21 @@ void Omemo::handleMessageReceived(Swift::Message::ref message)
         </items>
       </event>
     </message>
+
+            <message xmlns="jabber:client" to="user2@localhost/shmooseDesktop" from="user1@localhost" type="headline">
+             <event xmlns="http://jabber.org/protocol/pubsub#event">
+              <items node="eu.siacs.conversations.axolotl.devicelist">
+               <item id="64BBE01EA5421">
+                <list xmlns="eu.siacs.conversations.axolotl">
+                 <device id="226687003"></device>
+                </list>
+               </item>
+              </items>
+             </event>
+             <addresses xmlns="http://jabber.org/protocol/address">
+              <address jid="user1@localhost/8832136518768075312" type="replyto"></address>
+             </addresses>
+            </message>
 #endif
 
     QString msg = getSerializedStringFromMessage(message);
