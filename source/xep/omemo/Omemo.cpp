@@ -562,7 +562,6 @@ void Omemo::handleDevicelistSubscriptionResponse(const Swift::JID jid, const std
 
 void Omemo::handleMessageReceived(Swift::Message::ref message)
 {
-    // FIXME! implement lurch_pep_devicelist_event_handler
 #if 0
     <message from='juliet@capulet.lit'
              to='romeo@montague.lit'
@@ -598,13 +597,18 @@ void Omemo::handleMessageReceived(Swift::Message::ref message)
 
     QString msg = getSerializedStringFromMessage(message);
 
-    QString from = XmlProcessor::getContentInTag("message", "from", msg);
-    QString items = XmlProcessor::getChildFromNode("items", msg);
-    xmlnode* xItems = xmlnode_from_str(items.toStdString().c_str(), -1);
+    QString itemsNodeType = XmlProcessor::getContentInTag("items", "node", msg);
 
-    if (! items.isEmpty())
+    if(itemsNodeType.contains("devicelist", Qt::CaseInsensitive) == true)
     {
-        qDebug() << "Omemo::handleMessageReceived" << items;
-        lurch_pep_devicelist_event_handler(&jabberStream, from.toStdString().c_str(), xItems);
+        QString from = XmlProcessor::getContentInTag("message", "from", msg);
+        QString items = XmlProcessor::getChildFromNode("items", msg);
+        xmlnode* xItems = xmlnode_from_str(items.toStdString().c_str(), -1);
+
+        if (! items.isEmpty())
+        {
+            qDebug() << "Omemo::handleMessageReceived. items: " << items;
+            lurch_pep_devicelist_event_handler(&jabberStream, from.toStdString().c_str(), xItems);
+        }
     }
 }
