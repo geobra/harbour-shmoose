@@ -609,6 +609,8 @@ void Omemo::handleMessageReceived(Swift::Message::ref message)
         {
             qDebug() << "Omemo::handleMessageReceived. items: " << items;
             lurch_pep_devicelist_event_handler(&jabberStream, from.toStdString().c_str(), xItems);
+
+            emit signalReceivedDeviceListOfJid(from);
         }
     }
 }
