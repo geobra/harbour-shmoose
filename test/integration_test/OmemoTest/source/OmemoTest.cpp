@@ -20,8 +20,6 @@ OmemoTest::OmemoTest() : ClientComTestCommon()
 // send msg test
 void OmemoTest::sendMsgTest()
 {
-    QSignalSpy spyDeviceListReceivedLhs(interfaceLhs_->getInterface(), SIGNAL(signalReceivedDeviceListOfJid(QString)));
-
     requestRosterTestCommon(interfaceLhs_, false);
     requestRosterTestCommon(interfaceRhs_, false);
 
@@ -42,6 +40,10 @@ void OmemoTest::sendMsgTest()
     QSignalSpy spyMsgStateSender(interfaceLhs_->getInterface(), SIGNAL(signalMsgState(QString, int)));
     QSignalSpy spyMsgStateReceiver(interfaceRhs_->getInterface(), SIGNAL(signalMsgState(QString, int)));
 
+    // Setup devicelist spyer
+    QSignalSpy spyDeviceListReceivedLhs(interfaceLhs_->getInterface(), SIGNAL(signalReceivedDeviceListOfJid(QString)));
+    QSignalSpy spyDeviceListReceivedRhs(interfaceRhs_->getInterface(), SIGNAL(signalReceivedDeviceListOfJid(QString)));
+
 
     // ####################################################
     // disconnect/reconnect the clients to get the devicelist exchanged via pep
@@ -56,7 +58,6 @@ void OmemoTest::sendMsgTest()
     spySignalConnectionChangedRhs.clear();
 
     // rhs
-    QSignalSpy spyDeviceListReceivedRhs(interfaceRhs_->getInterface(), SIGNAL(signalReceivedDeviceListOfJid(QString)));
     interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
     spySignalConnectionChangedRhs.wait(5*timeOutConnect_);
     QCOMPARE(spySignalConnectionChangedRhs.count(), 1);
@@ -81,14 +82,53 @@ void OmemoTest::sendMsgTest()
     // wait for the device list of user2 is available at user1
     // ####################################################
     // wait for arrived msgOnWire at other client
-    spyDeviceListReceivedLhs.wait(10 * timeOut_);
+    // need this two times for each device
+    /*
+     * first con:
+        1 msg with devicelist
+
+       second con:
+        msg devlist from myself
+        msg devlist from other
+     */
+
+    // https://stackoverflow.com/questions/33538785/qsignalspy-wait-and-two-signals
+
+    int devicelistFactor = 20;
+    spyDeviceListReceivedLhs.wait(devicelistFactor * timeOut_);
     QVERIFY(spyDeviceListReceivedLhs.count() > 0);
-    QList<QVariant> spyArgumentsOfDeviceList = spyDeviceListReceivedLhs.takeFirst();
-    qDebug() << spyArgumentsOfDeviceList.at(0).toString() << ", count: " << spyDeviceListReceivedLhs.count();
-    // FIXME sometime user1 instead of user2
-    //QVERIFY(spyArgumentsOfDeviceList.at(0).toString() == "user2@localhost");
+    QList<QVariant> spyArgumentsOfDeviceListL = spyDeviceListReceivedLhs.at(0);
+    qDebug() << "L: " << spyArgumentsOfDeviceListL.at(0).toString() << ", count: " << spyDeviceListReceivedLhs.count();
+
+
+    if (spyDeviceListReceivedLhs.count() < 2)
+    {
+        // wait for second devicelist msg
+        spyDeviceListReceivedLhs.clear();
+        spyDeviceListReceivedLhs.wait(devicelistFactor * timeOut_);
+        QVERIFY(spyDeviceListReceivedLhs.count() > 0);
+
+        QList<QVariant> spyArgumentsOfDeviceList = spyDeviceListReceivedLhs.at(0);
+        qDebug() << "L: " << spyArgumentsOfDeviceList.at(0).toString() << ", count: " << spyDeviceListReceivedLhs.count();
+    }
     spyDeviceListReceivedLhs.clear();
 
+    spyDeviceListReceivedRhs.wait();
+    QVERIFY(spyDeviceListReceivedRhs.count() > 0);
+    QList<QVariant> spyArgumentsOfDeviceListR = spyDeviceListReceivedRhs.at(0);
+    qDebug() << "R: " << spyArgumentsOfDeviceListR.at(0).toString() << ", count: " << spyDeviceListReceivedRhs.count();
+
+    if (spyDeviceListReceivedRhs.count() < 2)
+    {
+        // wait for second devicelist msg
+        spyDeviceListReceivedRhs.clear();
+        spyDeviceListReceivedRhs.wait();
+        QVERIFY(spyDeviceListReceivedRhs.count() > 0);
+
+        QList<QVariant> spyArgumentsOfDeviceList = spyDeviceListReceivedRhs.at(0);
+        qDebug() << "R: " << spyArgumentsOfDeviceList.at(0).toString() << ", count: " << spyDeviceListReceivedRhs.count();
+    }
+    spyDeviceListReceivedRhs.clear();
 
     // ####################################################
     // send msgOnWire from user1 to user2. Both are online.
