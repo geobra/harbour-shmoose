@@ -434,27 +434,6 @@ bool Omemo::isEncryptedMessage(const QString& xmlNode)
     return returnValue;
 }
 
-void Omemo::slotPepSubscribeToBareJidIfOmemoAvailable(QString bareJid)
-{
-    qDebug() << "slotPepSubscribeToBareJidIfOmemoAvailable for " << bareJid;
-
-    // should be automatically handled by standard presence pep!
-    //pepSubscribeToDevicelistForJid(bareJid);
-
-
-#if 0
-    // only make a request for a deivelist of a jid, if not already locally present
-    // future devicelist updates will be received by pep
-
-    // FIXME first implement pep update
-    //if (isOmemoUser(humanBareJid) == false)
-    {
-        //requestDeviceList(Swift::JID(humanBareJid.toStdString()));
-    }
-#endif
-    //requestDeviceList(Swift::JID(bareJid.toStdString()));
-}
-
 QString Omemo::getSerializedStringFromMessage(Swift::Message::ref msg)
 {
     Swift::FullPayloadSerializerCollection serializers_;
@@ -527,37 +506,6 @@ bool Omemo::isOmemoUser(const QString& bareJid)
     }
 
     return returnValue;
-}
-
-void Omemo::pepSubscribeToDevicelistForJid(const QString& jid)
-{
-    // needs full jid!
-    std::string deviceListPepSubscribe{"<pubsub xmlns='http://jabber.org/protocol/pubsub'>"};
-    deviceListPepSubscribe += std::string("<subscribe node='") + deviceListNodeName_.toStdString() +
-            std::string("' jid='" ) + client_->getJID().toString() + std::string("'/></pubsub>");
-
-    RawRequestWithFromJid::ref requestDeviceList = RawRequestWithFromJid::create(Swift::IQ::Set, jid.toStdString(), deviceListPepSubscribe, client_->getIQRouter());
-    requestDeviceList->onResponse.connect(boost::bind(&Omemo::handleDevicelistSubscriptionResponse, this, _1, _2));
-    requestDeviceList->send();
-}
-
-void Omemo::handleDevicelistSubscriptionResponse(const Swift::JID jid, const std::string& str)
-{
-    std::cout << "handleDevicelistSubscriptionResponse: " << jid.toString() << ", str: " << str << std::endl;
-
-    // FIXME warn user on error
-
-#if 0
-    <iq xmlns="jabber:client" lang="en" to="user1@localhost/shmooseDesktop" from="user2@localhost" type="result" id="8d88f035-c589-4a8e-9fe1-1375a8ec83ec">
-     <pubsub xmlns="http://jabber.org/protocol/pubsub">
-      <subscription subscription="subscribed" subid="64B54BFA7C38F" node="eu.siacs.conversations.axolotl.devicelist" jid="user1@localhost/shmooseDesktop"></subscription>
-     </pubsub>
-    </iq>
-#endif
-
-#if 0
-    <error type="cancel"><feature-not-implemented xmlns="urn:ietf:params:xml:ns:xmpp-stanzas"/></error>
-#endif
 }
 
 void Omemo::handleMessageReceived(Swift::Message::ref message)

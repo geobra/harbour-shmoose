@@ -84,9 +84,6 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     // show status to user
     connect(httpFileUploadManager_, SIGNAL(showStatus(QString, QString)), this, SIGNAL(signalShowStatus(QString, QString)));
 
-    // pass new human jids from roster to omemo to ask initial for theire device list
-    connect(rosterController_, SIGNAL(signalHumanBareJidInContacts(QString)), omemo_, SLOT(slotPepSubscribeToBareJidIfOmemoAvailable(QString)));
-
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotAboutToQuit()));
 }
 

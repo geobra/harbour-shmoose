@@ -51,7 +51,6 @@ signals:
     void rosterListChanged();
     void signalShowMessage(QString headline, QString body);
     void subscriptionUpdated(RosterItem::Subscription subs);
-    void signalHumanBareJidInContacts(QString humanBareJid);
 
 public slots:
     void addGroupAsContact(QString groupJid, QString groupName);
