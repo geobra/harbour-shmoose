@@ -111,8 +111,8 @@ SOURCES += \
     source/xep/omemo/Omemo.cpp \
     source/xep/omemo/mock/purple.c \
     source/xep/omemo/mock/jabber.c \
-    source/xep/omemo/lurch/lurch.c \
     source/xep/omemo/lurch/lurch_util.c \
+    source/xep/omemo/lurch_wrapper.c \
     source/xep/omemo/xmlnode.c \
     source/xep/omemo/XmppMessageParserClient.cpp \
     source/room/MucManager.cpp \
@@ -156,12 +156,11 @@ HEADERS += source/base/Shmoose.h \
     source/xep/omemo/Omemo.h \
     source/xep/omemo/mock/purple.h \
     source/xep/omemo/mock/jabber.h \
-    source/xep/omemo/mock/lurch_prep.h \
     source/xep/omemo/mock/chat.h \
     source/xep/omemo/mock/jutil.h \
     source/xep/omemo/mock/pep.h \
-    source/xep/omemo/lurch/lurch.h \
     source/xep/omemo/lurch/lurch_util.h \
+    source/xep/omemo/lurch_wrapper.h \
     source/xep/omemo/XmppMessageParserClient.h \
     source/xep/omemo/RawRequestWithFromJid.h \
     source/xep/omemo/RawRequestBundle.h \

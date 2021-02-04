@@ -1,15 +1,3 @@
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wint-conversion"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wpadded"
-#pragma GCC diagnostic ignored "-Wmissing-variable-declarations"
-#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
-#pragma GCC diagnostic ignored "-Wpedantic"
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
-
 #include <glib.h>
 
 #include <inttypes.h>
@@ -77,7 +65,7 @@ int uninstall = 0;
 PurpleCmdId lurch_cmd_handle_id = 0;
 PurpleCmdId lurch_cmd_v2_handle_id = 0;
 
-void lurch_addr_list_destroy_func(gpointer data) {
+static void lurch_addr_list_destroy_func(gpointer data) {
   lurch_addr * addr_p = (lurch_addr *) data;
   free(addr_p->jid);
   free(addr_p);
@@ -596,7 +584,7 @@ static int lurch_export_encrypted(omemo_message * om_msg_p, char ** xml_pp) {
  * Implements JabberIqCallback.
  * Callback for a bundle request.
  */
-void lurch_bundle_request_cb(JabberStream * js_p, const char * from,
+static void lurch_bundle_request_cb(JabberStream * js_p, const char * from,
                                     JabberIqType type, const char * id,
                                     xmlnode * packet_p, gpointer data_p) {
   int ret_val = 0;
@@ -800,7 +788,7 @@ cleanup:
  * the bundle of the sender is requested and a KeyTransport message is sent
  * in response so that a session can still be established.
  */
-void lurch_pep_bundle_for_keytransport(JabberStream * js_p, const char * from, xmlnode * items_p) {
+static void lurch_pep_bundle_for_keytransport(JabberStream * js_p, const char * from, xmlnode * items_p) {
   int ret_val = 0;
   char * err_msg_dbg = (void *) 0;
 
@@ -919,7 +907,7 @@ cleanup:
  * @param js_p Pointer to the JabberStream.
  * @return 0 on success, negative on error.
  */
-int lurch_devicelist_process(char * uname, omemo_devicelist * dl_in_p, JabberStream * js_p) {
+static int lurch_devicelist_process(char * uname, omemo_devicelist * dl_in_p, JabberStream * js_p) {
   int ret_val = 0;
   char * err_msg_dbg = (void *) 0;
 
@@ -1002,7 +990,7 @@ cleanup:
  * A JabberPEPHandler function.
  * Is used to handle the own devicelist and also perform install-time functions.
  */
-void lurch_pep_own_devicelist_request_handler(JabberStream * js_p, const char * from, xmlnode * items_p) {
+static void lurch_pep_own_devicelist_request_handler(JabberStream * js_p, const char * from, xmlnode * items_p) {
   int ret_val = 0;
   char * err_msg_dbg = (void *) 0;
 
@@ -1123,7 +1111,7 @@ cleanup:
  * A JabberPEPHandler function.
  * On receiving a devicelist PEP updates the database entry.
  */
-void lurch_pep_devicelist_event_handler(JabberStream * js_p, const char * from, xmlnode * items_p) {
+static void lurch_pep_devicelist_event_handler(JabberStream * js_p, const char * from, xmlnode * items_p) {
   int ret_val = 0;
   int len = 0;
   char * err_msg_dbg = (void *) 0;
@@ -1385,7 +1373,7 @@ cleanup:
  * Set as callback for the "sending xmlnode" signal.
  * Encrypts the message body, if applicable.
  */
-void lurch_message_encrypt_im(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp) {
+static void lurch_message_encrypt_im(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp) {
   int ret_val = 0;
   char * err_msg_dbg = (void *) 0;
   int len = 0;
@@ -1704,7 +1692,7 @@ static void lurch_xml_sent_cb(PurpleConnection * gc_p, xmlnode ** stanza_pp) {
  * Callback for the "receiving xmlnode" signal.
  * Decrypts message, if applicable.
  */
-void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp) {
+static void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp) {
   int ret_val = 0;
   char * err_msg_dbg = (void *) 0;
   int len;
@@ -1830,7 +1818,7 @@ void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp) {
 
     purple_debug_info("lurch", "received omemo message that does not contain a key for this device, skipping\n");
     purple_conv_present_error(to, purple_connection_get_account(gc_p),
-                  "Received omemo message that does not contain a key for this device");
+			      "Received omemo message that does not contain a key for this device");
     goto cleanup;
   }
 
@@ -2149,7 +2137,7 @@ static void lurch_conv_updated_cb(PurpleConversation * conv_p, PurpleConvUpdateT
 }
 #endif
 
-enum PurpleCmdRet lurch_cmd_func(PurpleConversation * conv_p,
+static PurpleCmdRet lurch_cmd_func(PurpleConversation * conv_p,
                                    const gchar * cmd,
                                    gchar ** args,
                                    gchar ** error,
@@ -2685,4 +2673,3 @@ PURPLE_INIT_PLUGIN(lurch, lurch_plugin_init, info)
 
 #endif
 
-#pragma GCC diagnostic pop

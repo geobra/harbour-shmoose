@@ -17,11 +17,12 @@ typedef void PurpleConnection;
 typedef int PurpleCmdId;
 typedef void PurpleConversation;
 
-enum PurpleCmdRet
+enum PurpleCmdRet_
 {
     PURPLE_CMD_RET_OK,
     PURPLE_CMD_RET_FAILED
 };
+typedef enum PurpleCmdRet_ PurpleCmdRet;
 
 enum PurpleConvTyp
 {

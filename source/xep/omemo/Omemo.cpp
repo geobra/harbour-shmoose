@@ -16,7 +16,7 @@
 extern "C"
 {
 #include <purple.h>
-#include "lurch_prep.h"
+#include "lurch_wrapper.h"
 #include "libomemo_crypto.h"
 #include "libomemo_storage.h"
 #include "lurch_util.h"
@@ -239,7 +239,7 @@ void Omemo::createAndSendBundleRequest(char* sender, char* bundle)
 std::string Omemo::messageEncryptIm(const std::string msg)
 {
     xmlnode* node = xmlnode_from_str(msg.c_str(), -1);
-    lurch_message_encrypt_im(nullptr, &node);
+    lurch_message_encrypt_im_wrap(nullptr, &node);
 
     int len = 0;
     char* cryptedNode = xmlnode_to_str(node, &len);
@@ -289,7 +289,7 @@ int Omemo::decryptMessageIfEncrypted(Swift::Message::ref aMessage)
 std::string Omemo::messageDecrypt(const std::string& message)
 {
     xmlnode* node = xmlnode_from_str(message.c_str(), -1);
-    lurch_message_decrypt(nullptr, &node);
+    lurch_message_decrypt_wrap(nullptr, &node);
 
     int len = 0;
     char* decryptedNode = xmlnode_to_str(node, &len);
@@ -311,13 +311,13 @@ void Omemo::requestBundleHandler(const Swift::JID& jid, const std::string& bundl
 
     std::string id = "foo#bar#" + bundleId;
     xmlnode* node = xmlnode_from_str(bundleResponse.c_str(), -1);
-    lurch_bundle_request_cb(&jabberStream, jid.toBare().toString().c_str(), JABBER_IQ_SET, id.c_str(), node, qMsg);
+    lurch_bundle_request_cb_wrap(&jabberStream, jid.toBare().toString().c_str(), JABBER_IQ_SET, id.c_str(), node, qMsg);
 }
 
 void Omemo::pepBundleForKeytransport(const std::string from, const std::string &items)
 {
     xmlnode* itemsNode = xmlnode_from_str(items.c_str(), -1);
-    lurch_pep_bundle_for_keytransport(&jabberStream, from.c_str(), itemsNode);
+    lurch_pep_bundle_for_keytransport_wrap(&jabberStream, from.c_str(), itemsNode);
 
     xmlnode_free(itemsNode);
 }
@@ -364,7 +364,7 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
     {
         // was a request for my device list
         xmlnode* itemsNode = xmlnode_from_str(items.toStdString().c_str(), -1);
-        lurch_pep_own_devicelist_request_handler(&jabberStream, uname_, itemsNode);
+        lurch_pep_own_devicelist_request_handler_wrap(&jabberStream, uname_, itemsNode);
     }
     else
     {
@@ -379,7 +379,7 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
             int ret = omemo_devicelist_import(pItems, bareJidStr.c_str(), &dl_in_p);
             if ( ret == 0)
             {
-                if(lurch_devicelist_process(uname_, dl_in_p, &jabberStream) != 0)
+                if(lurch_devicelist_process_wrap(uname_, dl_in_p, &jabberStream) != 0)
                 {
                     qDebug() << "failed to process devicelist";
                 }
@@ -505,7 +505,7 @@ void Omemo::callLurchCmd(const std::vector<std::string>& sl)
 
     char** p_str_array = cstrings.data();
 
-    lurch_cmd_func(nullptr, "", p_str_array, nullptr, nullptr);
+    lurch_cmd_func_wrap(nullptr, "", p_str_array, nullptr, nullptr);
 }
 
 bool Omemo::isOmemoUser(const QString& bareJid)
@@ -608,7 +608,7 @@ void Omemo::handleMessageReceived(Swift::Message::ref message)
         if (! items.isEmpty())
         {
             qDebug() << "Omemo::handleMessageReceived. items: " << items;
-            lurch_pep_devicelist_event_handler(&jabberStream, from.toStdString().c_str(), xItems);
+            lurch_pep_devicelist_event_handler_wrap(&jabberStream, from.toStdString().c_str(), xItems);
 
             emit signalReceivedDeviceListOfJid(from);
         }
