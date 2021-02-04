@@ -52,6 +52,7 @@ void OmemoTest::sendMsgTest()
     int receivdeDeviceListRhs{0};
     int receivdeDeviceListLhs{0};
     int loopCount{0};
+    QStringList devlistTryResult{};
     while (receivdeDeviceListRhs < 2 || receivdeDeviceListLhs < 2)
     {
         receivdeDeviceListRhs = 0;
@@ -144,10 +145,14 @@ void OmemoTest::sendMsgTest()
         }
         spyDeviceListReceivedRhs.clear();
 
+        // save result tries to display in case of permanent error
+        devlistTryResult.append("L: " + QString::number(receivdeDeviceListLhs) + ", R: " + QString::number(receivdeDeviceListRhs));
+
         loopCount++;
         if (loopCount > 5)
         {
             qDebug() << "reconnect and devicelist exchange failed after 5 tries. Give up now.";
+            qDebug() << devlistTryResult;
             QVERIFY(false);
         }
     }
