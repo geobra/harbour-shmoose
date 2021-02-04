@@ -252,7 +252,9 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
 
 void MessageHandler::sendRawMessageStanza(QString str)
 {
-    // FIXME test this!
+    // FIXME this will be called if line 216 failed!
+    // but deliveryRequest and CharMarkers is missing here!
+
     QString msg = "<stream xmlns='http://etherx.jabber.org/streams'>" + str;
 
     // create a xmpp parser
@@ -269,6 +271,9 @@ void MessageHandler::sendRawMessageStanza(QString str)
         if (message != nullptr)
         {
             client_->sendMessage(std::make_shared<Swift::Message>(*message));
+
+            // FIXME
+            emit messageSent(QString::fromStdString("1234567890"));
         }
     }
     else

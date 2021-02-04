@@ -44,91 +44,113 @@ void OmemoTest::sendMsgTest()
     QSignalSpy spyDeviceListReceivedLhs(interfaceLhs_->getInterface(), SIGNAL(signalReceivedDeviceListOfJid(QString)));
     QSignalSpy spyDeviceListReceivedRhs(interfaceRhs_->getInterface(), SIGNAL(signalReceivedDeviceListOfJid(QString)));
 
-
-    // ####################################################
-    // disconnect/reconnect the clients to get the devicelist exchanged via pep
-    // ####################################################
-    QList<QVariant> argumentsCurrentChatPartnerEmpty {""};
-    // rhs
-    QSignalSpy spySignalConnectionChangedRhs(interfaceRhs_->getInterface(), SIGNAL(signalConnectionStateChanged()));
-    interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
-    interfaceRhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
-    spySignalConnectionChangedRhs.wait(5*timeOutConnect_);
-    QCOMPARE(spySignalConnectionChangedRhs.count(), 1);
-    spySignalConnectionChangedRhs.clear();
-
-    // rhs
-    interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
-    spySignalConnectionChangedRhs.wait(5*timeOutConnect_);
-    QCOMPARE(spySignalConnectionChangedRhs.count(), 1);
-    spySignalConnectionChangedRhs.clear();
-
-    // lhs
-    QSignalSpy spySignalConnectionChangedLhs(interfaceLhs_->getInterface(), SIGNAL(signalConnectionStateChanged()));
-    interfaceLhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
-    interfaceLhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
-    spySignalConnectionChangedLhs.wait(5*timeOutConnect_);
-    QCOMPARE(spySignalConnectionChangedLhs.count(), 1);
-    spySignalConnectionChangedLhs.clear();
-
-    // lhs
-    interfaceLhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
-    spySignalConnectionChangedLhs.wait(5*timeOutConnect_);
-    QCOMPARE(spySignalConnectionChangedLhs.count(), 1);
-    spySignalConnectionChangedLhs.clear();
-
-
-    // ####################################################
-    // wait for the device list of user2 is available at user1
-    // ####################################################
-    // wait for arrived msgOnWire at other client
-    // need this two times for each device
-    /*
-     * first con:
-        1 msg with devicelist
-
-       second con:
-        msg devlist from myself
-        msg devlist from other
-     */
-
-    // https://stackoverflow.com/questions/33538785/qsignalspy-wait-and-two-signals
-
-    int devicelistFactor = 20;
-    spyDeviceListReceivedLhs.wait(devicelistFactor * timeOut_);
-    QVERIFY(spyDeviceListReceivedLhs.count() > 0);
-    QList<QVariant> spyArgumentsOfDeviceListL = spyDeviceListReceivedLhs.at(0);
-    qDebug() << "L: " << spyArgumentsOfDeviceListL.at(0).toString() << ", count: " << spyDeviceListReceivedLhs.count();
-
-
-    if (spyDeviceListReceivedLhs.count() < 2)
+    // ########### disconnect and connect again to get the devicelists exchanged via pep
+    // need to the two devicelist exchange on both sides.
+    // unless this happens, the encrypted msg exchange did not work
+    // sometimes the server did not distribute it correctly
+    // loop this process until we get this...
+    int receivdeDeviceListRhs{0};
+    int receivdeDeviceListLhs{0};
+    int loopCount{0};
+    while (receivdeDeviceListRhs < 2 || receivdeDeviceListLhs < 2)
     {
-        // wait for second devicelist msg
-        spyDeviceListReceivedLhs.clear();
-        spyDeviceListReceivedLhs.wait(devicelistFactor * timeOut_);
+        receivdeDeviceListRhs = 0;
+        receivdeDeviceListLhs = 0;
+
+        // ####################################################
+        // disconnect/reconnect the clients to get the devicelist exchanged via pep
+        // ####################################################
+        qDebug() << "reconnect to trigger pep exchange process for devicelists...";
+        QList<QVariant> argumentsCurrentChatPartnerEmpty {""};
+        // rhs
+        QSignalSpy spySignalConnectionChangedRhs(interfaceRhs_->getInterface(), SIGNAL(signalConnectionStateChanged()));
+        interfaceRhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
+        interfaceRhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
+        spySignalConnectionChangedRhs.wait(5*timeOutConnect_);
+        QCOMPARE(spySignalConnectionChangedRhs.count(), 1);
+        spySignalConnectionChangedRhs.clear();
+
+        // rhs
+        interfaceRhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
+        spySignalConnectionChangedRhs.wait(5*timeOutConnect_);
+        QCOMPARE(spySignalConnectionChangedRhs.count(), 1);
+        spySignalConnectionChangedRhs.clear();
+
+        // lhs
+        QSignalSpy spySignalConnectionChangedLhs(interfaceLhs_->getInterface(), SIGNAL(signalConnectionStateChanged()));
+        interfaceLhs_->callDbusMethodWithArgument("setCurrentChatPartner", argumentsCurrentChatPartnerEmpty);
+        interfaceLhs_->callDbusMethodWithArgument("disconnectFromServer", QList<QVariant>());
+        spySignalConnectionChangedLhs.wait(5*timeOutConnect_);
+        QCOMPARE(spySignalConnectionChangedLhs.count(), 1);
+        spySignalConnectionChangedLhs.clear();
+
+        // lhs
+        interfaceLhs_->callDbusMethodWithArgument("reConnect", QList<QVariant>());
+        spySignalConnectionChangedLhs.wait(5*timeOutConnect_);
+        QCOMPARE(spySignalConnectionChangedLhs.count(), 1);
+        spySignalConnectionChangedLhs.clear();
+
+
+        // ####################################################
+        // wait for the device list available at other side
+        // ####################################################
+        /* first con:
+            1 msg with devicelist
+
+           second con:
+            msg devlist from myself
+            msg devlist from other
+         */
+
+        spyDeviceListReceivedLhs.wait(timeOut_);
         QVERIFY(spyDeviceListReceivedLhs.count() > 0);
+        QList<QVariant> spyArgumentsOfDeviceListL = spyDeviceListReceivedLhs.at(0);
+        qDebug() << "L: " << spyArgumentsOfDeviceListL.at(0).toString() << ", count: " << spyDeviceListReceivedLhs.count();
+        receivdeDeviceListLhs = spyDeviceListReceivedLhs.count();
 
-        QList<QVariant> spyArgumentsOfDeviceList = spyDeviceListReceivedLhs.at(0);
-        qDebug() << "L: " << spyArgumentsOfDeviceList.at(0).toString() << ", count: " << spyDeviceListReceivedLhs.count();
-    }
-    spyDeviceListReceivedLhs.clear();
+        if (spyDeviceListReceivedLhs.count() < 2)
+        {
+            // wait for second devicelist msg
+            spyDeviceListReceivedLhs.clear();
+            spyDeviceListReceivedLhs.wait(timeOut_);
+            if (spyDeviceListReceivedLhs.count() > 0)
+            {
+                QList<QVariant> spyArgumentsOfDeviceList = spyDeviceListReceivedLhs.at(0);
+                qDebug() << "L: " << spyArgumentsOfDeviceList.at(0).toString() << ", count: " << spyDeviceListReceivedLhs.count();
 
-    spyDeviceListReceivedRhs.wait();
-    QVERIFY(spyDeviceListReceivedRhs.count() > 0);
-    QList<QVariant> spyArgumentsOfDeviceListR = spyDeviceListReceivedRhs.at(0);
-    qDebug() << "R: " << spyArgumentsOfDeviceListR.at(0).toString() << ", count: " << spyDeviceListReceivedRhs.count();
+                receivdeDeviceListLhs = 2;
+            }
+        }
+        spyDeviceListReceivedLhs.clear();
 
-    if (spyDeviceListReceivedRhs.count() < 2)
-    {
-        // wait for second devicelist msg
-        spyDeviceListReceivedRhs.clear();
         spyDeviceListReceivedRhs.wait();
         QVERIFY(spyDeviceListReceivedRhs.count() > 0);
+        QList<QVariant> spyArgumentsOfDeviceListR = spyDeviceListReceivedRhs.at(0);
+        qDebug() << "R: " << spyArgumentsOfDeviceListR.at(0).toString() << ", count: " << spyDeviceListReceivedRhs.count();
+        receivdeDeviceListRhs = spyDeviceListReceivedRhs.count();
 
-        QList<QVariant> spyArgumentsOfDeviceList = spyDeviceListReceivedRhs.at(0);
-        qDebug() << "R: " << spyArgumentsOfDeviceList.at(0).toString() << ", count: " << spyDeviceListReceivedRhs.count();
+        if (spyDeviceListReceivedRhs.count() < 2)
+        {
+            // wait for second devicelist msg
+            spyDeviceListReceivedRhs.clear();
+            spyDeviceListReceivedRhs.wait();
+            if (spyDeviceListReceivedRhs.count() > 0)
+            {
+                QList<QVariant> spyArgumentsOfDeviceList = spyDeviceListReceivedRhs.at(0);
+                qDebug() << "R: " << spyArgumentsOfDeviceList.at(0).toString() << ", count: " << spyDeviceListReceivedRhs.count();
+
+                receivdeDeviceListRhs = 2;
+            }
+        }
+        spyDeviceListReceivedRhs.clear();
+
+        loopCount++;
+        if (loopCount > 5)
+        {
+            qDebug() << "reconnect and devicelist exchange failed after 5 tries. Give up now.";
+            QVERIFY(false);
+        }
     }
-    spyDeviceListReceivedRhs.clear();
 
     // ####################################################
     // send msgOnWire from user1 to user2. Both are online.
@@ -192,7 +214,7 @@ void OmemoTest::sendMsgTest()
     qDebug() << "sent #3 from 2 to 1 MsgId: " << msgId;
 
     // wait for arrived msgOnWire at other client
-    spyLatestMsgLhs.wait(6*timeOut_);
+    spyLatestMsgLhs.wait(10*timeOut_);
     QCOMPARE(spyLatestMsgLhs.count(), 1);
     spyArgumentsOfMsg = spyLatestMsgLhs.takeFirst();
     QVERIFY(spyArgumentsOfMsg.at(2).toString() == msgOnWireForUser1);
