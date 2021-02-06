@@ -206,19 +206,6 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         msg->setType(messagesTyp);
         msg->setBody(message.toStdString());
 
-        Settings settings;
-        if ( (omemo_->isOmemoUser(toJid) == true) && (settings.isOmemoForSendingOff() == false) )
-        {
-            bool success = omemo_->exchangePlainBodyByOmemoStanzas(msg);
-            if (success == false)
-            {
-                // FIXME show to user and stop sending!
-                qDebug() << "################################## failed to encrypt msg for " << toJid;
-
-                return;
-            }
-        }
-
         if(type == "image")
         {
             QString outOfBandElement("");
@@ -234,12 +221,33 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         }
 
 
+        // add delivery request
         msg->addPayload(std::make_shared<Swift::DeliveryReceiptRequest>());
 
         // add chatMarkers stanza
         msg->addPayload(std::make_shared<Swift::RawXMLPayload>(ChatMarkers::getMarkableString().toStdString()));
 
-        client_->sendMessage(msg);
+        // exchange body by omemo stuff if applicable
+        Settings settings;
+        bool shouldSendMsgStanze{true};
+        if ( (omemo_->isOmemoUser(toJid) == true) && (settings.isOmemoForSendingOff() == false) )
+        {
+            bool success = omemo_->exchangePlainBodyByOmemoStanzas(msg);
+            if (success == false)
+            {
+                // an exchange of the body stanza by an omemo stanza failed
+                // either some de/encryption stuff failed, or the bundel is requested in background
+                // don't send this msg, but put it in the database for chat markers to be set correct.
+                // informs the user about real sending, receiving, reading.
+                shouldSendMsgStanze = true;
+            }
+        }
+
+        if (shouldSendMsgStanze == true)
+        {
+            client_->sendMessage(msg);
+        }
+
         persistence_->addMessage( QString::fromStdString(msgId),
                                   QString::fromStdString(receiverJid.toBare().toString()),
                                   QString::fromStdString(receiverJid.getResource()),
@@ -252,16 +260,12 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
 
 void MessageHandler::sendRawMessageStanza(QString str)
 {
-    // FIXME this will be called if line 216 failed!
-    // but deliveryRequest and CharMarkers is missing here!
-
     QString msg = "<stream xmlns='http://etherx.jabber.org/streams'>" + str;
 
     // create a xmpp parser
     Swift::FullPayloadParserFactoryCollection factories;
     Swift::PlatformXMLParserFactory xmlParserFactory;
     Swift::XMPPParser parser(xmppMessageParserClient_, &factories, &xmlParserFactory);
-
 
     // parse the string
     if (parser.parse(msg.toStdString()))
@@ -272,8 +276,7 @@ void MessageHandler::sendRawMessageStanza(QString str)
         {
             client_->sendMessage(std::make_shared<Swift::Message>(*message));
 
-            // FIXME
-            emit messageSent(QString::fromStdString("1234567890"));
+            emit messageSent(QString::fromStdString(message->getID()));
         }
     }
     else

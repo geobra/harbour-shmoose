@@ -451,7 +451,7 @@ bool Omemo::exchangePlainBodyByOmemoStanzas(Swift::Message::ref msg)
     if (qMsg.isEmpty() == false)
     {
         std::string cryptMessage = messageEncryptIm(qMsg.toStdString());
-        if (cryptMessage.empty() == false)
+        if (cryptMessage.empty() == false) // no fatal error. Either msg is original, or omemo encrypted
         {
             QString encryptedPayload = XmlProcessor::getChildFromNode("encrypted", QString::fromStdString(cryptMessage));
             if (encryptedPayload.isEmpty() == false)
