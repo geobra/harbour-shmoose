@@ -60,3 +60,13 @@ void CToCxxProxy::createAndSendBundleRequest(char* sender, char* bundle)
 {
     omemo_->createAndSendBundleRequest(sender, bundle);
 }
+
+
+void CToCxxProxyShowMessageToUser(void* proxy, char* title, char* msg)
+{
+    static_cast<CToCxxProxy*>(proxy)->showMessageToUser(title, msg);
+}
+void CToCxxProxy::showMessageToUser(char* title, char* msg)
+{
+    omemo_->showMessageToUser(title, msg);
+}

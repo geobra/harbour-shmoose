@@ -22,14 +22,16 @@ public:
     void sendRawMessageStanza(char* stz);
     void sendBundleRequest(char* node, void *q_msg);
     void createAndSendBundleRequest(char* sender, char* bundle);
+    void showMessageToUser(char *title, char *msg);
 
     void setCurrentChatPartner(const QString& jid);
     void callLurchCmd(const std::vector<std::string>& sl);
-    bool isOmemoUser(const QString& bareJid);
+    bool isOmemoUser(const QString& bareJid);    
 
 signals:
     void rawMessageStanzaForSending(QString);
     void signalReceivedDeviceListOfJid(QString);
+    void signalShowMessage(QString, QString);
 
 private:
     void determineNamespace(const QString& nsDl);

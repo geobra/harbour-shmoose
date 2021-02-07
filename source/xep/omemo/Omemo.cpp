@@ -234,6 +234,11 @@ void Omemo::createAndSendBundleRequest(char* sender, char* bundle)
     requestDeviceList->send();
 }
 
+void Omemo::showMessageToUser(char* title, char* msg)
+{
+    emit signalShowMessage(QString::fromLatin1(title), QString::fromLatin1(msg));
+}
+
 std::string Omemo::messageEncryptIm(const std::string msg)
 {
     xmlnode* node = xmlnode_from_str(msg.c_str(), -1);

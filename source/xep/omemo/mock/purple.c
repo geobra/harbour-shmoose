@@ -231,8 +231,13 @@ void purple_signal_emit(int foo, char* what, char* bar, xmlnode** node)
 
 void purple_conv_present_error(char* from, void* foo, char* msg)
 {
-    // FIXME forward to user interface
     fprintf(stderr, "msg from %s: %s\n", from, msg);
+
+    // FIXME test this in UI
+#ifndef UNIT_TEST
+    void* proxy = CToCxxProxyGetInstance();
+    CToCxxProxyShowMessageToUser(proxy, from, msg);
+#endif
 }
 
 void* purple_conversation_get_account(PurpleConversation * conv_p)
@@ -247,7 +252,7 @@ void* purple_conversation_get_gc(PurpleConversation * conv_p)
 
 enum PurpleConvTyp purple_conversation_get_type (PurpleConversation * conv_p)
 {
-    // FIXME for now, always return
+    // FIXME for now, always return. Has to rework if group omemo handling will be done.
     return PURPLE_CONV_TYPE_IM;
 }
 
@@ -263,7 +268,7 @@ void purple_conversation_autoset_title(PurpleConversation * conv_p)
 
 void purple_conversation_write(PurpleConversation * conv_p, char* id, char* msg, enum PurpleFlags fags, time_t time)
 {
-    // FIXME Forward as replay to user
+    // used for the lurch command line. Currently only shown as consolse output.
     fprintf(stderr, "%s: %s\n", id, msg);
 }
 
