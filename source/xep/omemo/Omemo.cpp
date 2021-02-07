@@ -34,8 +34,6 @@ extern "C"
  * 6. receive and decrypt a message
  */
 
-// FIXME overall! check if returned pointer from xmlnode_from_str has to be freed!
-
 Omemo::Omemo(QObject *parent) : QObject(parent)
 {
     // lurch_plugin_load
@@ -243,10 +241,14 @@ std::string Omemo::messageEncryptIm(const std::string msg)
 
     int len = 0;
     char* cryptedNode = xmlnode_to_str(node, &len);
+    xmlnode_free(node);
 
     if (len > 0)
     {
-        return std::string(cryptedNode);
+        std::string returnStr{cryptedNode};
+        free(cryptedNode);
+
+        return returnStr;
     }
     else
     {
@@ -292,11 +294,15 @@ std::string Omemo::messageDecrypt(const std::string& message)
     lurch_message_decrypt_wrap(nullptr, &node);
 
     int len = 0;
-    char* decryptedNode = xmlnode_to_str(node, &len);
+    char* decryptedNode = xmlnode_to_str(node, &len);    
+    xmlnode_free(node);
 
     if (len > 0)
     {
-        return std::string(decryptedNode);
+        std::string returnStr{decryptedNode};
+        free(decryptedNode);
+
+        return returnStr;
     }
     else
     {
@@ -312,6 +318,8 @@ void Omemo::requestBundleHandler(const Swift::JID& jid, const std::string& bundl
     std::string id = "foo#bar#" + bundleId;
     xmlnode* node = xmlnode_from_str(bundleResponse.c_str(), -1);
     lurch_bundle_request_cb_wrap(&jabberStream, jid.toBare().toString().c_str(), JABBER_IQ_SET, id.c_str(), node, qMsg);
+
+    xmlnode_free(node);
 }
 
 void Omemo::pepBundleForKeytransport(const std::string from, const std::string &items)
@@ -365,6 +373,8 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
         // was a request for my device list
         xmlnode* itemsNode = xmlnode_from_str(items.toStdString().c_str(), -1);
         lurch_pep_own_devicelist_request_handler_wrap(&jabberStream, uname_, itemsNode);
+
+        xmlnode_free(itemsNode);
     }
     else
     {
@@ -560,5 +570,7 @@ void Omemo::handleMessageReceived(Swift::Message::ref message)
 
             emit signalReceivedDeviceListOfJid(from);
         }
+
+        xmlnode_free(xItems);
     }
 }

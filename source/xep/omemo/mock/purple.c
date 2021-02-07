@@ -221,8 +221,10 @@ void purple_signal_emit(int foo, char* what, char* bar, xmlnode** node)
         int len = 0;
         char* str = xmlnode_to_str(*node, &len);
 
+#ifndef UNIT_TEST
         void* proxy = CToCxxProxyGetInstance();
         CToCxxProxySendRawMessageStanza(proxy, str);
+#endif
     }
 }
 
