@@ -1,8 +1,6 @@
 #include "LurchAdapter.h"
 #include "System.h"
 #include "XmlProcessor.h"
-#include "Settings.h"
-#include "System.h"
 #include "RawRequestWithFromJid.h"
 #include "RawRequestBundle.h"
 #include "CToCxxProxy.h"
@@ -10,8 +8,6 @@
 #include <QDir>
 #include <QDomDocument>
 #include <QDebug>
-
-#include <stdlib.h>
 
 extern "C"
 {
