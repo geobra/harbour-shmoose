@@ -1,6 +1,6 @@
 #include "CToCxxProxy.h"
 
-#include "Omemo.h"
+#include "LurchAdapter.h"
 
 extern "C" void* CToCxxProxyGetInstance() {
    return &CToCxxProxy::getInstance();
@@ -12,9 +12,9 @@ CToCxxProxy& CToCxxProxy::getInstance()
     return instance_;
 }
 
-void CToCxxProxy::setOmemoPtr(Omemo* omemo)
+void CToCxxProxy::setLurchAdapterPtr(LurchAdapter* lurchAdapter)
 {
-    omemo_ = omemo;
+    lurchAdapter_ = lurchAdapter;
 }
 
 
@@ -25,7 +25,7 @@ extern "C" void CToCxxProxySendAsPepStanza(void* proxy, char* stanza)
 }
 void CToCxxProxy::sendAsPepStanza(char* stanza)
 {
-    omemo_->sendAsPepStanza(stanza);
+    lurchAdapter_->sendAsPepStanza(stanza);
 }
 
 
@@ -36,7 +36,7 @@ extern "C" void CToCxxProxySendRawMessageStanza(void* proxy, char* stanza)
 }
 void CToCxxProxy::sendRawMessageStanza(char* stanza)
 {
-    omemo_->sendRawMessageStanza(stanza);
+    lurchAdapter_->sendRawMessageStanza(stanza);
 }
 
 
@@ -47,7 +47,7 @@ void CToCxxProxySendBundleRequest(void* proxy, char* node, void* q_msg)
 }
 void CToCxxProxy::sendBundleRequest(char* node, void* q_msg)
 {
-    omemo_->sendBundleRequest(node, q_msg);
+    lurchAdapter_->sendBundleRequest(node, q_msg);
 }
 
 
@@ -58,7 +58,7 @@ void CToCxxProxyCreateAndSendBundleRequest(void* proxy, char* sender, char* bund
 }
 void CToCxxProxy::createAndSendBundleRequest(char* sender, char* bundle)
 {
-    omemo_->createAndSendBundleRequest(sender, bundle);
+    lurchAdapter_->createAndSendBundleRequest(sender, bundle);
 }
 
 
@@ -68,5 +68,5 @@ void CToCxxProxyShowMessageToUser(void* proxy, char* title, char* msg)
 }
 void CToCxxProxy::showMessageToUser(char* title, char* msg)
 {
-    omemo_->showMessageToUser(title, msg);
+    lurchAdapter_->showMessageToUser(title, msg);
 }

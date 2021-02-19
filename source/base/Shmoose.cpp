@@ -30,7 +30,7 @@
 #include "DiscoInfoHandler.h"
 #include "CryptoHelper.h"
 #include "StanzaId.h"
-#include "Omemo.h"
+#include "LurchAdapter.h"
 
 
 #include "System.h"
@@ -43,8 +43,8 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     settings_(new Settings(this)),
     stanzaId_(new StanzaId(this)),
     connectionHandler_(new ConnectionHandler(this)),
-    omemo_(new Omemo(this)),
-    messageHandler_(new MessageHandler(persistence_, settings_, rosterController_, omemo_, this)),
+    lurchAdapter_(new LurchAdapter(this)),
+    messageHandler_(new MessageHandler(persistence_, settings_, rosterController_, lurchAdapter_, this)),
     httpFileUploadManager_(new HttpFileUploadManager(this)),
     mamManager_(new MamManager(persistence_, this)),
     mucManager_(new MucManager(this)),
@@ -80,7 +80,7 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     // show errors to user
     connect(mucManager_, SIGNAL(signalShowMessage(QString,QString)), this, SIGNAL(signalShowMessage(QString,QString)));
     connect(rosterController_, SIGNAL(signalShowMessage(QString,QString)), this, SIGNAL(signalShowMessage(QString,QString)));
-    connect(omemo_, SIGNAL(signalShowMessage(QString,QString)), this, SIGNAL(signalShowMessage(QString,QString)));
+    connect(lurchAdapter_, SIGNAL(signalShowMessage(QString,QString)), this, SIGNAL(signalShowMessage(QString,QString)));
 
     // show status to user
     connect(httpFileUploadManager_, SIGNAL(showStatus(QString, QString)), this, SIGNAL(signalShowStatus(QString, QString)));
@@ -151,8 +151,8 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     discoInfo.addFeature(Swift::DiscoInfo::MessageCarbonsFeature);
 
     // omemo
-    discoInfo.addFeature(omemo_->getFeature().toStdString());
-    discoInfo.addFeature(omemo_->getFeature().toStdString() + "+notify");
+    discoInfo.addFeature(lurchAdapter_->getFeature().toStdString());
+    discoInfo.addFeature(lurchAdapter_->getFeature().toStdString() + "+notify");
 
     client_->getDiscoManager()->setCapsNode("https://github.com/geobra/harbour-shmoose");
 
@@ -204,7 +204,7 @@ void Shmoose::intialSetupOnFirstConnection()
     mucManager_->setupWithClient(client_);
 
     // init and setup omemo stuff
-    omemo_->setupWithClient(client_);
+    lurchAdapter_->setupWithClient(client_);
 
     // Save account data
     settings_->setJid(jid_);
@@ -215,8 +215,8 @@ void Shmoose::setCurrentChatPartner(QString const &jid)
 {
     persistence_->setCurrentChatPartner(jid);
 
-    // omemo does not have access to persistence. share the informaion separat.
-    omemo_->setCurrentChatPartner(jid);
+    // lurchAdapter_ does not have access to persistence. share the informaion separat.
+    lurchAdapter_->setCurrentChatPartner(jid);
 
     sendReadNotification(true);
 }

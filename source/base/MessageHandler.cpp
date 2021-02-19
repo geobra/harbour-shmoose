@@ -6,7 +6,7 @@
 #include "StanzaIdPayload.h"
 #include "XmlProcessor.h"
 #include "RosterController.h"
-#include "Omemo.h"
+#include "LurchAdapter.h"
 #include "XmppMessageParserClient.h"
 
 #include <Swiften/Elements/CarbonsReceived.h>
@@ -17,14 +17,14 @@
 #include <QDomDocument>
 #include <QDebug>
 
-MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, RosterController* rosterController, Omemo* omemo, QObject *parent) : QObject(parent),
-    client_(nullptr), persistence_(persistence), omemo_(omemo), settings_(settings),
+MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, RosterController* rosterController, LurchAdapter* lurchAdapter, QObject *parent) : QObject(parent),
+    client_(nullptr), persistence_(persistence), lurchAdapter_(lurchAdapter), settings_(settings),
     downloadManager_(new DownloadManager(this)),
     chatMarkers_(new ChatMarkers(persistence_, rosterController, this)),
     xmppMessageParserClient_(new XMPPMessageParserClient()),
     appIsActive_(true), unAckedMessageIds_()
 {
-    connect(omemo_, SIGNAL(rawMessageStanzaForSending(QString)), this, SLOT(sendRawMessageStanza(QString)));
+    connect(lurchAdapter_, SIGNAL(rawMessageStanzaForSending(QString)), this, SLOT(sendRawMessageStanza(QString)));
 }
 
 void MessageHandler::setupWithClient(Swift::Client* client)
@@ -60,7 +60,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 {
     //std::cout << "handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
 
-    auto success = omemo_->decryptMessageIfEncrypted(message);
+    auto success = lurchAdapter_->decryptMessageIfEncrypted(message);
     if (success == 1 || success == 2) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
     {
         qDebug() << "decryptMessageIfEncrypted (1: was not encrypted, 2: error during decryption). code: " << success;
@@ -183,7 +183,7 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
                 sl.push_back(string.toStdString());
             }
         }
-        omemo_->callLurchCmd(sl);
+        lurchAdapter_->callLurchCmd(sl);
     }
     else
     {
@@ -230,9 +230,9 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         // exchange body by omemo stuff if applicable
         Settings settings;
         bool shouldSendMsgStanze{true};
-        if ( (omemo_->isOmemoUser(toJid) == true) && (settings.isOmemoForSendingOff() == false) )
+        if ( (lurchAdapter_->isOmemoUser(toJid) == true) && (settings.isOmemoForSendingOff() == false) )
         {
-            bool success = omemo_->exchangePlainBodyByOmemoStanzas(msg);
+            bool success = lurchAdapter_->exchangePlainBodyByOmemoStanzas(msg);
             if (success == false)
             {
                 // an exchange of the body stanza by an omemo stanza failed

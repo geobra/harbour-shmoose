@@ -9,14 +9,14 @@ class DownloadManager;
 class Persistence;
 class ChatMarkers;
 class RosterController;
-class Omemo;
+class LurchAdapter;
 class XMPPMessageParserClient;
 
 class MessageHandler : public QObject
 {
     Q_OBJECT
 public:
-    MessageHandler(Persistence* persistence, Settings * settings, RosterController* rosterController, Omemo* omemo, QObject *parent = 0);
+    MessageHandler(Persistence* persistence, Settings * settings, RosterController* rosterController, LurchAdapter* omemo, QObject *parent = 0);
 
     void setupWithClient(Swift::Client* client);
 
@@ -36,7 +36,7 @@ public:
 #endif
     Swift::Client* client_;
     Persistence* persistence_;
-    Omemo* omemo_;
+    LurchAdapter* lurchAdapter_;
     Settings* settings_;
 
     DownloadManager* downloadManager_;

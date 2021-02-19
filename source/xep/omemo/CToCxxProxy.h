@@ -17,13 +17,13 @@ void CToCxxProxyShowMessageToUser(void* proxy, char *title, char* msg);
 #endif
 
 #ifdef __cplusplus
-class Omemo;
+class LurchAdapter;
 
 class CToCxxProxy
 {
 public:
     static CToCxxProxy& getInstance();
-    void setOmemoPtr(Omemo* omemo);
+    void setLurchAdapterPtr(LurchAdapter* omemo);
 
     void sendAsPepStanza(char* stanza);
     void sendRawMessageStanza(char* stanza);
@@ -33,7 +33,7 @@ public:
 
 private:
     CToCxxProxy() = default;
-    Omemo* omemo_;
+    LurchAdapter* lurchAdapter_;
 };
 #endif
 

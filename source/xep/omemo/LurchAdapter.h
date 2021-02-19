@@ -5,12 +5,12 @@
 
 #include <Swiften/Swiften.h>
 
-class Omemo : public QObject
+class LurchAdapter : public QObject
 {
     Q_OBJECT
 public:
-    explicit Omemo(QObject *parent = nullptr);
-    ~Omemo();
+    explicit LurchAdapter(QObject *parent = nullptr);
+    ~LurchAdapter();
     void setupWithClient(Swift::Client* client);
     QString getFeature();
 

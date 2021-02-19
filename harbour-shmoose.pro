@@ -108,7 +108,7 @@ SOURCES += \
     source/xep/stanzaId/StanzaIdPayloadParser.cpp \
     source/xep/stanzaId/StanzaIdPayloadParserFactory.cpp \
     source/xep/stanzaId/StanzaIdPayloadSerializer.cpp \
-    source/xep/omemo/Omemo.cpp \
+    source/xep/omemo/LurchAdapter.cpp \
     source/xep/omemo/mock/purple.c \
     source/xep/omemo/mock/jabber.c \
     source/xep/omemo/lurch/lurch_util.c \
@@ -153,7 +153,7 @@ HEADERS += source/base/Shmoose.h \
     source/xep/stanzaId/StanzaIdPayloadParser.h \
     source/xep/stanzaId/StanzaIdPayloadParserFactory.h \
     source/xep/stanzaId/StanzaIdPayloadSerializer.h \
-    source/xep/omemo/Omemo.h \
+    source/xep/omemo/LurchAdapter.h \
     source/xep/omemo/mock/purple.h \
     source/xep/omemo/mock/jabber.h \
     source/xep/omemo/mock/chat.h \

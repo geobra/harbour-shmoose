@@ -1,4 +1,4 @@
-#include "Omemo.h"
+#include "LurchAdapter.h"
 #include "System.h"
 #include "XmlProcessor.h"
 #include "Settings.h"
@@ -34,12 +34,12 @@ extern "C"
  * 6. receive and decrypt a message
  */
 
-Omemo::Omemo(QObject *parent) : QObject(parent)
+LurchAdapter::LurchAdapter(QObject *parent) : QObject(parent)
 {
     // lurch_plugin_load
 
     set_omemo_dir(System::getOmemoPath().toStdString().c_str());
-    CToCxxProxy::getInstance().setOmemoPtr(this);
+    CToCxxProxy::getInstance().setLurchAdapterPtr(this);
 
     // create omemo path if needed
     QString omemoLocation = System::getOmemoPath();
@@ -69,13 +69,13 @@ Omemo::Omemo(QObject *parent) : QObject(parent)
     determineNamespace(deviceListNodeName_);
 }
 
-Omemo::~Omemo()
+LurchAdapter::~LurchAdapter()
 {
     omemo_default_crypto_teardown();
     free(uname_);
 }
 
-void Omemo::setupWithClient(Swift::Client* client)
+void LurchAdapter::setupWithClient(Swift::Client* client)
 {
     client_ = client;
 
@@ -85,22 +85,22 @@ void Omemo::setupWithClient(Swift::Client* client)
     set_fqn_name(client_->getJID().toString().c_str());
 
     // only for work on the updated pep device list, which comes in as a message
-    client_->onMessageReceived.connect(boost::bind(&Omemo::handleMessageReceived, this, _1));
+    client_->onMessageReceived.connect(boost::bind(&LurchAdapter::handleMessageReceived, this, _1));
 
     requestDeviceList(client_->getJID());
 }
 
-QString Omemo::getFeature()
+QString LurchAdapter::getFeature()
 {
     return deviceListNodeName_;
 }
 
-void Omemo::setCurrentChatPartner(const QString& jid)
+void LurchAdapter::setCurrentChatPartner(const QString& jid)
 {
     set_current_chat_partner(jid.toStdString().c_str());
 }
 
-void Omemo::determineNamespace(const QString& nsDl)
+void LurchAdapter::determineNamespace(const QString& nsDl)
 {
     QString seperator = ".";
     if (nsDl.indexOf(seperator) == -1)
@@ -120,7 +120,7 @@ void Omemo::determineNamespace(const QString& nsDl)
     }
 }
 
-void Omemo::requestDeviceList(const Swift::JID& jid)
+void LurchAdapter::requestDeviceList(const Swift::JID& jid)
 {
     /*request
      * <iq id="87f4e888-fb43-4e4d-a1f8-09884b623f71" to="xxx@jabber-germany.de" type="get">
@@ -149,11 +149,11 @@ void Omemo::requestDeviceList(const Swift::JID& jid)
     const std::string deviceListRequestXml = "<pubsub xmlns='http://jabber.org/protocol/pubsub'><items node='" + deviceListNodeName_.toStdString() + "'/></pubsub>";
 
     RawRequestWithFromJid::ref requestDeviceList = RawRequestWithFromJid::create(Swift::IQ::Get, jid.toBare(), deviceListRequestXml, client_->getIQRouter());
-    requestDeviceList->onResponse.connect(boost::bind(&Omemo::handleDeviceListResponse, this, _1, _2));
+    requestDeviceList->onResponse.connect(boost::bind(&LurchAdapter::handleDeviceListResponse, this, _1, _2));
     requestDeviceList->send();
 }
 
-void Omemo::sendAsPepStanza(char* stz)
+void LurchAdapter::sendAsPepStanza(char* stz)
 {
     QString stanza = QString::fromLatin1(stz);
     //qDebug() << "Omemo::sendAsPepStanza" << stanza;
@@ -174,11 +174,11 @@ void Omemo::sendAsPepStanza(char* stz)
     Swift::RawRequest::ref publishPep = Swift::RawRequest::create(Swift::IQ::Set, "", pubsub, client_->getIQRouter());
     if (publishNodeType.contains("bundle", Qt::CaseInsensitive))
     {
-        publishPep->onResponse.connect(boost::bind(&Omemo::publishedBundle, this, _1));
+        publishPep->onResponse.connect(boost::bind(&LurchAdapter::publishedBundle, this, _1));
     }
     else if (publishNodeType.contains("devicelist", Qt::CaseInsensitive))
     {
-        publishPep->onResponse.connect(boost::bind(&Omemo::publishedDeviceList, this, _1));
+        publishPep->onResponse.connect(boost::bind(&LurchAdapter::publishedDeviceList, this, _1));
     }
     else
     {
@@ -188,13 +188,13 @@ void Omemo::sendAsPepStanza(char* stz)
     publishPep->send();
 }
 
-void Omemo::sendRawMessageStanza(char* stz)
+void LurchAdapter::sendRawMessageStanza(char* stz)
 {
     QString stanza = QString::fromLatin1(stz);
     emit rawMessageStanzaForSending(stanza);
 }
 
-void Omemo::sendBundleRequest(char* node, void* q_msg)
+void LurchAdapter::sendBundleRequest(char* node, void* q_msg)
 {
     //node contains
     /* <iq type='get' to='xxx@jabber.ccc.de' id='xxx@jabber.ccc.de#508164373#-1085008789'>
@@ -221,25 +221,25 @@ void Omemo::sendBundleRequest(char* node, void* q_msg)
                                                                                 q_msg
                                                                             );
 
-        publishPep->onResponse.connect(boost::bind(&Omemo::requestBundleHandler, this, _1, _2, _3, _4));
+        publishPep->onResponse.connect(boost::bind(&LurchAdapter::requestBundleHandler, this, _1, _2, _3, _4));
         publishPep->send();
     }
 }
 
-void Omemo::createAndSendBundleRequest(char* sender, char* bundle)
+void LurchAdapter::createAndSendBundleRequest(char* sender, char* bundle)
 {
     const std::string bundleRequestXml = "<pubsub xmlns='http://jabber.org/protocol/pubsub'><items node='" + std::string(bundle) + "'/></pubsub>";
     RawRequestWithFromJid::ref requestDeviceList = RawRequestWithFromJid::create(Swift::IQ::Get, std::string(sender), bundleRequestXml, client_->getIQRouter());
-    requestDeviceList->onResponse.connect(boost::bind(&Omemo::pepBundleForKeytransport, this, _1, _2));
+    requestDeviceList->onResponse.connect(boost::bind(&LurchAdapter::pepBundleForKeytransport, this, _1, _2));
     requestDeviceList->send();
 }
 
-void Omemo::showMessageToUser(char* title, char* msg)
+void LurchAdapter::showMessageToUser(char* title, char* msg)
 {
     emit signalShowMessage(QString::fromLatin1(title), QString::fromLatin1(msg));
 }
 
-std::string Omemo::messageEncryptIm(const std::string msg)
+std::string LurchAdapter::messageEncryptIm(const std::string msg)
 {
     xmlnode* node = xmlnode_from_str(msg.c_str(), -1);
     lurch_message_encrypt_im_wrap(nullptr, &node);
@@ -261,7 +261,7 @@ std::string Omemo::messageEncryptIm(const std::string msg)
     }
 }
 
-int Omemo::decryptMessageIfEncrypted(Swift::Message::ref aMessage)
+int LurchAdapter::decryptMessageIfEncrypted(Swift::Message::ref aMessage)
 {
     int returnValue{0};
 
@@ -293,7 +293,7 @@ int Omemo::decryptMessageIfEncrypted(Swift::Message::ref aMessage)
     return returnValue;
 }
 
-std::string Omemo::messageDecrypt(const std::string& message)
+std::string LurchAdapter::messageDecrypt(const std::string& message)
 {
     xmlnode* node = xmlnode_from_str(message.c_str(), -1);
     lurch_message_decrypt_wrap(nullptr, &node);
@@ -315,7 +315,7 @@ std::string Omemo::messageDecrypt(const std::string& message)
     }
 }
 
-void Omemo::requestBundleHandler(const Swift::JID& jid, const std::string& bundleId, void* qMsg, const std::string& str)
+void LurchAdapter::requestBundleHandler(const Swift::JID& jid, const std::string& bundleId, void* qMsg, const std::string& str)
 {
     // str has pubsub as root node. The cb wants it to be child of iq...
     std::string bundleResponse = "<iq>" + str + "</iq>";
@@ -327,7 +327,7 @@ void Omemo::requestBundleHandler(const Swift::JID& jid, const std::string& bundl
     xmlnode_free(node);
 }
 
-void Omemo::pepBundleForKeytransport(const std::string from, const std::string &items)
+void LurchAdapter::pepBundleForKeytransport(const std::string from, const std::string &items)
 {
     xmlnode* itemsNode = xmlnode_from_str(items.c_str(), -1);
     lurch_pep_bundle_for_keytransport_wrap(&jabberStream, from.c_str(), itemsNode);
@@ -335,7 +335,7 @@ void Omemo::pepBundleForKeytransport(const std::string from, const std::string &
     xmlnode_free(itemsNode);
 }
 
-void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& str)
+void LurchAdapter::handleDeviceListResponse(const Swift::JID jid, const std::string& str)
 {
     // implements lurch_pep_devicelist_event_handler
 
@@ -414,19 +414,19 @@ void Omemo::handleDeviceListResponse(const Swift::JID jid, const std::string& st
     }
 }
 
-void Omemo::publishedDeviceList(const std::string& str)
+void LurchAdapter::publishedDeviceList(const std::string& str)
 {
     // FIXME check if there was an error on device list publishing
     qDebug() << "OMEMO: publishedDeviceList: " << QString::fromStdString(str);
 }
 
-void Omemo::publishedBundle(const std::string& str)
+void LurchAdapter::publishedBundle(const std::string& str)
 {
     // FIXME check if there was an error on bundle publishing
     qDebug() << "OMEMO: publishedBundle: " << QString::fromStdString(str);
 }
 
-bool Omemo::isEncryptedMessage(const QString& xmlNode)
+bool LurchAdapter::isEncryptedMessage(const QString& xmlNode)
 {
     bool returnValue = false;
 
@@ -449,7 +449,7 @@ bool Omemo::isEncryptedMessage(const QString& xmlNode)
     return returnValue;
 }
 
-QString Omemo::getSerializedStringFromMessage(Swift::Message::ref msg)
+QString LurchAdapter::getSerializedStringFromMessage(Swift::Message::ref msg)
 {
     Swift::FullPayloadSerializerCollection serializers_;
     Swift::XMPPSerializer xmppSerializer(&serializers_, Swift::ClientStreamType, true);
@@ -458,7 +458,7 @@ QString Omemo::getSerializedStringFromMessage(Swift::Message::ref msg)
     return QString::fromStdString(Swift::safeByteArrayToString(sba));
 }
 
-bool Omemo::exchangePlainBodyByOmemoStanzas(Swift::Message::ref msg)
+bool LurchAdapter::exchangePlainBodyByOmemoStanzas(Swift::Message::ref msg)
 {
     bool returnValue{false};
 
@@ -487,7 +487,7 @@ bool Omemo::exchangePlainBodyByOmemoStanzas(Swift::Message::ref msg)
     return returnValue;
 }
 
-void Omemo::callLurchCmd(const std::vector<std::string>& sl)
+void LurchAdapter::callLurchCmd(const std::vector<std::string>& sl)
 {
     std::vector<char*> cstrings;
     cstrings.reserve(sl.size());
@@ -502,7 +502,7 @@ void Omemo::callLurchCmd(const std::vector<std::string>& sl)
     lurch_cmd_func_wrap(nullptr, "", p_str_array, nullptr, nullptr);
 }
 
-bool Omemo::isOmemoUser(const QString& bareJid)
+bool LurchAdapter::isOmemoUser(const QString& bareJid)
 {
     bool returnValue{false};
 
@@ -523,7 +523,7 @@ bool Omemo::isOmemoUser(const QString& bareJid)
     return returnValue;
 }
 
-void Omemo::handleMessageReceived(Swift::Message::ref message)
+void LurchAdapter::handleMessageReceived(Swift::Message::ref message)
 {
 #if 0
     <message from='juliet@capulet.lit'

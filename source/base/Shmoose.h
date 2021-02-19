@@ -19,7 +19,7 @@ class MucManager;
 class DiscoInfoHandler;
 class MamManager;
 class StanzaId;
-class Omemo;
+class LurchAdapter;
 
 class Shmoose : public QObject
 {
@@ -104,7 +104,7 @@ public:
 
     StanzaId *stanzaId_;
     ConnectionHandler* connectionHandler_;
-    Omemo* omemo_;
+    LurchAdapter* lurchAdapter_;
     MessageHandler* messageHandler_;
     HttpFileUploadManager* httpFileUploadManager_;
     MamManager *mamManager_;
