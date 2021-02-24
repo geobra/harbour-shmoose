@@ -52,10 +52,16 @@ void LurchAdapterTest::test1o1MamMsgIncoming()
 [warning] Swiften/Serializer/StanzaSerializer.cpp:56 serialize: Could not find serializer for 13StringPayload
 #endif
 
-    std::shared_ptr<Swift::Message> m = std::make_shared<Swift::Message>();
-    m->addPayload(std::make_shared<StringPayload>("bla"));
+    std::shared_ptr<Swift::Message> m1 = std::make_shared<Swift::Message>();
+    m1->addPayload(std::make_shared<StringPayload>("bla"));
 
-    la.handleMessageReceived(m);
+    qDebug() << la.getSerializedStringFromMessage(m1);
+
+    std::shared_ptr<Swift::Message> m2 = std::make_shared<Swift::Message>();
+    m2->setTo(Swift::JID("foo@bar.de"));
+    auto enc = std::make_shared<Swift::RawXMLPayload>("<encrpted foo='bar'>asdfasfafasdfsfy</encrypted>");
+    m2->addPayload(enc);
+    qDebug() << la.getSerializedStringFromMessage(m2);
 }
 
 
