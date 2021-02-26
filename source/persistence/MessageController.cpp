@@ -133,8 +133,13 @@ bool MessageController::addMessage(const QString &id, const QString &jid, const 
         }
         else
         {
-            if (! this->submitAll())
+            if (this->submitAll())
             {
+                this->database().commit();
+            }
+            else
+            {
+                this->database().rollback();
                 messageAdded = false;
                 printSqlError();
             }
@@ -256,7 +261,15 @@ void MessageController::setMessageStateOfId(QString const &id, int const state)
         }
         else
         {
-            this->submitAll();
+            if (this->submitAll())
+            {
+                this->database().commit();
+            }
+            else
+            {
+                this->database().rollback();
+                printSqlError();
+            }
 
             // update the model with the changes of the database
             if (select() != true)
