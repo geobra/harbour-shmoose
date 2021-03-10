@@ -1,5 +1,8 @@
 #pragma once
 
+#include "ItemsPayloadParserFactory.h"
+#include "ItemsPayloadSerializer.h"
+
 #include <QObject>
 #include <QString>
 
@@ -51,6 +54,10 @@ private:
     void handleMessageReceived(Swift::Message::ref message);
 
     Swift::Client* client_{};
+
+    ItemsPayloadParserFactory itemsPayloadParserFactory_{};
+    ItemsPayloadSerializer itemsPayloadSerializer_{};
+
     QString deviceListNodeName_{};
     QString myBareJid_{};
     QString namespace_{};

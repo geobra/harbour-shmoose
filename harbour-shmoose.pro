@@ -28,6 +28,7 @@ INCLUDEPATH += source/xep/xmppPing
 INCLUDEPATH += source/xep/chatMarkers
 INCLUDEPATH += source/xep/stanzaId
 INCLUDEPATH += source/xep/omemo
+INCLUDEPATH += source/xep/omemo/payload
 INCLUDEPATH += source/xep/omemo/lurch
 INCLUDEPATH += source/xep/omemo/mock
 INCLUDEPATH += source/room
@@ -109,6 +110,7 @@ SOURCES += \
     source/xep/stanzaId/StanzaIdPayloadParserFactory.cpp \
     source/xep/stanzaId/StanzaIdPayloadSerializer.cpp \
     source/xep/omemo/LurchAdapter.cpp \
+    source/xep/omemo/payload/ItemsPayload.cpp \
     source/xep/omemo/mock/purple.c \
     source/xep/omemo/mock/jabber.c \
     source/xep/omemo/lurch/lurch_util.c \
@@ -124,7 +126,10 @@ SOURCES += \
     source/contacts/RosterItem.cpp \
     source/contacts/RosterController.cpp \
     source/base/CryptoHelper.cpp \
-    source/xep/omemo/CToCxxProxy.cpp
+    source/xep/omemo/CToCxxProxy.cpp \
+    source/xep/omemo/payload/ItemsPayloadParser.cpp \
+    source/xep/omemo/payload/ItemsPayloadParserFactory.cpp \
+    source/xep/omemo/payload/ItemsPayloadSerializer.cpp
 
 HEADERS += source/base/Shmoose.h \
     source/base/Settings.h \
@@ -154,6 +159,7 @@ HEADERS += source/base/Shmoose.h \
     source/xep/stanzaId/StanzaIdPayloadParserFactory.h \
     source/xep/stanzaId/StanzaIdPayloadSerializer.h \
     source/xep/omemo/LurchAdapter.h \
+    source/xep/omemo/payload/ItemsPayload.h \
     source/xep/omemo/mock/purple.h \
     source/xep/omemo/mock/jabber.h \
     source/xep/omemo/mock/chat.h \
@@ -174,7 +180,10 @@ HEADERS += source/base/Shmoose.h \
     source/contacts/RosterItem.h \
     source/contacts/RosterController.h \
     source/base/CryptoHelper.h \
-    source/xep/omemo/CToCxxProxy.h
+    source/xep/omemo/CToCxxProxy.h \
+    source/xep/omemo/payload/ItemsPayloadParser.h \
+    source/xep/omemo/payload/ItemsPayloadParserFactory.h \
+    source/xep/omemo/payload/ItemsPayloadSerializer.h
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \

@@ -80,6 +80,10 @@ void LurchAdapter::setupWithClient(Swift::Client* client)
 
     set_fqn_name(client_->getJID().toString().c_str());
 
+    // add custom payload paser for the items-payload within a message
+    client->addPayloadParserFactory(&itemsPayloadParserFactory_);
+    client->addPayloadSerializer(&itemsPayloadSerializer_);
+
     // only for work on the updated pep device list, which comes in as a message
     client_->onMessageReceived.connect(boost::bind(&LurchAdapter::handleMessageReceived, this, _1));
 
@@ -262,6 +266,8 @@ int LurchAdapter::decryptMessageIfEncrypted(Swift::Message::ref aMessage)
     int returnValue{0};
 
     // check if received aMessage is encrypted
+
+    // FIXME this should be aMessage->isEncrypted();
     QString qMsg = getSerializedStringFromMessage(aMessage);
     if (isEncryptedMessage(qMsg))
     {
@@ -340,7 +346,8 @@ void LurchAdapter::handleDeviceListResponse(const Swift::JID jid, const std::str
     //qDebug() << "OMEMO: handle device list Response. Jid: " << qJid << ". list: " << QString::fromStdString(str);
 
     /*
-     *  <pubsub xmlns="http://jabber.org/protocol/pubsub">
+
+<pubsub xmlns="http://jabber.org/protocol/pubsub">
   <items node="eu.siacs.conversations.axolotl.devicelist">
    <item id="5ED52F653A338">
     <list xmlns="eu.siacs.conversations.axolotl">
@@ -554,24 +561,26 @@ void LurchAdapter::handleMessageReceived(Swift::Message::ref message)
             </message>
 #endif
 
-    QString msg = getSerializedStringFromMessage(message);
-
-    QString itemsNodeType = XmlProcessor::getContentInTag("items", "node", msg);
-
-    if(itemsNodeType.contains("devicelist", Qt::CaseInsensitive) == true)
+    // process the devicelist inside the items payload inside a message
+    auto itemsPayload = message->getPayload<ItemsPayload>();
+    if (itemsPayload != nullptr)
     {
-        QString from = XmlProcessor::getContentInTag("message", "from", msg);
-        QString items = XmlProcessor::getChildFromNode("items", msg);
-        xmlnode* xItems = xmlnode_from_str(items.toStdString().c_str(), -1);
+        auto items{itemsPayload->getItemsPayload()};
+        auto from{message->getFrom().toString()};
 
-        if (! items.isEmpty())
+        if ( (! items.empty()) && (! from.empty()) )
         {
-            qDebug() << "Omemo::handleMessageReceived. items: " << items;
-            lurch_pep_devicelist_event_handler_wrap(&jabberStream, from.toStdString().c_str(), xItems);
+            if (itemsPayload->getNode().compare(deviceListNodeName_.toStdString()) == 0)
+            {
+                xmlnode* xItems = xmlnode_from_str(items.c_str(), -1);
 
-            emit signalReceivedDeviceListOfJid(from);
+                //std::cout << "Omemo::handleMessageReceived. items: " << items << std::endl;
+                lurch_pep_devicelist_event_handler_wrap(&jabberStream, from.c_str(), xItems);
+
+                emit signalReceivedDeviceListOfJid(QString::fromStdString(from));
+
+                xmlnode_free(xItems);
+            }
         }
-
-        xmlnode_free(xItems);
     }
 }
