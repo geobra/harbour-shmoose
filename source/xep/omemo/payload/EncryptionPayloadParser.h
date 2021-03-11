@@ -1,11 +1,11 @@
 #pragma once
 
-#include "EncryptedPayload.h"
+#include "EncryptionPayload.h"
 
-class EncryptedPayloadParser : public Swift::GenericPayloadParser<EncryptedPayload>
+class EncryptionPayloadParser : public Swift::GenericPayloadParser<EncryptionPayload>
 {
 public:
-    EncryptedPayloadParser() {};
+    EncryptionPayloadParser() {};
 
     void handleStartElement(const std::string& element, const std::string& ns, const Swift::AttributeMap& attributes);
     void handleEndElement(const std::string& element, const std::string& /* ns */);

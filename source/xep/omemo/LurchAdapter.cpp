@@ -85,8 +85,8 @@ void LurchAdapter::setupWithClient(Swift::Client* client)
     client->addPayloadSerializer(&itemsPayloadSerializer_);
 
     // add custom payload paser for the encrypted-payload within a message
-    client->addPayloadParserFactory(&encryptedPayloadParserFactory_);
-    client->addPayloadSerializer(&encryptedPayloadSerializer_);
+    client->addPayloadParserFactory(&encryptionPayloadParserFactory_);
+    client->addPayloadSerializer(&encryptionPayloadSerializer_);
 
     // only for work on the updated pep device list, which comes in as a message
     client_->onMessageReceived.connect(boost::bind(&LurchAdapter::handleMessageReceived, this, _1));
@@ -270,8 +270,8 @@ int LurchAdapter::decryptMessageIfEncrypted(Swift::Message::ref aMessage)
     int returnValue{0};
 
     // check if received aMessage is encrypted
-    auto encryptedPayload = aMessage->getPayload<EncryptedPayload>();
-    if (encryptedPayload != nullptr)
+    auto encryptionPayload = aMessage->getPayload<EncryptionPayload>();
+    if (encryptionPayload != nullptr)
     {
         QString qMsg = getSerializedStringFromMessage(aMessage);
 

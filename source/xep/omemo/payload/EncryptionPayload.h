@@ -2,10 +2,10 @@
 
 #include <Swiften/Swiften.h>
 
-class EncryptedPayload : public Swift::Payload
+class EncryptionPayload : public Swift::Payload
 {
   public:
-    EncryptedPayload() {}
+    EncryptionPayload() {}
 
     const std::string& getNamespace() const;
     void setNamespace(const std::string& ns);
