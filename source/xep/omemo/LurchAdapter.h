@@ -3,6 +3,9 @@
 #include "ItemsPayloadParserFactory.h"
 #include "ItemsPayloadSerializer.h"
 
+#include "EncryptedPayloadParserFactory.h"
+#include "EncryptedPayloadSerializer.h"
+
 #include <QObject>
 #include <QString>
 
@@ -57,6 +60,9 @@ private:
 
     ItemsPayloadParserFactory itemsPayloadParserFactory_{};
     ItemsPayloadSerializer itemsPayloadSerializer_{};
+
+    EncryptedPayloadParserFactory encryptedPayloadParserFactory_{};
+    EncryptedPayloadSerializer encryptedPayloadSerializer_{};
 
     QString deviceListNodeName_{};
     QString myBareJid_{};

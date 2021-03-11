@@ -129,7 +129,11 @@ SOURCES += \
     source/xep/omemo/CToCxxProxy.cpp \
     source/xep/omemo/payload/ItemsPayloadParser.cpp \
     source/xep/omemo/payload/ItemsPayloadParserFactory.cpp \
-    source/xep/omemo/payload/ItemsPayloadSerializer.cpp
+    source/xep/omemo/payload/ItemsPayloadSerializer.cpp \
+    source/xep/omemo/payload/EncryptedPayload.cpp \
+    source/xep/omemo/payload/EncryptedPayloadParser.cpp \
+    source/xep/omemo/payload/EncryptedPayloadParserFactory.cpp \
+    source/xep/omemo/payload/EncryptedPayloadSerializer.cpp
 
 HEADERS += source/base/Shmoose.h \
     source/base/Settings.h \
@@ -183,7 +187,11 @@ HEADERS += source/base/Shmoose.h \
     source/xep/omemo/CToCxxProxy.h \
     source/xep/omemo/payload/ItemsPayloadParser.h \
     source/xep/omemo/payload/ItemsPayloadParserFactory.h \
-    source/xep/omemo/payload/ItemsPayloadSerializer.h
+    source/xep/omemo/payload/ItemsPayloadSerializer.h \
+    source/xep/omemo/payload/EncryptedPayload.h \
+    source/xep/omemo/payload/EncryptedPayloadParser.h \
+    source/xep/omemo/payload/EncryptedPayloadParserFactory.h \
+    source/xep/omemo/payload/EncryptedPayloadSerializer.h
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \
