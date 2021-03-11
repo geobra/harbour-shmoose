@@ -459,6 +459,8 @@ bool LurchAdapter::isEncryptedMessage(const QString& xmlNode)
 QString LurchAdapter::getSerializedStringFromMessage(Swift::Message::ref msg)
 {
     Swift::FullPayloadSerializerCollection serializers_;
+    serializers_.addSerializer(&itemsPayloadSerializer_);
+    serializers_.addSerializer(&encryptionPayloadSerializer_);
     Swift::XMPPSerializer xmppSerializer(&serializers_, Swift::ClientStreamType, true);
     Swift::SafeByteArray sba = xmppSerializer.serializeElement(msg);
 
