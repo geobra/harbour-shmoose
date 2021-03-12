@@ -265,15 +265,15 @@ std::string LurchAdapter::messageEncryptIm(const std::string msg)
     }
 }
 
-int LurchAdapter::decryptMessageIfEncrypted(Swift::Message::ref aMessage)
+int LurchAdapter::decryptMessageIfEncrypted(Swift::Message::ref message)
 {
     int returnValue{0};
 
-    // check if received aMessage is encrypted
-    auto encryptionPayload = aMessage->getPayload<EncryptionPayload>();
-    if (encryptionPayload != nullptr)
+    // check if received aMessage is encrypted and if the encryption matches the omemo namespace
+    auto encryptionPayload = message->getPayload<EncryptionPayload>();
+    if ( (encryptionPayload != nullptr) && (encryptionPayload->getNamespace().compare(namespace_.toStdString()) == 0) )
     {
-        QString qMsg = getSerializedStringFromMessage(aMessage);
+        QString qMsg = getSerializedStringFromMessage(message);
 
         std::string dmsg = messageDecrypt(qMsg.toStdString());
         QString decryptedMessage{QString::fromStdString(dmsg)};
@@ -286,7 +286,7 @@ int LurchAdapter::decryptMessageIfEncrypted(Swift::Message::ref aMessage)
         else
         {
             QString body = XmlProcessor::getContentInElement("body", decryptedMessage);
-            aMessage->setBody(body.toStdString());
+            message->setBody(body.toStdString());
             returnValue = 0;
         }
     }
@@ -431,29 +431,6 @@ void LurchAdapter::publishedBundle(const std::string& str)
 {
     // FIXME check if there was an error on bundle publishing
     qDebug() << "OMEMO: publishedBundle: " << QString::fromStdString(str);
-}
-
-bool LurchAdapter::isEncryptedMessage(const QString& xmlNode)
-{
-    bool returnValue = false;
-
-    QDomDocument d;
-    if (d.setContent(xmlNode) == true)
-    {
-        QDomNodeList nodeList = d.elementsByTagName("message");
-        if (!nodeList.isEmpty())
-        {
-            //qDebug() << "found msg";
-            QDomNodeList encList = d.elementsByTagName("encrypted");
-            if (!encList.isEmpty())
-            {
-                //qDebug() << "found enc";
-                returnValue = true;
-            }
-        }
-    }
-
-    return returnValue;
 }
 
 QString LurchAdapter::getSerializedStringFromMessage(Swift::Message::ref msg)

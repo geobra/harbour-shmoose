@@ -22,7 +22,7 @@ public:
 
     std::string messageEncryptIm(const std::string msg);
     bool exchangePlainBodyByOmemoStanzas(Swift::Message::ref msg);
-    int decryptMessageIfEncrypted(Swift::Message::ref aMessage);
+    int decryptMessageIfEncrypted(Swift::Message::ref message);
 
     void sendAsPepStanza(char* stz);
     void sendRawMessageStanza(char* stz);
@@ -52,7 +52,6 @@ private:
     void publishedBundle(const std::string& str);
     void requestBundleHandler(const Swift::JID &jid, const std::string &bundleId, void *qMsg, const std::string& str);
     void pepBundleForKeytransport(const std::string from, const std::string& items);
-    bool isEncryptedMessage(const QString& xmlNode);
     QString getSerializedStringFromMessage(Swift::Message::ref msg);
     void handleMessageReceived(Swift::Message::ref message);
 

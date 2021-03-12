@@ -7,9 +7,9 @@ class EncryptionPayloadParser : public Swift::GenericPayloadParser<EncryptionPay
 public:
     EncryptionPayloadParser() {};
 
-    void handleStartElement(const std::string& element, const std::string& ns, const Swift::AttributeMap& attributes);
-    void handleEndElement(const std::string& element, const std::string& /* ns */);
-    void handleCharacterData(const std::string& data);
+    void handleStartElement(const std::string& /*element*/, const std::string& /*ns*/, const Swift::AttributeMap& attributes);
+    void handleEndElement(const std::string& /*element*/, const std::string& /* ns */);
+    void handleCharacterData(const std::string&);
 
 private:
     int level_{0};

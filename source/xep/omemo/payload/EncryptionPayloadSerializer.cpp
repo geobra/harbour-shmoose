@@ -2,7 +2,6 @@
 
 std::string EncryptionPayloadSerializer::serializePayload(std::shared_ptr<EncryptionPayload> payload) const
 {
-    // FIXME use correct ns
     Swift::XMLElement element("encryption", "urn:xmpp:eme:0");
 
     element.setAttribute("namespace", payload->getNamespace());
