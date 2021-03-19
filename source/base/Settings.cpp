@@ -224,6 +224,63 @@ void Settings::addForceOffNotifications(QString const & Jid)
     }
 }
 
+void Settings::addForcePlainTextSending(const QString& jid)
+{
+    QSettings settings;
+    QStringList jids;
+
+    if(settings.contains("omeo/sendPlainText"))
+    {
+        jids = settings.value("omeo/sendPlainText").toStringList();
+    }
+
+    if(!jids.contains(jid))
+    {
+        jids.append(jid);
+        setSendPlainText(jids);
+    }
+}
+
+void Settings::removeForcePlainTextSending(const QString& jid)
+{
+    QSettings settings;
+    QStringList jids;
+
+    if(settings.contains("omeo/sendPlainText"))
+    {
+        jids = settings.value("omeo/sendPlainText").toStringList();
+
+        int idx = jids.indexOf(jid);
+        if(idx >= 0)
+        {
+            jids.removeAt(idx);
+            setSendPlainText(jids);
+        }
+    }
+}
+
+void Settings::setSendPlainText(const QStringList& sendPlainText)
+{
+    QSettings settings;
+
+    if (sendPlainText.length() > 0)
+    {
+        settings.setValue("omeo/sendPlainText", QVariant::fromValue(sendPlainText));
+    }
+    else
+    {
+        settings.remove("omeo/sendPlainText");
+    }
+
+    emit sendPlainTextChanged(sendPlainText);
+}
+
+QStringList Settings::getSendPlainText() const
+{
+    QSettings settings;
+    return settings.value("omeo/sendPlainText").toStringList();
+}
+
 bool Settings::getSendReadNotifications() const
 {
     bool save = true;

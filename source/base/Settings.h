@@ -18,9 +18,10 @@ class Settings : public QObject
     Q_PROPERTY(QStringList ForceOffNotifications READ getForceOffNotifications WRITE setForceOffNotifications NOTIFY forceOffNotificationsChanged)
     Q_PROPERTY(bool SendReadNotifications READ getSendReadNotifications WRITE setSendReadNotifications NOTIFY sendReadNotificationsChanged)
     Q_PROPERTY(QStringList ImagePaths READ getImagePaths WRITE setImagePaths NOTIFY imagePathsChanged)
+    Q_PROPERTY(QStringList SendPlainText READ getSendPlainText WRITE setSendPlainText NOTIFY sendPlainTextChanged)
 
 public:
-    explicit Settings(QObject *parent = 0);
+    explicit Settings(QObject *parent = nullptr);
 
     QString getJid() const;
     QString getPassword() const;
@@ -33,6 +34,8 @@ public:
     QStringList getImagePaths();
     bool isOmemoForSendingOff();
 
+    QStringList getSendPlainText() const;
+
 signals:
     void jidChanged(QString Jid);
     void passwordChanged(QString Password);
@@ -43,6 +46,7 @@ signals:
     void forceOffNotificationsChanged(QStringList const & ForceOffNotifications);
     void sendReadNotificationsChanged(bool SendReadNotifications);
     void imagePathsChanged(QStringList const & ImagePaths);
+    void sendPlainTextChanged(const QStringList& sendPlainText);
 
 public slots:
     void setJid(QString Jid);
@@ -61,6 +65,10 @@ public slots:
     void removeImagePath(QString const & Path);
     void addImagePath(QUrl const & Path);
     void setOmemoForSendingOff(bool isInitialized);
+
+    void addForcePlainTextSending(const QString& jid);
+    void removeForcePlainTextSending(const QString& jid);
+    void setSendPlainText(const QStringList& sendPlainText);
 
 };
 
