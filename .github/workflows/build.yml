@@ -67,6 +67,9 @@ jobs:
 #          qmake .. DEFINES+=TRAVIS
 #          make -j$(nproc)
 
+    - name: run unit tests
+      run: ./scripts/travis/unit_testing.sh
+
     - name: run integration tests
       run: ./scripts/travis/testing.sh
 
