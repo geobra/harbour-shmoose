@@ -22,6 +22,7 @@ QMAKE_CFLAGS += $$system("pkg-config --cflags glib-2.0 libxml-2.0")
 INCLUDEPATH += $$_PRO_FILE_PWD_/../../../source/xep/omemo
 INCLUDEPATH += $$_PRO_FILE_PWD_/../../../source/xep/omemo/lurch
 INCLUDEPATH += $$_PRO_FILE_PWD_/../../../source/xep/omemo/mock
+INCLUDEPATH += $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload
 INCLUDEPATH += $$_PRO_FILE_PWD_/../../../source/base
 
 SWIFTPATH = $$_PRO_FILE_PWD_/../../../../swift-4.0.2
@@ -35,6 +36,14 @@ SOURCES +=  tst_lurchadapter.cpp lurch_wrapper.c \
     $$_PRO_FILE_PWD_/../../../source/xep/omemo/xmlnode.c \
     $$_PRO_FILE_PWD_/../../../source/xep/omemo/lurch/lurch_util.c \
     $$_PRO_FILE_PWD_/../../../source/xep/omemo/mock/purple.c \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/EncryptionPayload.cpp \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/EncryptionPayloadParser.cpp \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/EncryptionPayloadParserFactory.cpp \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/EncryptionPayloadSerializer.cpp \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/ItemsPayload.cpp \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/ItemsPayloadParser.cpp \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/ItemsPayloadParserFactory.cpp \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/ItemsPayloadSerializer.cpp \
     $$_PRO_FILE_PWD_/../../../source/base/System.cpp \
     $$_PRO_FILE_PWD_/../../../source/base/XmlProcessor.cpp
 
@@ -45,6 +54,14 @@ HEADERS += tst_lurchadapter.h StringPayload.h \
     $$_PRO_FILE_PWD_/../../../source/xep/omemo/lurch_wrapper.h \
     $$_PRO_FILE_PWD_/../../../source/xep/omemo/lurch/lurch_util.h \
     $$_PRO_FILE_PWD_/../../../source/xep/omemo/mock/purple.h \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/EncryptionPayload.h \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/EncryptionPayloadParser.h \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/EncryptionPayloadParserFactory.h \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/EncryptionPayloadSerializer.h \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/ItemsPayload.h \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/ItemsPayloadParser.h \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/ItemsPayloadParserFactory.h \
+    $$_PRO_FILE_PWD_/../../../source/xep/omemo/payload/ItemsPayloadSerializer.h \
     $$_PRO_FILE_PWD_/../../../source/base/System.h \
     $$_PRO_FILE_PWD_/../../../source/base/XmlProcessor.h
 
