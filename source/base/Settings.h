@@ -33,7 +33,6 @@ public:
     bool getSendReadNotifications() const;
     QStringList getImagePaths();
     bool isOmemoForSendingOff();
-
     QStringList getSendPlainText() const;
 
 signals:

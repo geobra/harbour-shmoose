@@ -61,9 +61,11 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     //std::cout << "handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
 
     auto success = lurchAdapter_->decryptMessageIfEncrypted(message);
-    if (success == 1 || success == 2) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
+    if (success == 2) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
     {
-        qDebug() << "decryptMessageIfEncrypted (1: was not encrypted, 2: error during decryption). code: " << success;
+        qDebug() << "handleMessageReceived: error during decryption).";
+        QString cryptErrorMsg{tr("** Enrypted message could not be decrypted. Sorry. **")};
+        message->setBody(cryptErrorMsg.toStdString());
     }
 
     std::string fromJid = message->getFrom().toBare().toString();
@@ -228,9 +230,8 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         msg->addPayload(std::make_shared<Swift::RawXMLPayload>(ChatMarkers::getMarkableString().toStdString()));
 
         // exchange body by omemo stuff if applicable
-        Settings settings;
         bool shouldSendMsgStanze{true};
-        if ( (lurchAdapter_->isOmemoUser(toJid) == true) && (settings.isOmemoForSendingOff() == false) )
+        if ( (lurchAdapter_->isOmemoUser(toJid) == true) && (! settings_->getSendPlainText().contains(toJid)) )
         {
             bool success = lurchAdapter_->exchangePlainBodyByOmemoStanzas(msg);
             if (success == false)
