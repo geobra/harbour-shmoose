@@ -195,7 +195,7 @@ void OmemoTest::sendMsgTest()
     qDebug() << "sent #2 from 1 to 2 MsgId: " << msgId;
 
     // wait for arrived msgOnWire at other client
-    spyLatestMsgRhs.wait(4*timeOut_);
+    spyLatestMsgRhs.wait(5 * timeOut_);
     QCOMPARE(spyLatestMsgRhs.count(), 1);
     spyArgumentsOfMsg = spyLatestMsgRhs.takeFirst();
     QVERIFY(spyArgumentsOfMsg.at(2).toString() == msgOnWire);
@@ -212,17 +212,59 @@ void OmemoTest::sendMsgTest()
     interfaceRhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser1);
 
     // check msgId of sent msg
-    spyMsgSentRhs.wait(10 * timeOut_);
+    spyMsgSentRhs.wait(5 * timeOut_);
     QVERIFY(spyMsgSentRhs.count() == 1);
     spyArgumentsOfMsgSent = spyMsgSentRhs.takeFirst();
     msgId = spyArgumentsOfMsgSent.at(0).toString();
     qDebug() << "sent #3 from 2 to 1 MsgId: " << msgId;
 
     // wait for arrived msgOnWire at other client
-    spyLatestMsgLhs.wait(10*timeOut_);
+    spyLatestMsgLhs.wait(5 * timeOut_);
     QCOMPARE(spyLatestMsgLhs.count(), 1);
     spyArgumentsOfMsg = spyLatestMsgLhs.takeFirst();
     QVERIFY(spyArgumentsOfMsg.at(2).toString() == msgOnWireForUser1);
+
+    // #################################################################
+    // disable omemo and send plain text
+    spyMsgSentRhs.clear();
+    spyLatestMsgLhs.clear();
+    interfaceRhs_->callDbusMethodWithArgument("addForcePlainMsgForJid", QList<QVariant>{user1jid_});
+    interfaceRhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser1);
+
+    // check msgId of sent msg
+    spyMsgSentRhs.wait(5 * timeOut_);
+    QVERIFY(spyMsgSentRhs.count() == 1);
+    spyArgumentsOfMsgSent = spyMsgSentRhs.takeFirst();
+    msgId = spyArgumentsOfMsgSent.at(0).toString();
+    qDebug() << "sent #4 from 2 to 1 MsgId: " << msgId;
+
+    // wait for arrived msgOnWire at other client
+    spyLatestMsgLhs.wait(5 * timeOut_);
+    QCOMPARE(spyLatestMsgLhs.count(), 1);
+    spyArgumentsOfMsg = spyLatestMsgLhs.takeFirst();
+    QVERIFY(spyArgumentsOfMsg.at(2).toString() == msgOnWireForUser1);
+
+
+    // #################################################################
+    // reenable omemo and send crypted text
+    spyMsgSentRhs.clear();
+    spyLatestMsgLhs.clear();
+    interfaceRhs_->callDbusMethodWithArgument("rmForcePlainMsgForJid", QList<QVariant>{user1jid_});
+    interfaceRhs_->callDbusMethodWithArgument("sendMsg", argumentsMsgForUser1);
+
+    // check msgId of sent msg
+    spyMsgSentRhs.wait(5 * timeOut_);
+    QVERIFY(spyMsgSentRhs.count() == 1);
+    spyArgumentsOfMsgSent = spyMsgSentRhs.takeFirst();
+    msgId = spyArgumentsOfMsgSent.at(0).toString();
+    qDebug() << "sent #5 from 2 to 1 MsgId: " << msgId;
+
+    // wait for arrived msgOnWire at other client
+    spyLatestMsgLhs.wait(5 * timeOut_);
+    QCOMPARE(spyLatestMsgLhs.count(), 1);
+    spyArgumentsOfMsg = spyLatestMsgLhs.takeFirst();
+    QVERIFY(spyArgumentsOfMsg.at(2).toString() == msgOnWireForUser1);
+
 
     // check the msg status as seen from the sender
     // there must be 2 msg's for the sent msgId. the first with state change to 1, the second with state change to 2.

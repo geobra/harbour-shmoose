@@ -327,6 +327,20 @@ bool DbusCommunicator::requestRosterList()
     return true;
 }
 
+bool DbusCommunicator::addForcePlainMsgForJid(const QString& jid)
+{
+    shmoose_->settings_->addForcePlainTextSending(jid);
+
+    return true;
+}
+
+bool DbusCommunicator::rmForcePlainMsgForJid(const QString& jid)
+{
+    shmoose_->settings_->removeForcePlainTextSending(jid);
+
+    return true;
+}
+
 void DbusCommunicator::slotForwardMucRoomRemoved(QString jid)
 {
     QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalMucRoomRemoved");

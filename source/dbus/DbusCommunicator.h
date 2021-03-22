@@ -28,6 +28,8 @@ public slots:
     Q_SCRIPTABLE bool disconnectFromServer();
     Q_SCRIPTABLE bool reConnect();
     Q_SCRIPTABLE bool requestRosterList();
+    Q_SCRIPTABLE bool addForcePlainMsgForJid(const QString& jid);
+    Q_SCRIPTABLE bool rmForcePlainMsgForJid(const QString& jid);
 
     Q_SCRIPTABLE bool quitClient();
 
