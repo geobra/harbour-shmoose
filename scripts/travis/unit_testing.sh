@@ -19,12 +19,12 @@ run_unit_test_at_path()
 
 	mkdir -p $UTPATH/build
 	cd $UTPATH/build
-	qmake ..
+	qmake .. DEFINES+=TRAVIS
 	make -j$(nproc)
 
 	EXEC=$(find . -type f -executable | grep -v ".sh$")
-	$EXEC		
-	
+	$EXEC
+
 	cd "$CURRENTPATH"
 }
 
