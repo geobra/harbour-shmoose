@@ -49,7 +49,7 @@ protected:
     const QString imageFileName_;
 
     const int timeOutConnect_;
-    const int timeOut_;
+    int timeOut_;
 
     struct MsgContent
     {

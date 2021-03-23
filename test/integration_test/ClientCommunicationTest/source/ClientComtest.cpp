@@ -24,6 +24,19 @@ ClientComTest::ClientComTest() : ClientComTestCommon()
 // send msg test
 void ClientComTest::sendMsgTest()
 {
+    if (QFile::exists("useomemo.txt")) // can't use custom command line arguments with qtest :-(.
+    {
+        interfaceRhs_->callDbusMethodWithArgument("rmForcePlainMsgForJid", QList<QVariant>{user1jid_});
+        interfaceLhs_->callDbusMethodWithArgument("rmForcePlainMsgForJid", QList<QVariant>{user2jid_});
+
+        timeOut_ = timeOut_ * 2;
+    }
+    else
+    {
+        interfaceRhs_->callDbusMethodWithArgument("addForcePlainMsgForJid", QList<QVariant>{user1jid_});
+        interfaceLhs_->callDbusMethodWithArgument("addForcePlainMsgForJid", QList<QVariant>{user2jid_});
+    }
+
     requestRosterTestCommon(interfaceLhs_);
     requestRosterTestCommon(interfaceRhs_);
 
@@ -302,3 +315,4 @@ void ClientComTest::collectMsgStateRhsChanged(QString msgId, int state)
 }
 
 QTEST_GUILESS_MAIN(ClientComTest)
+
