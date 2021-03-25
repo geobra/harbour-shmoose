@@ -110,7 +110,11 @@ To cross compile for Sailfish OS, do the following:
 -------------------------------------------------------------------------------
 
  * Get and install Sailfish OS mersdk (tested with version 1608)
- * SSH into mersdk and do the following in a newly created directory
+ * SSH into mersdk and do the following
+
+Hint::
+
+Use 'sb2-config -l' to show available targets for sb2.
 
 Fetch the Swift source source::
 
@@ -119,9 +123,9 @@ Fetch the Swift source source::
  * cd swift-4.0.2-arm
  * tar --strip-components=1 -xzvf ../swift-4.0.2.tar.gz
 
-Install all dependencies to build Swiften::
+Install all dependencies to build Swiften and shmoose::
 
- * sb2 -t SailfishOS-armv7hl -m sdk-install -R zypper in openssl-devel libiphb-devel libxml2-devel
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl -m sdk-install -R zypper in openssl-devel libiphb-devel libxml2-devel libgpg-error-devel libgcrypt-devel sqlite-devel cmake
 
 Patch the SConstruct file to do a PIC build of the library archive
 
@@ -135,11 +139,38 @@ Build the Swiften Library::
 
  * sb2 -t SailfishOS-armv7hl /bin/bash ./scons Swiften
 
-Fetch the Shmoose source code::
+Install mxml::
+
+ * curl -L -O https://github.com/michaelrsweet/mxml/releases/download/v3.2/mxml-3.2.tar.gz
+ * tar -xvf mxml-3.2.tar.gz && cd mxml-3.2
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl ./configure
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl make
+ * cp libmxml.a /srv/mer/targets/SailfishOS-3.3.0.16-armv7hl/usr/local/lib/
+ * cp mxml.h /srv/mer/targets/SailfishOS-3.3.0.16-armv7hl/usr/local/include/
+
+Install libomemo::
+
+ * git clone https://github.com/gkdr/libomemo && cd libomemo
+ * git checkout tags/v0.7.0
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl make
+
+Install axc and libsignal-protocol-c::
+
+ * git clone https://github.com/gkdr/axc && cd axc
+ * git checkout tags/v0.3.3
+ * git submodule update --init
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl make
+ * cd  lib/libsignal-protocol-c/
+ * add 'set(CMAKE_POSITION_INDEPENDENT_CODE ON)' to CMakeLists.txt
+ * mkdir build && cd build
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl cmake ..
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl make
+
+Fetch the Shmoose source code and build::
 
  * cd ..
  * git clone https://github.com/geobra/harbour-shmoose
  * cd harbour-shmoose
- * mb2 -t SailfishOS-armv7hl build
+ * mb2 -t SailfishOS-3.3.0.16-armv7hl build
 
 
