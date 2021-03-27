@@ -52,6 +52,8 @@ public:
     Q_INVOKABLE bool canSendFile();
     Q_INVOKABLE QString getVersion();
 
+    Q_INVOKABLE bool isOmemoUser(const QString& jid);
+
     bool connectionState() const;
 
 public slots:

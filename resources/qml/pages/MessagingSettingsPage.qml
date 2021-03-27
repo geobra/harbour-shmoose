@@ -51,5 +51,31 @@ Page {
                 }
             }
         }
+
+        TextSwitch {
+            id: sendOmemoMsg
+            enabled: shmoose.isOmemoUser(conversationId)
+            checked: {
+                if ( shmoose.isOmemoUser(conversationId) === false) {
+                    return false;
+                }
+                else if (shmoose.settings.SendPlainText.indexOf(conversationId) >= 0) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            text: qsTr("Send omemo encrypted messages")
+            onClicked: {
+                if (sendOmemoMsg.checked) {
+                    shmoose.settings.removeForcePlainTextSending(conversationId)
+                }
+                else {
+                    shmoose.settings.addForcePlainTextSending(conversationId)
+                }
+            }
+        }
+
     }
 }

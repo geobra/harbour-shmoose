@@ -497,13 +497,15 @@ bool LurchAdapter::isOmemoUser(const QString& bareJid)
 
     // determine if recipient is omemo user
     int ret_val = omemo_storage_user_devicelist_retrieve(bareJid.toStdString().c_str(), db_fn_omemo, &dl_p);
-    if (ret_val)
+    if (ret_val == 0)
     {
-        returnValue = false;
+        // FIXME have also to check if there is an id in the list!
+        //GList list = dl_p->id_list_p;
+        returnValue = true;
     }
     else
     {
-        returnValue = true;
+        returnValue = false;
     }
 
     return returnValue;

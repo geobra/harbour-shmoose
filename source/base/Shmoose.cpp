@@ -305,6 +305,11 @@ bool Shmoose::canSendFile()
     return httpFileUploadManager_->getServerHasFeatureHttpUpload();
 }
 
+bool Shmoose::isOmemoUser(const QString& jid)
+{
+    return lurchAdapter_->isOmemoUser(jid);
+}
+
 QString Shmoose::getAttachmentPath()
 {
     return System::getAttachmentPath();
