@@ -60,8 +60,14 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 {
     //std::cout << "handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
 
+    unsigned int security = 0;
+
     auto success = lurchAdapter_->decryptMessageIfEncrypted(message);
-    if (success == 2) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
+    if (success == 0) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
+    {
+        security = 1;
+    }
+    else if (success == 2)
     {
         qDebug() << "handleMessageReceived: error during decryption).";
         QString cryptErrorMsg{tr("** Enrypted message could not be decrypted. Sorry. **")};
@@ -138,13 +144,13 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             persistence_->addMessage(messageId,
                                      QString::fromStdString(fromJid),
                                      QString::fromStdString(message->getFrom().getResource()),
-                                     theBody, type, 1 );
+                                     theBody, type, 1, security);
         } else
         {
             persistence_->addMessage(messageId,
                                      QString::fromStdString(toJID.toBare().toString()),
                                      QString::fromStdString(toJID.getResource()),
-                                     theBody, type, 0 );
+                                     theBody, type, 0, security);
         }
 
         // xep 0333
@@ -175,6 +181,8 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
 void MessageHandler::sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup)
 {
+    unsigned int security = 0;
+
     if (message.startsWith("/lurch") == true)
     {
         std::vector<std::string> sl;
@@ -245,6 +253,10 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
                 // informs the user about real sending, receiving, reading.
                 shouldSendMsgStanze = true;
             }
+            else
+            {
+                security = 1;
+            }
         }
 
         if (shouldSendMsgStanze == true)
@@ -255,7 +267,7 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         persistence_->addMessage( QString::fromStdString(msgId),
                                   QString::fromStdString(receiverJid.toBare().toString()),
                                   QString::fromStdString(receiverJid.getResource()),
-                                  message, type, 0);
+                                  message, type, 0, security);
         unAckedMessageIds_.push_back(QString::fromStdString(msgId));
 
         emit messageSent(QString::fromStdString(msgId));

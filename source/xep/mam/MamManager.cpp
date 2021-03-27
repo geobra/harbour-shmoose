@@ -115,6 +115,10 @@ void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
     }
 }
 
+// FIXME rewrite me!
+// this fails sometimes :-(.
+// use custom payload parser to filter out mam messages!
+
 void MamManager::handleDataReceived(Swift::SafeByteArray data)
 {
     std::string nodeData = Swift::safeByteArrayToString(data);
@@ -163,6 +167,7 @@ void MamManager::processFinIq(const QString& iq)
 
 void MamManager::processMamMessage(const QString& qData)
 {
+    unsigned int security = 0;
     bool isGroupMessage = false;
     QString senderBareJid = "";
     QString resource = "";
@@ -207,6 +212,8 @@ void MamManager::processMamMessage(const QString& qData)
             }
         }
 
+        // FIXME check if this is an omemo msg!
+
         // process msg's with a body
         QString body = XmlProcessor::getContentInTag("message", "body", archivedMsg);
         if (! body.isEmpty()) // process messages with a body text
@@ -223,9 +230,11 @@ void MamManager::processMamMessage(const QString& qData)
                 }
             }
 
+            /*
             qDebug() << "mam group: " << isGroupMessage << " body: " << body
                      << ", id: " << id << " , jid: " << senderBareJid << ", resource: "
                      << resource << "direction: " << direction << ", ts: " << timestamp;
+            */
 
             bool is1o1OrIsGroupWithResource = false;
             if (isGroupMessage == false)
@@ -251,7 +260,7 @@ void MamManager::processMamMessage(const QString& qData)
 
             if ( (! id.isEmpty()) && (! senderBareJid.isEmpty()) && is1o1OrIsGroupWithResource )
             {
-                persistence_->addMessage(id, senderBareJid, resource, body, type, direction, timestamp);
+                persistence_->addMessage(id, senderBareJid, resource, body, type, direction, security, timestamp);
             }
         }
 

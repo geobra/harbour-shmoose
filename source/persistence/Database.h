@@ -9,7 +9,7 @@ class Database : public QObject
     Q_OBJECT
 
 public:
-    explicit Database(QObject *parent = 0);
+    explicit Database(QObject *parent = nullptr);
     bool open(QString const &jid);
     bool isValid();
     QSqlDatabase* getPointer();
@@ -21,6 +21,7 @@ public:
     static const QString sqlMsgDirection_;
     static const QString sqlMsgType_;
     static const QString sqlMsgState_;
+    static const QString security_;
 
     static const QString sqlSessionName_;
     static const QString sqlSessionLastMsg_;
