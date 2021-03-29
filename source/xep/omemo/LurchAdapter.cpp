@@ -491,21 +491,24 @@ void LurchAdapter::callLurchCmd(const std::vector<std::string>& sl)
 bool LurchAdapter::isOmemoUser(const QString& bareJid)
 {
     bool returnValue{false};
+    char* db_fn_omemo = lurch_util_uname_get_db_fn(uname_, LURCH_DB_NAME_OMEMO);
 
-    char * db_fn_omemo = lurch_util_uname_get_db_fn(client_->getJID().toBare().toString().c_str(), LURCH_DB_NAME_OMEMO);
-    omemo_devicelist * dl_p{nullptr};
-
-    // determine if recipient is omemo user
-    int ret_val = omemo_storage_user_devicelist_retrieve(bareJid.toStdString().c_str(), db_fn_omemo, &dl_p);
-    if (ret_val == 0)
+    if (db_fn_omemo != nullptr)
     {
-        // FIXME have also to check if there is an id in the list!
-        //GList list = dl_p->id_list_p;
-        returnValue = true;
-    }
-    else
-    {
-        returnValue = false;
+        int ret_val = omemo_storage_chatlist_exists(bareJid.toStdString().c_str(), db_fn_omemo);
+        if (ret_val == 0)
+        {
+            axc_context * axc_ctx_p = nullptr;
+            ret_val = lurch_util_axc_get_init_ctx(uname_, &axc_ctx_p);
+            if (ret_val == 0)
+            {
+                ret_val = axc_session_exists_any(bareJid.toStdString().c_str(), axc_ctx_p);
+                if (ret_val > 0)
+                {
+                    returnValue = true;
+                }
+            }
+        }
     }
 
     return returnValue;
