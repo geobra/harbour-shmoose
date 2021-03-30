@@ -491,24 +491,28 @@ void LurchAdapter::callLurchCmd(const std::vector<std::string>& sl)
 bool LurchAdapter::isOmemoUser(const QString& bareJid)
 {
     bool returnValue{false};
+
+    omemo_devicelist * dl_db_p = nullptr;
     char* db_fn_omemo = lurch_util_uname_get_db_fn(uname_, LURCH_DB_NAME_OMEMO);
 
     if (db_fn_omemo != nullptr)
     {
-        int ret_val = omemo_storage_chatlist_exists(bareJid.toStdString().c_str(), db_fn_omemo);
+        int ret_val = omemo_storage_user_devicelist_retrieve(bareJid.toStdString().c_str(), db_fn_omemo, &dl_db_p);
+
         if (ret_val == 0)
         {
-            axc_context * axc_ctx_p = nullptr;
-            ret_val = lurch_util_axc_get_init_ctx(uname_, &axc_ctx_p);
-            if (ret_val == 0)
+            char * debug_str = nullptr;
+            omemo_devicelist_export(dl_db_p, &debug_str);
+
+            //std::cout << "dev list: " << debug_str << std::endl;
+            QString devList{debug_str};
+            if (devList.contains("device id", Qt::CaseInsensitive))
             {
-                ret_val = axc_session_exists_any(bareJid.toStdString().c_str(), axc_ctx_p);
-                if (ret_val > 0)
-                {
-                    returnValue = true;
-                }
+                returnValue = true;
             }
+            free(debug_str);
         }
+        g_free(db_fn_omemo);
     }
 
     return returnValue;
