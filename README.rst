@@ -116,16 +116,16 @@ Hint::
 
 Use 'sb2-config -l' to show available targets for sb2.
 
+Install all dependencies to build Swiften and shmoose::
+
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl -m sdk-install -R zypper in openssl-devel libiphb-devel libxml2-devel libgpg-error-devel libgcrypt-devel sqlite-devel cmake
+
 Fetch the Swift source source::
 
  * wget https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz
  * mkdir swift-4.0.2-arm
  * cd swift-4.0.2-arm
  * tar --strip-components=1 -xzvf ../swift-4.0.2.tar.gz
-
-Install all dependencies to build Swiften and shmoose::
-
- * sb2 -t SailfishOS-3.3.0.16-armv7hl -m sdk-install -R zypper in openssl-devel libiphb-devel libxml2-devel libgpg-error-devel libgcrypt-devel sqlite-devel cmake
 
 Patch the SConstruct file to do a PIC build of the library archive
 
@@ -138,6 +138,7 @@ under the line 'env.SConscript = SConscript' on line 14
 Build the Swiften Library::
 
  * sb2 -t SailfishOS-armv7hl /bin/bash ./scons Swiften
+ * cd ..
 
 Install mxml::
 
@@ -147,12 +148,19 @@ Install mxml::
  * sb2 -t SailfishOS-3.3.0.16-armv7hl make
  * cp libmxml.a /srv/mer/targets/SailfishOS-3.3.0.16-armv7hl/usr/local/lib/
  * cp mxml.h /srv/mer/targets/SailfishOS-3.3.0.16-armv7hl/usr/local/include/
+ * cd ..
+
+Fetch the Shmoose source code::
+
+ * git clone https://github.com/geobra/harbour-shmoose
+ * cd harbour-shmoose
 
 Install libomemo::
 
  * git clone https://github.com/gkdr/libomemo && cd libomemo
  * git checkout tags/v0.7.0
  * sb2 -t SailfishOS-3.3.0.16-armv7hl make
+ * cd ..
 
 Install axc and libsignal-protocol-c::
 
@@ -165,12 +173,9 @@ Install axc and libsignal-protocol-c::
  * mkdir build && cd build
  * sb2 -t SailfishOS-3.3.0.16-armv7hl cmake ..
  * sb2 -t SailfishOS-3.3.0.16-armv7hl make
+ * cd ../../../..
 
-Fetch the Shmoose source code and build::
+Finally, build Shmoose::
 
- * cd ..
- * git clone https://github.com/geobra/harbour-shmoose
- * cd harbour-shmoose
  * mb2 -t SailfishOS-3.3.0.16-armv7hl build
-
 
