@@ -37,9 +37,10 @@ Rectangle {
                     Label {
                         id: nameText
 
-                        wrapMode: Text.Wrap
+                        wrapMode: Text.NoWrap
                         font.pixelSize: 14
                         width: contactsItem.width
+                        maximumLineCount: 1
 
                         text: name
                     }

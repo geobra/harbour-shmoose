@@ -16,7 +16,7 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="35"/>
         <source>Contributions:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bidrag:</translation>
     </message>
 </context>
 <context>
@@ -24,22 +24,22 @@
     <message>
         <location filename="../qml/pages/AttachmentPathsPage.qml" line="13"/>
         <source>Add Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till sökväg</translation>
     </message>
     <message>
         <location filename="../qml/pages/AttachmentPathsPage.qml" line="24"/>
         <source>Attachment Search Paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Sökvägar för bilagor</translation>
     </message>
     <message>
         <location filename="../qml/pages/AttachmentPathsPage.qml" line="38"/>
         <source>Deleting</source>
-        <translation type="unfinished"></translation>
+        <translation>Tar bort</translation>
     </message>
     <message>
         <location filename="../qml/pages/AttachmentPathsPage.qml" line="43"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort</translation>
     </message>
 </context>
 <context>
@@ -52,7 +52,7 @@
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="96"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="125"/>
@@ -121,7 +121,7 @@
     <message>
         <location filename="../qml/pages/CreateContactDialog.qml" line="29"/>
         <source>NickName</source>
-        <translation>Smeknamn</translation>
+        <translation>Chattnamn</translation>
     </message>
 </context>
 <context>
@@ -129,12 +129,12 @@
     <message>
         <location filename="../qml/pages/ImagePage.qml" line="143"/>
         <source>Loading image...%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Läser in bild... %1</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImagePage.qml" line="152"/>
         <source>Error loading image</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunde inte läsa in bilden</translation>
     </message>
 </context>
 <context>
@@ -254,7 +254,7 @@
     <message>
         <location filename="../qml/pages/MessageStatusPage.qml" line="19"/>
         <source>Message Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Meddelandestatus</translation>
     </message>
 </context>
 <context>
@@ -267,7 +267,7 @@
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="188"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="245"/>
@@ -280,27 +280,27 @@
     <message>
         <location filename="../qml/pages/MessagingSettingsPage.qml" line="20"/>
         <source> settings</source>
-        <translation type="unfinished"></translation>
+        <translation> inställningar</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingSettingsPage.qml" line="23"/>
         <source>Chat notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Chattavisering</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingSettingsPage.qml" line="32"/>
         <source>Default setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardinställning</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingSettingsPage.qml" line="39"/>
         <source>On</source>
-        <translation type="unfinished"></translation>
+        <translation>På</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingSettingsPage.qml" line="46"/>
         <source>Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Av</translation>
     </message>
 </context>
 <context>
@@ -313,17 +313,17 @@
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="20"/>
         <source>Notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Avisering</translation>
     </message>
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="25"/>
         <source>Display chat notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa chattavisering</translation>
     </message>
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="33"/>
         <source>Display group chat notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa gruppchattavisering</translation>
     </message>
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="39"/>
@@ -338,12 +338,12 @@
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="50"/>
         <source>Attachments</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilagor</translation>
     </message>
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="53"/>
         <source>Edit attachment search paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigera sökvägar för bilagesökning</translation>
     </message>
 </context>
 </TS>

@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.com/geobra/harbour-shmoose.svg?branch=master
-    :target: https://travis-ci.com/geobra/harbour-shmoose
+.. image:: https://github.com/geobra/harbour-shmoose/workflows/build_shmoose/badge.svg
+    :target: https://github.com/geobra/harbour-shmoose/actions
 
 .. image:: https://codecov.io/gh/geobra/harbour-shmoose/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/geobra/harbour-shmoose
@@ -54,7 +54,8 @@ Ready-to-use binaries can be found on OpenRepos
 
 Note! starting with Sailfish OS version 3.3.0.16 you need to adjust the suspend settings of your device::
 
- * pkcon install mce-tool
+ * pkcon refresh
+ * pkcon install mce-tools
  * mcetool -searly
 
 This disables late suspend of the device. Battery drain is only slightly more at my device with this setting. This setting is persistent over reboots and has to be done only once. Without this, the longterm TCP connection will drop after a short amount of time and you won't get notifications on new messages.
