@@ -69,6 +69,8 @@ Page {
 
                     Label {
                         id: nameId;
+                        wrapMode: Text.NoWrap
+                        maximumLineCount: 1
                         text: shmoose.rosterController.getNameForJid(jid)
                         color: (item.highlighted ? Theme.highlightColor : Theme.primaryColor);
                         font.pixelSize: Theme.fontSizeMedium;

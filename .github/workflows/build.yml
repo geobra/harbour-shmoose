@@ -2,7 +2,11 @@ name: build_shmoose
 
 on:
   push:
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   build:
@@ -72,4 +76,5 @@ jobs:
 
     - name: run integration tests
       run: ./scripts/travis/testing.sh
+
 
