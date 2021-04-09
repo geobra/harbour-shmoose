@@ -14,7 +14,6 @@
 #include <Swiften/Elements/Forwarded.h>
 
 #include <QUrl>
-#include <QDomDocument>
 #include <QDebug>
 
 MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, RosterController* rosterController, LurchAdapter* lurchAdapter, QObject *parent) : QObject(parent),
