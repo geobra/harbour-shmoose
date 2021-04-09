@@ -22,7 +22,7 @@ Shmoose builds on and includes code from the following projects:
 * XMPP library `Swiften <https://swift.im/swiften.html>`_ from Isode
 * Omemo library `libomemo <https://github.com/gkdr/libomemo>`_ written by Richard Bayerle
 * `Axc <https://github.com/gkdr/axc>`_ library written by Richard Bayerle
-* `Lurch <https://github.com/gkdr/axc>`_ plugin written by Richard Bayerle
+* `Lurch <https://github.com/gkdr/lurch>`_ plugin written by Richard Bayerle
 * Image picker is from `hangish <https://github.com/rogora/hangish>`_ written by Daniele Rogora
 * Image zoom and pitch page is from `harbour-one <https://github.com/0312birdzhang/harbour-one>`_ written by 0312birdzhang
 
