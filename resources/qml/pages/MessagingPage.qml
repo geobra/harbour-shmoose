@@ -33,7 +33,7 @@ Page {
 
     PageHeader {
         id: banner;
-        title: shmoose.rosterController.getNameForJid(conversationId);
+        title: trimStr(shmoose.rosterController.getNameForJid(conversationId));
         Image {
             id: avatar;
             parent: banner.extraContent;
@@ -353,6 +353,18 @@ Page {
         } else {
             return "image://theme/icon-l-people"
         }
+    }
+    
+    function trimStr(str){
+        var trimmedStr = str;
+        if (str.length > 30)
+        {
+            trimmedStr = str.substring(1, 30);
+        }
+
+        trimmedStr = trimmedStr.replace(/(\r\n|\n|\r)/gm,"");
+
+        return trimmedStr;
     }
 
 }

@@ -10,6 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Install additional packages
+      run: sudo apt-get install asciidoctor plantuml graphviz
+
     - name: generate software architecture documentation
       run: |
           cd ${GITHUB_WORKSPACE}/doc/architecture/images/

@@ -63,6 +63,8 @@ Page {
                 Label {
                     id: nameId;
                     text: name
+                    wrapMode: Text.NoWrap
+                    maximumLineCount: 1
                     color: (item.highlighted ? Theme.highlightColor : Theme.primaryColor);
                     font.pixelSize: Theme.fontSizeMedium;
                 }
