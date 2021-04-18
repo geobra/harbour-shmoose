@@ -119,6 +119,12 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             {
                 messageId = QString::fromStdString(stanzaId->getId());
             }
+
+            // still empty?
+            if (messageId.isEmpty() == true)
+            {
+                messageId = QString::number(QDateTime::currentMSecsSinceEpoch());
+            }
         }
 
         if (!sentCarbon)
