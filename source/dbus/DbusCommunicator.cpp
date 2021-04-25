@@ -4,6 +4,7 @@
 #include "RosterItem.h"
 #include "MessageController.h"
 #include "MessageHandler.h"
+#include "LurchAdapter.h"
 #include "DownloadManager.h"
 #include "MucManager.h"
 #include "GcmController.h"
@@ -51,6 +52,7 @@ void DbusCommunicator::setupConnections()
     GcmController* gcmCtrl = persistence->getGcmController();
     DownloadManager* downloadMgr = shmoose_->messageHandler_->downloadManager_;
     MessageHandler* msgHandler = shmoose_->messageHandler_;
+    LurchAdapter* lurchAdapter = shmoose_->lurchAdapter_;
     MucManager* muma = shmoose_->mucManager_;
     RosterController* rc = shmoose_->getRosterController();
 
@@ -64,6 +66,7 @@ void DbusCommunicator::setupConnections()
     connect(muma, SIGNAL(removeGroupFromContactsList(QString)), this, SLOT(slotForwardMucRoomRemoved(QString)));
     connect(rc, SIGNAL(rosterListChanged()), this, SLOT(slotGotRosterEntry()));
     connect(rc, SIGNAL(subscriptionUpdated(RosterItem::Subscription)), this, SLOT(slotForwardSubscriptionUpdate(RosterItem::Subscription)));
+    connect(lurchAdapter, SIGNAL(signalReceivedDeviceListOfJid(QString)), this, SLOT(slotForwardReceivedDeviceListOfJid(QString)));
 }
 
 bool DbusCommunicator::tryToConnect(const QString& jid, const QString& pass)
@@ -227,6 +230,17 @@ void DbusCommunicator::slotForwardDownloadMsgToDbus(QString localPath)
     }
 }
 
+void DbusCommunicator::slotForwardReceivedDeviceListOfJid(QString jid)
+{
+    QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalReceivedDeviceListOfJid");
+    msg << jid;
+
+    if(QDBusConnection::sessionBus().send(msg) == false)
+    {
+        qDebug() << "cant send message via dbus";
+    }
+}
+
 void DbusCommunicator::slotForwardMsgSentToDbus(QString msgId)
 {
     QDBusMessage msg = QDBusMessage::createSignal(dbusObjectPath_, dbusServiceName_, "signalMsgSent");
@@ -309,6 +323,20 @@ bool DbusCommunicator::requestRosterList()
         qDebug() << "cant send message via dbus";
     }
 
+
+    return true;
+}
+
+bool DbusCommunicator::addForcePlainMsgForJid(const QString& jid)
+{
+    shmoose_->settings_->addForcePlainTextSending(jid);
+
+    return true;
+}
+
+bool DbusCommunicator::rmForcePlainMsgForJid(const QString& jid)
+{
+    shmoose_->settings_->removeForcePlainTextSending(jid);
 
     return true;
 }

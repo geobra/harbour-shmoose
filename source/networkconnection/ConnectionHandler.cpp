@@ -68,7 +68,8 @@ void ConnectionHandler::handleConnected()
         emit signalInitialConnectionEstablished();
     }
 
-    client_->sendPresence(Swift::Presence::create("Send me a message"));    // FIXME presence handler
+    client_->getPresenceSender()->sendPresence(Swift::Presence::create("Send me a message"));
+
     // message carbons request must be made each time a connection is established
     enableMessageCarbons();
 }

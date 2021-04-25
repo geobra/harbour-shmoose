@@ -30,8 +30,8 @@ private slots:
 
 protected:
     void connectionTestCommon(DbusInterfaceWrapper* interface, const QString& jid, const QString& pass);
-    void requestRosterTestCommon(DbusInterfaceWrapper *interface);
-    void addContactTestCommon(DbusInterfaceWrapper *interface, const QString& jid, const QString& name);
+    void requestRosterTestCommon(DbusInterfaceWrapper *interface, bool doCompare = true);
+    void addContactTestCommon(DbusInterfaceWrapper *interface, const QString& jid, const QString& name, bool doCompare = true);
 
     void generatePicture();
 
@@ -49,7 +49,7 @@ protected:
     const QString imageFileName_;
 
     const int timeOutConnect_;
-    const int timeOut_;
+    int timeOut_;
 
     struct MsgContent
     {

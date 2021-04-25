@@ -30,6 +30,7 @@
 #include "DiscoInfoHandler.h"
 #include "CryptoHelper.h"
 #include "StanzaId.h"
+#include "LurchAdapter.h"
 
 
 #include "System.h"
@@ -42,7 +43,8 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     settings_(new Settings(this)),
     stanzaId_(new StanzaId(this)),
     connectionHandler_(new ConnectionHandler(this)),
-    messageHandler_(new MessageHandler(persistence_, settings_, rosterController_, this)),
+    lurchAdapter_(new LurchAdapter(this)),
+    messageHandler_(new MessageHandler(persistence_, settings_, rosterController_, lurchAdapter_, this)),
     httpFileUploadManager_(new HttpFileUploadManager(this)),
     mamManager_(new MamManager(persistence_, this)),
     mucManager_(new MucManager(this)),
@@ -78,10 +80,10 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     // show errors to user
     connect(mucManager_, SIGNAL(signalShowMessage(QString,QString)), this, SIGNAL(signalShowMessage(QString,QString)));
     connect(rosterController_, SIGNAL(signalShowMessage(QString,QString)), this, SIGNAL(signalShowMessage(QString,QString)));
+    connect(lurchAdapter_, SIGNAL(signalShowMessage(QString,QString)), this, SIGNAL(signalShowMessage(QString,QString)));
 
     // show status to user
     connect(httpFileUploadManager_, SIGNAL(showStatus(QString, QString)), this, SIGNAL(signalShowStatus(QString, QString)));
-
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotAboutToQuit()));
 }
@@ -148,6 +150,12 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     // https://xmpp.org/extensions/xep-0280.html
     discoInfo.addFeature(Swift::DiscoInfo::MessageCarbonsFeature);
 
+    // omemo
+    discoInfo.addFeature(lurchAdapter_->getFeature().toStdString());
+    discoInfo.addFeature(lurchAdapter_->getFeature().toStdString() + "+notify");
+
+    client_->getDiscoManager()->setCapsNode("https://github.com/geobra/harbour-shmoose");
+
     client_->getDiscoManager()->setDiscoInfo(discoInfo);
 
     // finaly try to connect
@@ -195,6 +203,9 @@ void Shmoose::intialSetupOnFirstConnection()
     // init and setup mucManager
     mucManager_->setupWithClient(client_);
 
+    // init and setup omemo stuff
+    lurchAdapter_->setupWithClient(client_);
+
     // Save account data
     settings_->setJid(jid_);
     settings_->setPassword(password_);
@@ -203,6 +214,9 @@ void Shmoose::intialSetupOnFirstConnection()
 void Shmoose::setCurrentChatPartner(QString const &jid)
 {
     persistence_->setCurrentChatPartner(jid);
+
+    // lurchAdapter_ does not have access to persistence. share the informaion separat.
+    lurchAdapter_->setCurrentChatPartner(jid);
 
     sendReadNotification(true);
 }
@@ -289,6 +303,11 @@ bool Shmoose::connectionState() const
 bool Shmoose::canSendFile()
 {
     return httpFileUploadManager_->getServerHasFeatureHttpUpload();
+}
+
+bool Shmoose::isOmemoUser(const QString& jid)
+{
+    return lurchAdapter_->isOmemoUser(jid);
 }
 
 QString Shmoose::getAttachmentPath()

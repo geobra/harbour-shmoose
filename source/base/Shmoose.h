@@ -19,6 +19,7 @@ class MucManager;
 class DiscoInfoHandler;
 class MamManager;
 class StanzaId;
+class LurchAdapter;
 
 class Shmoose : public QObject
 {
@@ -50,6 +51,8 @@ public:
 
     Q_INVOKABLE bool canSendFile();
     Q_INVOKABLE QString getVersion();
+
+    Q_INVOKABLE bool isOmemoUser(const QString& jid);
 
     bool connectionState() const;
 
@@ -103,6 +106,7 @@ public:
 
     StanzaId *stanzaId_;
     ConnectionHandler* connectionHandler_;
+    LurchAdapter* lurchAdapter_;
     MessageHandler* messageHandler_;
     HttpFileUploadManager* httpFileUploadManager_;
     MamManager *mamManager_;

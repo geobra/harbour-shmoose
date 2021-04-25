@@ -22,13 +22,7 @@
 ClientComTestCommon::ClientComTestCommon() : user1jid_("user1@localhost"), user2jid_("user2@localhost"), user3jid_("user3@localhost"), roomJid_("testroom@conference.localhost"),
     dbusServiceNameCommon_("org.shmoose.dbuscom"), dbusObjectPath_("/client"),
     imageFileName_("/tmp/64x64-red.jpeg"), timeOutConnect_(4000),
-    timeOut_(
-#ifdef TRAVIS
-    20000
-#else
-    2000
-#endif
-    )
+    timeOut_(20000)
 {
     generatePicture();
 }
@@ -47,6 +41,9 @@ void ClientComTestCommon::cleanupTestCase()
     // quit clients
     interfaceLhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
     interfaceRhs_->callDbusMethodWithArgument("quitClient", QList<QVariant>());
+
+    interfaceRhs_->callDbusMethodWithArgument("rmForcePlainMsgForJid", QList<QVariant>{user1jid_});
+    interfaceLhs_->callDbusMethodWithArgument("rmForcePlainMsgForJid", QList<QVariant>{user2jid_});
 }
 
 // connection test
@@ -81,14 +78,19 @@ void ClientComTestCommon::requestRosterTest()
     //requestRosterTestCommon(interfaceRhs_);
 }
 
-void ClientComTestCommon::requestRosterTestCommon(DbusInterfaceWrapper *interface)
+void ClientComTestCommon::requestRosterTestCommon(DbusInterfaceWrapper *interface, bool doCompare)
 {
     QSignalSpy spyNewRosterEntry(interface->getInterface(), SIGNAL(signalNewRosterEntry()));
     interface->callDbusMethodWithArgument("requestRoster", QList<QVariant>());
 
     spyNewRosterEntry.wait(timeOut_);
     // on travis, the inital roster list is empty
-    //QCOMPARE(spyNewRosterEntry.count(), 1);
+#ifdef TRAVIS
+    if (doCompare == true)
+    {
+        QCOMPARE(spyNewRosterEntry.count(), 1);
+    }
+#endif
 }
 
 // add contact test
@@ -98,7 +100,7 @@ void ClientComTestCommon::addContactTest()
     //addContactTestCommon(interfaceRhs_, user1jid_, "user1");
 }
 
-void ClientComTestCommon::addContactTestCommon(DbusInterfaceWrapper *interface, const QString& jid, const QString& name)
+void ClientComTestCommon::addContactTestCommon(DbusInterfaceWrapper *interface, const QString& jid, const QString& name, bool doCompare)
 {
     QSignalSpy spyNewRosterEntry(interface->getInterface(), SIGNAL(signalNewRosterEntry()));
 
@@ -107,8 +109,12 @@ void ClientComTestCommon::addContactTestCommon(DbusInterfaceWrapper *interface, 
 
     spyNewRosterEntry.wait(timeOut_);
 #ifdef TRAVIS
-    QCOMPARE(spyNewRosterEntry.count(), 1); // only on travis where the contact is not already in roster
+    if (doCompare == true)
+    {
+        QCOMPARE(spyNewRosterEntry.count(), 1);
+    }
 #endif
+
 }
 
 void ClientComTestCommon::generatePicture()

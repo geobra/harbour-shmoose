@@ -43,7 +43,8 @@ signals:
     void gcmControllerChanged();
 
 public slots:
-    void addMessage(const QString &id, QString const &jid, QString const &resource, QString const &message, const QString &type, unsigned int direction, qint64 timestamp = 0);
+    void addMessage(const QString &id, QString const &jid, QString const &resource, QString const &message,
+                    const QString &type, unsigned int direction, unsigned int security, qint64 timestamp = 0);
     void setCurrentChatPartner(QString const &jid);
 
 private:

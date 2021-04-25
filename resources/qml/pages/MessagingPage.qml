@@ -148,32 +148,42 @@ Page {
                     text: resource;
                 }
 
-                Label {
-                    text: Qt.formatDateTime (new Date (timestamp * 1000), "yyyy-MM-dd hh:mm:ss");
-                    color: Theme.secondaryColor;
-                    font {
-                        family: Theme.fontFamilyHeading;
-                        pixelSize: Theme.fontSizeTiny;
-                    }
-                    anchors {
-                        left: (item.alignRight ? parent.left : undefined);
-                        right: (!item.alignRight ? parent.right : undefined);
-                    }
-                }
-                Image {
-                    source: {
-                        if (msgstate == 3) {
-                            return "../img/read_green.png"
+                Row {
+                    spacing: 5
+                    anchors.right: (!item.alignRight ? parent.right : undefined)
+                    Label {
+                        text: Qt.formatDateTime (new Date (timestamp * 1000), "yyyy-MM-dd hh:mm:ss");
+                        color: Theme.secondaryColor;
+                        font {
+                            family: Theme.fontFamilyHeading;
+                            pixelSize: Theme.fontSizeTiny;
                         }
-                        if (msgstate == 2) {
-                            return "../img/2check.png"
-                        }
-                        if (msgstate == 1) {
-                            return "../img/check.png"
-                        }
-                        return ""
                     }
-                    anchors.right: parent.right
+
+                    Image {
+                        id: chatmarker
+                        source: {
+                            if (msgstate == 3) {
+                                return "../img/read_green.png"
+                            }
+                            if (msgstate == 2) {
+                                return "../img/2check.png"
+                            }
+                            if (msgstate == 1) {
+                                return "../img/check.png"
+                            }
+                            return ""
+                        }
+                    }
+
+                    Image {
+                        source: {
+                            if (security == 1) { // omemo
+                                return "image://theme/icon-s-outline-secure"
+                            }
+                            return ""
+                        }
+                    }
                 }
 
             }
@@ -242,7 +252,14 @@ Page {
 
         TextArea {
             id: editbox;
-            placeholderText: qsTr("Enter message...");
+
+            property var userHasOmemo: shmoose.isOmemoUser(conversationId);
+            property var useOmemo: (shmoose.settings.SendPlainText.indexOf(conversationId) < 0) ? true : false;
+
+            property var enterMsg: qsTr("Enter message...");
+            property var phT: (userHasOmemo && useOmemo) ? "Omemo: " + enterMsg : enterMsg;
+
+            placeholderText: phT;
             width: parent.width - 100
             font {
                 family: Theme.fontFamily

@@ -20,6 +20,9 @@ Shmoose - XMPP Client for Sailfish OS
 Shmoose builds on and includes code from the following projects:
 
 * XMPP library `Swiften <https://swift.im/swiften.html>`_ from Isode
+* Omemo library `libomemo <https://github.com/gkdr/libomemo>`_ written by Richard Bayerle
+* `Axc <https://github.com/gkdr/axc>`_ library written by Richard Bayerle
+* `Lurch <https://github.com/gkdr/lurch>`_ plugin written by Richard Bayerle
 * Image picker is from `hangish <https://github.com/rogora/hangish>`_ written by Daniele Rogora
 * Image zoom and pitch page is from `harbour-one <https://github.com/0312birdzhang/harbour-one>`_ written by 0312birdzhang
 
@@ -89,7 +92,7 @@ Install all dependencies to build Swiften::
 
 Install dependencies to build Shmoose (example for Debian)::
 
- * sudo apt-get install zlib1g-dev libssl-dev libxml2-dev libstdc++-5-dev libqt5quick5 libqt5quickparticles5 libqt5quickwidgets5 libqt5qml5 libqt5network5 libqt5gui5 libqt5core5a qt5-default libglib2.0-dev libpthread-stubs0-dev
+ * sudo apt-get install zlib1g-dev libssl-dev libxml2-dev libstdc++-5-dev libqt5quick5 libqt5quickparticles5 libqt5quickwidgets5 libqt5qml5 libqt5network5 libqt5gui5 libqt5core5a qt5-default libglib2.0-dev libpthread-stubs0-dev libmxml-dev libgcrypt20-dev libglib2.0-dev libsqlite3-dev
 
 Fetch the Shmoose source code::
 
@@ -111,7 +114,15 @@ To cross compile for Sailfish OS, do the following:
 -------------------------------------------------------------------------------
 
  * Get and install Sailfish OS mersdk (tested with version 1608)
- * SSH into mersdk and do the following in a newly created directory
+ * SSH into mersdk and do the following
+
+Hint::
+
+Use 'sb2-config -l' to show available targets for sb2.
+
+Install all dependencies to build Swiften and shmoose::
+
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl -m sdk-install -R zypper in openssl-devel libiphb-devel libxml2-devel libgpg-error-devel libgcrypt-devel sqlite-devel cmake
 
 Fetch the Swift source source::
 
@@ -119,10 +130,6 @@ Fetch the Swift source source::
  * mkdir swift-4.0.2-arm
  * cd swift-4.0.2-arm
  * tar --strip-components=1 -xzvf ../swift-4.0.2.tar.gz
-
-Install all dependencies to build Swiften::
-
- * sb2 -t SailfishOS-armv7hl -m sdk-install -R zypper in openssl-devel libiphb-devel libxml2-devel
 
 Patch the SConstruct file to do a PIC build of the library archive
 
@@ -135,12 +142,44 @@ under the line 'env.SConscript = SConscript' on line 14
 Build the Swiften Library::
 
  * sb2 -t SailfishOS-armv7hl /bin/bash ./scons Swiften
+ * cd ..
+
+Install mxml::
+
+ * curl -L -O https://github.com/michaelrsweet/mxml/releases/download/v3.2/mxml-3.2.tar.gz
+ * tar -xvf mxml-3.2.tar.gz && cd mxml-3.2
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl ./configure
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl make
+ * cp libmxml.a /srv/mer/targets/SailfishOS-3.3.0.16-armv7hl/usr/local/lib/
+ * cp mxml.h /srv/mer/targets/SailfishOS-3.3.0.16-armv7hl/usr/local/include/
+ * cd ..
 
 Fetch the Shmoose source code::
 
- * cd ..
  * git clone https://github.com/geobra/harbour-shmoose
  * cd harbour-shmoose
- * mb2 -t SailfishOS-armv7hl build
 
+Install libomemo::
+
+ * git clone https://github.com/gkdr/libomemo && cd libomemo
+ * git checkout tags/v0.7.0
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl make
+ * cd ..
+
+Install axc and libsignal-protocol-c::
+
+ * git clone https://github.com/gkdr/axc && cd axc
+ * git checkout tags/v0.3.3
+ * git submodule update --init
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl make
+ * cd  lib/libsignal-protocol-c/
+ * add 'set(CMAKE_POSITION_INDEPENDENT_CODE ON)' to CMakeLists.txt
+ * mkdir build && cd build
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl cmake ..
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl make
+ * cd ../../../..
+
+Finally, build Shmoose::
+
+ * mb2 -t SailfishOS-3.3.0.16-armv7hl build
 

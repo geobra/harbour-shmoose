@@ -35,9 +35,6 @@ merge_client_coverage_to_file()
 {
 	TFILE=$1
 	APPEND=""
-	echo "search for cov files"
-	ls -l ${GITHUB_WORKSPACE}/${RESULTS}
-	find ${GITHUB_WORKSPACE}/${RESULTS} -name "*.cov"
 	for CF in $(find ${GITHUB_WORKSPACE}/${RESULTS} -name "*.cov"); do
 		if [ -s "$CF" ]; then
 			APPEND="$APPEND -a $CF "
@@ -66,7 +63,9 @@ cd $TESTPATH
 qmake .. DEFINES+=TRAVIS DEFINES+=DBUS
 make -j$(nproc)
 
+##########################
 # build and run the roster test
+##########################
 ${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
 export GCOV_PREFIX_STRIP=$BUILDTEST_PATH_DEPTH
 GCOV_PREFIX=$RESULTSC1  ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
@@ -85,7 +84,9 @@ collect_coverage_at_path_to_file "$RESULTSC3" "c3.cov"
 
 merge_client_coverage_to_file roster.cov 
 
+##########################
 # build and run the plain 1to1 msg test
+##########################
 killall -9 harbour-shmoose
 ${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
 GCOV_PREFIX=$RESULTSC1  ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
@@ -102,12 +103,14 @@ collect_coverage_at_path_to_file "$RESULTSC2" "c2.cov"
 
 merge_client_coverage_to_file 1o1.cov 
 
-# build the plain room msg test
+##########################
+# build and run the plain room msg test
+##########################
 killall -9 harbour-shmoose
 ${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
- ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
- ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose mhs &
- ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose rhs &
+GCOV_PREFIX=$RESULTSC1 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
+GCOV_PREFIX=$RESULTSC2 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose mhs &
+GCOV_PREFIX=$RESULTSC3 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose rhs &
 
 ${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
 cd ${GITHUB_WORKSPACE}/test/integration_test/ClientRoomMessagingTest/
@@ -122,6 +125,42 @@ collect_coverage_at_path_to_file "$RESULTSC3" "c3.cov"
 
 merge_client_coverage_to_file room.cov 
 
+##########################
+# build and run a clean omemo msg test
+##########################
+killall -9 harbour-shmoose
+${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
+GCOV_PREFIX=$RESULTSC1 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
+GCOV_PREFIX=$RESULTSC2 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose rhs &
+
+cd ${GITHUB_WORKSPACE}/test/integration_test/OmemoTest/
+mkdir build && cd build
+qmake .. && make
+ ./OmemoTest
+
+# cp trace data to source dir; run lcov and generate test.cov
+collect_coverage_at_path_to_file "$RESULTSC1" "c1.cov"
+collect_coverage_at_path_to_file "$RESULTSC2" "c2.cov"
+
+merge_client_coverage_to_file omemo1.cov
+
+##########################
+# run omemo test with existing db
+##########################
+killall -9 harbour-shmoose
+GCOV_PREFIX=$RESULTSC1 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
+GCOV_PREFIX=$RESULTSC2 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose rhs &
+
+# wait sometime to get dbus connected
+sleep 5
+
+${GITHUB_WORKSPACE}/test/integration_test/OmemoTest/build/OmemoTest
+
+# cp trace data to source dir; run lcov and generate test.cov
+collect_coverage_at_path_to_file "$RESULTSC1" "c1.cov"
+collect_coverage_at_path_to_file "$RESULTSC2" "c2.cov"
+
+merge_client_coverage_to_file omemo2.cov
 
 # merge test tracefiles to final cov
 APPEND=""
