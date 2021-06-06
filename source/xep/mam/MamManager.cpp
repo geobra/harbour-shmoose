@@ -249,11 +249,16 @@ void MamManager::processMamMessage(const QString& qData)
             QString type = "txt";
             if (QUrl(body).isValid()) // it's an url
             {
+                QUrl bodyUrl = QUrl(body);
                 QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
-                QString bodyEnd = body.trimmed().right(3); // url ends with an image type
+                bodyUrl.setFragment(QString::null);
+                QString bodyEnd = bodyUrl.path().mid(bodyUrl.path().lastIndexOf('.')+1); // path of url ends with a file type
+
+
                 if (knownImageTypes.contains(bodyEnd))
                 {
                     type = "image";
+
                     downloadManager_->doDownload(QUrl(body));
                 }
             }
