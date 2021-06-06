@@ -2,7 +2,6 @@
 
 #include <QCameraViewfinder>
 #include <QCamera>
-#include <QTimer>
 #include <QDateTime>
 #include <QDir>
 
