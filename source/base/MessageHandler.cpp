@@ -158,6 +158,8 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
                                      theBody, type, 0, security);
         }
 
+        emit messageReceived(QString::fromStdString(fromJid), theBody);
+
         // xep 0333
         QString currentChatPartner = persistence_->getCurrentChatPartner();
         qDebug() << "fromJid: " << QString::fromStdString(fromJid) << "current: " << currentChatPartner << ", isGroup: " << isGroupMessage << ", appActive? " << appIsActive_;

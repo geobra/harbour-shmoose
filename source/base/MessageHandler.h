@@ -25,6 +25,7 @@ public:
 
 signals:
     void messageSent(QString msgId);
+    void messageReceived(QString fromJid, QString body);
 
 public slots:
     void slotAppGetsActive(bool active);

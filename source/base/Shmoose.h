@@ -83,6 +83,8 @@ signals:
     void signalHasInetConnection(bool connected);
     void signalAppGetsActive(bool active);
 
+    void messageReceived(QString fromJid, QString body);
+
 private:
 #ifdef DBUS
 public:

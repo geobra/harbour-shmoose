@@ -17,6 +17,7 @@ public slots:
 
 signals:
     void readyForCaptureChanged(bool);
+    void imageSaved(int id, const QString &fileName);
 
 private:
     const QString targetPath_;

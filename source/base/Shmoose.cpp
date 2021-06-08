@@ -85,6 +85,9 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     // show status to user
     connect(httpFileUploadManager_, SIGNAL(showStatus(QString, QString)), this, SIGNAL(signalShowStatus(QString, QString)));
 
+    // forward received msg to shmoose class
+    connect(messageHandler_, SIGNAL(messageReceived(QString, QString)), this, SIGNAL(messageReceived(QString, QString)));
+
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotAboutToQuit()));
 }
 

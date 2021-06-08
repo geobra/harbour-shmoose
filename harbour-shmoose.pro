@@ -13,7 +13,7 @@ contains(DEFINES, TRAVIS) {
 include($$PWD/swift.pri)
 
 TEMPLATE = app
-QT += qml quick core sql xml concurrent
+QT += qml quick core sql xml concurrent multimedia
 
 contains(DEFINES, DBUS) {
     CONFIG += console
@@ -34,6 +34,7 @@ INCLUDEPATH += source/xep/omemo/mock
 INCLUDEPATH += source/room
 INCLUDEPATH += source/networkconnection
 INCLUDEPATH += source/contacts
+INCLUDEPATH += source/media
 INCLUDEPATH += source/base
 
 ! contains(DEFINES, SFOS) {
@@ -72,7 +73,15 @@ contains(DEFINES, DBUS) {
     HEADERS += source/dbus/DbusCommunicator.h
 }
 else {
-    SOURCES += source/main.cpp
+    contains(DEFINES, BOT) {
+        SOURCES += source/bot/main.cpp
+
+        SOURCES += source/bot/CommandProcessor.cpp
+        HEADERS += source/bot/CommandProcessor.h
+    }
+    else {
+        SOURCES += source/main.cpp
+    }
 }
 
 # on testing, add flags to produce coverage
@@ -133,7 +142,8 @@ SOURCES += \
     source/xep/omemo/payload/EncryptionPayload.cpp \
     source/xep/omemo/payload/EncryptionPayloadParser.cpp \
     source/xep/omemo/payload/EncryptionPayloadParserFactory.cpp \
-    source/xep/omemo/payload/EncryptionPayloadSerializer.cpp
+    source/xep/omemo/payload/EncryptionPayloadSerializer.cpp \
+    source/media/CapturePicture.cpp
 
 HEADERS += source/base/Shmoose.h \
     source/base/Settings.h \
@@ -191,7 +201,8 @@ HEADERS += source/base/Shmoose.h \
     source/xep/omemo/payload/EncryptionPayload.h \
     source/xep/omemo/payload/EncryptionPayloadParser.h \
     source/xep/omemo/payload/EncryptionPayloadParserFactory.h \
-    source/xep/omemo/payload/EncryptionPayloadSerializer.h
+    source/xep/omemo/payload/EncryptionPayloadSerializer.h \
+    source/media/CapturePicture.h
 
 lupdate_only {
         SOURCES += resources/qml/*.qml \
