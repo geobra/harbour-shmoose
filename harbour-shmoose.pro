@@ -57,7 +57,7 @@ INCLUDEPATH += axc/lib/libsignal-protocol-c/src
 LIBS += $$_PRO_FILE_PWD_/axc/build/libaxc.a
 LIBS += $$_PRO_FILE_PWD_/axc/lib/libsignal-protocol-c/build/src/libsignal-protocol-c.a
 LIBS += $$_PRO_FILE_PWD_/libomemo/build/libomemo-conversations.a
-LIBS += -lmxml -lgcrypt -lglib-2.0 -lsqlite3
+LIBS += -lmxml -lgcrypt -lglib-2.0 -lsqlite3 -lxml2
 QMAKE_CXXFLAGS += $$system("pkg-config --cflags glib-2.0")
 QMAKE_CFLAGS += $$system("pkg-config --cflags glib-2.0 libxml-2.0")
 
