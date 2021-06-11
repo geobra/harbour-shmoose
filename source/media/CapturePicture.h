@@ -10,14 +10,12 @@ class CapturePicture : public QObject
 
 public:
     CapturePicture(const QString path, QObject *parent);
+    void doShot();
 
-public slots:
+private slots:
     void shot(bool ready);
     void onError(int id, QCameraImageCapture::Error error, const QString &errorString);
-
-signals:
-    void readyForCaptureChanged(bool);
-    void imageSaved(int id, const QString &fileName);
+    void shutdownCamera();
 
 private:
     const QString targetPath_;

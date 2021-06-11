@@ -27,13 +27,13 @@ void CommandProcessor::messageReceived(QString from, QString msg)
     {
         shmoose_->setCurrentChatPartner(from);
         qDebug() << "cam";
-        capturePicture_->shot(true);
+        capturePicture_->doShot();
     }
 }
 
 void CommandProcessor::sendPicture(int id, const QString& filename)
 {
-    qDebug() << "sendPic " << filename;
+    qDebug() << "sendPic " << id << filename;
     shmoose_->sendFile(shmoose_->getCurrentChatPartner(), filename);
     shmoose_->setCurrentChatPartner("");
 }
