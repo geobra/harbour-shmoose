@@ -57,25 +57,40 @@
 #include <QDir>
 #include <QDebug>
 
+#include <gcrypt.h>
+
+static const char kIvAndKey[] = "ivAndKey";
+static const char kPathAndFile[] = "pathAndFile";
+
 DownloadManager::DownloadManager(QObject *parent) : QObject(parent)
 {
     connect(&manager, SIGNAL(finished(QNetworkReply*)), SLOT(downloadFinished(QNetworkReply*)));
 }
 
-void DownloadManager::doDownload(const QUrl &url)
+void DownloadManager::doDownload(const QUrl &requestedUrl)
 {
     // check if file from that url is already local downloaded
-    QString hash = CryptoHelper::getHashOfString(url.toString(), true);
+    QUrl url(requestedUrl);
+    QString hash = CryptoHelper::getHashOfString(requestedUrl.toString(), true);
     QString pathAndFile = System::getAttachmentPath() + QDir::separator() + hash;
+
+    if (url.scheme() == "aesgcm") {
+        url.setScheme("https");
+        url.setFragment(QString::null);
+    }
 
     if (QFile::exists(pathAndFile))
     {
-        qDebug() << "file from " << url.toString() << " already exist localy as " << pathAndFile;
+        qDebug() << "file from " << requestedUrl.toString() << " already exist localy as " << pathAndFile;
     }
     else
     {
         QNetworkRequest request(url);
         QNetworkReply *reply = manager.get(request);
+
+        reply->setProperty(kIvAndKey, requestedUrl.fragment());
+        reply->setProperty(kPathAndFile, pathAndFile);
+
 
         connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrors(QList<QSslError>)));
 
@@ -83,16 +98,12 @@ void DownloadManager::doDownload(const QUrl &url)
     }
 }
 
-QString DownloadManager::saveFileName(const QUrl &url)
-{
-    QString hash = CryptoHelper::getHashOfString(url.toString(), true);
 
-    return System::getAttachmentPath() + QDir::separator() + hash;
-}
-
-bool DownloadManager::saveToDisk(const QString &filename, QIODevice *data)
+bool DownloadManager::saveToDisk(const QString &filename, QIODevice *data, const QString &ivAndKey)
 {
     QFile file(filename);
+    bool encrypted = ivAndKey.size() > 0;
+
     if (!file.open(QIODevice::WriteOnly))
     {
         fprintf(stderr, "Could not open %s for writing: %s\n",
@@ -101,9 +112,37 @@ bool DownloadManager::saveToDisk(const QString &filename, QIODevice *data)
         return false;
     }
 
-    file.write(data->readAll());
-    file.close();
 
+    if(encrypted) {
+        if (ivAndKey.size() == 88) 
+        {
+            const QByteArray iv = QByteArray::fromHex(ivAndKey.mid(0, 24).toLatin1()) + QByteArray::fromHex("00000002");
+            const QByteArray key = QByteArray::fromHex(ivAndKey.mid(24, 64).toLatin1());
+            const QByteArray toDecrypt = data->readAll();
+            QByteArray decrypted;
+
+            if(! aesDecrypt (key, iv, toDecrypt, decrypted)) 
+            {
+                qWarning() << "Failed to decrypt the data. Write encrypted file";
+                file.close();
+                return false;
+            }
+            
+            file.write(decrypted);
+        }
+        else 
+        {
+            qWarning() << "Unsupported encryption";
+            file.close(); 
+            return false;
+        }
+    }
+    else 
+    {
+        file.write(data->readAll()); 
+    }
+
+    file.close();
     return true;
 }
 
@@ -119,6 +158,7 @@ void DownloadManager::sslErrors(const QList<QSslError> &sslErrors)
 void DownloadManager::downloadFinished(QNetworkReply *reply)
 {
     QUrl url = reply->url();
+
     if (reply->error())
     {
         fprintf(stderr, "Download of %s failed: %s\n",
@@ -126,9 +166,11 @@ void DownloadManager::downloadFinished(QNetworkReply *reply)
                 qPrintable(reply->errorString()));
     }
     else
-    {
-        QString filename = saveFileName(url);
-        if (saveToDisk(filename, reply))
+    {        
+        QString filename = reply->property(kPathAndFile).toString();
+
+
+        if (saveToDisk(filename, reply, reply->property(kIvAndKey).toString()))
         {
             printf("Download of %s succeeded (saved to %s)\n",
                    url.toEncoded().constData(), qPrintable(filename));
@@ -147,3 +189,58 @@ void DownloadManager::downloadFinished(QNetworkReply *reply)
     }
 }
 
+
+bool DownloadManager::aesDecrypt(const QByteArray &key, const QByteArray &iv, const QByteArray &in, QByteArray &out)
+{
+    gcry_cipher_hd_t cipher_hd = 0;
+    gcry_error_t ret_val;
+
+    ret_val = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 0);
+
+    if(ret_val) {
+        qDebug() << "failed to initialize gcrypt";
+        goto cleanup;
+    }
+
+    if(key.count() != 32) 
+    {
+        qDebug() << "invalid key size: " << key.count();
+        goto cleanup;
+    }
+
+    if(iv.count() != 16) 
+    {
+        qDebug() << "invalid iv size: " << iv.count();
+        goto cleanup;
+
+    }
+
+    ret_val = gcry_cipher_setkey(cipher_hd, key.constData(), key.size());
+    if (ret_val) {
+        qDebug() << "failed to set key";
+        goto cleanup;
+    }
+
+    ret_val = gcry_cipher_setctr(cipher_hd, iv.constData(), iv.size());
+    if (ret_val) {
+        qDebug() << "failed to set ctr";
+        goto cleanup;
+    }
+
+    out.resize(in.size());
+
+    ret_val = gcry_cipher_decrypt(cipher_hd, out.data(), out.size(), in.constData(), in.size());
+    if (ret_val) {
+        qDebug() << "failed to decrypt";
+        goto cleanup;
+    }
+
+cleanup:
+
+  if(cipher_hd) 
+  {
+        gcry_cipher_close(cipher_hd);
+  }
+
+  return ret_val == 0;
+}

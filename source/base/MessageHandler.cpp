@@ -112,11 +112,15 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
         if (QUrl(theBody).isValid()) // it's an url
         {
+            QUrl bodyUrl = QUrl(theBody);
             QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
-            QString bodyEnd = theBody.trimmed().right(3); // url ends with an image type
+            bodyUrl.setFragment(QString::null);
+            QString bodyEnd = bodyUrl.path().mid(bodyUrl.path().lastIndexOf('.')+1); // path of url ends with a file type
+
             if (knownImageTypes.contains(bodyEnd))
             {
                 type = "image";
+
                 downloadManager_->doDownload(QUrl(theBody));
             }
         }

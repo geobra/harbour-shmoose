@@ -70,7 +70,8 @@ signals:
 
 private:
     QString saveFileName(const QUrl &url);
-    bool saveToDisk(const QString &filename, QIODevice *data);
+    bool saveToDisk(const QString &filename, QIODevice *data, const QString &ivAndKey);
+    bool aesDecrypt(const QByteArray &key, const QByteArray &iv, const QByteArray &in, QByteArray &out);
 
     QNetworkAccessManager manager;
     QList<QNetworkReply *> currentDownloads;
