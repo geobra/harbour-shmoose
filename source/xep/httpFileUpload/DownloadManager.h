@@ -58,7 +58,7 @@ class DownloadManager : public QObject
     Q_OBJECT
 
 public:
-    DownloadManager(QObject *parent = 0);
+    DownloadManager(QObject *parent = nullptr);
     void doDownload(const QUrl &url);
 
 public slots:
@@ -71,7 +71,6 @@ signals:
 private:
     QString saveFileName(const QUrl &url);
     bool saveToDisk(const QString &filename, QIODevice *data, const QString &ivAndKey);
-    bool aesDecrypt(const QByteArray &key, const QByteArray &iv, const QByteArray &in, QByteArray &out);
 
     QNetworkAccessManager manager;
     QList<QNetworkReply *> currentDownloads;
