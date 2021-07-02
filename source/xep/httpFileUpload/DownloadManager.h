@@ -52,13 +52,14 @@
 
 #include <QObject>
 #include <QNetworkAccessManager>
+#include <QFile>
 
 class DownloadManager : public QObject
 {
     Q_OBJECT
 
 public:
-    DownloadManager(QObject *parent = nullptr);
+    DownloadManager(QObject *parent = 0);
     void doDownload(const QUrl &url);
 
 public slots:
@@ -70,11 +71,10 @@ signals:
 
 private:
     QString saveFileName(const QUrl &url);
-    bool saveToDisk(const QString &filename, QIODevice *data, const QString &ivAndKey);
 
     QNetworkAccessManager manager;
     QList<QNetworkReply *> currentDownloads;
-
+    QMap<QNetworkReply *, QFile *> downloadedFiles;
 };
 
 #endif // DOWNLOADMANAGER_H

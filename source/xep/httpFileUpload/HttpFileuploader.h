@@ -1,12 +1,13 @@
 #ifndef HTTPFILEUPLOADER_H
 #define HTTPFILEUPLOADER_H
 
+#include "FileWithCypher.h"
 #include <QObject>
 #include <QNetworkReply>
 
-class QFile;
 class QNetworkAccessManager;
 class QNetworkRequest;
+class QFile;
 
 class HttpFileUploader : public QObject
 {
@@ -15,11 +16,11 @@ public:
     HttpFileUploader(QObject *parent = 0);
     ~HttpFileUploader();
 
-    void upload(QString url, QFile *file);
+    void upload(QString url, FileWithCypher *file, bool Encrypt);
 
 signals:
     void updateStatus(QString status);
-    void uploadSuccess();
+    void uploadSuccess(QString ivAndKey);
     void errorOccurred();
 
 public slots:
@@ -33,7 +34,8 @@ private:
     QNetworkAccessManager* networkManager_;
     QNetworkRequest* request_;
 
-    QFile* file_;
+    FileWithCypher* file_;
+
 };
 
 #endif // HTTPFILEUPLOADER_H

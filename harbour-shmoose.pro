@@ -101,6 +101,7 @@ SOURCES += \
     source/xep/httpFileUpload/HttpFileUploadManager.cpp \
     source/xep/httpFileUpload/DownloadManager.cpp \
     source/xep/httpFileUpload/ImageProcessing.cpp \
+    source/xep/httpFileUpload/FileWithCypher.cpp \
     source/xep/mam/MamManager.cpp \
     source/xep/xmppPing/XmppPingController.cpp \
     source/xep/chatMarkers/ChatMarkers.cpp \
@@ -153,6 +154,7 @@ HEADERS += source/base/Shmoose.h \
     source/xep/httpFileUpload/HttpFileUploadManager.h \
     source/xep/httpFileUpload/DownloadManager.h \
     source/xep/httpFileUpload/ImageProcessing.h \
+    source/xep/httpFileUpload/FileWithCypher.h \
     source/xep/mam/MamManager.h \
     source/xep/xmppPing/PingRequest.h \
     source/xep/xmppPing/XmppPingController.h \

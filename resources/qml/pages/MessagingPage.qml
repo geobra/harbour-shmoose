@@ -103,9 +103,10 @@ Page {
                 Label {
                     text: message;
                     color: Theme.primaryColor;
+                    //width: Math.min (item.maxContentWidth, contentWidth);
                     width: item.maxContentWidth;
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
-                    visible: true;
+                    visible: ! (type === "image")
 
                     font {
                         family: Theme.fontFamilyHeading;

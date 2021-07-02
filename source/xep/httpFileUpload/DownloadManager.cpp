@@ -50,6 +50,7 @@
 #include "DownloadManager.h"
 #include "System.h"
 #include "CryptoHelper.h"
+#include "FileWithCypher.h"
 
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -57,9 +58,8 @@
 #include <QDir>
 #include <QDebug>
 
-static const char kIvAndKey[] = "ivAndKey";
-static const char kPathAndFile[] = "pathAndFile";
-static const char kOriginalUrl[] = "originalUrl";
+#include <gcrypt.h>
+
 
 DownloadManager::DownloadManager(QObject *parent) : QObject(parent)
 {
@@ -86,73 +86,24 @@ void DownloadManager::doDownload(const QUrl &requestedUrl)
     {
         QNetworkRequest request(url);
         QNetworkReply *reply = manager.get(request);
+        FileWithCypher *file = new FileWithCypher(pathAndFile, this);
 
-        reply->setProperty(kIvAndKey, requestedUrl.fragment());
-        reply->setProperty(kPathAndFile, pathAndFile);
-        reply->setProperty(kOriginalUrl, requestedUrl);
+        if (!file->open(QIODevice::WriteOnly))
+        {
+            fprintf(stderr, "Could not open %s for writing: %s\n",
+                    qPrintable(file->fileName()),
+                    qPrintable(file->errorString()));
+        }
+
+        file->initDecryptionOnWrite(requestedUrl.fragment());
 
         connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrors(QList<QSslError>)));
 
         currentDownloads.append(reply);
+        downloadedFiles[reply] = file;
     }
 }
 
-QString DownloadManager::saveFileName(const QUrl &url)
-{
-    QString hash = CryptoHelper::getHashOfString(url.toString(), true);
-    return System::getAttachmentPath() + QDir::separator() + hash;
-}
-
-bool DownloadManager::saveToDisk(const QString &filename, QIODevice *data, const QString &ivAndKey)
-{
-    QFile file(filename);
-    bool isEncrypted{false};
-
-    if (ivAndKey.size() > 0)
-    {
-        isEncrypted = true;
-    }
-
-    if (!file.open(QIODevice::WriteOnly))
-    {
-        fprintf(stderr, "Could not open %s for writing: %s\n",
-                qPrintable(filename),
-                qPrintable(file.errorString()));
-        return false;
-    }
-
-
-    if(isEncrypted == true)
-    {
-        if (ivAndKey.size() == 88) 
-        {
-            const QByteArray toDecrypt = data->readAll();
-            QByteArray decrypted;
-
-            if(! CryptoHelper::aesDecrypt (ivAndKey, toDecrypt, decrypted))
-            {
-                qWarning() << "Failed to decrypt the data. Write encrypted file";
-                file.close();
-                return false;
-            }
-            
-            file.write(decrypted);
-        }
-        else 
-        {
-            qWarning() << "Unsupported encryption";
-            file.close(); 
-            return false;
-        }
-    }
-    else 
-    {
-        file.write(data->readAll()); 
-    }
-
-    file.close();
-    return true;
-}
 
 void DownloadManager::sslErrors(const QList<QSslError> &sslErrors)
 {
@@ -166,6 +117,7 @@ void DownloadManager::sslErrors(const QList<QSslError> &sslErrors)
 void DownloadManager::downloadFinished(QNetworkReply *reply)
 {
     QUrl url = reply->url();
+    QFile *file = downloadedFiles[reply];
 
     if (reply->error())
     {
@@ -175,18 +127,14 @@ void DownloadManager::downloadFinished(QNetworkReply *reply)
     }
     else
     {        
-        QString filename = saveFileName(reply->property(kOriginalUrl).toString());
-
-
-        if (saveToDisk(filename, reply, reply->property(kIvAndKey).toString()))
-        {
-            printf("Download of %s succeeded (saved to %s)\n",
-                   url.toEncoded().constData(), qPrintable(filename));
-
-            emit httpDownloadFinished(filename);
-        }
+        file->write(reply->readAll());
+        file->close();
+        emit httpDownloadFinished(file->fileName());
     }
 
+    file->deleteLater();
+
+    downloadedFiles.remove(reply);
     currentDownloads.removeAll(reply);
     reply->deleteLater();
 
@@ -196,3 +144,4 @@ void DownloadManager::downloadFinished(QNetworkReply *reply)
         qDebug() << "finished all downloads";
     }
 }
+

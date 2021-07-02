@@ -122,7 +122,7 @@ Use 'sb2-config -l' to show available targets for sb2.
 
 Install all dependencies to build Swiften and shmoose::
 
- * sb2 -t SailfishOS-3.3.0.16-armv7hl -m sdk-install -R zypper in openssl-devel libiphb-devel libxml2-devel libgpg-error-devel libgcrypt-devel sqlite-devel cmake
+ * sb2 -t SailfishOS-3.3.0.16-armv7hl -m sdk-install -R zypper in openssl-devel libiphb-devel libxml2-devel libgpg-error-devel libgcrypt-devel sqlite-devel cmake python
 
 Fetch the Swift source source::
 
@@ -152,6 +152,7 @@ Install mxml::
  * sb2 -t SailfishOS-3.3.0.16-armv7hl make
  * cp libmxml.a /srv/mer/targets/SailfishOS-3.3.0.16-armv7hl/usr/local/lib/
  * cp mxml.h /srv/mer/targets/SailfishOS-3.3.0.16-armv7hl/usr/local/include/
+ * PKG_CONFIG_PATH=$(pwd)
  * cd ..
 
 Fetch the Shmoose source code::

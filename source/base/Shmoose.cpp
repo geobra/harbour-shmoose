@@ -250,7 +250,8 @@ void Shmoose::sendMessage(QString const &message, QString const &type)
 
 void Shmoose::sendFile(QString const &toJid, QString const &file)
 {
-    if (httpFileUploadManager_->requestToUploadFileForJid(file, toJid) == false)
+    if (httpFileUploadManager_->requestToUploadFileForJid(file, toJid, 
+                                                          lurchAdapter_->isOmemoUser(toJid) && (! settings_->getSendPlainText().contains(toJid))))
     {
         qDebug() << "Shmoose::sendFile failed";
     }
@@ -263,10 +264,7 @@ void Shmoose::sendFile(QUrl const &file)
 
     qDebug() << "sendfile: jid: " << toJid << ", file: " << localFile << ", from url: " << file;
 
-    if (httpFileUploadManager_->requestToUploadFileForJid(localFile, toJid) == false)
-    {
-        qDebug() << "Shmoose::sendFile failed";
-    }
+    sendFile(toJid, localFile);
 }
 
 
