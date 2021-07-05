@@ -59,7 +59,7 @@ class DownloadManager : public QObject
     Q_OBJECT
 
 public:
-    DownloadManager(QObject *parent = 0);
+    DownloadManager(QObject *parent = nullptr);
     void doDownload(const QUrl &url);
 
 public slots:

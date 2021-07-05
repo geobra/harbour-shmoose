@@ -58,9 +58,6 @@
 #include <QDir>
 #include <QDebug>
 
-#include <gcrypt.h>
-
-
 DownloadManager::DownloadManager(QObject *parent) : QObject(parent)
 {
     connect(&manager, SIGNAL(finished(QNetworkReply*)), SLOT(downloadFinished(QNetworkReply*)));
@@ -94,13 +91,15 @@ void DownloadManager::doDownload(const QUrl &requestedUrl)
                     qPrintable(file->fileName()),
                     qPrintable(file->errorString()));
         }
+        else
+        {
+            file->initDecryptionOnWrite(requestedUrl.fragment());
 
-        file->initDecryptionOnWrite(requestedUrl.fragment());
+            connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrors(QList<QSslError>)));
 
-        connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrors(QList<QSslError>)));
-
-        currentDownloads.append(reply);
-        downloadedFiles[reply] = file;
+            currentDownloads.append(reply);
+            downloadedFiles[reply] = file;
+        }
     }
 }
 

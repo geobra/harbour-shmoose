@@ -60,7 +60,7 @@ void DiscoInfoHandler::handleDiscoServiceWalker(const Swift::JID & jid, std::sha
                     if (formField)
                     {
                         unsigned int maxFileSize = std::stoi((*formField).getTextSingleValue());
-                        qDebug() << QString::fromStdString((*formField).getName()) << " val: " << maxFileSize;
+                        //qDebug() << QString::fromStdString((*formField).getName()) << " val: " << maxFileSize;
                         httpFileUploadManager_->setMaxFileSize(maxFileSize);
                     }
                 }

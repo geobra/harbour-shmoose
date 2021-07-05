@@ -69,7 +69,7 @@ QVariant MessageController::data ( const QModelIndex & requestedIndex, int role 
 
     QVariant editData = QSqlQueryModel::data(modelIndex, Qt::EditRole);
 
-    // qDebug() << "return edit data " << editData << " from index " << requestedIndex << " rowCount: " << rowCount();
+    //qDebug() << "return edit data " << editData << " from index " << requestedIndex << " rowCount: " << rowCount();
 
     return editData;
 }
@@ -359,7 +359,7 @@ QString MessageController::getRessourceForMsgId(const QString& msgId)
         }
     }
 
-    return resource;    
+    return resource;
 }
 
 void MessageController::printSqlError()
