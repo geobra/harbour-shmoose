@@ -1,8 +1,10 @@
 #include "HttpFileuploader.h"
+#include "FileWithCypher.h"
 
 #include <QFile>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+
 
 HttpFileUploader::HttpFileUploader(QObject *parent) : QObject(parent),
     networkManager_(new QNetworkAccessManager(parent)), request_(new QNetworkRequest()),
@@ -16,49 +18,56 @@ HttpFileUploader::~HttpFileUploader()
     delete request_;
 }
 
-void HttpFileUploader::upload(QString url, QFile* file)
+void HttpFileUploader::upload(QString url, FileWithCypher* file, bool encrypt)
 {
     file_ = file;
 
-    if (file->exists())
+    if (!file->exists())
     {
-        if (file->open(QIODevice::ReadOnly) == true)
+        qDebug() << "error on file. " << file->fileName();
+        emit errorOccurred();
+        return;
+    }
+
+    if(!file->initEncryptionOnRead(encrypt)) 
+    {            
+        qDebug() << "error on init encryption for " << file->fileName();
+        emit errorOccurred();
+        return;
+    }
+
+    if (file->open(QIODevice::ReadOnly) == true)
+    {
+        QUrl theUrl(url);
+
+        qDebug() << "url valid: " << theUrl.isValid() << ", host: " << theUrl.host() <<
+                    ", path: " << theUrl.path() << ", port:" << theUrl.port();
+
+        request_->setUrl(theUrl);
+
+        QNetworkReply *reply = networkManager_->put(*request_, file);
+
+        if (reply != nullptr)
         {
-            QUrl theUrl(url);
-            qDebug() << "url valid: " << theUrl.isValid() << ", host: " << theUrl.host() <<
-                        ", path: " << theUrl.path() << ", port:" << theUrl.port();
+           //qDebug() << "upload runnging? " << reply->isRunning() << ", error: " << reply->errorString();
 
-            request_->setUrl(theUrl);
+            connect(reply, SIGNAL(uploadProgress(qint64, qint64)),
+                    this, SLOT(displayProgress(qint64, qint64)));
 
-            QNetworkReply *reply = networkManager_->put(*request_, file);
+            connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
+                    this, SLOT(error(QNetworkReply::NetworkError)));
 
-            if (reply != nullptr)
-            {
-                //qDebug() << "upload runnging? " << reply->isRunning() << ", error: " << reply->errorString();
-
-                connect(reply, SIGNAL(uploadProgress(qint64, qint64)),
-                        this, SLOT(displayProgress(qint64, qint64)));
-
-                connect(reply, SIGNAL(error(QNetworkReply::NetworkError)),
-                        this, SLOT(error(QNetworkReply::NetworkError)));
-
-                connect(reply, SIGNAL(finished()), this, SLOT(finished()));
-            }
-            else
-            {
-                qDebug() << "error creating QNetworkReply Object";
-                emit errorOccurred();
-            }
+            connect(reply, SIGNAL(finished()), this, SLOT(finished()));
         }
         else
         {
-            qDebug() << "file open error";
+            qDebug() << "error creating QNetworkReply Object";
             emit errorOccurred();
         }
     }
     else
     {
-        qDebug() << "error on file. " << file->fileName();
+        qDebug() << "file open error";
         emit errorOccurred();
     }
 }
@@ -66,23 +75,25 @@ void HttpFileUploader::upload(QString url, QFile* file)
 void HttpFileUploader::putFinished(QNetworkReply* reply)
 {
     QByteArray response = reply->readAll();
+
     printf("response: %s\n", response.data() );
     printf("reply error %d\n", reply->error() );
 
     if (file_ != nullptr && file_->isOpen())
     {
         file_->close();
-        file_ = nullptr;
     }
 
     if (reply->error() == QNetworkReply::NoError)
     {
-        emit uploadSuccess();
+        emit uploadSuccess(file_->getIvAndKey());
     }
     else
     {
         emit errorOccurred();
     }
+
+    file_ = nullptr;
 }
 
 void HttpFileUploader::finished()

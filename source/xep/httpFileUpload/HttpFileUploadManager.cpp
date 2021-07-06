@@ -4,6 +4,7 @@
 #include "ImageProcessing.h"
 #include "System.h"
 #include "CryptoHelper.h"
+#include "FileWithCypher.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -15,14 +16,17 @@
 
 #include <QDebug>
 
+
+
+
 HttpFileUploadManager::HttpFileUploadManager(QObject *parent) : QObject(parent),
     httpUpload_(new HttpFileUploader(this)),
     serverHasFeatureHttpUpload_(false), maxFileSize_(0),
-    file_(new QFile(this)), jid_(""), client_(nullptr),
+    file_(new FileWithCypher(this)), jid_(""), client_(nullptr),
     uploadServerJid_(""), statusString_(""), getUrl_(""), busy_(false)
 {
     connect(httpUpload_, SIGNAL(updateStatus(QString)), this, SLOT(updateStatusString(QString)));
-    connect(httpUpload_, SIGNAL(uploadSuccess()), this, SLOT(successReceived()));
+    connect(httpUpload_, SIGNAL(uploadSuccess(QString)), this, SLOT(successReceived(QString)));
     connect(httpUpload_, SIGNAL(errorOccurred()), this, SLOT(errorReceived()));
 
     connect(httpUpload_, SIGNAL(updateStatus(QString)), this, SLOT(generateStatus(QString)));
@@ -35,20 +39,28 @@ void HttpFileUploadManager::setupWithClient(Swift::Client* client)
     client_ = client;
 }
 
-bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const QString &jid)
+bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const QString &jid, bool encryptFile)
 {
     bool returnValue = false;
 
     if (busy_ == false && client_ != nullptr && serverHasFeatureHttpUpload_ == true)
     {
-        QString preparedImageForSending = createTargetImageName(file);
+        QFile inputFile(file);
+        QString fileToUpload = createTargetImageName(file);
 
-        if (ImageProcessing::prepareImageForSending(file, preparedImageForSending, getMaxFileSize()))
+        // don't resize image if server can handle it
+        if(inputFile.size() < getMaxFileSize()) 
+            returnValue = inputFile.copy(fileToUpload);
+        else 
+            returnValue = ImageProcessing::prepareImageForSending(file, fileToUpload, getMaxFileSize());
+
+        if(returnValue)
         {
             busy_ = true;
+            encryptFile_ = encryptFile;
             returnValue = true;
 
-            file_->setFileName(preparedImageForSending);
+            file_->setFileName(fileToUpload);
             jid_ = jid;
 
             requestHttpUploadSlot();
@@ -138,7 +150,7 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
         {
             getUrl_ = handler->getGetUrl();
 
-            httpUpload_->upload(handler->getPutUrl(), file_);
+            httpUpload_->upload(handler->getPutUrl(), file_, encryptFile_);
         }
     }
     else
@@ -150,16 +162,31 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
     delete (parser);
 }
 
-void HttpFileUploadManager::successReceived()
+void HttpFileUploadManager::successReceived(const QString ivAndKey)
 {
-    busy_ = false;
-
     // after successfull upload, the local file must represent the hash of the get url.
     // -> rename it.
-    const QString hashedFileName = CryptoHelper::getHashOfString(getUrl_, true);
+
     QFileInfo localFile(file_->fileName());
-    QString toName = localFile.absolutePath() + QDir::separator() + hashedFileName;
-    QFile::rename(file_->fileName(), toName);
+    QUrl url(getUrl_);
+    QString attachmentFileName;
+
+    url.setFragment(ivAndKey);
+
+    if( ivAndKey.size() > 0 )
+    {
+        url.setScheme("aesgcm");
+    }
+
+    getUrl_ = url.toString(); 
+    attachmentFileName = localFile.absolutePath() + QDir::separator() +  CryptoHelper::getHashOfString(getUrl_, true);
+ 
+    if(! QFile::rename(file_->fileName(), attachmentFileName))
+    {
+        qWarning() << "failed to rename file to " << attachmentFileName;
+    }
+
+    busy_ = false;
 
     emit fileUploadedForJidToUrl(jid_, getUrl_, "image");
 }

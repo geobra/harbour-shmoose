@@ -6,6 +6,7 @@
 #include <QObject>
 
 class QFile;
+class FileWithCypher;
 class HttpFileUploader;
 
 class HttpFileUploadManager : public QObject
@@ -14,7 +15,7 @@ class HttpFileUploadManager : public QObject
 public:
     explicit HttpFileUploadManager(QObject *parent = 0);
 
-    bool requestToUploadFileForJid(QString const &file, const QString &jid);
+    bool requestToUploadFileForJid(QString const &file, const QString &jid, bool encryptFile);
     QString getStatus();
 
     void setupWithClient(Swift::Client* client);
@@ -34,7 +35,7 @@ signals:
 
 public slots:
     void updateStatusString(QString string);
-    void successReceived();
+    void successReceived(QString string);
     void errorReceived();
 
 private slots:
@@ -48,10 +49,12 @@ private:
     bool createAttachmentPath();
     QString createTargetImageName(QString source);
 
+    static bool encryptFile(QFile &file, QByteArray &ivAndKey);
+
     bool serverHasFeatureHttpUpload_;
     unsigned int maxFileSize_;
 
-    QFile* file_;
+    FileWithCypher* file_;
     QString jid_;
 
     Swift::Client* client_;
@@ -61,6 +64,7 @@ private:
     QString getUrl_;
 
     bool busy_;
+    bool encryptFile_;
 };
 
 #endif // HTTPFILEUPLOADMANAGER_H

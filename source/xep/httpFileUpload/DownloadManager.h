@@ -52,6 +52,7 @@
 
 #include <QObject>
 #include <QNetworkAccessManager>
+#include <QFile>
 
 class DownloadManager : public QObject
 {
@@ -70,11 +71,10 @@ signals:
 
 private:
     QString saveFileName(const QUrl &url);
-    bool saveToDisk(const QString &filename, QIODevice *data, const QString &ivAndKey);
 
     QNetworkAccessManager manager;
     QList<QNetworkReply *> currentDownloads;
-
+    QMap<QNetworkReply *, QFile *> downloadedFiles;
 };
 
 #endif // DOWNLOADMANAGER_H
