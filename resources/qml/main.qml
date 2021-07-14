@@ -59,7 +59,7 @@ ApplicationWindow {
     function newMessageNotification(id, jid, body) {
         var jidName = shmoose.rosterController.getNameForJid(jid)
         var m = messageNotification.createObject(null)
-        m.category = "harbour-shmoose-message"
+        m.category = "x-nemo.messaging.im"
         m.previewSummary = jidName
         m.previewBody = body
         m.summary = jidName
