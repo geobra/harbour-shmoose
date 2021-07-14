@@ -149,3 +149,9 @@ const QString Persistence::getResourcesOfNewestDisplayedMsgforJid(const QString&
 {
     return gcmController_->getResourcesOfNewestDisplayedMsgforJid(jid);
 }
+
+void Persistence::removeConversation(const QString& jid)
+{
+    getMessageController()->removeMessagesFromJid(jid);
+    getSessionController()->removeSession(jid);
+}

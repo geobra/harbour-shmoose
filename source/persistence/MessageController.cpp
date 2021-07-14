@@ -1,3 +1,4 @@
+#include "System.h"
 #include "MessageController.h"
 #include "Database.h"
 
@@ -7,6 +8,11 @@
 #include <QDateTime>
 
 #include <QDebug>
+#include <QUrl>
+#include <QDir>
+#include <QFile>
+
+#include "CryptoHelper.h"
 
 MessageController::MessageController(QObject *parent) : QSqlTableModel(parent)
 {
@@ -24,8 +30,7 @@ bool MessageController::setup()
     setEditStrategy(QSqlTableModel::OnManualSubmit);
     setTable(Database::sqlMsgName_);
 
-    // FIXME get column number from name!
-    setSort(5, Qt::DescendingOrder); // 5 -> timestamp
+    setSort(record().indexOf(Database::sqlTimestamp_), Qt::DescendingOrder); 
     if (!select())
     {
         qDebug() << "error on select in MessageController::setup";
@@ -336,14 +341,14 @@ QPair<QString, int> MessageController::getNewestReceivedMessageIdAndStateOfJid(Q
     return qMakePair<QString, int>(msgId, msgState);
 }
 
-QString MessageController::getRessourceForMsgId(const QString& msgId)
+QString MessageController::getRessourceForMsgId(const QString& jId)
 {
     QString resource = "";
 
     QSqlQuery query(*(database_->getPointer()));
 
-    if (! query.exec("SELECT " + Database::sqlResource_ + " FROM " + Database::sqlMsgName_
-                     + " WHERE " + Database::sqlId_ + " = \"" + msgId + "\" AND " + Database::sqlMsgDirection_ + " = " + QString::number(MESSAGE_DIRECTION_INCOMING)
+    if (! query.exec("SELECT " + Database::sqlMsgMessage_ + " FROM " + Database::sqlMsgName_
+                     + " WHERE " + Database::sqlJid_ + " = \"" + jId + "\" AND " + Database::sqlMsgDirection_ + " = " + QString::number(MESSAGE_DIRECTION_INCOMING)
                      + " ORDER BY " + Database::sqlTimestamp_ + " DESC LIMIT 1"))
     {
         qDebug() << query.lastError().databaseText();
@@ -367,4 +372,54 @@ void MessageController::printSqlError()
     qDebug() << this->lastError().databaseText();
     qDebug() << this->lastError().driverText();
     qDebug() << this->lastError().text();
+}
+
+
+void MessageController::removeMessagesFromJid(const QString& jid)
+{
+    // First parse the list of messages with attachments
+
+    QSqlQuery query(*(database_->getPointer()));
+
+    if (! query.exec("SELECT " + Database::sqlMsgMessage_ + " FROM " + Database::sqlMsgName_
+                     + " WHERE " + Database::sqlJid_ + " = \"" + jid + "\"" + "AND NOT " + Database::sqlMsgType_ + " = \"txt\""))
+    {
+        qDebug() << query.lastError().databaseText();
+        qDebug() << query.lastError().driverText();
+        qDebug() << query.lastError().text();
+    }
+    else
+    {
+        while (query.next())
+        {
+            QUrl url = query.value(0).toUrl();
+
+            if(url.isValid() && url.scheme().length() > 0)
+            {
+                QString hash = CryptoHelper::getHashOfString(url.toString(), true);
+                QString pathAndFile = System::getAttachmentPath() + QDir::separator() + hash;
+                QFile attachFile(pathAndFile);
+
+                attachFile.remove();
+            }
+        }
+    }
+
+    // Then remove messages
+
+    if (! query.exec("DELETE FROM " + Database::sqlMsgName_
+                     + " WHERE " + Database::sqlJid_ + " = \"" + jid + "\"" ))
+    {
+        qDebug() << query.lastError().databaseText();
+        qDebug() << query.lastError().driverText();
+        qDebug() << query.lastError().text();
+    }
+    else
+    {
+        // update the model with the changes of the database
+        if (select() != true)
+        {
+            qDebug() << "error on select in MessageController::removeMessagesFromJid";
+        }
+    }
 }

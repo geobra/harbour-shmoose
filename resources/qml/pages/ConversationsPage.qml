@@ -19,6 +19,11 @@ Page {
                 title: qsTr("Conversations");
             }
         }
+        ViewPlaceholder {
+            enabled: view.count == 0
+            text: qsTr("Empty")
+            hintText: qsTr("Select a contact to start a conversation")
+        }
         model: shmoose.persistence.sessionController
         delegate: ListItem {
             id: item;
@@ -87,6 +92,18 @@ Page {
                     text: lastmessage;
                     color: Theme.secondaryColor;
                     font.pixelSize: Theme.fontSizeTiny;
+                }
+            }
+
+            menu: ContextMenu {
+                MenuItem {
+                    text: qsTr("Delete")
+                    onClicked: {
+                        remorseAction(qsTr("Delete conversation"),
+                                      function() {
+                                            shmoose.persistence.removeConversation(jid);
+                                        })
+                    }
                 }
             }
         }

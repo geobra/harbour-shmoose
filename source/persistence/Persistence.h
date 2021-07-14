@@ -36,6 +36,7 @@ public:
     void markGroupMessageDisplayedByMember(const QString& msgId, const QString& groupChatMember);
 
     Q_INVOKABLE const QString getResourcesOfNewestDisplayedMsgforJid(const QString& jid);
+    Q_INVOKABLE void removeConversation(const QString& jid);
 
 signals:
     void messageControllerChanged();

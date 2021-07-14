@@ -107,12 +107,12 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     {
         std::string body = *fromBody;
         QString theBody = QString::fromStdString(body);
+        QUrl bodyUrl(theBody);
 
         QString type = "txt";
 
-        if (QUrl(theBody).isValid()) // it's an url
+        if (bodyUrl.isValid() && bodyUrl.scheme().length()>0 ) // it's an url
         {
-            QUrl bodyUrl = QUrl(theBody);
             QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
             bodyUrl.setFragment(QString::null);
             QString bodyEnd = bodyUrl.path().mid(bodyUrl.path().lastIndexOf('.')+1); // path of url ends with a file type
@@ -121,7 +121,11 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             {
                 type = "image";
 
-                downloadManager_->doDownload(QUrl(theBody));
+                downloadManager_->doDownload(QUrl(theBody)); // keep the fragment in the sent message
+            }
+            else
+            {
+                qWarning() << "Download cancelled. Unknown file type:" << bodyEnd;
             }
         }
 
