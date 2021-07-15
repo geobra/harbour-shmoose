@@ -347,8 +347,8 @@ QString MessageController::getRessourceForMsgId(const QString& msgId)
 
     QSqlQuery query(*(database_->getPointer()));
 
-    if (! query.exec("SELECT " + Database::sqlMsgMessage_ + " FROM " + Database::sqlMsgName_
-                     + " WHERE " + Database::sqlResource_ + " = \"" + msgId + "\" AND " + Database::sqlMsgDirection_ + " = " + QString::number(MESSAGE_DIRECTION_INCOMING)
+    if (! query.exec("SELECT " + Database::sqlResource_ + " FROM " + Database::sqlMsgName_
+                     + " WHERE " + Database::sqlId_ + " = \"" + msgId + "\" AND " + Database::sqlMsgDirection_ + " = " + QString::number(MESSAGE_DIRECTION_INCOMING)
                      + " ORDER BY " + Database::sqlTimestamp_ + " DESC LIMIT 1"))
     {
         qDebug() << query.lastError().databaseText();
