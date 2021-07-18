@@ -247,9 +247,10 @@ void MamManager::processMamMessage(const QString& qData)
             }
 
             QString type = "txt";
-            if (QUrl(body).isValid()) // it's an url
-            {
-                QUrl bodyUrl = QUrl(body);
+            QUrl bodyUrl = QUrl(body);
+
+            if (bodyUrl.isValid() && bodyUrl.scheme().length() > 0) // it's an url with a scheme
+            {        
                 QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
                 bodyUrl.setFragment(QString::null);
                 QString bodyEnd = bodyUrl.path().mid(bodyUrl.path().lastIndexOf('.')+1); // path of url ends with a file type

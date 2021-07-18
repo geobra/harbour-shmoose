@@ -250,8 +250,11 @@ Page {
             bottom: parent.bottom;
         }
 
+        height: Math.max(editbox.height, previewAttachment.height)
+
         TextArea {
             id: editbox;
+            visible: sendmsgview.attachmentPath.length === 0
 
             property var userHasOmemo: shmoose.isOmemoUser(conversationId);
             property var useOmemo: (shmoose.settings.SendPlainText.indexOf(conversationId) < 0) ? true : false;
@@ -260,16 +263,41 @@ Page {
             property var phT: (userHasOmemo && useOmemo) ? "Omemo: " + enterMsg : enterMsg;
 
             placeholderText: phT;
-            width: parent.width - 100
+
             font {
                 family: Theme.fontFamily
                 pixelSize: Theme.fontSizeMedium
             }
 
-            height: editbox.activeFocus ? font.pixelSize * 6 : font.pixelSize * 4
-
             onTextChanged: {
                 sendButton.icon.source = getSendButtonImage()
+            }
+
+           anchors.bottom: parent.bottom 
+           width: parent.width - sendButton.width - Theme.horizontalPageMargin
+        }
+        Image {
+            id: previewAttachment
+            visible: sendmsgview.attachmentPath.length > 0
+            fillMode: Image.PreserveAspectFit
+            width: parent.width /4     
+            height: parent.width /4                    
+            anchors {                                                                                                                               
+                left: parent.left; 
+                bottom: parent.bottom; bottomMargin: Theme.paddingMedium                           
+            }
+            IconButton {
+                id: removeAttachment
+                anchors {                                                                                                                               
+                    right: parent.right;   
+                    top: parent.top;                            
+                }    
+                icon.source: "image://theme/icon-splus-cancel" 
+
+                onClicked: {
+                    sendmsgview.attachmentPath = "";
+                    sendButton.icon.source = getSendButtonImage();
+                }           
             }
         }
         IconButton {
@@ -282,11 +310,16 @@ Page {
                     return false
                 }
             }
-
-            anchors.bottom: parent.bottom
-
+            
             icon.source: getSendButtonImage()
-            width: 100
+            icon.width: Theme.iconSizeMedium + 2*Theme.paddingSmall                                
+            icon.height: width
+	    
+            anchors {                                                                              
+                // icon-m-send has own padding                                                     
+                right: parent.right; rightMargin: Theme.horizontalPageMargin-Theme.paddingMedium   
+                bottom: parent.bottom; bottomMargin: Theme.paddingMedium                           
+            } 
             onClicked: {
                 if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0 && shmoose.canSendFile()) {
                     sendmsgview.attachmentPath = ""
@@ -315,8 +348,9 @@ Page {
                 //console.log(path)
                 sendmsgview.attachmentPath = path
                 sendButton.icon.source = getSendButtonImage()
+                previewAttachment.source = path
             }
-        }
+        } 
         Connections {
             target: shmoose
             onSignalCanSendFile: {
@@ -331,14 +365,10 @@ Page {
             if (shmoose.canSendFile()) {
                 return "image://theme/icon-m-attach"
             } else {
-                return "image://theme/icon-m-enter-accept"
+                return "image://theme/icon-m-send"
             }
         } else {
-            if (sendmsgview.attachmentPath.length > 0) {
-                return "image://theme/icon-m-media"
-            } else {
-                return "image://theme/icon-m-enter-accept"
-            }
+                return "image://theme/icon-m-send"
         }
     }
 

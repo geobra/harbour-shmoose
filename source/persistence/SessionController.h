@@ -22,6 +22,7 @@ public:
     void updateNumberOfUnreadMessages(QString const &jid, unsigned int unreadMessages);
 
     void setCurrentChatPartner(QString const &jid);
+    void removeSession(QString const &jid);
 
 signals:
 
