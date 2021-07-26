@@ -160,3 +160,25 @@ void SessionController::printSqlError()
     qDebug() << this->lastError().driverText();
     qDebug() << this->lastError().text();
 }
+
+
+void SessionController::removeSession(QString const &jid)
+{
+    QSqlQuery query(*(database_->getPointer()));
+ 
+     if (! query.exec("DELETE FROM " + Database::sqlSessionName_
+                     + " WHERE " + Database::sqlJid_ + " = \"" + jid + "\"" ))
+    {
+        qDebug() << query.lastError().databaseText();
+        qDebug() << query.lastError().driverText();
+        qDebug() << query.lastError().text();
+    }
+    else
+    {
+        // update the model with the changes of the database
+        if (select() != true)
+        {
+            qDebug() << "error on select in SessionController::removeSession";
+        }
+    }
+}

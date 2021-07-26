@@ -29,6 +29,7 @@ public:
 
     QPair<QString, int> getNewestReceivedMessageIdAndStateOfJid(QString const &jid);
     QString getRessourceForMsgId(const QString& msgId);
+    void removeMessagesFromJid(const QString& jid);
 
 signals:
     void signalMessageReceived(QString id, QString jid, QString message);
