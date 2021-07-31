@@ -101,11 +101,6 @@ pkg_check_modules (MXML REQUIRED mxml)
 include_directories (${MXML_INCLUDE_DIRS})
 link_directories (${MXML_LIBRARY_DIRS})
 
-# gcrypt
-pkg_check_modules (GCRYPT REQUIRED libcrypto)
-include_directories (${GCRYPT_INCLUDE_DIRS})
-link_directories (${GCRYPT_LIBRARY_DIRS})
-
 # sqlite3
 pkg_check_modules (SQLITE3 REQUIRED sqlite3)
 include_directories (${SQLITE3_INCLUDE_DIRS})
@@ -115,7 +110,7 @@ link_directories (${SQLITE3_LIBRARY_DIRS})
 # swiften cflags and libs
 set(SWIFTPATH ${CMAKE_CURRENT_SOURCE_DIR}/../swift-4.0.2)
 set(SWIFTCFG "${SWIFTPATH}/Swiften/Config/swiften-config")
-#message(STATUS "swiften config: ${SWIFTCFG}")
+
 execute_process(COMMAND ${SWIFTCFG} --cflags WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} RESULT_VARIABLE result OUTPUT_VARIABLE output)
 string(REGEX REPLACE "\n$" "" output "${output}")
 #message(STATUS "swifen config: ${result}, ${output}")
@@ -130,6 +125,26 @@ target_include_directories(harbour-shmoose SYSTEM PUBLIC ${SWIFTPATH})
 target_include_directories(harbour-shmoose SYSTEM PUBLIC ${SWIFTPATH}/3rdParty/Boost/src)
 
 
+include_directories (
+	source/persistence
+	source/xep/httpFileUpload
+	source/xep/mam
+	source/xep/xmppPing
+	source/xep/chatMarkers
+	source/xep/stanzaId
+	source/xep/omemo
+	source/xep/omemo/payload
+	source/xep/omemo/lurch
+	source/xep/omemo/mock
+	source/room
+	source/networkconnection
+	source/contacts
+	source/base
+	${LIBOMEMOPATH}/src
+	${AXCPATH}/src
+	${AXCPATH}/lib/libsignal-protocol-c/src/
+)
+
 target_link_libraries(
 	harbour-shmoose
 	${AXCPATH}/build/libaxc.a
@@ -142,24 +157,4 @@ target_link_libraries(
 	${SQLITE3_LIBRARIES}
 	-lgcrypt # no pkg-config
 )
-
-
-include_directories (source/persistence)
-include_directories (source/xep/httpFileUpload)
-include_directories (source/xep/mam)
-include_directories (source/xep/xmppPing)
-include_directories (source/xep/chatMarkers)
-include_directories (source/xep/stanzaId)
-include_directories (source/xep/omemo)
-include_directories (source/xep/omemo/payload)
-include_directories (source/xep/omemo/lurch)
-include_directories (source/xep/omemo/mock)
-include_directories (source/room)
-include_directories (source/networkconnection)
-include_directories (source/contacts)
-include_directories (source/base)
-include_directories (${LIBOMEMOPATH}/src)
-include_directories (${AXCPATH}/src)
-include_directories (${AXCPATH}/lib/libsignal-protocol-c/src/)
-
 
