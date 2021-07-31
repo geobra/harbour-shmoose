@@ -4,9 +4,10 @@ project (harbour-shmoose)
 
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_executable (harbour-shmoose)
+add_executable (harbour-shmoose shmoose.qrc)
 
 set(CMAKE_BUILD_TYPE Debug)
 set_property(TARGET harbour-shmoose PROPERTY CXX_STANDARD 14)
