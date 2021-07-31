@@ -2,11 +2,11 @@ cmake_minimum_required (VERSION 3.13)
 
 project (harbour-shmoose)
 
-add_executable (harbour-shmoose)
-
 # Tell CMake to run moc when necessary:
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+add_executable (harbour-shmoose)
 
 set(CMAKE_BUILD_TYPE Debug)
 set_property(TARGET harbour-shmoose PROPERTY CXX_STANDARD 14)
@@ -16,15 +16,16 @@ set(AXCPATH ${CMAKE_CURRENT_SOURCE_DIR}/axc_x86)
 set(LIBOMEMOPATH ${CMAKE_CURRENT_SOURCE_DIR}/libomemo_x86)
 
 # swiften cflags and libs
-set (cmd "${SWIFTPATH}/Swiften/Config/swiften-config")
-set (arg "--cflags")
-#message(STATUS "swiften config: ${cmd}")
-execute_process(COMMAND ${cmd} ${arg} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} RESULT_VARIABLE result OUTPUT_VARIABLE output)
+set (SWIFTCFG "${SWIFTPATH}/Swiften/Config/swiften-config")
+#message(STATUS "swiften config: ${SWIFTCFG}")
+execute_process(COMMAND ${SWIFTCFG} --cflags WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} RESULT_VARIABLE result OUTPUT_VARIABLE output)
 string(REGEX REPLACE "\n$" "" output "${output}")
 #message(STATUS "swifen config: ${result}, ${output}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${output} ")
 
-
+execute_process(COMMAND ${SWIFTCFG} --libs WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} RESULT_VARIABLE result OUTPUT_VARIABLE output)
+string(REGEX REPLACE "[ ]*\n$" "" output "${output}")
+target_link_libraries(harbour-shmoose ${output} -lgcrypt)
 
 
 # mark swiften include dir as external lib to prevent compiler warnings from there
