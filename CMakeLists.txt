@@ -7,14 +7,27 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_executable (harbour-shmoose shmoose.qrc)
+add_executable ( harbour-shmoose shmoose.qrc)
 
 set(CMAKE_BUILD_TYPE Debug)
 set_property(TARGET harbour-shmoose PROPERTY CXX_STANDARD 14)
 
 target_sources (
     harbour-shmoose PRIVATE
+    ${HOSTSOURCES}
+    ${COMMONSOURCES}
+)
+
+set(HOSTSOURCES
     source/main.cpp
+)
+
+set(TESTINGSOURCES
+    source/dbus/main.cpp
+    source/dbus/DbusCommunicator.cpp
+)
+
+set(COMMONSOURCES
     source/base/Shmoose.cpp
     source/base/Settings.cpp
     source/base/MessageHandler.cpp
