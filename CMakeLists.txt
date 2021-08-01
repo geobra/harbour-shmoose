@@ -7,18 +7,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_executable ( harbour-shmoose shmoose.qrc)
-
 set(CMAKE_BUILD_TYPE Debug)
-set_property(TARGET harbour-shmoose PROPERTY CXX_STANDARD 14)
 
-target_sources (
-    harbour-shmoose PRIVATE
-    ${HOSTSOURCES}
-    ${COMMONSOURCES}
-)
 
-set(HOSTSOURCES
+set(GUIAPPSOURCES
     source/main.cpp
 )
 
@@ -81,6 +73,58 @@ set(COMMONSOURCES
     source/xep/omemo/payload/EncryptionPayloadParserFactory.cpp
     source/xep/omemo/payload/EncryptionPayloadSerializer.cpp
 )
+
+SET(TS_FILES
+	resources/translations/de_DE.ts
+	resources/translations/en_GB.ts
+	resources/translations/es_BO.ts
+	resources/translations/fr_FR.ts
+	resources/translations/hr-HR.ts
+	resources/translations/nb_NO.ts
+	resources/translations/nl.ts
+	resources/translations/sv_SE.ts
+	resources/translations/zh_CN.ts
+)
+
+# collect all the sources and options for the different build targets
+if (TESTING)
+	add_executable(harbour-shmoose)
+
+	# on testing, some dbus stuff is needed
+	ADD_DEFINITIONS(-DDBUS)
+	find_package(Qt5DBus REQUIRED)
+
+	target_sources (
+		harbour-shmoose PRIVATE
+		${TESTINGSOURCES}
+		${COMMONSOURCES}
+	)
+
+	# also, turn on coverage
+	SET(TESINGFLAGS "-g -O0 --coverage -fprofile-arcs -ftest-coverage")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TESINGFLAGS}")
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${TESINGFLAGS}")
+	target_link_libraries(harbour-shmoose Qt5::DBus -lgcov)
+else()
+	# on sailfish, also libiphb is needed
+	if (SFOS)
+		target_link_libraries(
+			harbour-shmoose
+			-liphb
+		)
+		add_executable(harbour-shmoose ${TS_FILES})
+	else()
+		add_executable(harbour-shmoose shmoose.qrc ${TS_FILES})
+	endif()
+
+	target_sources (
+		harbour-shmoose PRIVATE
+		${GUIAPPSOURCES}
+		${COMMONSOURCES}
+	)
+endif()
+set_property(TARGET harbour-shmoose PROPERTY CXX_STANDARD 11)
+
 
 set(AXCPATH ${CMAKE_CURRENT_SOURCE_DIR}/axc_x86)
 set(LIBOMEMOPATH ${CMAKE_CURRENT_SOURCE_DIR}/libomemo_x86)
