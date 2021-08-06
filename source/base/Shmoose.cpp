@@ -316,7 +316,7 @@ QString Shmoose::getAttachmentPath()
 
 QString Shmoose::getLocalFileForUrl(const QString& str)
 {
-    return CryptoHelper::getHashOfString(str, true);
+    return CryptoHelper::getHashOfString(QUrl(str).toString(), true);
 }
 
 void Shmoose::setHasInetConnection(bool connected)

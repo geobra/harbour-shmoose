@@ -1,7 +1,10 @@
 import QtQuick 2.0
 import QtQuick.Window 2.0;
+import QtMultimedia 5.6
 import Sailfish.Silica 1.0
 import harbour.shmoose 1.0
+import Sailfish.Pickers 1.0
+import Nemo.Thumbnailer 1.0
 
 Page {
     id: page;
@@ -103,14 +106,14 @@ Page {
                 Label {
                     text: message;
                     color: Theme.primaryColor;
-                    //width: Math.min (item.maxContentWidth, contentWidth);
-                    width: item.maxContentWidth;
+                    width: Math.min (item.maxContentWidth, contentWidth);
+                    //width: item.maxContentWidth;
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
-                    visible: ! (type === "image")
+                    visible: type === "txt"
 
                     font {
                         family: Theme.fontFamilyHeading;
-                        pixelSize: (type === "image") ? Theme.fontSizeTiny : Theme.fontSizeMedium;
+                        pixelSize: Theme.fontSizeMedium;
                     }
                     anchors {
                         left: (item.alignRight ? parent.left : undefined);
@@ -119,25 +122,49 @@ Page {
 
                     onLinkActivated: Qt.openUrlExternally(link)
                 }
-                Image {
-                    id: msgImg
-                    property string picPath: attachmentPath + "/" + shmoose.getLocalFileForUrl(message)
-                    source: ( (type === "image") ? picPath : "");
-                    width: Math.min (item.maxContentWidth, sourceSize.width);
-                    fillMode: Image.PreserveAspectFit;
-                    visible: (type === "image")
+                BackgroundItem {
+                    width: Math.max(thumb.width, icon.width)
+                    height: Math.max(thumb.height, icon.height)
+                    visible: type !== "txt"
                     anchors {
                         left: (item.alignRight ? parent.left : undefined);
                         right: (!item.alignRight ? parent.right : undefined);
                     }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            pageStack.push(Qt.resolvedUrl("ImagePage.qml"),{ 'imgUrl': msgImg.picPath })
+                    Thumbnail {
+                        id: thumb
+                        property string file: getFilePath(message)
+                        anchors.right: (!item.alignRight ? parent.right : undefined)
+                        source: file
+                        mimeType: type
+                        visible: hasThumbnail(type)
+
+                        sourceSize.width: item.maxContentWidth*.75
+                        sourceSize.height: item.maxContentWidth*.75
+
+                        fillMode: Thumbnail.PreserveAspectFit;
+                        priority: Thumbnail.NormalPriority
+
+                        Icon {
+                            visible: startsWith(type, "video")
+                            source: "image://theme/icon-m-file-video"
+                            anchors.centerIn : parent
                         }
                     }
+                    Icon {
+                        id: icon
+                        visible: (type !== "txt") && (!hasThumbnail(type))
+                        source: getFileIcon(type)
+                        anchors.right: (!item.alignRight ? parent.right : undefined)
+                    }
+                    onClicked: {
+                        if (startsWith(type, "image"))
+                            pageStack.push(Qt.resolvedUrl("ImagePage.qml"),{ 'imgUrl': thumb.file })
+                        else if (startsWith(type, "video"))
+                            pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': thumb.file });
+                        else if (startsWith(type, "audio"))
+                            pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': thumb.file });
+                    }
                 }
-
                 Label {
                     visible: isGroup;
                     color: Theme.secondaryColor;
@@ -147,7 +174,6 @@ Page {
                     }
                     text: resource;
                 }
-
                 Row {
                     spacing: 5
                     anchors.right: (!item.alignRight ? parent.right : undefined)
@@ -276,22 +302,30 @@ Page {
            anchors.bottom: parent.bottom 
            width: parent.width - sendButton.width - Theme.horizontalPageMargin
         }
-        Image {
+        Thumbnail {
             id: previewAttachment
             visible: sendmsgview.attachmentPath.length > 0
-            fillMode: Image.PreserveAspectFit
             width: parent.width /4     
-            height: parent.width /4                    
+            height: parent.width /4
+            sourceSize.width: parent.width / 4
+            sourceSize.height: parent.width / 4
             anchors {                                                                                                                               
-                left: parent.left; 
                 bottom: parent.bottom; bottomMargin: Theme.paddingMedium                           
+            }
+            Icon {
+                visible: startsWith(previewAttachment.mimeType, "video") && previewAttachment.status != Thumbnail.Error
+                source: "image://theme/icon-m-file-video"
+                anchors.centerIn: parent
+            }
+            Icon {
+                visible: previewAttachment.status == Thumbnail.Error
+                source: getFileIcon(previewAttachment.mimeType)
+                anchors.centerIn: parent
             }
             IconButton {
                 id: removeAttachment
-                anchors {                                                                                                                               
-                    right: parent.right;   
-                    top: parent.top;                            
-                }    
+                anchors.right: parent.right
+                anchors.top: parent.top
                 icon.source: "image://theme/icon-splus-cancel" 
 
                 onClicked: {
@@ -324,8 +358,8 @@ Page {
                 if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0 && shmoose.canSendFile()) {
                     sendmsgview.attachmentPath = ""
                     fileModel.searchPath = shmoose.settings.ImagePaths
-                    pageStack.push(pageImagePicker)
-                    pageImagePicker.selected.connect(processAttachment)
+                    pageStack.push(filePickerPage)
+
                 } else {
                     //console.log(sendmsgview.attachmentPath)
                     var msgToSend = editbox.text;
@@ -336,7 +370,7 @@ Page {
                     }
 
                     if (msgToSend.length > 0) {
-                        shmoose.sendMessage(conversationId, msgToSend, "text");
+                        shmoose.sendMessage(conversationId, msgToSend, "txt");
                         editbox.text = " ";
                         editbox.text = "";
                     }
@@ -344,13 +378,20 @@ Page {
                     displaymsgviewlabel.text = "";
                 }
             }
-            function processAttachment(path) {
-                //console.log(path)
-                sendmsgview.attachmentPath = path
-                sendButton.icon.source = getSendButtonImage()
-                previewAttachment.source = path
-            }
         } 
+        
+        Component {
+            id: filePickerPage
+            ContentPickerPage {
+            onSelectedContentPropertiesChanged: {
+                sendmsgview.attachmentPath = selectedContentProperties.filePath
+                sendButton.icon.source = getSendButtonImage()
+                previewAttachment.source = sendmsgview.attachmentPath
+                previewAttachment.mimeType = selectedContentProperties.mimeType
+                }
+            }
+        }
+
         Connections {
             target: shmoose
             onSignalCanSendFile: {
@@ -396,5 +437,19 @@ Page {
 
         return trimmedStr;
     }
-
+    function hasThumbnail(type) {
+        return startsWith(type, "image") || startsWith(type, "video");
+    }
+    function getFilePath(message) {
+        return attachmentPath + "/" + shmoose.getLocalFileForUrl(message);
+    }
+    function getFileIcon(type){
+        if(startsWith(type, "image")) return "image://theme/icon-m-file-image";
+        if(startsWith(type, "video")) return "image://theme/icon-m-file-video";
+        if(startsWith(type, "audio")) return "image://theme/icon-m-file-audio";
+        return "image://theme/icon-m-file-document-light";
+    }
+    function startsWith(s,start) {
+        return (s.substring(0, start.length) == start); 
+    }
 }
