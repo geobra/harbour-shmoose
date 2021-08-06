@@ -15,6 +15,7 @@
 
 #include <QUrl>
 #include <QDebug>
+#include <QMimeDatabase>
 
 MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, RosterController* rosterController, LurchAdapter* lurchAdapter, QObject *parent) : QObject(parent),
     client_(nullptr), persistence_(persistence), lurchAdapter_(lurchAdapter), settings_(settings),
@@ -113,20 +114,26 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
         if (bodyUrl.isValid() && bodyUrl.scheme().length()>0 ) // it's an url
         {
-            QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
+            type = QMimeDatabase().mimeTypeForUrl(bodyUrl).name();
+
+            qDebug() << "File type =" << type;
+
+            downloadManager_->doDownload(QUrl(theBody)); // keep the fragment in the sent message
+//            QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
+
             bodyUrl.setFragment(QString::null);
-            QString bodyEnd = bodyUrl.path().mid(bodyUrl.path().lastIndexOf('.')+1); // path of url ends with a file type
-
-            if (knownImageTypes.contains(bodyEnd))
-            {
-                type = "image";
-
-                downloadManager_->doDownload(QUrl(theBody)); // keep the fragment in the sent message
-            }
-            else
-            {
-                qWarning() << "Download cancelled. Unknown file type:" << bodyEnd;
-            }
+//            QString bodyEnd = bodyUrl.path().mid(bodyUrl.path().lastIndexOf('.')+1); // path of url ends with a file type
+//
+//            if (knownImageTypes.contains(bodyEnd))
+//            {
+//                type = "image";
+//
+//                downloadManager_->doDownload(QUrl(theBody)); // keep the fragment in the sent message
+//            }
+//            else
+//            {
+//                qWarning() << "Download cancelled. Unknown file type:" << bodyEnd;
+//            }
         }
 
         bool isGroupMessage = false;
@@ -229,7 +236,7 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         msg->setType(messagesTyp);
         msg->setBody(message.toStdString());
 
-        if(type == "image")
+        if(type != "txt")   // XEP-0066
         {
             QString outOfBandElement("");
             outOfBandElement.append("<x xmlns=\"jabber:x:oob\">");

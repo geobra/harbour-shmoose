@@ -47,7 +47,7 @@ private:
     void handleHttpUploadResponse(const std::string response);
 
     bool createAttachmentPath();
-    QString createTargetImageName(QString source);
+    QString createTargetFileName(QString source);
 
     static bool encryptFile(QFile &file, QByteArray &ivAndKey);
 
@@ -65,6 +65,8 @@ private:
 
     bool busy_;
     bool encryptFile_;
+
+    QString fileType_;
 };
 
 #endif // HTTPFILEUPLOADMANAGER_H

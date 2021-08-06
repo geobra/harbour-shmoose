@@ -13,6 +13,7 @@
 #include <QDir>
 #include <QDateTime>
 #include <QFileInfo>
+#include <QMimeDatabase>
 
 #include <QDebug>
 
@@ -46,12 +47,15 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
     if (busy_ == false && client_ != nullptr && serverHasFeatureHttpUpload_ == true)
     {
         QFile inputFile(file);
-        QString fileToUpload = createTargetImageName(file);
+        QString fileToUpload = createTargetFileName(file);
+
+        fileType_ = QMimeDatabase().mimeTypeForFile(file).name();
+        qDebug() << "Mime type: " << fileType_;
 
         // don't resize image if server can handle it
         if(inputFile.size() < getMaxFileSize()) 
             returnValue = inputFile.copy(fileToUpload);
-        else 
+        else if(fileType_ == "image")
             returnValue = ImageProcessing::prepareImageForSending(file, fileToUpload, getMaxFileSize());
 
         if(returnValue)
@@ -116,8 +120,9 @@ void HttpFileUploadManager::requestHttpUploadSlot()
     if (client_ != nullptr)
     {
         QString basename = QFileInfo(file_->fileName()).baseName() + "." + QFileInfo(file_->fileName()).completeSuffix();
+
         std::string uploadRequest = "<request xmlns='urn:xmpp:http:upload'>"
-                + std::string("<filename>") + basename.toStdString() + std::string("</filename>")
+                + std::string("<filename>") + basename.toUtf8().toPercentEncoding().toStdString() + std::string("</filename>")
                 + std::string("<size>") + std::to_string(file_->size()) + std::string("</size></request>");
 
         Swift::RawRequest::ref httpUploadRequest = Swift::RawRequest::create(Swift::IQ::Type::Get,
@@ -188,7 +193,7 @@ void HttpFileUploadManager::successReceived(const QString ivAndKey)
 
     busy_ = false;
 
-    emit fileUploadedForJidToUrl(jid_, getUrl_, "image");
+    emit fileUploadedForJidToUrl(jid_, getUrl_, fileType_);
 }
 
 void HttpFileUploadManager::errorReceived()
@@ -211,12 +216,13 @@ bool HttpFileUploadManager::createAttachmentPath()
 }
 
 // create a path and file name with a jpg suffix
-QString HttpFileUploadManager::createTargetImageName(QString source)
+QString HttpFileUploadManager::createTargetFileName(QString source)
 {
     QDateTime now(QDateTime::currentDateTimeUtc());
     uint unixTime = now.toTime_t();
+    QFileInfo fileInfo(source);
 
-    QString targetFileName = QFileInfo(source).baseName() + ".jpg";
+    QString targetFileName = fileInfo.completeBaseName() + "." + fileInfo.suffix();
     QString targetPath = System::getAttachmentPath() + QDir::separator() + QString::number(unixTime) + targetFileName;
 
     qDebug() << "target file: " << targetPath;
