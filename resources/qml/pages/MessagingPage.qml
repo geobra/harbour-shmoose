@@ -123,15 +123,24 @@ Page {
                     onLinkActivated: Qt.openUrlExternally(link)
                 }
                 BackgroundItem {
+<<<<<<< HEAD
                     width: Math.max(thumb.width, icon.width)
                     height: Math.max(thumb.height, icon.height)
+=======
+                    width: Math.max(msgImg.width, icon.width)
+                    height: Math.max(msgImg.height, icon.height)
+>>>>>>> 7c2ab5d527fe015d4e6fb7b449ef4cce45fba110
                     visible: type !== "txt"
                     anchors {
                         left: (item.alignRight ? parent.left : undefined);
                         right: (!item.alignRight ? parent.right : undefined);
                     }
                     Thumbnail {
+<<<<<<< HEAD
                         id: thumb
+=======
+                        id: msgImg
+>>>>>>> 7c2ab5d527fe015d4e6fb7b449ef4cce45fba110
                         property string file: getFilePath(message)
                         anchors.right: (!item.alignRight ? parent.right : undefined)
                         source: file
@@ -150,19 +159,34 @@ Page {
                             anchors.centerIn : parent
                         }
                     }
+<<<<<<< HEAD
                     Icon {
                         id: icon
                         visible: (type !== "txt") && (!hasThumbnail(type))
                         source: getFileIcon(type)
+=======
+                    IconButton {
+                        id: icon
+                        visible: (type !== "txt") && (!hasThumbnail(type))
+                        icon.source: getFileIcon(type)
+>>>>>>> 7c2ab5d527fe015d4e6fb7b449ef4cce45fba110
                         anchors.right: (!item.alignRight ? parent.right : undefined)
                     }
                     onClicked: {
                         if (startsWith(type, "image"))
+<<<<<<< HEAD
                             pageStack.push(Qt.resolvedUrl("ImagePage.qml"),{ 'imgUrl': thumb.file })
                         else if (startsWith(type, "video"))
                             pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': thumb.file });
                         else if (startsWith(type, "audio"))
                             pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': thumb.file });
+=======
+                            pageStack.push(Qt.resolvedUrl("ImagePage.qml"),{ 'imgUrl': msgImg.file })
+                        else if (startsWith(type, "video"))
+                            pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': msgImg.file });
+                        else if (startsWith(type, "audio"))
+                            pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': msgImg.file });
+>>>>>>> 7c2ab5d527fe015d4e6fb7b449ef4cce45fba110
                     }
                 }
                 Label {
