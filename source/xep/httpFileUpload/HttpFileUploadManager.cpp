@@ -50,10 +50,6 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
         QString fileToUpload = createTargetFileName(file);
 
         fileType_ = QMimeDatabase().mimeTypeForFile(file).name();
-<<<<<<< HEAD
-=======
-        qDebug() << "Mime type: " << fileType_;
->>>>>>> 7c2ab5d527fe015d4e6fb7b449ef4cce45fba110
 
         // don't resize image if server can handle it
         if(inputFile.size() < getMaxFileSize()) 

@@ -221,7 +221,7 @@ int MessageController::getStateOfMessageId(QString const &id)
         }
     }
 
-    qDebug() << "found state: " << msgState << "for msg id " << id;
+    //qDebug() << "found state: " << msgState << "for msg id " << id;
 
     return msgState;
 }

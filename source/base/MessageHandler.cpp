@@ -116,31 +116,9 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         {
             type = QMimeDatabase().mimeTypeForUrl(bodyUrl).name();
 
-<<<<<<< HEAD
             downloadManager_->doDownload(QUrl(theBody)); // keep the fragment in the sent message
 
             bodyUrl.setFragment(QString::null);
-
-=======
-            qDebug() << "File type =" << type;
-
-            downloadManager_->doDownload(QUrl(theBody)); // keep the fragment in the sent message
-//            QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
-
-            bodyUrl.setFragment(QString::null);
-//            QString bodyEnd = bodyUrl.path().mid(bodyUrl.path().lastIndexOf('.')+1); // path of url ends with a file type
-//
-//            if (knownImageTypes.contains(bodyEnd))
-//            {
-//                type = "image";
-//
-//                downloadManager_->doDownload(QUrl(theBody)); // keep the fragment in the sent message
-//            }
-//            else
-//            {
-//                qWarning() << "Download cancelled. Unknown file type:" << bodyEnd;
-//            }
->>>>>>> 7c2ab5d527fe015d4e6fb7b449ef4cce45fba110
         }
 
         bool isGroupMessage = false;
