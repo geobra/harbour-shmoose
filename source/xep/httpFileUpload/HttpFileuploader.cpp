@@ -18,20 +18,13 @@ HttpFileUploader::~HttpFileUploader()
     delete request_;
 }
 
-void HttpFileUploader::upload(QString url, FileWithCypher* file, bool encrypt)
+void HttpFileUploader::upload(QString url, FileWithCypher* file)
 {
     file_ = file;
 
     if (!file->exists())
     {
         qDebug() << "error on file. " << file->fileName();
-        emit errorOccurred();
-        return;
-    }
-
-    if(!file->initEncryptionOnRead(encrypt)) 
-    {            
-        qDebug() << "error on init encryption for " << file->fileName();
         emit errorOccurred();
         return;
     }

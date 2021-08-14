@@ -30,7 +30,8 @@ public:
     unsigned int getMaxFileSize();
 
 signals:
-    void fileUploadedForJidToUrl(QString, QString, QString);
+    void fileUploadedForJidToUrl(QString, QString, QString, QString);
+    void startFileUploadForJidToUrl(QString, QString, QString, QString);
     void showStatus(QString, QString);
 
 public slots:
@@ -67,6 +68,7 @@ private:
     bool encryptFile_;
 
     QString fileType_;
+    QString msgId_;
 };
 
 #endif // HTTPFILEUPLOADMANAGER_H

@@ -56,8 +56,10 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
 
     connect(connectionHandler_, SIGNAL(signalInitialConnectionEstablished()), this, SLOT(intialSetupOnFirstConnection()));
 
-    connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString,QString)),
-            this, SLOT(sendMessage(QString,QString,QString)));
+    connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString,QString,QString)),
+            this, SLOT(sendMessage(QString,QString,QString,QString)));
+    connect(httpFileUploadManager_, SIGNAL(startFileUploadForJidToUrl(QString,QString,QString,QString)),
+            this, SLOT(saveMessageToSendLater(QString,QString,QString,QString)));
 
     connect(mucManager_, SIGNAL(newGroupForContactsList(QString,QString)), rosterController_, SLOT(addGroupAsContact(QString,QString)));
     connect(mucManager_, SIGNAL(removeGroupFromContactsList(QString)), rosterController_, SLOT(removeGroupFromContacts(QString)) );
@@ -226,11 +228,18 @@ QString Shmoose::getCurrentChatPartner()
     return persistence_->getCurrentChatPartner();
 }
 
-void Shmoose::sendMessage(QString const &toJid, QString const &message, QString const &type)
+void Shmoose::sendMessage(QString const &toJid, QString const &message, QString const &type, QString const &msgId)
 {
     bool isGroup = rosterController_->isGroup(toJid);
-    messageHandler_->sendMessage(toJid, message, type, isGroup);
+    messageHandler_->sendMessage(toJid, message, type, isGroup, msgId);
 }
+
+
+void Shmoose::saveMessageToSendLater(QString const &toJid, QString const &message, QString const &type, QString const &msgId)
+{
+    messageHandler_->saveMessageToSendLater(toJid, message, type, msgId);
+}
+
 
 void Shmoose::sendMessage(QString const &message, QString const &type)
 {

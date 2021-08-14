@@ -104,22 +104,38 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
     boost::optional<std::string> fromBody = message->getBody();
 
+
     if (fromBody)
     {
         std::string body = *fromBody;
         QString theBody = QString::fromStdString(body);
         QUrl bodyUrl(theBody);
+        bool isLink = false;
 
         QString type = "txt";
 
         if (bodyUrl.isValid() && bodyUrl.scheme().length()>0 ) // it's an url
         {
-            type = QMimeDatabase().mimeTypeForUrl(bodyUrl).name();
+            std::vector< std::shared_ptr<Swift::RawXMLPayload> > xmlPayloads = message->getPayloads<Swift::RawXMLPayload>();
+            for (std::vector<std::shared_ptr<Swift::RawXMLPayload>>::iterator it = xmlPayloads.begin() ; it != xmlPayloads.end(); ++it)
+            {
+                QString rawXml = QString::fromStdString((*it)->getRawXML());
 
-            downloadManager_->doDownload(QUrl(theBody)); // keep the fragment in the sent message
+                if(!XmlProcessor::getContentInElement("url", rawXml).isEmpty())
+                {
+                    isLink = true;
+                    break;
+                }
+            }
 
-            bodyUrl.setFragment(QString::null);
-        }
+            isLink = security == 1 ? theBody.startsWith("aesgcm://") : isLink;
+
+            if(isLink)
+            {
+                type = QMimeDatabase().mimeTypeForFile(bodyUrl.fileName()).name();
+                downloadManager_->doDownload(bodyUrl); // keep the fragment in the sent message
+            }
+      }
 
         bool isGroupMessage = false;
         if (message->getType() == Swift::Message::Groupchat)
@@ -184,7 +200,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     }
 }
 
-void MessageHandler::sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup)
+void MessageHandler::sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup, QString const &Id)
 {
     unsigned int security = 0;
 
@@ -206,7 +222,7 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         Swift::JID receiverJid(toJid.toStdString());
 
         Swift::IDGenerator idGenerator;
-        std::string msgId = idGenerator.generateID();
+        std::string msgId = Id.isEmpty() ? idGenerator.generateID() : Id.toStdString();
 
         msg->setFrom(Swift::JID(client_->getJID()));
         msg->setTo(receiverJid);
@@ -277,6 +293,30 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
 
         emit messageSent(QString::fromStdString(msgId));
     }
+}
+
+void MessageHandler::saveMessageToSendLater(QString const &toJid, QString const &message, QString const &type, QString const &id)
+{
+    unsigned int security = 0;
+
+
+    qDebug() << "saveMessageToSendLater: " << toJid << "," << message << "," << type << "," << id << endl;
+
+    Swift::JID receiverJid(toJid.toStdString());
+
+    if ( lurchAdapter_->isOmemoUser(toJid) == true // the receipient client can handle omemo encryption
+         && (! settings_->getSendPlainText().contains(toJid)) // no force for plain text msg in settings
+         )
+    {
+        security = 1;
+    }
+
+    persistence_->addMessage( id,
+                              QString::fromStdString(receiverJid.toBare().toString()),
+                              QString::fromStdString(receiverJid.getResource()),
+                              message, type, 0, security);
+
+    emit messageSent(id);
 }
 
 void MessageHandler::sendRawMessageStanza(QString str)

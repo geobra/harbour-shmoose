@@ -54,7 +54,7 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
         // don't resize image if server can handle it
         if(inputFile.size() < getMaxFileSize()) 
             returnValue = inputFile.copy(fileToUpload);
-        else if(fileType_ == "image")
+        else if(fileType_.startsWith("image"))
             returnValue = ImageProcessing::prepareImageForSending(file, fileToUpload, getMaxFileSize());
 
         if(returnValue)
@@ -65,6 +65,9 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
 
             file_->setFileName(fileToUpload);
             jid_ = jid;
+
+            Swift::IDGenerator idGenerator;
+            msgId_ = QString::fromStdString(idGenerator.generateID());
 
             requestHttpUploadSlot();
         }
@@ -152,9 +155,29 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
 
         if (QUrl(handler->getPutUrl()).isValid() == true && QUrl(handler->getGetUrl()).isValid() == true)
         {
-            getUrl_ = handler->getGetUrl();
+            QUrl url(handler->getGetUrl());
 
-            httpUpload_->upload(handler->getPutUrl(), file_, encryptFile_);
+            if(!file_->initEncryptionOnRead(encryptFile_))
+            {
+                qDebug() << "error on init encryption for " << file_->fileName();
+            }
+
+            if( file_->getIvAndKey().size() > 0 )
+            {
+                url.setScheme("aesgcm");
+                url.setFragment(file_->getIvAndKey());
+            }
+
+            getUrl_ = url.toString(); 
+            QString attachmentFileName = System::getAttachmentPath() + QDir::separator() +  CryptoHelper::getHashOfString(getUrl_, true);
+
+            if(! file_->rename(attachmentFileName))
+            {
+                qWarning() << "failed to rename file to " << attachmentFileName;
+            }
+
+            emit startFileUploadForJidToUrl(jid_, getUrl_, fileType_, msgId_);
+            httpUpload_->upload(handler->getPutUrl(), file_);
         }
     }
     else
@@ -168,31 +191,9 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
 
 void HttpFileUploadManager::successReceived(const QString ivAndKey)
 {
-    // after successfull upload, the local file must represent the hash of the get url.
-    // -> rename it.
-
-    QFileInfo localFile(file_->fileName());
-    QUrl url(getUrl_);
-    QString attachmentFileName;
-
-    url.setFragment(ivAndKey);
-
-    if( ivAndKey.size() > 0 )
-    {
-        url.setScheme("aesgcm");
-    }
-
-    getUrl_ = url.toString(); 
-    attachmentFileName = localFile.absolutePath() + QDir::separator() +  CryptoHelper::getHashOfString(getUrl_, true);
- 
-    if(! QFile::rename(file_->fileName(), attachmentFileName))
-    {
-        qWarning() << "failed to rename file to " << attachmentFileName;
-    }
-
     busy_ = false;
 
-    emit fileUploadedForJidToUrl(jid_, getUrl_, fileType_);
+    emit fileUploadedForJidToUrl(jid_, getUrl_, fileType_, msgId_);
 }
 
 void HttpFileUploadManager::errorReceived()

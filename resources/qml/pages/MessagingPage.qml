@@ -106,8 +106,8 @@ Page {
                 Label {
                     text: message;
                     color: Theme.primaryColor;
-                    width: Math.min (item.maxContentWidth, contentWidth);
-                    //width: item.maxContentWidth;
+                    //width: Math.min (item.maxContentWidth, contentWidth);
+                    width: item.maxContentWidth;
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
                     visible: type === "txt"
 
@@ -163,8 +163,8 @@ Page {
                         if (startsWith(type, "image"))
                             pageStack.push(Qt.resolvedUrl("ImagePage.qml"),{ 'imgUrl': thumb.file })
                         else if (startsWith(type, "video"))
-                            pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': thumb.file });
-                        else if (startsWith(type, "audio"))
+                            pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': thumb.file })
+                         else if (startsWith(type, "audio"))
                             pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': thumb.file });
                     }
                 }
@@ -337,6 +337,7 @@ Page {
                 }           
             }
         }
+    }
         IconButton {
             id: sendButton
             enabled: {
@@ -347,11 +348,11 @@ Page {
                     return false
                 }
             }
-            
+            icon.asynchronous: true
             icon.source: getSendButtonImage()
             icon.width: Theme.iconSizeMedium + 2*Theme.paddingSmall                                
             icon.height: width
-	    
+
             anchors {                                                                              
                 // icon-m-send has own padding                                                     
                 right: parent.right; rightMargin: Theme.horizontalPageMargin-Theme.paddingMedium   
@@ -362,7 +363,6 @@ Page {
                     sendmsgview.attachmentPath = ""
                     fileModel.searchPath = shmoose.settings.ImagePaths
                     pageStack.push(filePickerPage)
-
                 } else {
                     //console.log(sendmsgview.attachmentPath)
                     var msgToSend = editbox.text;
@@ -373,7 +373,7 @@ Page {
                     }
 
                     if (msgToSend.length > 0) {
-                        shmoose.sendMessage(conversationId, msgToSend, "txt");
+                        shmoose.sendMessage(conversationId, msgToSend, "txt", "");
                         editbox.text = " ";
                         editbox.text = "";
                     }
@@ -402,7 +402,6 @@ Page {
                 sendButton.icon.source = getSendButtonImage();
             }
         }
-    }
 
     function getSendButtonImage() {
         if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0) {

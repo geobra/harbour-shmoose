@@ -57,10 +57,12 @@ public:
     bool connectionState() const;
 
 public slots:
-    void sendMessage(QString const &toJid, QString const &message, const QString &type);
+    void sendMessage(QString const &toJid, QString const &message, const QString &type, QString const &msgId);
     void sendMessage(QString const &message, const QString &type);
     void sendFile(QString const &toJid, QString const &file);
     void sendFile(QUrl const &file);
+    void saveMessageToSendLater(QString const &toJid, QString const &message, QString const &type, QString const &msgId);
+
 
 private slots:
     void sendReadNotification(bool active);

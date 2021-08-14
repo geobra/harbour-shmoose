@@ -201,6 +201,39 @@ QString MessageController::getJidOfMessageId(QString const &id)
     return jid;
 }
 
+
+bool MessageController::getMessageFromId(QString const &id, QString &jid, QString &message, QString &type)
+{
+    QSqlQuery query(*(database_->getPointer()));
+
+    jid = "";
+    message = "";
+    type = "";
+
+    if (! query.exec("SELECT * FROM " + Database::sqlMsgName_ + " WHERE " + Database::sqlId_ + " = \"" + id + "\""))
+    {
+        qDebug() << query.lastError().databaseText();
+        qDebug() << query.lastError().driverText();
+        qDebug() << query.lastError().text();
+ 
+        return false;
+    }
+    else
+    {
+        while (query.next())
+        {
+            jid = query.value(Database::sqlJid_).toString();
+            message = query.value(Database::sqlMsgMessage_).toString();
+            type = query.value(Database::sqlMsgType_).toString();
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 int MessageController::getStateOfMessageId(QString const &id)
 {
     int msgState = MESSAGE_STATE_DEFAULT;
