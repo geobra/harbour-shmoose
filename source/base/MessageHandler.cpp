@@ -315,8 +315,6 @@ void MessageHandler::saveMessageToSendLater(QString const &toJid, QString const 
                               QString::fromStdString(receiverJid.toBare().toString()),
                               QString::fromStdString(receiverJid.getResource()),
                               message, type, 0, security);
-
-    emit messageSent(id);
 }
 
 void MessageHandler::sendRawMessageStanza(QString str)

@@ -238,6 +238,7 @@ void Shmoose::sendMessage(QString const &toJid, QString const &message, QString 
 void Shmoose::saveMessageToSendLater(QString const &toJid, QString const &message, QString const &type, QString const &msgId)
 {
     messageHandler_->saveMessageToSendLater(toJid, message, type, msgId);
+    persistence_->markMessageAsUploadingAttachment(msgId);
 }
 
 

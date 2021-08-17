@@ -69,8 +69,8 @@ void HttpFileUploader::putFinished(QNetworkReply* reply)
 {
     QByteArray response = reply->readAll();
 
-    printf("response: %s\n", response.data() );
-    printf("reply error %d\n", reply->error() );
+    //printf("response: %s\n", response.data() );
+    //printf("reply error %d\n", reply->error() );
 
     if (file_ != nullptr && file_->isOpen())
     {
@@ -107,6 +107,8 @@ void HttpFileUploader::error(QNetworkReply::NetworkError code)
 void HttpFileUploader::displayProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
     qDebug() << "progress: " << bytesReceived << "/" << bytesTotal;
-    QString status = QString::number(bytesReceived) + " / " + QString::number(bytesTotal);
+
+    QString status = bytesTotal > 0 ? QString::number((bytesReceived*100) / bytesTotal)+"%" : "";
+
     emit updateStatus(status);
 }

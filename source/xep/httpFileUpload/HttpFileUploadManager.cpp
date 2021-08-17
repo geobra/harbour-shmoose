@@ -232,5 +232,5 @@ QString HttpFileUploadManager::createTargetFileName(QString source)
 
 void HttpFileUploadManager::generateStatus(QString status)
 {
-    emit showStatus("Image Upload", status);
+    emit showStatus("File Upload", status);
 }

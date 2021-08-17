@@ -25,6 +25,14 @@ Page {
     property bool isGroup : shmoose.rosterController.isGroup(conversationId);
     property string attachmentPath: shmoose.getAttachmentPath();
     property string imagePath : shmoose.rosterController.getAvatarImagePathForJid(conversationId);
+    property bool refreshDate : false;
+
+    Timer {
+        interval: 60000; running: true; repeat: true
+        onTriggered: {
+            refreshDate = !refreshDate;
+        }
+    }
 
     Image {
         //source: "image://glass/qrc:///qml/img/photo.png";
@@ -135,6 +143,7 @@ Page {
                         id: thumb
 
                         property string file: getFilePath(message)
+
                         anchors.right: (!item.alignRight ? parent.right : undefined)
                         source: file
                         mimeType: type
@@ -180,8 +189,35 @@ Page {
                 Row {
                     spacing: 5
                     anchors.right: (!item.alignRight ? parent.right : undefined)
+
                     Label {
-                        text: Qt.formatDateTime (new Date (timestamp * 1000), "yyyy-MM-dd hh:mm:ss");
+                        id: upload
+                        visible: msgstate == 4
+                        color: Theme.secondaryColor;
+                        font {
+                            family: Theme.fontFamilyHeading;
+                            pixelSize: Theme.fontSizeTiny;
+                        }
+
+                        Connections {
+                            target: shmoose
+                            onSignalShowStatus: {
+                                if(headline == "File Upload")
+                                    upload.text = qsTr("uploading ")+body;
+                            }
+                        }
+                    }
+                    Label {
+                        text: qsTr("send failed")
+                        visible: msgstate == 5
+                        color: Theme.secondaryColor;
+                        font {
+                            family: Theme.fontFamilyHeading;
+                            pixelSize: Theme.fontSizeTiny;
+                        }
+                    }
+                    Label {
+                        text: refreshDate, getDateDiffFormated(new Date (timestamp * 1000));
                         color: Theme.secondaryColor;
                         font {
                             family: Theme.fontFamilyHeading;
@@ -348,7 +384,6 @@ Page {
                     return false
                 }
             }
-            icon.asynchronous: true
             icon.source: getSendButtonImage()
             icon.width: Theme.iconSizeMedium + 2*Theme.paddingSmall                                
             icon.height: width
@@ -381,7 +416,7 @@ Page {
                     displaymsgviewlabel.text = "";
                 }
             }
-        } 
+        }
         
         Component {
             id: filePickerPage
@@ -398,7 +433,7 @@ Page {
         Connections {
             target: shmoose
             onSignalCanSendFile: {
-                console.log("HTTP uploads enabled");
+                //console.log("HTTP uploads enabled");
                 sendButton.icon.source = getSendButtonImage();
             }
         }
@@ -453,5 +488,32 @@ Page {
     }
     function startsWith(s,start) {
         return (s.substring(0, start.length) == start); 
+    }
+    function getDateDiffFormated(d) {
+        var n = new Date();
+        var diff = (n.getTime() - d.getTime()) / 1000;
+        var locale = Qt.locale();
+
+        if(diff < 0)
+            return "?"
+        else if(diff < 60)
+            return qsTr("now")
+        else if(diff < 60*2)
+            return qsTr("1 mn ago")
+        else if(diff < 60*30)
+            return qsTr ("") + Math.round(diff/60, 0)+ qsTr(" mns ago");
+
+        var s = d.toLocaleTimeString(locale, "hh:mm");
+
+        if(d.getFullYear() != n.getFullYear())
+        {
+            s = d.toLocaleDateString(locale, "d MMM yyyy") + " " + s;
+        }
+        else if (d.getMonth() != n.getMonth() || d.getDate() != n.getDate())
+        {
+            s = d.toLocaleDateString(locale, "d MMM") + " " +s;
+        }
+
+        return s;
     }
 }

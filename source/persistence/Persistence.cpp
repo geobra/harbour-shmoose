@@ -90,6 +90,22 @@ void Persistence::markMessageAsSentById(QString const &id)
     }
 }
 
+void Persistence::markMessageAsUploadingAttachment(QString const &id)
+{
+    if (persistenceValid_)
+    {
+        messageController_->markMessageUploadingAttachment(id);
+    }
+}
+
+void Persistence::markMessageAsSendFailed(QString const &id)
+{
+    if (persistenceValid_)
+    {
+        messageController_->markMessageSendFailed(id);
+    }
+}
+
 void Persistence::setCurrentChatPartner(QString const &jid)
 {
     currentChatPartner_ = jid;

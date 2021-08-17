@@ -26,6 +26,8 @@ public:
     void markMessageDisplayed(QString const &id);
     void markMessageReceived(QString const &id);
     void markMessageSent(QString const &id);
+    void markMessageUploadingAttachment(QString const &id);
+    void markMessageSendFailed(QString const &id);
 
     QPair<QString, int> getNewestReceivedMessageIdAndStateOfJid(QString const &jid);
     QString getRessourceForMsgId(const QString& msgId);
@@ -65,7 +67,9 @@ private:
         MESSAGE_STATE_DEFAULT,                      // default after I sent a message
         MESSAGE_STATE_SENT,                         // session management confirmed message is received by server
         MESSAGE_STATE_RECEIVED,                     // other client confirmed that message is received in app
-        MESSAGE_STATE_DISPLAYED                     // other client confirmed that message is read (xep 0333, chat markers)
+        MESSAGE_STATE_DISPLAYED,                    // other client confirmed that message is read (xep 0333, chat markers)
+        MESSAGE_STATE_UPLOADING_ATTACHMENT,         // Uploading attachment in progress
+        MESSAGE_STATE_SEND_FAILED                   // Message recorded in database but not sent
     };
 
 };

@@ -279,9 +279,19 @@ void MessageController::markMessageSent(QString const &id)
     setMessageStateOfId(id, MESSAGE_STATE_SENT);
 }
 
+void MessageController::markMessageUploadingAttachment(QString const &id)
+{
+    setMessageStateOfId(id, MESSAGE_STATE_UPLOADING_ATTACHMENT);
+}
+
+void MessageController::markMessageSendFailed(QString const &id)
+{
+    setMessageStateOfId(id, MESSAGE_STATE_SEND_FAILED);
+}
+
 /*
  * valid state changes:
- * DEFAULT (0) -> DISPLAYED_CONFIRMED (-1)
+ * DEFAULT (0) -> DISPLAYED_CONFIRMED (-1), UPLOADING_ATTACHMENT -> ANY STATE
  * or new state is bigger then current one
  */
 void MessageController::setMessageStateOfId(QString const &id, int const state)
@@ -289,6 +299,7 @@ void MessageController::setMessageStateOfId(QString const &id, int const state)
     int currentState = getStateOfMessageId(id);
 
     if ( (currentState == MESSAGE_STATE_DEFAULT && state == MESSAGE_STATE_DISPLAYED_CONFIRMED) ||
+         (currentState == MESSAGE_STATE_UPLOADING_ATTACHMENT ) ||
          (state > currentState)
          )
     {
