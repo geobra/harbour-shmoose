@@ -78,6 +78,8 @@ Page {
         delegate: ListItem {
             id: item;
 
+            property string file: getFilePath(message)
+
             contentHeight: shadow.height;
 
             anchors {
@@ -131,23 +133,33 @@ Page {
                     onLinkActivated: Qt.openUrlExternally(link)
                 }
                 BackgroundItem {
-                    width: Math.max(thumb.width, icon.width)
-                    height: Math.max(thumb.height, icon.height)
+                    width: Math.max(Math.max(thumb.width, msgImg.width), icon.width)
+                    height: Math.max(Math.max(thumb.height, msgImg.height), icon.height)
 
                     visible: type !== "txt"
                     anchors {
                         left: (item.alignRight ? parent.left : undefined);
                         right: (!item.alignRight ? parent.right : undefined);
                     }
+                    Image {
+                        id: msgImg
+
+                        anchors.right: (!item.alignRight ? parent.right : undefined)
+                        source: item.file
+                        visible: startsWith(type, "image")
+
+                        sourceSize.width: item.maxContentWidth*.75
+                        sourceSize.height: item.maxContentWidth*.75
+
+                        fillMode: Image.PreserveAspectFit
+                    }
                     Thumbnail {
                         id: thumb
 
-                        property string file: getFilePath(message)
-
                         anchors.right: (!item.alignRight ? parent.right : undefined)
-                        source: file
+                        source: item.file
                         mimeType: type
-                        visible: hasThumbnail(type)
+                        visible: startsWith(type, "video")
 
                         sourceSize.width: item.maxContentWidth*.75
                         sourceSize.height: item.maxContentWidth*.75
@@ -163,18 +175,18 @@ Page {
                     }
                     Icon {
                         id: icon
-                        visible: (type !== "txt") && (!hasThumbnail(type))
+                        visible: (type !== "txt") && (thumb.status != Thumbnail.Ready) && (!msgImg.visible)
                         source: getFileIcon(type)
 
                         anchors.right: (!item.alignRight ? parent.right : undefined)
                     }
                     onClicked: {
                         if (startsWith(type, "image"))
-                            pageStack.push(Qt.resolvedUrl("ImagePage.qml"),{ 'imgUrl': thumb.file })
+                            pageStack.push(Qt.resolvedUrl("ImagePage.qml"),{ 'imgUrl': item.file })
                         else if (startsWith(type, "video"))
-                            pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': thumb.file })
+                            pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': item.file })
                          else if (startsWith(type, "audio"))
-                            pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': thumb.file });
+                            pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': item.file });
                     }
                 }
                 Label {
@@ -473,9 +485,6 @@ Page {
         trimmedStr = trimmedStr.replace(/(\r\n|\n|\r)/gm,"");
 
         return trimmedStr;
-    }
-    function hasThumbnail(type) {
-        return startsWith(type, "image") || startsWith(type, "video");
     }
     function getFilePath(message) {
         return attachmentPath + "/" + shmoose.getLocalFileForUrl(message);

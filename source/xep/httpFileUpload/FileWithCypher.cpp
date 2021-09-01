@@ -92,15 +92,10 @@ bool FileWithCypher::initDecryptionOnWrite(const QString &ivAndKey)
         cipherHd_ = nullptr;
     }
 
-    if(ivAndKey.count() > 0)
+    if(ivAndKey.count() == 88)
     {
         QByteArray iv(12, '\0');
         QByteArray key(32, '\0');       
-
-        if(ivAndKey.count() != 88) {
-            qDebug() << "unsupported encryption";
-            return false;
-        }
 
         ivAndKey_ = ivAndKey; 
 
@@ -125,6 +120,11 @@ bool FileWithCypher::initDecryptionOnWrite(const QString &ivAndKey)
             qDebug() << "failed to set ctr";
             goto cleanup;
         } 
+    }
+    else
+    {
+        qDebug() << "unsupported encryption. iv+key length:" << ivAndKey.count();
+        return false;
     }
     
 cleanup:

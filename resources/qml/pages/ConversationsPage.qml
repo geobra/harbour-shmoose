@@ -28,6 +28,7 @@ Page {
         delegate: ListItem {
             id: item;
             contentHeight: Theme.itemSizeMedium;
+
             onClicked: {
                 console.log("set current char partner: " + jid);
                 pageStack.push (pageMessaging, { "conversationId" : jid });
@@ -56,6 +57,7 @@ Page {
                     left: img.right;
                     margins: Theme.paddingMedium;
                     verticalCenter: parent.verticalCenter;
+                    right: parent.right
                 }
 
                 Row {
@@ -90,6 +92,12 @@ Page {
                 Label {
                     id: statusId;
                     text: lastmessage;
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                    }
+                    wrapMode: Text.WrapAnywhere
+                    maximumLineCount: 1
                     color: Theme.secondaryColor;
                     font.pixelSize: Theme.fontSizeTiny;
                 }

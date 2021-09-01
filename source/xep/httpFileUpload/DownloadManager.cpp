@@ -93,6 +93,8 @@ void DownloadManager::doDownload(const QUrl &requestedUrl)
         }
         else
         {
+            qDebug() << "Download file from " << requestedUrl.toString() << " into " << pathAndFile;
+
             file->initDecryptionOnWrite(requestedUrl.fragment());
 
             connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(sslErrors(QList<QSslError>)));
