@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.6
 import QtQuick.Window 2.0;
 import QtMultimedia 5.6
 import Sailfish.Silica 1.0
@@ -147,6 +147,7 @@ Page {
                         anchors.right: (!item.alignRight ? parent.right : undefined)
                         source: item.file
                         visible: startsWith(type, "image")
+                        autoTransform: true
 
                         sourceSize.width: item.maxContentWidth*.75
                         sourceSize.height: item.maxContentWidth*.75

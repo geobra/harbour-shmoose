@@ -1,7 +1,7 @@
 // from https://github.com/0312birdzhang/harbour-one/blob/master/qml/pages/ImagePage.qml
 // Thank you!
 
-import QtQuick 2.0
+import QtQuick 2.6
 import Sailfish.Silica 1.0
 
 Page {
@@ -43,6 +43,7 @@ Page {
                 source: imgUrl
                 sourceSize.height: 1000;
                 smooth: !imageFlickable.moving
+                autoTransform: true
 
                 onStatusChanged: {
                     if (status == Image.Ready) {
