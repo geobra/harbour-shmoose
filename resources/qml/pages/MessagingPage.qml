@@ -175,7 +175,7 @@ Page {
                     }
                     Icon {
                         id: icon
-                        visible: (type !== "txt") && ((thumb.status != Thumbnail.Ready) || (!msgImg.status != Image.Ready))
+                        visible: (type !== "txt") && ((thumb.status != Thumbnail.Ready) && (msgImg.status != Image.Ready))
                         source: getFileIcon(type)
 
                         anchors.right: (!item.alignRight ? parent.right : undefined)
