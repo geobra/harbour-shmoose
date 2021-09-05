@@ -23,7 +23,6 @@ Page {
 
     property string conversationId : "";
     property bool isGroup : shmoose.rosterController.isGroup(conversationId);
-    property string attachmentPath: shmoose.getAttachmentPath();
     property string imagePath : shmoose.rosterController.getAvatarImagePathForJid(conversationId);
     property bool refreshDate : false;
 
@@ -145,8 +144,8 @@ Page {
                         id: msgImg
 
                         anchors.right: (!item.alignRight ? parent.right : undefined)
-                        source: item.file
-                        visible: startsWith(type, "image")
+                        source: startsWith(type, "image") ? item.file : ""
+                        visible: source != ""
                         autoTransform: true
 
                         sourceSize.width: item.maxContentWidth*.75
@@ -158,9 +157,9 @@ Page {
                         id: thumb
 
                         anchors.right: (!item.alignRight ? parent.right : undefined)
-                        source: item.file
+                        source: startsWith(type, "video") ? item.file : ""
                         mimeType: type
-                        visible: startsWith(type, "video")
+                        visible: source != ""
 
                         sourceSize.width: item.maxContentWidth*.75
                         sourceSize.height: item.maxContentWidth*.75
@@ -176,7 +175,7 @@ Page {
                     }
                     Icon {
                         id: icon
-                        visible: (type !== "txt") && (thumb.status != Thumbnail.Ready) && (!msgImg.visible)
+                        visible: (type !== "txt") && ((thumb.status != Thumbnail.Ready) || (!msgImg.status != Image.Ready))
                         source: getFileIcon(type)
 
                         anchors.right: (!item.alignRight ? parent.right : undefined)
@@ -215,7 +214,7 @@ Page {
                         Connections {
                             target: shmoose
                             onSignalShowStatus: {
-                                if(headline == "File Upload")
+                                if(headline == "File Upload" && msgstate == 4)
                                     upload.text = qsTr("uploading ")+body;
                             }
                         }
@@ -269,7 +268,15 @@ Page {
             menu: ContextMenu {
                 MenuItem {
                     text: qsTr("Copy")
+                    visible: type == "txt"
                     onClicked: Clipboard.text = message
+                }
+                MenuItem {
+                    text: qsTr("Send again")
+                    visible: (msgstate == 5 && shmoose.canSendFile())
+                    onClicked: {
+                        shmoose.sendFile(conversationId, message);
+                     }
                 }
                 MenuItem {
                     visible: isGroup;
@@ -488,7 +495,7 @@ Page {
         return trimmedStr;
     }
     function getFilePath(message) {
-        return attachmentPath + "/" + shmoose.getLocalFileForUrl(message);
+        return shmoose.getLocalFileForUrl(message);
     }
     function getFileIcon(type){
         if(startsWith(type, "image")) return "image://theme/icon-m-file-image";

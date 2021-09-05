@@ -295,28 +295,6 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
     }
 }
 
-void MessageHandler::saveMessageToSendLater(QString const &toJid, QString const &message, QString const &type, QString const &id)
-{
-    unsigned int security = 0;
-
-
-    qDebug() << "saveMessageToSendLater: " << toJid << "," << message << "," << type << "," << id << endl;
-
-    Swift::JID receiverJid(toJid.toStdString());
-
-    if ( lurchAdapter_->isOmemoUser(toJid) == true // the receipient client can handle omemo encryption
-         && (! settings_->getSendPlainText().contains(toJid)) // no force for plain text msg in settings
-         )
-    {
-        security = 1;
-    }
-
-    persistence_->addMessage( id,
-                              QString::fromStdString(receiverJid.toBare().toString()),
-                              QString::fromStdString(receiverJid.getResource()),
-                              message, type, 0, security);
-}
-
 void MessageHandler::sendRawMessageStanza(QString str)
 {
     QString msg = "<stream xmlns='http://etherx.jabber.org/streams'>" + str;

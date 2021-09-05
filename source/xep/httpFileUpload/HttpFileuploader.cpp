@@ -79,6 +79,7 @@ void HttpFileUploader::putFinished(QNetworkReply* reply)
 
     if (reply->error() == QNetworkReply::NoError)
     {
+        emit updateStatus("done");
         emit uploadSuccess(file_->getIvAndKey());
     }
     else

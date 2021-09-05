@@ -133,6 +133,8 @@ bool MessageController::addMessage(const QString &id, const QString &jid, const 
         record.setValue(Database::sqlTimestamp_, timestamp);
 
 
+        qDebug() << "Add record msgId=" << id << " , message=" << message << endl;
+
         if (! this->insertRecord(-1, record))
         {
             messageAdded = false;
@@ -170,6 +172,34 @@ bool MessageController::addMessage(const QString &id, const QString &jid, const 
     }
     else
     {
+        qDebug() << "Update record msgId=" << id << " , message=" << message << endl;
+
+        // If message already is database, message field is updated
+        QSqlQuery query(*(database_->getPointer()));
+        if (! query.exec("UPDATE " + Database::sqlMsgName_ + " SET \"" + Database::sqlMsgMessage_ + "\" = \"" + message + "\" WHERE id = \"" + id +"\""))
+        {
+            qDebug() << query.lastError().databaseText();
+            qDebug() << query.lastError().driverText();
+            qDebug() << query.lastError().text();
+        }
+        else
+        {
+            if (this->submitAll())
+            {
+                this->database().commit();
+            }
+            else
+            {
+                this->database().rollback();
+                printSqlError();
+            }
+
+            // update the model with the changes of the database
+            if (select() != true)
+            {
+                qDebug() << "error on select in MessageController::addMessage";
+            }
+        }
         messageAdded = false;
     }
 

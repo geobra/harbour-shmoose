@@ -29,9 +29,12 @@ public:
     void setMaxFileSize(unsigned int maxFileSize);
     unsigned int getMaxFileSize();
 
+    QString getMsgId();
+    QString getFileMimeType();
+
 signals:
     void fileUploadedForJidToUrl(QString, QString, QString, QString);
-    void startFileUploadForJidToUrl(QString, QString, QString, QString);
+    void fileUploadFailedForJidToUrl(QString);
     void showStatus(QString, QString);
 
 public slots:

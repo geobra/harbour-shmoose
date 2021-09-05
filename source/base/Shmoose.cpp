@@ -58,8 +58,8 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
 
     connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString,QString,QString)),
             this, SLOT(sendMessage(QString,QString,QString,QString)));
-    connect(httpFileUploadManager_, SIGNAL(startFileUploadForJidToUrl(QString,QString,QString,QString)),
-            this, SLOT(saveMessageToSendLater(QString,QString,QString,QString)));
+    connect(httpFileUploadManager_, SIGNAL(fileUploadFailedForJidToUrl(QString)), 
+            this, SLOT(attachmentUploadFailed(QString)));
 
     connect(mucManager_, SIGNAL(newGroupForContactsList(QString,QString)), rosterController_, SLOT(addGroupAsContact(QString,QString)));
     connect(mucManager_, SIGNAL(removeGroupFromContactsList(QString)), rosterController_, SLOT(removeGroupFromContacts(QString)) );
@@ -98,7 +98,7 @@ Shmoose::~Shmoose()
     {
         softwareVersionResponder_->stop();
 
-        delete tracer_;
+        if( tracer_ != nullptr) delete tracer_;
         delete softwareVersionResponder_;
         delete client_;
     }
@@ -131,7 +131,8 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     connectionHandler_->setupWithClient(client_);
     messageHandler_->setupWithClient(client_);
 
-    tracer_ = new Swift::ClientXMLTracer(client_);
+    //tracer_ = new Swift::ClientXMLTracer(client_);
+    tracer_ = nullptr;
 
     // configure the xmpp client
     softwareVersionResponder_ = new Swift::SoftwareVersionResponder(client_->getIQRouter());
@@ -228,21 +229,13 @@ QString Shmoose::getCurrentChatPartner()
     return persistence_->getCurrentChatPartner();
 }
 
-void Shmoose::sendMessage(QString const &toJid, QString const &message, QString const &type, QString const &msgId)
+void Shmoose::sendMessage(QString toJid, QString message, QString type, QString msgId)
 {
     bool isGroup = rosterController_->isGroup(toJid);
     messageHandler_->sendMessage(toJid, message, type, isGroup, msgId);
 }
 
-
-void Shmoose::saveMessageToSendLater(QString const &toJid, QString const &message, QString const &type, QString const &msgId)
-{
-    messageHandler_->saveMessageToSendLater(toJid, message, type, msgId);
-    persistence_->markMessageAsUploadingAttachment(msgId);
-}
-
-
-void Shmoose::sendMessage(QString const &message, QString const &type)
+void Shmoose::sendMessage(QString message, QString type)
 {
     const QString toJid = getCurrentChatPartner();
 
@@ -258,17 +251,30 @@ void Shmoose::sendMessage(QString const &message, QString const &type)
 }
 
 
-void Shmoose::sendFile(QString const &toJid, QString const &file)
+void Shmoose::sendFile(QString toJid, QString file)
 {
     bool shouldEncryptFile = lurchAdapter_->isOmemoUser(toJid) && (! settings_->getSendPlainText().contains(toJid));
+    Swift::JID receiverJid(toJid.toStdString());
 
-    if (httpFileUploadManager_->requestToUploadFileForJid(file, toJid, shouldEncryptFile) == false)
+    bool success = httpFileUploadManager_->requestToUploadFileForJid(file, toJid, shouldEncryptFile);
+
+    // messsage is added to the database in any case
+    persistence_->addMessage( httpFileUploadManager_->getMsgId(),
+                          QString::fromStdString(receiverJid.toBare().toString()),
+                          QString::fromStdString(receiverJid.getResource()),
+                          file, httpFileUploadManager_->getFileMimeType(), 0, shouldEncryptFile ? 1 : 0);
+
+    if(success)
     {
-        qDebug() << "Shmoose::sendFile failed";
+        persistence_->markMessageAsUploadingAttachment(httpFileUploadManager_->getMsgId());
+    }
+    else
+    {
+        persistence_->markMessageAsSendFailed(httpFileUploadManager_->getMsgId());
     }
 }
 
-void Shmoose::sendFile(QUrl const &file)
+void Shmoose::sendFile(QUrl file)
 {
     const QString toJid = getCurrentChatPartner();
     QString localFile = file.toLocalFile();
@@ -326,7 +332,8 @@ QString Shmoose::getAttachmentPath()
 
 QString Shmoose::getLocalFileForUrl(const QString& str)
 {
-    return CryptoHelper::getHashOfString(QUrl(str).toString(), true);
+    return QFile::exists(str) ? str :
+        System::getAttachmentPath() + QDir::separator() + CryptoHelper::getHashOfString(QUrl(str).toString(), true);
 }
 
 void Shmoose::setHasInetConnection(bool connected)
@@ -362,4 +369,9 @@ void Shmoose::joinRoom(QString const &roomJid, QString const &roomName)
 void Shmoose::removeRoom(QString const &roomJid)
 {
     mucManager_->removeRoom(roomJid);
+}
+
+void Shmoose::attachmentUploadFailed(QString msgId)
+{
+    persistence_->markMessageAsSendFailed(msgId);
 }

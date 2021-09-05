@@ -117,6 +117,16 @@ unsigned int HttpFileUploadManager::getMaxFileSize()
     return maxFileSize_;
 }
 
+QString HttpFileUploadManager::getFileMimeType()
+{
+    return fileType_;
+}
+
+QString HttpFileUploadManager::getMsgId()
+{
+    return msgId_;
+}
+
 void HttpFileUploadManager::requestHttpUploadSlot()
 {
     if (client_ != nullptr)
@@ -159,6 +169,7 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
 
             if(!file_->initEncryptionOnRead(encryptFile_))
             {
+                //TODO delete file and signal failure
                 qDebug() << "error on init encryption for " << file_->fileName();
             }
 
@@ -174,10 +185,12 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
             if(! file_->rename(attachmentFileName))
             {
                 qWarning() << "failed to rename file to " << attachmentFileName;
+                emit fileUploadFailedForJidToUrl(msgId_);
             }
-
-            emit startFileUploadForJidToUrl(jid_, getUrl_, fileType_, msgId_);
-            httpUpload_->upload(handler->getPutUrl(), file_);
+            else
+            {
+                httpUpload_->upload(handler->getPutUrl(), file_);
+            }
         }
     }
     else
@@ -189,7 +202,7 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
     delete (parser);
 }
 
-void HttpFileUploadManager::successReceived(const QString ivAndKey)
+void HttpFileUploadManager::successReceived(QString )
 {
     busy_ = false;
 
@@ -198,7 +211,14 @@ void HttpFileUploadManager::successReceived(const QString ivAndKey)
 
 void HttpFileUploadManager::errorReceived()
 {
+    if(file_->remove() == false)
+    {
+        qWarning() << "failed to remove file " << file_->fileName();
+    }
+
     busy_ = false;
+
+    emit fileUploadFailedForJidToUrl(msgId_);
 }
 
 bool HttpFileUploadManager::createAttachmentPath()
