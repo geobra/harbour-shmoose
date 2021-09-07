@@ -32,6 +32,7 @@ public:
     QString getMsgId();
     QString getFileMimeType();
 
+
 signals:
     void fileUploadedForJidToUrl(QString, QString, QString, QString);
     void fileUploadFailedForJidToUrl(QString);
@@ -41,6 +42,7 @@ public slots:
     void updateStatusString(QString string);
     void successReceived(QString string);
     void errorReceived();
+    void setCompressImages(bool CompressImages);
 
 private slots:
     void generateStatus(QString status);
@@ -72,6 +74,8 @@ private:
 
     QString fileType_;
     QString msgId_;
+
+    bool compressImages_;
 };
 
 #endif // HTTPFILEUPLOADMANAGER_H

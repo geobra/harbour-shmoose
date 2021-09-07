@@ -24,7 +24,7 @@ HttpFileUploadManager::HttpFileUploadManager(QObject *parent) : QObject(parent),
     httpUpload_(new HttpFileUploader(this)),
     serverHasFeatureHttpUpload_(false), maxFileSize_(0),
     file_(new FileWithCypher(this)), jid_(""), client_(nullptr),
-    uploadServerJid_(""), statusString_(""), getUrl_(""), busy_(false)
+    uploadServerJid_(""), statusString_(""), getUrl_(""), busy_(false), compressImages_(false)
 {
     connect(httpUpload_, SIGNAL(updateStatus(QString)), this, SLOT(updateStatusString(QString)));
     connect(httpUpload_, SIGNAL(uploadSuccess(QString)), this, SLOT(successReceived(QString)));
@@ -51,11 +51,13 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
 
         fileType_ = QMimeDatabase().mimeTypeForFile(file).name();
 
-        // don't resize image if server can handle it
-        if(inputFile.size() < getMaxFileSize()) 
+        // Resize image if server cannot handle it or if requested
+        if(fileType_.startsWith("image") && compressImages_)
+            returnValue = ImageProcessing::prepareImageForSending(file, fileToUpload, qMin(getMaxFileSize(), 400000u));
+        else if(inputFile.size() <= getMaxFileSize())
             returnValue = inputFile.copy(fileToUpload);
-        else if(fileType_.startsWith("image"))
-            returnValue = ImageProcessing::prepareImageForSending(file, fileToUpload, getMaxFileSize());
+        else
+            returnValue = false;
 
         if(returnValue)
         {
@@ -253,4 +255,10 @@ QString HttpFileUploadManager::createTargetFileName(QString source)
 void HttpFileUploadManager::generateStatus(QString status)
 {
     emit showStatus("File Upload", status);
+}
+
+
+void HttpFileUploadManager::setCompressImages(bool CompressImages)
+{
+   compressImages_ = CompressImages;
 }

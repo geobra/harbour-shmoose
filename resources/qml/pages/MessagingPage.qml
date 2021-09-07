@@ -70,6 +70,7 @@ Page {
 
         verticalLayoutDirection: ListView.BottomToTop;
         clip: true;
+        focus: true
         spacing: Theme.paddingMedium;
 
         model: shmoose.persistence.messageController
@@ -180,14 +181,6 @@ Page {
 
                         anchors.right: (!item.alignRight ? parent.right : undefined)
                     }
-                    onClicked: {
-                        if (startsWith(type, "image"))
-                            pageStack.push(Qt.resolvedUrl("ImagePage.qml"),{ 'imgUrl': item.file })
-                        else if (startsWith(type, "video"))
-                            pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': item.file })
-                         else if (startsWith(type, "audio"))
-                            pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': item.file });
-                    }
                 }
                 Label {
                     visible: isGroup;
@@ -262,9 +255,23 @@ Page {
                         }
                     }
                 }
-
             }
+            MouseArea {
+                anchors.fill: parent
 
+                onClicked: {
+                    if (startsWith(type, "image"))
+                        pageStack.push(Qt.resolvedUrl("ImagePage.qml"),{ 'imgUrl': item.file })
+                    else if (startsWith(type, "video"))
+                        pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': item.file })
+                    else if (startsWith(type, "audio"))
+                        pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': item.file });
+                }
+
+                onPressAndHold: {
+                    item.openMenu();
+                }
+            }
             menu: ContextMenu {
                 MenuItem {
                     text: qsTr("Copy")
@@ -279,6 +286,13 @@ Page {
                      }
                 }
                 MenuItem {
+                    text: qsTr("Save")
+                    visible:  (type != "txt") && (direction == 1)
+                    onClicked: {
+                        shmoose.saveAttachment(item.file);
+                     }
+                }
+                MenuItem {
                     visible: isGroup;
                     text: qsTr("Status")
                     onClicked:  {
@@ -287,7 +301,6 @@ Page {
                     }
                 }
             }
-
         }
         anchors {
             top: banner.bottom;

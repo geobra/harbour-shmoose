@@ -19,6 +19,7 @@ Page {
         PageHeader {
             title: conversationId+qsTr(" settings")
         }
+
         ComboBox {
             label: qsTr("Chat notifications")
             width: page.width
@@ -77,5 +78,13 @@ Page {
             }
         }
 
+        TextSwitch {
+            id: compressImagesSwitch
+            checked: shmoose.settings.compressImages
+            text: qsTr("Compress Images")
+            onClicked: {
+                shmoose.settings.compressImages = compressImagesSwitch.checked;
+            }
+        }
     }
 }

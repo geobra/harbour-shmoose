@@ -373,4 +373,19 @@ void Settings::addImagePath(QUrl const & Path)
     }
 }
 
+bool Settings::getCompressImages() const
+{
+    bool save;
 
+    QSettings settings;
+    save = settings.value("attachments/CompressImages", true).toBool();
+
+    return save;
+}
+
+void Settings::setCompressImages(bool CompressImages)
+{
+    QSettings settings;
+    settings.setValue("attachments/compressImages", CompressImages);
+    emit compressImagesChanged(CompressImages);
+}

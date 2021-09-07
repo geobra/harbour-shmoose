@@ -54,6 +54,8 @@ public:
 
     Q_INVOKABLE bool isOmemoUser(const QString& jid);
 
+    Q_INVOKABLE void saveAttachment(const QString &msg);
+
     bool connectionState() const;
 
 public slots:

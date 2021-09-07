@@ -88,6 +88,8 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     connect(httpFileUploadManager_, SIGNAL(showStatus(QString, QString)), this, SIGNAL(signalShowStatus(QString, QString)));
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotAboutToQuit()));
+
+    connect(settings_, SIGNAL(compressImagesChanged(bool)), httpFileUploadManager_, SLOT(setCompressImages(bool)));
 }
 
 Shmoose::~Shmoose()
@@ -170,6 +172,8 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
         jid_ = jid;
         password_ = pass;
     }
+
+    httpFileUploadManager_->setCompressImages(settings_->getCompressImages());
 }
 
 void Shmoose::mainDisconnect()
@@ -374,4 +378,11 @@ void Shmoose::removeRoom(QString const &roomJid)
 void Shmoose::attachmentUploadFailed(QString msgId)
 {
     persistence_->markMessageAsSendFailed(msgId);
+}
+
+void Shmoose::saveAttachment(const QString& msg)
+{
+    //TODO Error management + Destination selection
+    QFile::copy(getLocalFileForUrl(msg), QStandardPaths::locate(QStandardPaths::DownloadLocation, "", QStandardPaths::LocateDirectory)  +
+                    QDir::separator() + CryptoHelper::getHashOfString(QUrl(msg).toString(), true));
 }
