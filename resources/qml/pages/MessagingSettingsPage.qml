@@ -80,7 +80,7 @@ Page {
 
         TextSwitch {
             id: compressImagesSwitch
-            checked: shmoose.settings.compressImages
+            checked: shmoose.settings.CompressImages
             text: qsTr("Compress Images")
             onClicked: {
                 shmoose.settings.compressImages = compressImagesSwitch.checked;
