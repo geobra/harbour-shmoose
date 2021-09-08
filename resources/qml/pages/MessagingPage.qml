@@ -344,11 +344,15 @@ Page {
 
         anchors {
             left: parent.left;
+            leftMargin: Theme.paddingMedium;
             right: parent.right;
             bottom: parent.bottom;
         }
 
-        height: Math.max(editbox.height, previewAttachment.height)
+        height: (previewAttachment.visible ? 
+                 Math.max(editbox.height, previewAttachment.height)+Theme.paddingMedium : 
+                 editbox.height+Theme.paddingMedium
+                )
 
         TextArea {
             id: editbox;
@@ -372,16 +376,16 @@ Page {
             }
 
            anchors.bottom: parent.bottom 
-           width: parent.width - sendButton.width - Theme.horizontalPageMargin
+           width: parent.width - sendButton.width
         }
         Thumbnail {
             id: previewAttachment
             visible: sendmsgview.attachmentPath.length > 0
-            width: parent.width /4     
-            height: parent.width /4
-            sourceSize.width: parent.width / 4
-            sourceSize.height: parent.width / 4
-            anchors {                                                                                                                               
+            width: Math.min(page.width, page.height) / 4    
+            height: Math.min(page.width, page.height) / 4
+            sourceSize.width: Math.min(page.width, page.height) / 4
+            sourceSize.height: Math.min(page.width, page.height) / 4
+            anchors {                                                                                                                            
                 bottom: parent.bottom; bottomMargin: Theme.paddingMedium                           
             }
             Icon {
