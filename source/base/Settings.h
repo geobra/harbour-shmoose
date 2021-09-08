@@ -20,6 +20,7 @@ class Settings : public QObject
     Q_PROPERTY(QStringList ImagePaths READ getImagePaths WRITE setImagePaths NOTIFY imagePathsChanged)
     Q_PROPERTY(QStringList SendPlainText READ getSendPlainText WRITE setSendPlainText NOTIFY sendPlainTextChanged)
     Q_PROPERTY(bool CompressImages READ getCompressImages WRITE setCompressImages NOTIFY compressImagesChanged)
+    Q_PROPERTY(bool SendOnlyImages READ getSendOnlyImages WRITE setSendOnlyImages NOTIFY sendOnlyImagesChanged)
 
 
 public:
@@ -37,6 +38,7 @@ public:
     bool isOmemoForSendingOff();
     QStringList getSendPlainText() const;
     bool getCompressImages() const;
+    bool getSendOnlyImages() const;
 
 signals:
     void jidChanged(QString Jid);
@@ -50,6 +52,7 @@ signals:
     void imagePathsChanged(QStringList const & ImagePaths);
     void sendPlainTextChanged(const QStringList& sendPlainText);
     void compressImagesChanged(bool CompressImages);
+    void sendOnlyImagesChanged(bool SendOnlyImages);
 
 public slots:
     void setJid(QString Jid);
@@ -73,6 +76,7 @@ public slots:
     void removeForcePlainTextSending(const QString& jid);
     void setSendPlainText(const QStringList& sendPlainText);
     void setCompressImages(bool AlwaysCompressImages);
+    void setSendOnlyImages(bool SendOnlyImages);
 
 };
 

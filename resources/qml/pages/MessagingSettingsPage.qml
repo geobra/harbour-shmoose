@@ -83,7 +83,16 @@ Page {
             checked: shmoose.settings.CompressImages
             text: qsTr("Compress Images")
             onClicked: {
-                shmoose.settings.compressImages = compressImagesSwitch.checked;
+                shmoose.settings.CompressImages = compressImagesSwitch.checked;
+            }
+        }
+
+        TextSwitch {
+            id: sendOnlyImagesSwitch
+            checked: shmoose.settings.SendOnlyImages
+            text: qsTr("Send Only Images")
+            onClicked: {
+                shmoose.settings.SendOnlyImages = sendOnlyImagesSwitch.checked;
             }
         }
     }

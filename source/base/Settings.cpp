@@ -378,7 +378,7 @@ bool Settings::getCompressImages() const
     bool save;
 
     QSettings settings;
-    save = settings.value("attachments/CompressImages", true).toBool();
+    save = settings.value("attachments/compressImages", true).toBool();
 
     return save;
 }
@@ -388,4 +388,21 @@ void Settings::setCompressImages(bool CompressImages)
     QSettings settings;
     settings.setValue("attachments/compressImages", CompressImages);
     emit compressImagesChanged(CompressImages);
+}
+
+bool Settings::getSendOnlyImages() const
+{
+    bool save;
+
+    QSettings settings;
+    save = settings.value("attachments/sendOnlyImages", true).toBool();
+
+    return save;
+}
+
+void Settings::setSendOnlyImages(bool SendOnlyImages)
+{
+    QSettings settings;
+    settings.setValue("attachments/sendOnlyImages", SendOnlyImages);
+    emit sendOnlyImagesChanged(SendOnlyImages);
 }

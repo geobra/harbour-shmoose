@@ -434,7 +434,7 @@ Page {
                 if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0 && shmoose.canSendFile()) {
                     sendmsgview.attachmentPath = ""
                     fileModel.searchPath = shmoose.settings.ImagePaths
-                    pageStack.push(filePickerPage)
+                    pageStack.push(shmoose.settings.SendOnlyImages ? imagePickerPage: filePickerPage)
                 } else {
                     //console.log(sendmsgview.attachmentPath)
                     var msgToSend = editbox.text;
@@ -458,6 +458,18 @@ Page {
         Component {
             id: filePickerPage
             ContentPickerPage {
+            onSelectedContentPropertiesChanged: {
+                sendmsgview.attachmentPath = selectedContentProperties.filePath
+                sendButton.icon.source = getSendButtonImage()
+                previewAttachment.source = sendmsgview.attachmentPath
+                previewAttachment.mimeType = selectedContentProperties.mimeType
+                }
+            }
+        }
+
+        Component {
+            id: imagePickerPage
+            ImagePickerPage {
             onSelectedContentPropertiesChanged: {
                 sendmsgview.attachmentPath = selectedContentProperties.filePath
                 sendButton.icon.source = getSendButtonImage()
