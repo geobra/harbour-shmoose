@@ -207,7 +207,7 @@ Page {
                         Connections {
                             target: shmoose
                             onSignalShowStatus: {
-                                if(headline == "File Upload" && msgstate == 4)
+                                if(qsTr(headline) == qsTr("File Upload") && msgstate == 4)
                                     upload.text = qsTr("uploading ")+body;
                             }
                         }

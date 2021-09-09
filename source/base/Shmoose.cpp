@@ -233,13 +233,13 @@ QString Shmoose::getCurrentChatPartner()
     return persistence_->getCurrentChatPartner();
 }
 
-void Shmoose::sendMessage(QString toJid, QString message, QString type, QString msgId)
+void Shmoose::sendMessage(QString const&toJid, QString const&message, QString const&type, QString const&msgId)
 {
     bool isGroup = rosterController_->isGroup(toJid);
     messageHandler_->sendMessage(toJid, message, type, isGroup, msgId);
 }
 
-void Shmoose::sendMessage(QString message, QString type)
+void Shmoose::sendMessage(QString const&message, QString const&type)
 {
     const QString toJid = getCurrentChatPartner();
 
@@ -255,7 +255,7 @@ void Shmoose::sendMessage(QString message, QString type)
 }
 
 
-void Shmoose::sendFile(QString toJid, QString file)
+void Shmoose::sendFile(QString const&toJid, QString const&file)
 {
     bool shouldEncryptFile = lurchAdapter_->isOmemoUser(toJid) && (! settings_->getSendPlainText().contains(toJid));
     Swift::JID receiverJid(toJid.toStdString());
@@ -278,7 +278,7 @@ void Shmoose::sendFile(QString toJid, QString file)
     }
 }
 
-void Shmoose::sendFile(QUrl file)
+void Shmoose::sendFile(QUrl const&file)
 {
     const QString toJid = getCurrentChatPartner();
     QString localFile = file.toLocalFile();
@@ -375,7 +375,7 @@ void Shmoose::removeRoom(QString const &roomJid)
     mucManager_->removeRoom(roomJid);
 }
 
-void Shmoose::attachmentUploadFailed(QString msgId)
+void Shmoose::attachmentUploadFailed(QString const& msgId)
 {
     persistence_->markMessageAsSendFailed(msgId);
 }

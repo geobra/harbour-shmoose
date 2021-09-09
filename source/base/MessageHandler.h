@@ -23,8 +23,6 @@ public:
     void sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup, QString const &MsgId="");
     void sendDisplayedForJid(const QString &jid);
 
-    void saveMessageToSendLater(QString const &toJid, QString const &message, QString const &type, QString const &msgId);
-
 signals:
     void messageSent(QString msgId);
 
