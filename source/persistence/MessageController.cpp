@@ -37,6 +37,34 @@ bool MessageController::setup()
         returnValue = false;
     }
 
+    // Set any record in uploading state to failed. 
+    QSqlQuery query(*(database_->getPointer()));
+    if (! query.exec("UPDATE " + Database::sqlMsgName_ + " SET \"" + Database::sqlMsgState_ + "\" = " + QString::number(5) +
+                     " WHERE " + Database::sqlMsgState_ + "= \"" + QString::number(4) +"\""))
+    {
+        qDebug() << query.lastError().databaseText();
+        qDebug() << query.lastError().driverText();
+        qDebug() << query.lastError().text();
+    }
+    else
+    {
+        if (this->submitAll())
+        {
+            this->database().commit();
+        }
+        else
+        {
+            this->database().rollback();
+            printSqlError();
+        }
+
+        if (!select())
+        {
+            qDebug() << "error on select in MessageController::setup";
+            returnValue = false;
+        }
+    }
+
     return returnValue;
 }
 
@@ -133,8 +161,6 @@ bool MessageController::addMessage(const QString &id, const QString &jid, const 
         record.setValue(Database::sqlTimestamp_, timestamp);
 
 
-        qDebug() << "Add record msgId=" << id << " , message=" << message << endl;
-
         if (! this->insertRecord(-1, record))
         {
             messageAdded = false;
@@ -169,38 +195,6 @@ bool MessageController::addMessage(const QString &id, const QString &jid, const 
         }
 
         //database_->dumpDataToStdOut();
-    }
-    else
-    {
-        qDebug() << "Update record msgId=" << id << " , message=" << message << endl;
-
-        // If message already is database, message field is updated
-        QSqlQuery query(*(database_->getPointer()));
-        if (! query.exec("UPDATE " + Database::sqlMsgName_ + " SET \"" + Database::sqlMsgMessage_ + "\" = \"" + message + "\" WHERE id = \"" + id +"\""))
-        {
-            qDebug() << query.lastError().databaseText();
-            qDebug() << query.lastError().driverText();
-            qDebug() << query.lastError().text();
-        }
-        else
-        {
-            if (this->submitAll())
-            {
-                this->database().commit();
-            }
-            else
-            {
-                this->database().rollback();
-                printSqlError();
-            }
-
-            // update the model with the changes of the database
-            if (select() != true)
-            {
-                qDebug() << "error on select in MessageController::addMessage";
-            }
-        }
-        messageAdded = true;
     }
 
     return messageAdded;
@@ -463,4 +457,31 @@ void MessageController::removeMessagesFromJid(const QString& jid)
             qDebug() << "error on select in MessageController::removeMessagesFromJid";
         }
     }
+}
+
+bool MessageController::removeMessage(const QString& id)
+{
+    QSqlQuery query(*(database_->getPointer()));
+
+    bool messageRemoved = false; 
+
+    if (! query.exec("DELETE FROM " + Database::sqlMsgName_
+                     + " WHERE " + Database::sqlId_ + " = \"" + id + "\"" ))
+    {
+        qDebug() << query.lastError().databaseText();
+        qDebug() << query.lastError().driverText();
+        qDebug() << query.lastError().text();
+    }
+    else
+    {
+        // update the model with the changes of the database
+        if (select() != true)
+        {
+            qDebug() << "error on select in MessageController::removeMessage";
+        }
+
+        messageRemoved = true;
+    }
+
+    return messageRemoved;
 }

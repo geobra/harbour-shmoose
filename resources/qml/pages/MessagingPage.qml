@@ -198,6 +198,7 @@ Page {
                     Label {
                         id: upload
                         visible: msgstate == 4
+                        text: qsTr("uploading")
                         color: Theme.secondaryColor;
                         font {
                             family: Theme.fontFamilyHeading;
@@ -223,6 +224,7 @@ Page {
                     }
                     Label {
                         text: refreshDate, getDateDiffFormated(new Date (timestamp * 1000));
+                        visible: msgstate != 4
                         color: Theme.secondaryColor;
                         font {
                             family: Theme.fontFamilyHeading;

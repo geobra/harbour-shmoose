@@ -69,7 +69,6 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
             jid_ = jid;
 
             Swift::IDGenerator idGenerator;
-            msgId_ = QString::fromStdString(idGenerator.generateID());
 
             requestHttpUploadSlot();
         }
@@ -117,16 +116,6 @@ void HttpFileUploadManager::setMaxFileSize(unsigned int maxFileSize)
 unsigned int HttpFileUploadManager::getMaxFileSize()
 {
     return maxFileSize_;
-}
-
-QString HttpFileUploadManager::getFileMimeType()
-{
-    return fileType_;
-}
-
-QString HttpFileUploadManager::getMsgId()
-{
-    return msgId_;
 }
 
 void HttpFileUploadManager::requestHttpUploadSlot()
@@ -187,7 +176,7 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
             if(! file_->rename(attachmentFileName))
             {
                 qWarning() << "failed to rename file to " << attachmentFileName;
-                emit fileUploadFailedForJidToUrl(msgId_);
+                emit fileUploadFailedForJidToUrl();
             }
             else
             {
@@ -208,7 +197,7 @@ void HttpFileUploadManager::successReceived(QString )
 {
     busy_ = false;
 
-    emit fileUploadedForJidToUrl(jid_, getUrl_, fileType_, msgId_);
+    emit fileUploadedForJidToUrl(jid_, getUrl_, fileType_);
 }
 
 void HttpFileUploadManager::errorReceived()
@@ -220,7 +209,7 @@ void HttpFileUploadManager::errorReceived()
 
     busy_ = false;
 
-    emit fileUploadFailedForJidToUrl(msgId_);
+    emit fileUploadFailedForJidToUrl();
 }
 
 bool HttpFileUploadManager::createAttachmentPath()

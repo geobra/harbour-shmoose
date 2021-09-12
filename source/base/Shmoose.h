@@ -59,11 +59,12 @@ public:
     bool connectionState() const;
 
 public slots:
-    void sendMessage(QString const&toJid, QString const&message, QString const&type, QString const&msgId);
+    void sendMessage(QString const&toJid, QString const&message, QString const&type);
     void sendMessage(QString const&message, QString const&type);
     void sendFile(QString const&toJid, QString const&file);
     void sendFile(QUrl const&file);
-    void attachmentUploadFailed(QString const&msgId);
+    void attachmentUploadFailed();
+    void fileUploaded(QString const&toJid, QString const&message, QString const&type);
 
 private slots:
     void sendReadNotification(bool active);
@@ -120,6 +121,7 @@ public:
     QString password_;
 
     const QString version_;
+    QString notSentMsgId_;
 };
 
 #endif

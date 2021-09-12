@@ -20,7 +20,7 @@ public:
 
     void setupWithClient(Swift::Client* client);
 
-    void sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup, QString const &MsgId="");
+    void sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup);
     void sendDisplayedForJid(const QString &jid);
 
 signals:

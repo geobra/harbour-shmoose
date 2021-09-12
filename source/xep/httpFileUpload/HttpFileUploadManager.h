@@ -29,13 +29,9 @@ public:
     void setMaxFileSize(unsigned int maxFileSize);
     unsigned int getMaxFileSize();
 
-    QString getMsgId();
-    QString getFileMimeType();
-
-
 signals:
-    void fileUploadedForJidToUrl(QString, QString, QString, QString);
-    void fileUploadFailedForJidToUrl(QString);
+    void fileUploadedForJidToUrl(QString, QString, QString);
+    void fileUploadFailedForJidToUrl();
     void showStatus(QString, QString);
 
 public slots:
@@ -73,7 +69,6 @@ private:
     bool encryptFile_;
 
     QString fileType_;
-    QString msgId_;
 
     bool compressImages_;
 };

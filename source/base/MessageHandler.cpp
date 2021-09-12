@@ -200,7 +200,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     }
 }
 
-void MessageHandler::sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup, QString const &Id)
+void MessageHandler::sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup)
 {
     unsigned int security = 0;
 
@@ -222,7 +222,7 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         Swift::JID receiverJid(toJid.toStdString());
 
         Swift::IDGenerator idGenerator;
-        std::string msgId = Id.isEmpty() ? idGenerator.generateID() : Id.toStdString();
+        std::string msgId = idGenerator.generateID();
 
         msg->setFrom(Swift::JID(client_->getJID()));
         msg->setTo(receiverJid);

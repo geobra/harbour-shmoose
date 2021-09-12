@@ -6,10 +6,12 @@
 #include <QtConcurrent>
 #include <QDateTime>
 #include <QUrl>
+#include <QMimeDatabase>
 
 #include <QTimer>
 
 #include <QDebug>
+
 
 #include <Swiften/Elements/DiscoInfo.h>
 #include <Swiften/Elements/DiscoItems.h>
@@ -50,16 +52,17 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     mucManager_(new MucManager(this)),
     discoInfoHandler_(new DiscoInfoHandler(httpFileUploadManager_, mamManager_, this)),
     jid_(""), password_(""),
-    version_("0.7.2")
+    version_("0.7.2"),
+    notSentMsgId_("")
 {
     qApp->setApplicationVersion(version_);
 
     connect(connectionHandler_, SIGNAL(signalInitialConnectionEstablished()), this, SLOT(intialSetupOnFirstConnection()));
 
-    connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString,QString,QString)),
-            this, SLOT(sendMessage(QString,QString,QString,QString)));
-    connect(httpFileUploadManager_, SIGNAL(fileUploadFailedForJidToUrl(QString)), 
-            this, SLOT(attachmentUploadFailed(QString)));
+    connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString,QString)),
+            this, SLOT(fileUploaded(QString,QString,QString)));
+    connect(httpFileUploadManager_, SIGNAL(fileUploadFailedForJidToUrl()), 
+            this, SLOT(attachmentUploadFailed()));
 
     connect(mucManager_, SIGNAL(newGroupForContactsList(QString,QString)), rosterController_, SLOT(addGroupAsContact(QString,QString)));
     connect(mucManager_, SIGNAL(removeGroupFromContactsList(QString)), rosterController_, SLOT(removeGroupFromContacts(QString)) );
@@ -233,10 +236,10 @@ QString Shmoose::getCurrentChatPartner()
     return persistence_->getCurrentChatPartner();
 }
 
-void Shmoose::sendMessage(QString const&toJid, QString const&message, QString const&type, QString const&msgId)
+void Shmoose::sendMessage(QString const&toJid, QString const&message, QString const&type)
 {
     bool isGroup = rosterController_->isGroup(toJid);
-    messageHandler_->sendMessage(toJid, message, type, isGroup, msgId);
+    messageHandler_->sendMessage(toJid, message, type, isGroup);
 }
 
 void Shmoose::sendMessage(QString const&message, QString const&type)
@@ -259,22 +262,22 @@ void Shmoose::sendFile(QString const&toJid, QString const&file)
 {
     bool shouldEncryptFile = lurchAdapter_->isOmemoUser(toJid) && (! settings_->getSendPlainText().contains(toJid));
     Swift::JID receiverJid(toJid.toStdString());
+    Swift::IDGenerator idGenerator;
+    notSentMsgId_ = QString::fromStdString(idGenerator.generateID());
+
+    // messsage is added to the database 
+    persistence_->addMessage( notSentMsgId_,
+                          QString::fromStdString(receiverJid.toBare().toString()),
+                          QString::fromStdString(receiverJid.getResource()),
+                          file, QMimeDatabase().mimeTypeForFile(file).name(), 0, shouldEncryptFile ? 1 : 0);
+
+    persistence_->markMessageAsUploadingAttachment(notSentMsgId_);
 
     bool success = httpFileUploadManager_->requestToUploadFileForJid(file, toJid, shouldEncryptFile);
 
-    // messsage is added to the database in any case
-    persistence_->addMessage( httpFileUploadManager_->getMsgId(),
-                          QString::fromStdString(receiverJid.toBare().toString()),
-                          QString::fromStdString(receiverJid.getResource()),
-                          file, httpFileUploadManager_->getFileMimeType(), 0, shouldEncryptFile ? 1 : 0);
-
-    if(success)
+    if(!success)
     {
-        persistence_->markMessageAsUploadingAttachment(httpFileUploadManager_->getMsgId());
-    }
-    else
-    {
-        persistence_->markMessageAsSendFailed(httpFileUploadManager_->getMsgId());
+        persistence_->markMessageAsSendFailed(notSentMsgId_);
     }
 }
 
@@ -282,8 +285,6 @@ void Shmoose::sendFile(QUrl const&file)
 {
     const QString toJid = getCurrentChatPartner();
     QString localFile = file.toLocalFile();
-
-    qDebug() << "sendfile: jid: " << toJid << ", file: " << localFile << ", from url: " << file;
 
     sendFile(toJid, localFile);
 }
@@ -375,9 +376,10 @@ void Shmoose::removeRoom(QString const &roomJid)
     mucManager_->removeRoom(roomJid);
 }
 
-void Shmoose::attachmentUploadFailed(QString const& msgId)
+void Shmoose::attachmentUploadFailed()
 {
-    persistence_->markMessageAsSendFailed(msgId);
+    persistence_->markMessageAsSendFailed(notSentMsgId_);
+    notSentMsgId_ = "";
 }
 
 void Shmoose::saveAttachment(const QString& msg)
@@ -385,4 +387,11 @@ void Shmoose::saveAttachment(const QString& msg)
     //TODO Error management + Destination selection
     QFile::copy(getLocalFileForUrl(msg), QStandardPaths::locate(QStandardPaths::DownloadLocation, "", QStandardPaths::LocateDirectory)  +
                     QDir::separator() + CryptoHelper::getHashOfString(QUrl(msg).toString(), true));
+}
+
+void Shmoose::fileUploaded(QString const&toJid, QString const&message, QString const&type)
+{
+    persistence_->removeMessage(notSentMsgId_);
+    notSentMsgId_ = "";
+    sendMessage(toJid, message, type);
 }

@@ -48,6 +48,7 @@ signals:
 public slots:
     void addMessage(const QString &id, QString const &jid, QString const &resource, QString const &message,
                     const QString &type, unsigned int direction, unsigned int security, qint64 timestamp = 0);
+    void removeMessage(const QString &id);
     void setCurrentChatPartner(QString const &jid);
 
 private:

@@ -58,6 +58,20 @@ void Persistence::addMessage(QString const &id, QString const &jid, QString cons
     }
 }
 
+void Persistence::removeMessage(QString const &id)
+{
+    if (persistenceValid_)
+    {
+        if (messageController_->removeMessage(id))
+        {
+            //sessionController_->updateSession(jid, message);
+
+            emit messageControllerChanged();
+            //emit sessionControllerChanged();
+        }
+    }
+}
+
 void Persistence::markMessageDisplayedConfirmedId(QString const &id)
 {
     if (persistenceValid_)
