@@ -68,8 +68,6 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
             file_->setFileName(fileToUpload);
             jid_ = jid;
 
-            Swift::IDGenerator idGenerator;
-
             requestHttpUploadSlot();
         }
     }

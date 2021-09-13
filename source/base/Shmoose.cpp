@@ -236,13 +236,13 @@ QString Shmoose::getCurrentChatPartner()
     return persistence_->getCurrentChatPartner();
 }
 
-void Shmoose::sendMessage(QString const&toJid, QString const&message, QString const&type)
+void Shmoose::sendMessage(QString const &toJid, QString const &message, QString const &type)
 {
     bool isGroup = rosterController_->isGroup(toJid);
     messageHandler_->sendMessage(toJid, message, type, isGroup);
 }
 
-void Shmoose::sendMessage(QString const&message, QString const&type)
+void Shmoose::sendMessage(QString const &message, QString const &type)
 {
     const QString toJid = getCurrentChatPartner();
 
@@ -258,7 +258,7 @@ void Shmoose::sendMessage(QString const&message, QString const&type)
 }
 
 
-void Shmoose::sendFile(QString const&toJid, QString const&file)
+void Shmoose::sendFile(QString const &toJid, QString const &file)
 {
     bool shouldEncryptFile = lurchAdapter_->isOmemoUser(toJid) && (! settings_->getSendPlainText().contains(toJid));
     Swift::JID receiverJid(toJid.toStdString());
@@ -281,7 +281,7 @@ void Shmoose::sendFile(QString const&toJid, QString const&file)
     }
 }
 
-void Shmoose::sendFile(QUrl const&file)
+void Shmoose::sendFile(QUrl const &file)
 {
     const QString toJid = getCurrentChatPartner();
     QString localFile = file.toLocalFile();

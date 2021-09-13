@@ -245,7 +245,7 @@ int MessageController::getStateOfMessageId(QString const &id)
         }
     }
 
-    //qDebug() << "found state: " << msgState << "for msg id " << id;
+    qDebug() << "found state: " << msgState << "for msg id " << id;
 
     return msgState;
 }
@@ -316,7 +316,7 @@ void MessageController::setMessageStateOfId(QString const &id, int const state)
             // update the model with the changes of the database
             if (select() != true)
             {
-                qDebug() << "error on select in MessageController::addMessage";
+                qDebug() << "error on select in MessageController::setMessageStateOfId";
             }
             else
             {
