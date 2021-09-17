@@ -52,8 +52,14 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
         fileType_ = QMimeDatabase().mimeTypeForFile(file).name();
 
         // Resize image if server cannot handle it or if requested
-        if(fileType_.startsWith("image") && compressImages_)
+        if(fileType_.startsWith("image") && compressImages_) 
+        {
+            // compressing images creates a JPG file, change fileToUpload extension and recalc fileType
+            fileToUpload = createTargetFileName(file, "JPG");
+            fileType_ = QMimeDatabase().mimeTypeForFile(file).name();
+
             returnValue = ImageProcessing::prepareImageForSending(file, fileToUpload, qMin(getMaxFileSize(), 400000u));
+        }
         else if(inputFile.size() <= getMaxFileSize())
             returnValue = inputFile.copy(fileToUpload);
         else
@@ -224,14 +230,19 @@ bool HttpFileUploadManager::createAttachmentPath()
     return dir.exists();
 }
 
-// create a path and file name with a jpg suffix
-QString HttpFileUploadManager::createTargetFileName(QString source)
+// create a path and file name and change the suffix if provided
+QString HttpFileUploadManager::createTargetFileName(QString source, QString suffix)
 {
     QDateTime now(QDateTime::currentDateTimeUtc());
     uint unixTime = now.toTime_t();
     QFileInfo fileInfo(source);
+    QString targetFileName;
 
-    QString targetFileName = fileInfo.completeBaseName() + "." + fileInfo.suffix();
+    if (suffix.size() == 0)
+         targetFileName = fileInfo.completeBaseName() + "." + fileInfo.suffix();
+    else
+         targetFileName = fileInfo.completeBaseName() + "." + suffix; 
+
     QString targetPath = System::getAttachmentPath() + QDir::separator() + QString::number(unixTime) + targetFileName;
 
     qDebug() << "target file: " << targetPath;

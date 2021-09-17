@@ -49,7 +49,7 @@ private:
     void handleHttpUploadResponse(const std::string response);
 
     bool createAttachmentPath();
-    QString createTargetFileName(QString source);
+    QString createTargetFileName(QString source, QString suffix="");
 
     static bool encryptFile(QFile &file, QByteArray &ivAndKey);
 
