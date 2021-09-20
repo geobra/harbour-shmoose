@@ -58,11 +58,11 @@ void Persistence::addMessage(QString const &id, QString const &jid, QString cons
     }
 }
 
-void Persistence::removeMessage(QString const &id)
+void Persistence::removeMessage(QString const &id, const QString &jid)
 {
     if (persistenceValid_)
     {
-        if (messageController_->removeMessage(id))
+        if (messageController_->removeMessage(id, jid))
         {
             //sessionController_->updateSession(jid, message);
 

@@ -391,7 +391,7 @@ void Shmoose::saveAttachment(const QString& msg)
 
 void Shmoose::fileUploaded(QString const&toJid, QString const&message, QString const&type)
 {
-    persistence_->removeMessage(notSentMsgId_);
+    persistence_->removeMessage(notSentMsgId_, toJid);
     notSentMsgId_ = "";
     sendMessage(toJid, message, type);
 }

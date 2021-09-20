@@ -459,14 +459,14 @@ void MessageController::removeMessagesFromJid(const QString& jid)
     }
 }
 
-bool MessageController::removeMessage(const QString& id)
+bool MessageController::removeMessage(const QString& id, const QString &jid)
 {
     QSqlQuery query(*(database_->getPointer()));
 
     bool messageRemoved = false; 
 
     if (! query.exec("DELETE FROM " + Database::sqlMsgName_
-                     + " WHERE " + Database::sqlId_ + " = \"" + id + "\"" ))
+                     + " WHERE " + Database::sqlId_ + " = \"" + id + "\"" + " AND " + Database::sqlJid_ + " = \"" + jid + + "\""))
     {
         qDebug() << query.lastError().databaseText();
         qDebug() << query.lastError().driverText();

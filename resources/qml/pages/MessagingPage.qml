@@ -447,7 +447,7 @@ Page {
                     }
 
                     if (msgToSend.length > 0) {
-                        shmoose.sendMessage(conversationId, msgToSend, "txt", "");
+                        shmoose.sendMessage(conversationId, msgToSend, "txt");
                         editbox.text = " ";
                         editbox.text = "";
                     }

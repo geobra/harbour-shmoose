@@ -21,7 +21,7 @@ public:
     void setFilterOnJid(QString const &jidFiler);
     bool addMessage(const QString &id, QString const &jid, const QString &resource, QString const &message,
                     const QString &type, unsigned int direction, unsigned int security, qint64 timestamp = 0);
-    bool removeMessage(const QString& id);
+    bool removeMessage(const QString& id, const QString &jid);
 
     void markMessageDisplayedConfirmed(QString const &id);
     void markMessageDisplayed(QString const &id);
