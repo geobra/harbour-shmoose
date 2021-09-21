@@ -81,16 +81,32 @@ Page {
         TextSwitch {
             id: compressImagesSwitch
             checked: shmoose.settings.CompressImages
-            text: qsTr("Compress Images")
+            text: qsTr("Compress images larger than")
             onClicked: {
                 shmoose.settings.CompressImages = compressImagesSwitch.checked;
+                maxCompressedImageSizeSlider.enabled = compressImagesSwitch.checked;
+            }
+        }
+
+        Slider {
+            id: maxImageSizeSlider
+            enabled: shmoose.settings.CompressImages
+            width: parent.width
+            minimumValue: 100000
+            maximumValue: 10000000
+            stepSize: 100000
+            value: shmoose.settings.MaxImageSize
+            valueText: value/1000 + qsTr(" KB")
+
+            onValueChanged: {
+                shmoose.settings.MaxImageSize = value;
             }
         }
 
         TextSwitch {
             id: sendOnlyImagesSwitch
             checked: shmoose.settings.SendOnlyImages
-            text: qsTr("Send Only Images")
+            text: qsTr("Send images only")
             onClicked: {
                 shmoose.settings.SendOnlyImages = sendOnlyImagesSwitch.checked;
             }

@@ -406,3 +406,20 @@ void Settings::setSendOnlyImages(bool SendOnlyImages)
     settings.setValue("attachments/sendOnlyImages", SendOnlyImages);
     emit sendOnlyImagesChanged(SendOnlyImages);
 }
+
+unsigned int Settings::getMaxImageSize() const
+{
+    unsigned int save;
+
+    QSettings settings;
+    save = settings.value("attachments/maxImageSize", 400000u).toUInt();
+
+    return save;
+}
+
+void Settings::setMaxImageSize(unsigned int MaxImageSize)
+{
+    QSettings settings;
+    settings.setValue("attachments/maxImageSize", MaxImageSize);
+    emit maxImageSizeChanged(MaxImageSize);
+}

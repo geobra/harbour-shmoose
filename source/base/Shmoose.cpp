@@ -93,6 +93,7 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotAboutToQuit()));
 
     connect(settings_, SIGNAL(compressImagesChanged(bool)), httpFileUploadManager_, SLOT(setCompressImages(bool)));
+    connect(settings_, SIGNAL(maxImageSizeChanged(unsigned int)), httpFileUploadManager_, SLOT(setMaxImageSize(unsigned int)));
 }
 
 Shmoose::~Shmoose()
@@ -177,6 +178,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     }
 
     httpFileUploadManager_->setCompressImages(settings_->getCompressImages());
+    httpFileUploadManager_->setMaxImageSize(settings_->getMaxImageSize());
 }
 
 void Shmoose::mainDisconnect()
