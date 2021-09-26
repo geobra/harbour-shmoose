@@ -72,13 +72,14 @@ Page {
         clip: true;
         focus: true
         spacing: Theme.paddingMedium;
+        cacheBuffer: Screen.width // do avoid flickering when image width is changed
 
         model: shmoose.persistence.messageController
 
         delegate: ListItem {
             id: item;
 
-            property string file: getFilePath(message)
+            readonly property string file : type != "txt" ? shmoose.getLocalFileForUrl(message) : ""
 
             contentHeight: shadow.height;
 
@@ -90,6 +91,11 @@ Page {
 
             readonly property bool alignRight      : (direction == 1);
             readonly property int  maxContentWidth : (width * 0.85);
+            readonly property int mediaWidth : maxContentWidth * 0.75
+            readonly property int mediaHeight : (mediaWidth * 2) / 3
+            readonly property bool isVideo : startsWith(type, "video")
+            readonly property bool isImage : startsWith(type, "image")
+            readonly property string iconFileSource : getFileIcon(type)
 
             Rectangle {
                 id: shadow;
@@ -112,11 +118,9 @@ Page {
                     verticalCenter: parent.verticalCenter;
                 }
 
-
                 Label {
                     text: message;
                     color: Theme.primaryColor;
-                    //width: Math.min (item.maxContentWidth, contentWidth);
                     width: item.maxContentWidth;
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
                     visible: type === "txt"
@@ -125,63 +129,70 @@ Page {
                         family: Theme.fontFamilyHeading;
                         pixelSize: Theme.fontSizeMedium;
                     }
-                    anchors {
-                        left: (item.alignRight ? parent.left : undefined);
-                        right: (!item.alignRight ? parent.right : undefined);
-                    }
 
                     onLinkActivated: Qt.openUrlExternally(link)
                 }
-                BackgroundItem {
-                    width: Math.max(Math.max(thumb.width, msgImg.width), icon.width)
-                    height: Math.max(Math.max(thumb.height, msgImg.height), icon.height)
 
-                    visible: type !== "txt"
-                    anchors {
-                        left: (item.alignRight ? parent.left : undefined);
-                        right: (!item.alignRight ? parent.right : undefined);
-                    }
+
+                BackgroundItem {
+
+                    width: msgImg.width
+                    height: msgImg.height
+                    visible: isImage
                     Image {
                         id: msgImg
 
-                        anchors.right: (!item.alignRight ? parent.right : undefined)
-                        source: startsWith(type, "image") ? item.file : ""
-                        visible: source != ""
+                        source: item.file
                         autoTransform: true
+                        asynchronous: true
+                        sourceSize.width: item.mediaWidth
+                        sourceSize.height: item.mediaHeight
 
-                        sourceSize.width: item.maxContentWidth*.75
-                        sourceSize.height: item.maxContentWidth*.75
+                        width: implicitWidth > 0 ? implicitWidth : item.mediaWidth
+                        height: item.mediaHeight
 
                         fillMode: Image.PreserveAspectFit
                     }
+                }
+                BackgroundItem {
+
+                    width: thumb.width
+                    height: thumb.height
+                    visible: isVideo 
+
                     Thumbnail {
                         id: thumb
 
-                        anchors.right: (!item.alignRight ? parent.right : undefined)
-                        source: startsWith(type, "video") ? item.file : ""
+                        source: item.file
                         mimeType: type
-                        visible: source != ""
 
-                        sourceSize.width: item.maxContentWidth*.75
-                        sourceSize.height: item.maxContentWidth*.75
+                        sourceSize.width: item.mediaWidth
+                        sourceSize.height: item.mediaHeight
+
+                        width: implicitWidth > 0 ? implicitWidth : item.mediaWidth
+                        height: item.mediaHeight
 
                         fillMode: Thumbnail.PreserveAspectFit;
                         priority: Thumbnail.NormalPriority
 
                         Icon {
-                            visible: startsWith(type, "video")
                             source: "image://theme/icon-m-file-video"
                             anchors.centerIn : parent
                         }
                     }
-                    Icon {
-                        id: icon
-                        visible: (type !== "txt") && ((thumb.status != Thumbnail.Ready) && (msgImg.status != Image.Ready))
-                        source: getFileIcon(type)
+                }
+                BackgroundItem {
 
-                        anchors.right: (!item.alignRight ? parent.right : undefined)
+                    width: iconFile.width
+                    height: iconFile.height
+                    visible: ((type !== "txt") && !isVideo && !isImage)
+
+                    Icon {
+                        id: iconFile
+                        source: iconFileSource
                     }
                 }
+
                 Label {
                     visible: isGroup;
                     color: Theme.secondaryColor;
@@ -281,6 +292,11 @@ Page {
                     onClicked: Clipboard.text = message
                 }
                 MenuItem {
+                    text: qsTr("Copy URL")
+                    visible: type != "txt"
+                    onClicked: Clipboard.text = message
+                }
+                MenuItem {
                     text: qsTr("Send again")
                     visible: (msgstate == 5 && shmoose.canSendFile())
                     onClicked: {
@@ -310,7 +326,6 @@ Page {
             right: parent.right;
             bottom: displaymsgview.top;
         }
-
     }
     Row {
         id: displaymsgview
@@ -347,7 +362,7 @@ Page {
         anchors {
             left: parent.left;
             leftMargin: Theme.paddingMedium;
-            right: parent.right;
+            right: sendButton.left;
             bottom: parent.bottom;
         }
 
@@ -378,7 +393,7 @@ Page {
             }
 
            anchors.bottom: parent.bottom 
-           width: parent.width - sendButton.width
+           width: parent.width
         }
         Thumbnail {
             id: previewAttachment
@@ -524,9 +539,6 @@ Page {
         trimmedStr = trimmedStr.replace(/(\r\n|\n|\r)/gm,"");
 
         return trimmedStr;
-    }
-    function getFilePath(message) {
-        return shmoose.getLocalFileForUrl(message);
     }
     function getFileIcon(type){
         if(startsWith(type, "image")) return "image://theme/icon-m-file-image";
