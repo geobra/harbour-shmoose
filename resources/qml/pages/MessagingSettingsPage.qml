@@ -95,6 +95,7 @@ Page {
             minimumValue: 100000
             maximumValue: 10000000
             stepSize: 100000
+            value: shmoose.settings.MaxImageSize
             valueText: value/1000 + qsTr(" KB")
 
             onValueChanged: {
