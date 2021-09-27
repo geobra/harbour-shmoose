@@ -79,7 +79,7 @@ Page {
         delegate: ListItem {
             id: item;
 
-            readonly property string file : type != "txt" ? shmoose.getLocalFileForUrl(message) : ""
+            readonly property string file : shmoose.getLocalFileForUrl(message)
 
             contentHeight: shadow.height;
 
@@ -142,7 +142,7 @@ Page {
                     Image {
                         id: msgImg
 
-                        source: item.file
+                        source: isImage ? item.file : ""
                         autoTransform: true
                         asynchronous: true
                         sourceSize.width: item.mediaWidth
@@ -163,7 +163,7 @@ Page {
                     Thumbnail {
                         id: thumb
 
-                        source: item.file
+                        source: isVideo ? item.file : ""
                         mimeType: type
 
                         sourceSize.width: item.mediaWidth
