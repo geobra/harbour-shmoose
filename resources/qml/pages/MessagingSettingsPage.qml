@@ -7,6 +7,7 @@ Page {
     id: page
     allowedOrientations: Orientation.All
     property string conversationId
+    readonly property int maxImageSize : shmoose.settings.MaxImageSize
 
     Image {
         //source: "image://glass/qrc:///qml/img/photo.png"
@@ -95,11 +96,11 @@ Page {
             minimumValue: 100000
             maximumValue: 10000000
             stepSize: 100000
-            value: shmoose.settings.MaxImageSize
+            value: maxImageSize
             valueText: value/1000 + qsTr(" KB")
 
             onValueChanged: {
-                shmoose.settings.MaxImageSize = value;
+                shmoose.settings.MaxImageSize = sliderValue;
             }
         }
 
