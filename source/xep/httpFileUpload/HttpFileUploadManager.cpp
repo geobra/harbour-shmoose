@@ -59,6 +59,9 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
             fileType_ = QMimeDatabase().mimeTypeForFile(file).name();
 
             returnValue = ImageProcessing::prepareImageForSending(file, fileToUpload, maxImageSize_);
+
+            if(returnValue)
+                returnValue = QFile(fileToUpload).size() <= getMaxFileSize();
         }
         else if(inputFile.size() <= getMaxFileSize())
             returnValue = inputFile.copy(fileToUpload);
