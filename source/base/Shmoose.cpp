@@ -397,3 +397,8 @@ void Shmoose::fileUploaded(QString const&toJid, QString const&message, QString c
     notSentMsgId_ = "";
     sendMessage(toJid, message, type);
 }
+
+unsigned int Shmoose::getMaxUploadSize()
+{
+    return httpFileUploadManager_->getMaxFileSize();
+}

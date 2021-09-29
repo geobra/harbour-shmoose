@@ -8,6 +8,7 @@ Page {
     allowedOrientations: Orientation.All
     property string conversationId
     readonly property int maxImageSize : shmoose.settings.MaxImageSize
+    readonly property int maxUploadSize : shmoose.getMaxUploadSize();
 
     Image {
         //source: "image://glass/qrc:///qml/img/photo.png"
@@ -94,7 +95,7 @@ Page {
             enabled: shmoose.settings.CompressImages
             width: parent.width
             minimumValue: 100000
-            maximumValue: 10000000
+            maximumValue: maxUploadSize
             stepSize: 100000
             value: maxImageSize
             valueText: value/1000 + qsTr(" KB")
