@@ -52,16 +52,19 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
         fileType_ = QMimeDatabase().mimeTypeForFile(file).name();
 
         // Resize image if server cannot handle it or if requested
-        if(fileType_.startsWith("image") && compressImages_ && inputFile.size() > maxImageSize_)
+        if(fileType_.startsWith("image"))
         {
-            // compressing images creates a JPG file, change fileToUpload extension and recalc fileType
-            fileToUpload = createTargetFileName(file, "JPG");
-            fileType_ = QMimeDatabase().mimeTypeForFile(file).name();
+            if((inputFile.size() > getMaxFileSize()) || (compressImages_ && inputFile.size() > maxImageSize_))
+            {
+                fileToUpload = createTargetFileName(file, "JPG");
+                fileType_ = QMimeDatabase().mimeTypeForFile(file).name();
 
-            returnValue = ImageProcessing::prepareImageForSending(file, fileToUpload, maxImageSize_);
-
-            if(returnValue)
-                returnValue = QFile(fileToUpload).size() <= getMaxFileSize();
+                returnValue = ImageProcessing::prepareImageForSending(file, fileToUpload, compressImages_ ? maxImageSize_ : getMaxFileSize());
+            }
+            else
+            {
+                returnValue = inputFile.copy(fileToUpload);
+            }
         }
         else if(inputFile.size() <= getMaxFileSize())
             returnValue = inputFile.copy(fileToUpload);

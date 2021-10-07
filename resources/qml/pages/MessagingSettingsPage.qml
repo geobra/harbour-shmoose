@@ -83,7 +83,7 @@ Page {
         TextSwitch {
             id: compressImagesSwitch
             checked: shmoose.settings.CompressImages
-            text: qsTr("Compress images larger than")
+            text: qsTr("Limit compression to")
             onClicked: {
                 shmoose.settings.CompressImages = compressImagesSwitch.checked;
                 maxCompressedImageSizeSlider.enabled = compressImagesSwitch.checked;
