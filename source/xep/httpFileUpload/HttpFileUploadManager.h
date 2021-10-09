@@ -39,7 +39,7 @@ public slots:
     void successReceived(QString string);
     void errorReceived();
     void setCompressImages(bool CompressImages);
-    void setMaxImageSize(unsigned int maxImageSize);
+    void setLimitCompression(unsigned int limitCompression);
 
 private slots:
     void generateStatus(QString status);
@@ -72,7 +72,7 @@ private:
     QString fileType_;
 
     bool compressImages_;
-    unsigned int maxImageSize_;
+    unsigned int limitCompression_;
 };
 
 #endif // HTTPFILEUPLOADMANAGER_H

@@ -21,7 +21,7 @@ class Settings : public QObject
     Q_PROPERTY(QStringList SendPlainText READ getSendPlainText WRITE setSendPlainText NOTIFY sendPlainTextChanged)
     Q_PROPERTY(bool CompressImages READ getCompressImages WRITE setCompressImages NOTIFY compressImagesChanged)
     Q_PROPERTY(bool SendOnlyImages READ getSendOnlyImages WRITE setSendOnlyImages NOTIFY sendOnlyImagesChanged)
-    Q_PROPERTY(int MaxImageSize READ getMaxImageSize WRITE setMaxImageSize NOTIFY maxImageSizeChanged)
+    Q_PROPERTY(int LimitCompression READ getLimitCompression WRITE setLimitCompression NOTIFY limitCompressionChanged)
 
 
 public:
@@ -40,7 +40,7 @@ public:
     QStringList getSendPlainText() const;
     bool getCompressImages() const;
     bool getSendOnlyImages() const;
-    unsigned int getMaxImageSize() const;
+    unsigned int getLimitCompression() const;
 
 signals:
     void jidChanged(QString Jid);
@@ -55,7 +55,7 @@ signals:
     void sendPlainTextChanged(const QStringList& sendPlainText);
     void compressImagesChanged(bool CompressImages);
     void sendOnlyImagesChanged(bool SendOnlyImages);
-    void maxImageSizeChanged(unsigned int MaxImageSize);
+    void limitCompressionChanged(unsigned int LimitCompression);
 
 public slots:
     void setJid(QString Jid);
@@ -80,7 +80,7 @@ public slots:
     void setSendPlainText(const QStringList& sendPlainText);
     void setCompressImages(bool AlwaysCompressImages);
     void setSendOnlyImages(bool SendOnlyImages);
-    void setMaxImageSize(unsigned int MaxImageSize);
+    void setLimitCompression(unsigned int LimitCompression);
 
 };
 

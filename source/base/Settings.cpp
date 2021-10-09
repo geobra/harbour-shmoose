@@ -378,7 +378,7 @@ bool Settings::getCompressImages() const
     bool save;
 
     QSettings settings;
-    save = settings.value("attachments/compressImages", true).toBool();
+    save = settings.value("attachments/compressImages", false).toBool();
 
     return save;
 }
@@ -407,19 +407,19 @@ void Settings::setSendOnlyImages(bool SendOnlyImages)
     emit sendOnlyImagesChanged(SendOnlyImages);
 }
 
-unsigned int Settings::getMaxImageSize() const
+unsigned int Settings::getLimitCompression() const
 {
     unsigned int save;
 
     QSettings settings;
-    save = settings.value("attachments/maxImageSize", 400000u).toUInt();
+    save = settings.value("attachments/limitCompression", 400000u).toUInt();
 
     return save;
 }
 
-void Settings::setMaxImageSize(unsigned int MaxImageSize)
+void Settings::setLimitCompression(unsigned int LimitCompression)
 {
     QSettings settings;
-    settings.setValue("attachments/maxImageSize", MaxImageSize);
-    emit maxImageSizeChanged(MaxImageSize);
+    settings.setValue("attachments/limitCompression", LimitCompression);
+    emit limitCompressionChanged(LimitCompression);
 }

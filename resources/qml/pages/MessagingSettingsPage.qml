@@ -7,9 +7,15 @@ Page {
     id: page
     allowedOrientations: Orientation.All
     property string conversationId
-    readonly property int maxImageSize : shmoose.settings.MaxImageSize
-    readonly property int maxUploadSize : shmoose.getMaxUploadSize();
+    readonly property int limitCompression : shmoose.settings.LimitCompression
+    property int maxUploadSize : shmoose.getMaxUploadSize();
 
+    Timer {
+        interval: 2000; running: true; repeat: true
+        onTriggered: {
+            maxUploadSize = shmoose.getMaxUploadSize();
+        }
+    }
     Image {
         //source: "image://glass/qrc:///qml/img/photo.png"
         opacity: 0.85
@@ -86,22 +92,22 @@ Page {
             text: qsTr("Limit compression to")
             onClicked: {
                 shmoose.settings.CompressImages = compressImagesSwitch.checked;
-                maxCompressedImageSizeSlider.enabled = compressImagesSwitch.checked;
+                limitCompressionSizeSlider.enabled = compressImagesSwitch.checked;
             }
         }
 
         Slider {
-            id: maxImageSizeSlider
+            id: limitCompressionSlider
             enabled: shmoose.settings.CompressImages
             width: parent.width
             minimumValue: 100000
-            maximumValue: maxUploadSize
+            maximumValue: Math.max(maxUploadSize, limitCompression)
             stepSize: 100000
-            value: maxImageSize
+            value: limitCompression
             valueText: value/1000 + qsTr(" KB")
 
             onValueChanged: {
-                shmoose.settings.MaxImageSize = sliderValue;
+                shmoose.settings.LimitCompression = sliderValue;
             }
         }
 

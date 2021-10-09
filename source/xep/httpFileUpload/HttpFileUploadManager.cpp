@@ -24,7 +24,7 @@ HttpFileUploadManager::HttpFileUploadManager(QObject *parent) : QObject(parent),
     httpUpload_(new HttpFileUploader(this)),
     serverHasFeatureHttpUpload_(false), maxFileSize_(0),
     file_(new FileWithCypher(this)), jid_(""), client_(nullptr),
-    uploadServerJid_(""), statusString_(""), getUrl_(""), busy_(false), compressImages_(false), maxImageSize_(400000u)
+    uploadServerJid_(""), statusString_(""), getUrl_(""), busy_(false), compressImages_(false), limitCompression_(400000u)
 {
     connect(httpUpload_, SIGNAL(updateStatus(QString)), this, SLOT(updateStatusString(QString)));
     connect(httpUpload_, SIGNAL(uploadSuccess(QString)), this, SLOT(successReceived(QString)));
@@ -54,19 +54,19 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
         // Resize image if server cannot handle it or if requested
         if(fileType_.startsWith("image"))
         {
-            if((inputFile.size() > getMaxFileSize()) || (compressImages_ && inputFile.size() > maxImageSize_))
+            if((inputFile.size() > getMaxFileSize()) || (compressImages_ && inputFile.size() > limitCompression_))
             {
                 fileToUpload = createTargetFileName(file, "JPG");
                 fileType_ = QMimeDatabase().mimeTypeForFile(file).name();
 
-                returnValue = ImageProcessing::prepareImageForSending(file, fileToUpload, compressImages_ ? maxImageSize_ : getMaxFileSize());
+                returnValue = ImageProcessing::prepareImageForSending(file, fileToUpload, compressImages_ ? limitCompression_ : getMaxFileSize());
             }
             else
             {
                 returnValue = inputFile.copy(fileToUpload);
             }
         }
-        else if(inputFile.size() <= getMaxFileSize())
+        else if(inputFile.size() <= getMaxFileSize() || getMaxFileSize() == 0)
             returnValue = inputFile.copy(fileToUpload);
         else
             returnValue = false;
@@ -267,7 +267,7 @@ void HttpFileUploadManager::setCompressImages(bool CompressImages)
    compressImages_ = CompressImages;
 }
 
-void HttpFileUploadManager::setMaxImageSize(unsigned int MaxImageSize)
+void HttpFileUploadManager::setLimitCompression(unsigned int LimitCompression)
 {
-   maxImageSize_ = MaxImageSize;
+   limitCompression_ = LimitCompression;
 }
