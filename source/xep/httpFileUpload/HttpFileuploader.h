@@ -16,7 +16,7 @@ public:
     HttpFileUploader(QObject *parent = 0);
     ~HttpFileUploader();
 
-    void upload(QString url, FileWithCypher *file, bool Encrypt);
+    void upload(QString url, FileWithCypher *file);
 
 signals:
     void updateStatus(QString status);

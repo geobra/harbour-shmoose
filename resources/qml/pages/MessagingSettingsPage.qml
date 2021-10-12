@@ -7,7 +7,15 @@ Page {
     id: page
     allowedOrientations: Orientation.All
     property string conversationId
+    readonly property int limitCompression : shmoose.settings.LimitCompression
+    property int maxUploadSize : shmoose.getMaxUploadSize();
 
+    Timer {
+        interval: 2000; running: true; repeat: true
+        onTriggered: {
+            maxUploadSize = shmoose.getMaxUploadSize();
+        }
+    }
     Image {
         //source: "image://glass/qrc:///qml/img/photo.png"
         opacity: 0.85
@@ -19,6 +27,7 @@ Page {
         PageHeader {
             title: conversationId+qsTr(" settings")
         }
+
         ComboBox {
             label: qsTr("Chat notifications")
             width: page.width
@@ -77,5 +86,38 @@ Page {
             }
         }
 
+        TextSwitch {
+            id: compressImagesSwitch
+            checked: shmoose.settings.CompressImages
+            text: qsTr("Limit compression to")
+            onClicked: {
+                shmoose.settings.CompressImages = compressImagesSwitch.checked;
+                limitCompressionSizeSlider.enabled = compressImagesSwitch.checked;
+            }
+        }
+
+        Slider {
+            id: limitCompressionSlider
+            enabled: shmoose.settings.CompressImages
+            width: parent.width
+            minimumValue: 100000
+            maximumValue: Math.max(maxUploadSize, limitCompression)
+            stepSize: 100000
+            value: limitCompression
+            valueText: value/1000 + qsTr(" KB")
+
+            onValueChanged: {
+                shmoose.settings.LimitCompression = sliderValue;
+            }
+        }
+
+        TextSwitch {
+            id: sendOnlyImagesSwitch
+            checked: shmoose.settings.SendOnlyImages
+            text: qsTr("Send images only")
+            onClicked: {
+                shmoose.settings.SendOnlyImages = sendOnlyImagesSwitch.checked;
+            }
+        }
     }
 }

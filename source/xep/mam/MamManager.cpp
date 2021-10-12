@@ -8,6 +8,7 @@
 #include <QUrl>
 #include "XmlProcessor.h"
 #include <QDebug>
+#include <QMimeDatabase>
 
 
 const QString MamManager::mamNs = "urn:xmpp:mam:2";
@@ -247,20 +248,24 @@ void MamManager::processMamMessage(const QString& qData)
             }
 
             QString type = "txt";
-            QUrl bodyUrl = QUrl(body);
 
-            if (bodyUrl.isValid() && bodyUrl.scheme().length() > 0) // it's an url with a scheme
-            {        
-                QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
-                bodyUrl.setFragment(QString::null);
-                QString bodyEnd = bodyUrl.path().mid(bodyUrl.path().lastIndexOf('.')+1); // path of url ends with a file type
+            bool isLink = false;
+            if(XmlProcessor::getContentInTag("encryption", "name", archivedMsg) == "OMEMO")
+            {
+                isLink = body.startsWith("aesgcm://");
 
+            } else
+            {
+                isLink = !XmlProcessor::getContentInElement("url", archivedMsg).isEmpty();
+            }
 
-                if (knownImageTypes.contains(bodyEnd))
+            if (isLink)
+            {
+                QUrl url = QUrl(body);
+                if(url.scheme().length() > 0)
                 {
-                    type = "image";
-
-                    downloadManager_->doDownload(QUrl(body));
+                    type = QMimeDatabase().mimeTypeForFile(url.fileName()).name();
+                    downloadManager_->doDownload(url);
                 }
             }
 

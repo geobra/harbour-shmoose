@@ -21,11 +21,14 @@ public:
     void setFilterOnJid(QString const &jidFiler);
     bool addMessage(const QString &id, QString const &jid, const QString &resource, QString const &message,
                     const QString &type, unsigned int direction, unsigned int security, qint64 timestamp = 0);
+    bool removeMessage(const QString& id, const QString &jid);
 
     void markMessageDisplayedConfirmed(QString const &id);
     void markMessageDisplayed(QString const &id);
     void markMessageReceived(QString const &id);
     void markMessageSent(QString const &id);
+    void markMessageUploadingAttachment(QString const &id);
+    void markMessageSendFailed(QString const &id);
 
     QPair<QString, int> getNewestReceivedMessageIdAndStateOfJid(QString const &jid);
     QString getRessourceForMsgId(const QString& msgId);
@@ -64,7 +67,9 @@ private:
         MESSAGE_STATE_DEFAULT,                      // default after I sent a message
         MESSAGE_STATE_SENT,                         // session management confirmed message is received by server
         MESSAGE_STATE_RECEIVED,                     // other client confirmed that message is received in app
-        MESSAGE_STATE_DISPLAYED                     // other client confirmed that message is read (xep 0333, chat markers)
+        MESSAGE_STATE_DISPLAYED,                    // other client confirmed that message is read (xep 0333, chat markers)
+        MESSAGE_STATE_UPLOADING_ATTACHMENT,         // Uploading attachment in progress
+        MESSAGE_STATE_SEND_FAILED                   // Message recorded in database but not sent
     };
 
 };

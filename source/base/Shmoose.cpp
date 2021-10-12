@@ -6,10 +6,12 @@
 #include <QtConcurrent>
 #include <QDateTime>
 #include <QUrl>
+#include <QMimeDatabase>
 
 #include <QTimer>
 
 #include <QDebug>
+
 
 #include <Swiften/Elements/DiscoInfo.h>
 #include <Swiften/Elements/DiscoItems.h>
@@ -50,14 +52,17 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     mucManager_(new MucManager(this)),
     discoInfoHandler_(new DiscoInfoHandler(httpFileUploadManager_, mamManager_, this)),
     jid_(""), password_(""),
-    version_("0.7.2")
+    version_("0.7.2"),
+    notSentMsgId_("")
 {
     qApp->setApplicationVersion(version_);
 
     connect(connectionHandler_, SIGNAL(signalInitialConnectionEstablished()), this, SLOT(intialSetupOnFirstConnection()));
 
     connect(httpFileUploadManager_, SIGNAL(fileUploadedForJidToUrl(QString,QString,QString)),
-            this, SLOT(sendMessage(QString,QString,QString)));
+            this, SLOT(fileUploaded(QString,QString,QString)));
+    connect(httpFileUploadManager_, SIGNAL(fileUploadFailedForJidToUrl()), 
+            this, SLOT(attachmentUploadFailed()));
 
     connect(mucManager_, SIGNAL(newGroupForContactsList(QString,QString)), rosterController_, SLOT(addGroupAsContact(QString,QString)));
     connect(mucManager_, SIGNAL(removeGroupFromContactsList(QString)), rosterController_, SLOT(removeGroupFromContacts(QString)) );
@@ -86,6 +91,9 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     connect(httpFileUploadManager_, SIGNAL(showStatus(QString, QString)), this, SIGNAL(signalShowStatus(QString, QString)));
 
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotAboutToQuit()));
+
+    connect(settings_, SIGNAL(compressImagesChanged(bool)), httpFileUploadManager_, SLOT(setCompressImages(bool)));
+    connect(settings_, SIGNAL(limitCompressionChanged(unsigned int)), httpFileUploadManager_, SLOT(setLimitCompression(unsigned int)));
 }
 
 Shmoose::~Shmoose()
@@ -96,7 +104,7 @@ Shmoose::~Shmoose()
     {
         softwareVersionResponder_->stop();
 
-        delete tracer_;
+        if( tracer_ != nullptr) delete tracer_;
         delete softwareVersionResponder_;
         delete client_;
     }
@@ -129,7 +137,8 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     connectionHandler_->setupWithClient(client_);
     messageHandler_->setupWithClient(client_);
 
-    tracer_ = new Swift::ClientXMLTracer(client_);
+    //tracer_ = new Swift::ClientXMLTracer(client_);
+    tracer_ = nullptr;
 
     // configure the xmpp client
     softwareVersionResponder_ = new Swift::SoftwareVersionResponder(client_->getIQRouter());
@@ -167,6 +176,9 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
         jid_ = jid;
         password_ = pass;
     }
+
+    httpFileUploadManager_->setCompressImages(settings_->getCompressImages());
+    httpFileUploadManager_->setLimitCompression(settings_->getLimitCompression());
 }
 
 void Shmoose::mainDisconnect()
@@ -251,10 +263,23 @@ void Shmoose::sendMessage(QString const &message, QString const &type)
 void Shmoose::sendFile(QString const &toJid, QString const &file)
 {
     bool shouldEncryptFile = lurchAdapter_->isOmemoUser(toJid) && (! settings_->getSendPlainText().contains(toJid));
+    Swift::JID receiverJid(toJid.toStdString());
+    Swift::IDGenerator idGenerator;
+    notSentMsgId_ = QString::fromStdString(idGenerator.generateID());
 
-    if (httpFileUploadManager_->requestToUploadFileForJid(file, toJid, shouldEncryptFile) == false)
+    // messsage is added to the database 
+    persistence_->addMessage( notSentMsgId_,
+                          QString::fromStdString(receiverJid.toBare().toString()),
+                          QString::fromStdString(receiverJid.getResource()),
+                          file, QMimeDatabase().mimeTypeForFile(file).name(), 0, shouldEncryptFile ? 1 : 0);
+
+    persistence_->markMessageAsUploadingAttachment(notSentMsgId_);
+
+    bool success = httpFileUploadManager_->requestToUploadFileForJid(file, toJid, shouldEncryptFile);
+
+    if(!success)
     {
-        qDebug() << "Shmoose::sendFile failed";
+        persistence_->markMessageAsSendFailed(notSentMsgId_);
     }
 }
 
@@ -262,8 +287,6 @@ void Shmoose::sendFile(QUrl const &file)
 {
     const QString toJid = getCurrentChatPartner();
     QString localFile = file.toLocalFile();
-
-    qDebug() << "sendfile: jid: " << toJid << ", file: " << localFile << ", from url: " << file;
 
     sendFile(toJid, localFile);
 }
@@ -316,7 +339,8 @@ QString Shmoose::getAttachmentPath()
 
 QString Shmoose::getLocalFileForUrl(const QString& str)
 {
-    return CryptoHelper::getHashOfString(str, true);
+    return QFile::exists(str) ? str :
+        System::getAttachmentPath() + QDir::separator() + CryptoHelper::getHashOfString(QUrl(str).toString(), true);
 }
 
 void Shmoose::setHasInetConnection(bool connected)
@@ -352,4 +376,29 @@ void Shmoose::joinRoom(QString const &roomJid, QString const &roomName)
 void Shmoose::removeRoom(QString const &roomJid)
 {
     mucManager_->removeRoom(roomJid);
+}
+
+void Shmoose::attachmentUploadFailed()
+{
+    persistence_->markMessageAsSendFailed(notSentMsgId_);
+    notSentMsgId_ = "";
+}
+
+void Shmoose::saveAttachment(const QString& msg)
+{
+    //TODO Error management + Destination selection
+    QFile::copy(getLocalFileForUrl(msg), QStandardPaths::locate(QStandardPaths::DownloadLocation, "", QStandardPaths::LocateDirectory)  +
+                    QDir::separator() + CryptoHelper::getHashOfString(QUrl(msg).toString(), true));
+}
+
+void Shmoose::fileUploaded(QString const&toJid, QString const&message, QString const&type)
+{
+    persistence_->removeMessage(notSentMsgId_, toJid);
+    notSentMsgId_ = "";
+    sendMessage(toJid, message, type);
+}
+
+unsigned int Shmoose::getMaxUploadSize()
+{
+    return httpFileUploadManager_->getMaxFileSize();
 }

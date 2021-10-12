@@ -16,7 +16,6 @@ Page {
                 margins: Theme.paddingMedium;
             }
 
-            width: loginPage.width
             spacing: Theme.paddingSmall
 
             PageHeader {
@@ -25,9 +24,10 @@ Page {
 
             Label {
                 x: Theme.paddingLarge
-                width: parent.width
+                width: parent.width - 2*Theme.paddingLarge
                 wrapMode: Text.Wrap
                 text: qsTr("Login to Jabber Server")
+                truncationMode: TruncationMode.Elide
                 color: Theme.secondaryHighlightColor
                 font.pixelSize: Theme.fontSizeExtraLarge
             }
@@ -79,6 +79,7 @@ Page {
 
             Button{
                 id: connectButton
+                x: Theme.paddingLarge
                 text: qsTr("Connect")
                 enabled: false
 

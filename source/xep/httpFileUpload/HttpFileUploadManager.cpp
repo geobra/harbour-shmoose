@@ -13,6 +13,7 @@
 #include <QDir>
 #include <QDateTime>
 #include <QFileInfo>
+#include <QMimeDatabase>
 
 #include <QDebug>
 
@@ -23,7 +24,7 @@ HttpFileUploadManager::HttpFileUploadManager(QObject *parent) : QObject(parent),
     httpUpload_(new HttpFileUploader(this)),
     serverHasFeatureHttpUpload_(false), maxFileSize_(0),
     file_(new FileWithCypher(this)), jid_(""), client_(nullptr),
-    uploadServerJid_(""), statusString_(""), getUrl_(""), busy_(false)
+    uploadServerJid_(""), statusString_(""), getUrl_(""), busy_(false), compressImages_(false), limitCompression_(400000u)
 {
     connect(httpUpload_, SIGNAL(updateStatus(QString)), this, SLOT(updateStatusString(QString)));
     connect(httpUpload_, SIGNAL(uploadSuccess(QString)), this, SLOT(successReceived(QString)));
@@ -46,13 +47,29 @@ bool HttpFileUploadManager::requestToUploadFileForJid(const QString &file, const
     if (busy_ == false && client_ != nullptr && serverHasFeatureHttpUpload_ == true)
     {
         QFile inputFile(file);
-        QString fileToUpload = createTargetImageName(file);
+        QString fileToUpload = createTargetFileName(file);
 
-        // don't resize image if server can handle it
-        if(inputFile.size() < getMaxFileSize()) 
+        fileType_ = QMimeDatabase().mimeTypeForFile(file).name();
+
+        // Resize image if server cannot handle it or if requested
+        if(fileType_.startsWith("image"))
+        {
+            if((inputFile.size() > getMaxFileSize()) || (compressImages_ && inputFile.size() > limitCompression_))
+            {
+                fileToUpload = createTargetFileName(file, "JPG");
+                fileType_ = QMimeDatabase().mimeTypeForFile(file).name();
+
+                returnValue = ImageProcessing::prepareImageForSending(file, fileToUpload, compressImages_ ? limitCompression_ : getMaxFileSize());
+            }
+            else
+            {
+                returnValue = inputFile.copy(fileToUpload);
+            }
+        }
+        else if(inputFile.size() <= getMaxFileSize() || getMaxFileSize() == 0)
             returnValue = inputFile.copy(fileToUpload);
-        else 
-            returnValue = ImageProcessing::prepareImageForSending(file, fileToUpload, getMaxFileSize());
+        else
+            returnValue = false;
 
         if(returnValue)
         {
@@ -116,8 +133,9 @@ void HttpFileUploadManager::requestHttpUploadSlot()
     if (client_ != nullptr)
     {
         QString basename = QFileInfo(file_->fileName()).baseName() + "." + QFileInfo(file_->fileName()).completeSuffix();
+
         std::string uploadRequest = "<request xmlns='urn:xmpp:http:upload'>"
-                + std::string("<filename>") + basename.toStdString() + std::string("</filename>")
+                + std::string("<filename>") + basename.toUtf8().toPercentEncoding().toStdString() + std::string("</filename>")
                 + std::string("<size>") + std::to_string(file_->size()) + std::string("</size></request>");
 
         Swift::RawRequest::ref httpUploadRequest = Swift::RawRequest::create(Swift::IQ::Type::Get,
@@ -148,9 +166,32 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
 
         if (QUrl(handler->getPutUrl()).isValid() == true && QUrl(handler->getGetUrl()).isValid() == true)
         {
-            getUrl_ = handler->getGetUrl();
+            QUrl url(handler->getGetUrl());
 
-            httpUpload_->upload(handler->getPutUrl(), file_, encryptFile_);
+            if(!file_->initEncryptionOnRead(encryptFile_))
+            {
+                //TODO delete file and signal failure
+                qDebug() << "error on init encryption for " << file_->fileName();
+            }
+
+            if( file_->getIvAndKey().size() > 0 )
+            {
+                url.setScheme("aesgcm");
+                url.setFragment(file_->getIvAndKey());
+            }
+
+            getUrl_ = url.toString(); 
+            QString attachmentFileName = System::getAttachmentPath() + QDir::separator() +  CryptoHelper::getHashOfString(getUrl_, true);
+
+            if(! file_->rename(attachmentFileName))
+            {
+                qWarning() << "failed to rename file to " << attachmentFileName;
+                emit fileUploadFailedForJidToUrl();
+            }
+            else
+            {
+                httpUpload_->upload(handler->getPutUrl(), file_);
+            }
         }
     }
     else
@@ -162,38 +203,23 @@ void HttpFileUploadManager::handleHttpUploadResponse(const std::string response)
     delete (parser);
 }
 
-void HttpFileUploadManager::successReceived(const QString ivAndKey)
+void HttpFileUploadManager::successReceived(QString )
 {
-    // after successfull upload, the local file must represent the hash of the get url.
-    // -> rename it.
-
-    QFileInfo localFile(file_->fileName());
-    QUrl url(getUrl_);
-    QString attachmentFileName;
-
-    url.setFragment(ivAndKey);
-
-    if( ivAndKey.size() > 0 )
-    {
-        url.setScheme("aesgcm");
-    }
-
-    getUrl_ = url.toString(); 
-    attachmentFileName = localFile.absolutePath() + QDir::separator() +  CryptoHelper::getHashOfString(getUrl_, true);
- 
-    if(! QFile::rename(file_->fileName(), attachmentFileName))
-    {
-        qWarning() << "failed to rename file to " << attachmentFileName;
-    }
-
     busy_ = false;
 
-    emit fileUploadedForJidToUrl(jid_, getUrl_, "image");
+    emit fileUploadedForJidToUrl(jid_, getUrl_, fileType_);
 }
 
 void HttpFileUploadManager::errorReceived()
 {
+    if(file_->remove() == false)
+    {
+        qWarning() << "failed to remove file " << file_->fileName();
+    }
+
     busy_ = false;
+
+    emit fileUploadFailedForJidToUrl();
 }
 
 bool HttpFileUploadManager::createAttachmentPath()
@@ -210,13 +236,19 @@ bool HttpFileUploadManager::createAttachmentPath()
     return dir.exists();
 }
 
-// create a path and file name with a jpg suffix
-QString HttpFileUploadManager::createTargetImageName(QString source)
+// create a path and file name and change the suffix if provided
+QString HttpFileUploadManager::createTargetFileName(QString source, QString suffix)
 {
     QDateTime now(QDateTime::currentDateTimeUtc());
     uint unixTime = now.toTime_t();
+    QFileInfo fileInfo(source);
+    QString targetFileName;
 
-    QString targetFileName = QFileInfo(source).baseName() + ".jpg";
+    if (suffix.size() == 0)
+         targetFileName = fileInfo.completeBaseName() + "." + fileInfo.suffix();
+    else
+         targetFileName = fileInfo.completeBaseName() + "." + suffix; 
+
     QString targetPath = System::getAttachmentPath() + QDir::separator() + QString::number(unixTime) + targetFileName;
 
     qDebug() << "target file: " << targetPath;
@@ -226,5 +258,16 @@ QString HttpFileUploadManager::createTargetImageName(QString source)
 
 void HttpFileUploadManager::generateStatus(QString status)
 {
-    emit showStatus("Image Upload", status);
+    emit showStatus("File Upload", status);
+}
+
+
+void HttpFileUploadManager::setCompressImages(bool CompressImages)
+{
+   compressImages_ = CompressImages;
+}
+
+void HttpFileUploadManager::setLimitCompression(unsigned int LimitCompression)
+{
+   limitCompression_ = LimitCompression;
 }

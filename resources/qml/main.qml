@@ -41,15 +41,10 @@ ApplicationWindow {
     Component { id: pageAccount; AccountPage { } }
     Component { id: pageMessaging; MessagingPage { } }
     Component { id: pageMsgStatus; MessageStatusPage { } }
-    Component { id: imagePicker; ImagePickerPage { } }
     Component { id: pageAbout; AboutPage { } }
     Component { id: dialogCreateContact; CreateContactDialog { } }
     Component { id: dialogJoinRoom; JoinRoomDialog { } }
     Component { id: dialogOk; OkDialog { } }
-
-    ImagePickerPage {
-        id: pageImagePicker
-    }
 
     Component {
         id: messageNotification

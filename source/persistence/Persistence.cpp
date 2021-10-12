@@ -58,6 +58,20 @@ void Persistence::addMessage(QString const &id, QString const &jid, QString cons
     }
 }
 
+void Persistence::removeMessage(QString const &id, const QString &jid)
+{
+    if (persistenceValid_)
+    {
+        if (messageController_->removeMessage(id, jid))
+        {
+            //sessionController_->updateSession(jid, message);
+
+            emit messageControllerChanged();
+            //emit sessionControllerChanged();
+        }
+    }
+}
+
 void Persistence::markMessageDisplayedConfirmedId(QString const &id)
 {
     if (persistenceValid_)
@@ -87,6 +101,22 @@ void Persistence::markMessageAsSentById(QString const &id)
     if (persistenceValid_)
     {
         messageController_->markMessageSent(id);
+    }
+}
+
+void Persistence::markMessageAsUploadingAttachment(QString const &id)
+{
+    if (persistenceValid_)
+    {
+        messageController_->markMessageUploadingAttachment(id);
+    }
+}
+
+void Persistence::markMessageAsSendFailed(QString const &id)
+{
+    if (persistenceValid_)
+    {
+        messageController_->markMessageSendFailed(id);
     }
 }
 

@@ -19,6 +19,10 @@ class Settings : public QObject
     Q_PROPERTY(bool SendReadNotifications READ getSendReadNotifications WRITE setSendReadNotifications NOTIFY sendReadNotificationsChanged)
     Q_PROPERTY(QStringList ImagePaths READ getImagePaths WRITE setImagePaths NOTIFY imagePathsChanged)
     Q_PROPERTY(QStringList SendPlainText READ getSendPlainText WRITE setSendPlainText NOTIFY sendPlainTextChanged)
+    Q_PROPERTY(bool CompressImages READ getCompressImages WRITE setCompressImages NOTIFY compressImagesChanged)
+    Q_PROPERTY(bool SendOnlyImages READ getSendOnlyImages WRITE setSendOnlyImages NOTIFY sendOnlyImagesChanged)
+    Q_PROPERTY(int LimitCompression READ getLimitCompression WRITE setLimitCompression NOTIFY limitCompressionChanged)
+
 
 public:
     explicit Settings(QObject *parent = nullptr);
@@ -34,6 +38,9 @@ public:
     QStringList getImagePaths();
     bool isOmemoForSendingOff();
     QStringList getSendPlainText() const;
+    bool getCompressImages() const;
+    bool getSendOnlyImages() const;
+    unsigned int getLimitCompression() const;
 
 signals:
     void jidChanged(QString Jid);
@@ -46,6 +53,9 @@ signals:
     void sendReadNotificationsChanged(bool SendReadNotifications);
     void imagePathsChanged(QStringList const & ImagePaths);
     void sendPlainTextChanged(const QStringList& sendPlainText);
+    void compressImagesChanged(bool CompressImages);
+    void sendOnlyImagesChanged(bool SendOnlyImages);
+    void limitCompressionChanged(unsigned int LimitCompression);
 
 public slots:
     void setJid(QString Jid);
@@ -68,6 +78,9 @@ public slots:
     void addForcePlainTextSending(const QString& jid);
     void removeForcePlainTextSending(const QString& jid);
     void setSendPlainText(const QStringList& sendPlainText);
+    void setCompressImages(bool AlwaysCompressImages);
+    void setSendOnlyImages(bool SendOnlyImages);
+    void setLimitCompression(unsigned int LimitCompression);
 
 };
 

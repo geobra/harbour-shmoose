@@ -31,12 +31,15 @@ public:
 
 signals:
     void fileUploadedForJidToUrl(QString, QString, QString);
+    void fileUploadFailedForJidToUrl();
     void showStatus(QString, QString);
 
 public slots:
     void updateStatusString(QString string);
     void successReceived(QString string);
     void errorReceived();
+    void setCompressImages(bool CompressImages);
+    void setLimitCompression(unsigned int limitCompression);
 
 private slots:
     void generateStatus(QString status);
@@ -47,7 +50,7 @@ private:
     void handleHttpUploadResponse(const std::string response);
 
     bool createAttachmentPath();
-    QString createTargetImageName(QString source);
+    QString createTargetFileName(QString source, QString suffix="");
 
     static bool encryptFile(QFile &file, QByteArray &ivAndKey);
 
@@ -65,6 +68,11 @@ private:
 
     bool busy_;
     bool encryptFile_;
+
+    QString fileType_;
+
+    bool compressImages_;
+    unsigned int limitCompression_;
 };
 
 #endif // HTTPFILEUPLOADMANAGER_H

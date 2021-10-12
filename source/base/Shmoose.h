@@ -54,6 +54,9 @@ public:
 
     Q_INVOKABLE bool isOmemoUser(const QString& jid);
 
+    Q_INVOKABLE void saveAttachment(const QString &msg);
+    Q_INVOKABLE unsigned int getMaxUploadSize();
+
     bool connectionState() const;
 
 public slots:
@@ -61,6 +64,8 @@ public slots:
     void sendMessage(QString const &message, const QString &type);
     void sendFile(QString const &toJid, QString const &file);
     void sendFile(QUrl const &file);
+    void attachmentUploadFailed();
+    void fileUploaded(QString const&toJid, QString const&message, const QString &type);
 
 private slots:
     void sendReadNotification(bool active);
@@ -117,6 +122,7 @@ public:
     QString password_;
 
     const QString version_;
+    QString notSentMsgId_;
 };
 
 #endif

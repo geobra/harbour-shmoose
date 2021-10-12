@@ -15,6 +15,7 @@
 
 #include <QUrl>
 #include <QDebug>
+#include <QMimeDatabase>
 
 MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, RosterController* rosterController, LurchAdapter* lurchAdapter, QObject *parent) : QObject(parent),
     client_(nullptr), persistence_(persistence), lurchAdapter_(lurchAdapter), settings_(settings),
@@ -103,31 +104,38 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
     boost::optional<std::string> fromBody = message->getBody();
 
+
     if (fromBody)
     {
         std::string body = *fromBody;
         QString theBody = QString::fromStdString(body);
         QUrl bodyUrl(theBody);
+        bool isLink = false;
 
         QString type = "txt";
 
         if (bodyUrl.isValid() && bodyUrl.scheme().length()>0 ) // it's an url
         {
-            QStringList knownImageTypes = ImageProcessing::getKnownImageTypes();
-            bodyUrl.setFragment(QString::null);
-            QString bodyEnd = bodyUrl.path().mid(bodyUrl.path().lastIndexOf('.')+1); // path of url ends with a file type
-
-            if (knownImageTypes.contains(bodyEnd))
+            std::vector< std::shared_ptr<Swift::RawXMLPayload> > xmlPayloads = message->getPayloads<Swift::RawXMLPayload>();
+            for (std::vector<std::shared_ptr<Swift::RawXMLPayload>>::iterator it = xmlPayloads.begin() ; it != xmlPayloads.end(); ++it)
             {
-                type = "image";
+                QString rawXml = QString::fromStdString((*it)->getRawXML());
 
-                downloadManager_->doDownload(QUrl(theBody)); // keep the fragment in the sent message
+                if(!XmlProcessor::getContentInElement("url", rawXml).isEmpty())
+                {
+                    isLink = true;
+                    break;
+                }
             }
-            else
+
+            isLink = security == 1 ? theBody.startsWith("aesgcm://") : isLink;
+
+            if(isLink)
             {
-                qWarning() << "Download cancelled. Unknown file type:" << bodyEnd;
+                type = QMimeDatabase().mimeTypeForFile(bodyUrl.fileName()).name();
+                downloadManager_->doDownload(bodyUrl); // keep the fragment in the sent message
             }
-        }
+      }
 
         bool isGroupMessage = false;
         if (message->getType() == Swift::Message::Groupchat)
@@ -229,7 +237,7 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         msg->setType(messagesTyp);
         msg->setBody(message.toStdString());
 
-        if(type == "image")
+        if(type != "txt")   // XEP-0066
         {
             QString outOfBandElement("");
             outOfBandElement.append("<x xmlns=\"jabber:x:oob\">");

@@ -97,12 +97,16 @@ Page {
                         MenuItem {
                             text:  qsTr("Remove");
                             onClicked: {
-                                if (shmoose.rosterController.isGroup(jid)) {
-                                    shmoose.removeRoom(jid)
-                                }
-                                else {
-                                    shmoose.rosterController.removeContact(jid)
-                                }
+                                remorseAction(qsTr("Remove contact"),
+                                function() {
+                                    if (shmoose.rosterController.isGroup(jid)) {
+                                        shmoose.removeRoom(jid)
+                                    }
+                                    else {
+                                        shmoose.rosterController.removeContact(jid)
+                                    }
+                                })  
+                                
                             }
                         }
                     }

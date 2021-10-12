@@ -37,6 +37,34 @@ bool MessageController::setup()
         returnValue = false;
     }
 
+    // Set any record in uploading state to failed. 
+    QSqlQuery query(*(database_->getPointer()));
+    if (! query.exec("UPDATE " + Database::sqlMsgName_ + " SET \"" + Database::sqlMsgState_ + "\" = " + QString::number(5) +
+                     " WHERE " + Database::sqlMsgState_ + "= \"" + QString::number(4) +"\""))
+    {
+        qDebug() << query.lastError().databaseText();
+        qDebug() << query.lastError().driverText();
+        qDebug() << query.lastError().text();
+    }
+    else
+    {
+        if (this->submitAll())
+        {
+            this->database().commit();
+        }
+        else
+        {
+            this->database().rollback();
+            printSqlError();
+        }
+
+        if (!select())
+        {
+            qDebug() << "error on select in MessageController::setup";
+            returnValue = false;
+        }
+    }
+
     return returnValue;
 }
 
@@ -168,10 +196,6 @@ bool MessageController::addMessage(const QString &id, const QString &jid, const 
 
         //database_->dumpDataToStdOut();
     }
-    else
-    {
-        messageAdded = false;
-    }
 
     return messageAdded;
 }
@@ -221,7 +245,7 @@ int MessageController::getStateOfMessageId(QString const &id)
         }
     }
 
-    qDebug() << "found state: " << msgState << "for msg id " << id;
+    //qDebug() << "found state: " << msgState << "for msg id " << id;
 
     return msgState;
 }
@@ -246,9 +270,19 @@ void MessageController::markMessageSent(QString const &id)
     setMessageStateOfId(id, MESSAGE_STATE_SENT);
 }
 
+void MessageController::markMessageUploadingAttachment(QString const &id)
+{
+    setMessageStateOfId(id, MESSAGE_STATE_UPLOADING_ATTACHMENT);
+}
+
+void MessageController::markMessageSendFailed(QString const &id)
+{
+    setMessageStateOfId(id, MESSAGE_STATE_SEND_FAILED);
+}
+
 /*
  * valid state changes:
- * DEFAULT (0) -> DISPLAYED_CONFIRMED (-1)
+ * DEFAULT (0) -> DISPLAYED_CONFIRMED (-1), UPLOADING_ATTACHMENT -> ANY STATE
  * or new state is bigger then current one
  */
 void MessageController::setMessageStateOfId(QString const &id, int const state)
@@ -256,6 +290,7 @@ void MessageController::setMessageStateOfId(QString const &id, int const state)
     int currentState = getStateOfMessageId(id);
 
     if ( (currentState == MESSAGE_STATE_DEFAULT && state == MESSAGE_STATE_DISPLAYED_CONFIRMED) ||
+         (currentState == MESSAGE_STATE_UPLOADING_ATTACHMENT ) ||
          (state > currentState)
          )
     {
@@ -281,7 +316,7 @@ void MessageController::setMessageStateOfId(QString const &id, int const state)
             // update the model with the changes of the database
             if (select() != true)
             {
-                qDebug() << "error on select in MessageController::addMessage";
+                qDebug() << "error on select in MessageController::setMessageStateOfId";
             }
             else
             {
@@ -422,4 +457,31 @@ void MessageController::removeMessagesFromJid(const QString& jid)
             qDebug() << "error on select in MessageController::removeMessagesFromJid";
         }
     }
+}
+
+bool MessageController::removeMessage(const QString& id, const QString &jid)
+{
+    QSqlQuery query(*(database_->getPointer()));
+
+    bool messageRemoved = false; 
+
+    if (! query.exec("DELETE FROM " + Database::sqlMsgName_
+                     + " WHERE " + Database::sqlId_ + " = \"" + id + "\"" + " AND " + Database::sqlJid_ + " = \"" + jid + + "\""))
+    {
+        qDebug() << query.lastError().databaseText();
+        qDebug() << query.lastError().driverText();
+        qDebug() << query.lastError().text();
+    }
+    else
+    {
+        // update the model with the changes of the database
+        if (select() != true)
+        {
+            qDebug() << "error on select in MessageController::removeMessage";
+        }
+
+        messageRemoved = true;
+    }
+
+    return messageRemoved;
 }

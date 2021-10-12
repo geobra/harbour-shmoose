@@ -24,6 +24,8 @@ public:
     void markMessageAsDisplayedId(QString const &id);
     void markMessageAsReceivedById(QString const &id);
     void markMessageAsSentById(QString const &id);
+    void markMessageAsUploadingAttachment(QString const &id);
+    void markMessageAsSendFailed(QString const &id);
 
     QPair<QString, int> getNewestReceivedMessageIdAndStateOfJid(QString const &jid);
     QString getResourceForMsgId(const QString& msgId);
@@ -46,6 +48,7 @@ signals:
 public slots:
     void addMessage(const QString &id, QString const &jid, QString const &resource, QString const &message,
                     const QString &type, unsigned int direction, unsigned int security, qint64 timestamp = 0);
+    void removeMessage(const QString &id, const QString &jid);
     void setCurrentChatPartner(QString const &jid);
 
 private:

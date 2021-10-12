@@ -155,7 +155,7 @@ void Database::dumpDataToStdOut() const
                  << query.value(Database::security_).toBool() << "\t";
     }
 
-#if 1
+#if 0
     query.prepare("select * from " + sqlSessionName_);
     query.exec();
     rec = query.record();

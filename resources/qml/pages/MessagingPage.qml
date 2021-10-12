@@ -1,7 +1,10 @@
-import QtQuick 2.0
+import QtQuick 2.6
 import QtQuick.Window 2.0;
+import QtMultimedia 5.6
 import Sailfish.Silica 1.0
 import harbour.shmoose 1.0
+import Sailfish.Pickers 1.0
+import Nemo.Thumbnailer 1.0
 
 Page {
     id: page;
@@ -20,8 +23,15 @@ Page {
 
     property string conversationId : "";
     property bool isGroup : shmoose.rosterController.isGroup(conversationId);
-    property string attachmentPath: shmoose.getAttachmentPath();
     property string imagePath : shmoose.rosterController.getAvatarImagePathForJid(conversationId);
+    property bool refreshDate : false;
+
+    Timer {
+        interval: 60000; running: true; repeat: true
+        onTriggered: {
+            refreshDate = !refreshDate;
+        }
+    }
 
     Image {
         //source: "image://glass/qrc:///qml/img/photo.png";
@@ -60,12 +70,16 @@ Page {
 
         verticalLayoutDirection: ListView.BottomToTop;
         clip: true;
+        focus: true
         spacing: Theme.paddingMedium;
+        cacheBuffer: Screen.width // do avoid flickering when image width is changed
 
         model: shmoose.persistence.messageController
 
         delegate: ListItem {
             id: item;
+
+            readonly property string file : shmoose.getLocalFileForUrl(message)
 
             contentHeight: shadow.height;
 
@@ -77,6 +91,11 @@ Page {
 
             readonly property bool alignRight      : (direction == 1);
             readonly property int  maxContentWidth : (width * 0.85);
+            readonly property int mediaWidth : maxContentWidth * 0.75
+            readonly property int mediaHeight : (mediaWidth * 2) / 3
+            readonly property bool isVideo : startsWith(type, "video")
+            readonly property bool isImage : startsWith(type, "image")
+            readonly property string iconFileSource : getFileIcon(type)
 
             Rectangle {
                 id: shadow;
@@ -99,42 +118,78 @@ Page {
                     verticalCenter: parent.verticalCenter;
                 }
 
-
                 Label {
                     text: message;
                     color: Theme.primaryColor;
-                    //width: Math.min (item.maxContentWidth, contentWidth);
                     width: item.maxContentWidth;
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
-                    visible: ! (type === "image")
+                    visible: type === "txt"
 
                     font {
                         family: Theme.fontFamilyHeading;
-                        pixelSize: (type === "image") ? Theme.fontSizeTiny : Theme.fontSizeMedium;
-                    }
-                    anchors {
-                        left: (item.alignRight ? parent.left : undefined);
-                        right: (!item.alignRight ? parent.right : undefined);
+                        pixelSize: Theme.fontSizeMedium;
                     }
 
                     onLinkActivated: Qt.openUrlExternally(link)
                 }
-                Image {
-                    id: msgImg
-                    property string picPath: attachmentPath + "/" + shmoose.getLocalFileForUrl(message)
-                    source: ( (type === "image") ? picPath : "");
-                    width: Math.min (item.maxContentWidth, sourceSize.width);
-                    fillMode: Image.PreserveAspectFit;
-                    visible: (type === "image")
-                    anchors {
-                        left: (item.alignRight ? parent.left : undefined);
-                        right: (!item.alignRight ? parent.right : undefined);
+
+
+                BackgroundItem {
+
+                    width: msgImg.width
+                    height: msgImg.height
+                    visible: isImage
+                    Image {
+                        id: msgImg
+
+                        source: isImage ? item.file : ""
+                        autoTransform: true
+                        asynchronous: true
+                        sourceSize.width: item.mediaWidth
+                        sourceSize.height: item.mediaHeight
+
+                        width: implicitWidth > 0 ? implicitWidth : item.mediaWidth
+                        height: item.mediaHeight
+
+                        fillMode: Image.PreserveAspectFit
                     }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            pageStack.push(Qt.resolvedUrl("ImagePage.qml"),{ 'imgUrl': msgImg.picPath })
+                }
+                BackgroundItem {
+
+                    width: thumb.width
+                    height: thumb.height
+                    visible: isVideo 
+
+                    Thumbnail {
+                        id: thumb
+
+                        source: isVideo ? item.file : ""
+                        mimeType: type
+
+                        sourceSize.width: item.mediaWidth
+                        sourceSize.height: item.mediaHeight
+
+                        width: implicitWidth > 0 ? implicitWidth : item.mediaWidth
+                        height: item.mediaHeight
+
+                        fillMode: Thumbnail.PreserveAspectFit;
+                        priority: Thumbnail.NormalPriority
+
+                        Icon {
+                            source: "image://theme/icon-m-file-video"
+                            anchors.centerIn : parent
                         }
+                    }
+                }
+                BackgroundItem {
+
+                    width: iconFile.width
+                    height: iconFile.height
+                    visible: ((type !== "txt") && !isVideo && !isImage)
+
+                    Icon {
+                        id: iconFile
+                        source: iconFileSource
                     }
                 }
 
@@ -147,12 +202,40 @@ Page {
                     }
                     text: resource;
                 }
-
                 Row {
                     spacing: 5
                     anchors.right: (!item.alignRight ? parent.right : undefined)
+
                     Label {
-                        text: Qt.formatDateTime (new Date (timestamp * 1000), "yyyy-MM-dd hh:mm:ss");
+                        id: upload
+                        visible: msgstate == 4
+                        text: qsTr("uploading")
+                        color: Theme.secondaryColor;
+                        font {
+                            family: Theme.fontFamilyHeading;
+                            pixelSize: Theme.fontSizeTiny;
+                        }
+
+                        Connections {
+                            target: shmoose
+                            onSignalShowStatus: {
+                                if(qsTr(headline) == qsTr("File Upload") && msgstate == 4)
+                                    upload.text = qsTr("uploading ")+body;
+                            }
+                        }
+                    }
+                    Label {
+                        text: qsTr("send failed")
+                        visible: msgstate == 5
+                        color: Theme.secondaryColor;
+                        font {
+                            family: Theme.fontFamilyHeading;
+                            pixelSize: Theme.fontSizeTiny;
+                        }
+                    }
+                    Label {
+                        text: refreshDate, getDateDiffFormated(new Date (timestamp * 1000));
+                        visible: msgstate != 4
                         color: Theme.secondaryColor;
                         font {
                             family: Theme.fontFamilyHeading;
@@ -185,13 +268,47 @@ Page {
                         }
                     }
                 }
-
             }
+            MouseArea {
+                anchors.fill: parent
 
+                onClicked: {
+                    if (startsWith(type, "image"))
+                        pageStack.push(Qt.resolvedUrl("ImagePage.qml"),{ 'imgUrl': item.file })
+                    else if (startsWith(type, "video"))
+                        pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': item.file })
+                    else if (startsWith(type, "audio"))
+                        pageStack.push(Qt.resolvedUrl("VideoPage.qml"),{ 'path': item.file });
+                }
+
+                onPressAndHold: {
+                    item.openMenu();
+                }
+            }
             menu: ContextMenu {
                 MenuItem {
                     text: qsTr("Copy")
+                    visible: type == "txt"
                     onClicked: Clipboard.text = message
+                }
+                MenuItem {
+                    text: qsTr("Copy URL")
+                    visible: type != "txt"
+                    onClicked: Clipboard.text = message
+                }
+                MenuItem {
+                    text: qsTr("Send again")
+                    visible: (msgstate == 5 && shmoose.canSendFile())
+                    onClicked: {
+                        shmoose.sendFile(conversationId, message);
+                     }
+                }
+                MenuItem {
+                    text: qsTr("Save")
+                    visible:  (type != "txt") && (direction == 1)
+                    onClicked: {
+                        shmoose.saveAttachment(item.file);
+                     }
                 }
                 MenuItem {
                     visible: isGroup;
@@ -202,7 +319,6 @@ Page {
                     }
                 }
             }
-
         }
         anchors {
             top: banner.bottom;
@@ -210,7 +326,6 @@ Page {
             right: parent.right;
             bottom: displaymsgview.top;
         }
-
     }
     Row {
         id: displaymsgview
@@ -246,11 +361,15 @@ Page {
 
         anchors {
             left: parent.left;
-            right: parent.right;
+            leftMargin: Theme.paddingMedium;
+            right: sendButton.left;
             bottom: parent.bottom;
         }
 
-        height: Math.max(editbox.height, previewAttachment.height)
+        height: (previewAttachment.visible ? 
+                 Math.max(editbox.height, previewAttachment.height)+Theme.paddingMedium : 
+                 editbox.height+Theme.paddingMedium
+                )
 
         TextArea {
             id: editbox;
@@ -274,24 +393,32 @@ Page {
             }
 
            anchors.bottom: parent.bottom 
-           width: parent.width - sendButton.width - Theme.horizontalPageMargin
+           width: parent.width
         }
-        Image {
+        Thumbnail {
             id: previewAttachment
             visible: sendmsgview.attachmentPath.length > 0
-            fillMode: Image.PreserveAspectFit
-            width: parent.width /4     
-            height: parent.width /4                    
-            anchors {                                                                                                                               
-                left: parent.left; 
+            width: Math.min(page.width, page.height) / 4    
+            height: Math.min(page.width, page.height) / 4
+            sourceSize.width: Math.min(page.width, page.height) / 4
+            sourceSize.height: Math.min(page.width, page.height) / 4
+            anchors {                                                                                                                            
                 bottom: parent.bottom; bottomMargin: Theme.paddingMedium                           
+            }
+            Icon {
+                visible: startsWith(previewAttachment.mimeType, "video") && previewAttachment.status != Thumbnail.Error
+                source: "image://theme/icon-m-file-video"
+                anchors.centerIn: parent
+            }
+            Icon {
+                visible: previewAttachment.status == Thumbnail.Error
+                source: getFileIcon(previewAttachment.mimeType)
+                anchors.centerIn: parent
             }
             IconButton {
                 id: removeAttachment
-                anchors {                                                                                                                               
-                    right: parent.right;   
-                    top: parent.top;                            
-                }    
+                anchors.right: parent.right
+                anchors.top: parent.top
                 icon.source: "image://theme/icon-splus-cancel" 
 
                 onClicked: {
@@ -300,6 +427,7 @@ Page {
                 }           
             }
         }
+    }
         IconButton {
             id: sendButton
             enabled: {
@@ -310,11 +438,10 @@ Page {
                     return false
                 }
             }
-            
             icon.source: getSendButtonImage()
             icon.width: Theme.iconSizeMedium + 2*Theme.paddingSmall                                
             icon.height: width
-	    
+
             anchors {                                                                              
                 // icon-m-send has own padding                                                     
                 right: parent.right; rightMargin: Theme.horizontalPageMargin-Theme.paddingMedium   
@@ -324,8 +451,7 @@ Page {
                 if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0 && shmoose.canSendFile()) {
                     sendmsgview.attachmentPath = ""
                     fileModel.searchPath = shmoose.settings.ImagePaths
-                    pageStack.push(pageImagePicker)
-                    pageImagePicker.selected.connect(processAttachment)
+                    pageStack.push(shmoose.settings.SendOnlyImages ? imagePickerPage: filePickerPage)
                 } else {
                     //console.log(sendmsgview.attachmentPath)
                     var msgToSend = editbox.text;
@@ -336,7 +462,7 @@ Page {
                     }
 
                     if (msgToSend.length > 0) {
-                        shmoose.sendMessage(conversationId, msgToSend, "text");
+                        shmoose.sendMessage(conversationId, msgToSend, "txt");
                         editbox.text = " ";
                         editbox.text = "";
                     }
@@ -344,21 +470,39 @@ Page {
                     displaymsgviewlabel.text = "";
                 }
             }
-            function processAttachment(path) {
-                //console.log(path)
-                sendmsgview.attachmentPath = path
+        }
+        
+        Component {
+            id: filePickerPage
+            ContentPickerPage {
+            onSelectedContentPropertiesChanged: {
+                sendmsgview.attachmentPath = selectedContentProperties.filePath
                 sendButton.icon.source = getSendButtonImage()
-                previewAttachment.source = path
+                previewAttachment.source = sendmsgview.attachmentPath
+                previewAttachment.mimeType = selectedContentProperties.mimeType
+                }
             }
-        } 
+        }
+
+        Component {
+            id: imagePickerPage
+            ImagePickerPage {
+            onSelectedContentPropertiesChanged: {
+                sendmsgview.attachmentPath = selectedContentProperties.filePath
+                sendButton.icon.source = getSendButtonImage()
+                previewAttachment.source = sendmsgview.attachmentPath
+                previewAttachment.mimeType = selectedContentProperties.mimeType
+                }
+            }
+        }
+
         Connections {
             target: shmoose
             onSignalCanSendFile: {
-                console.log("HTTP uploads enabled");
+                //console.log("HTTP uploads enabled");
                 sendButton.icon.source = getSendButtonImage();
             }
         }
-    }
 
     function getSendButtonImage() {
         if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0) {
@@ -396,5 +540,40 @@ Page {
 
         return trimmedStr;
     }
+    function getFileIcon(type){
+        if(startsWith(type, "image")) return "image://theme/icon-m-file-image";
+        if(startsWith(type, "video")) return "image://theme/icon-m-file-video";
+        if(startsWith(type, "audio")) return "image://theme/icon-m-file-audio";
+        return "image://theme/icon-m-file-document-light";
+    }
+    function startsWith(s,start) {
+        return (s.substring(0, start.length) == start); 
+    }
+    function getDateDiffFormated(d) {
+        var n = new Date();
+        var diff = (n.getTime() - d.getTime()) / 1000;
+        var locale = Qt.locale();
 
+        if(diff < 0)
+            return "?"
+        else if(diff < 60)
+            return qsTr("now")
+        else if(diff < 60*2)
+            return qsTr("1 mn ago")
+        else if(diff < 60*30)
+            return qsTr ("") + Math.round(diff/60, 0)+ qsTr(" mns ago");
+
+        var s = d.toLocaleTimeString(locale, "hh:mm");
+
+        if(d.getFullYear() != n.getFullYear())
+        {
+            s = d.toLocaleDateString(locale, "d MMM yyyy") + " " + s;
+        }
+        else if (d.getMonth() != n.getMonth() || d.getDate() != n.getDate())
+        {
+            s = d.toLocaleDateString(locale, "d MMM") + " " +s;
+        }
+
+        return s;
+    }
 }

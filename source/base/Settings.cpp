@@ -373,4 +373,53 @@ void Settings::addImagePath(QUrl const & Path)
     }
 }
 
+bool Settings::getCompressImages() const
+{
+    bool save;
 
+    QSettings settings;
+    save = settings.value("attachments/compressImages", false).toBool();
+
+    return save;
+}
+
+void Settings::setCompressImages(bool CompressImages)
+{
+    QSettings settings;
+    settings.setValue("attachments/compressImages", CompressImages);
+    emit compressImagesChanged(CompressImages);
+}
+
+bool Settings::getSendOnlyImages() const
+{
+    bool save;
+
+    QSettings settings;
+    save = settings.value("attachments/sendOnlyImages", true).toBool();
+
+    return save;
+}
+
+void Settings::setSendOnlyImages(bool SendOnlyImages)
+{
+    QSettings settings;
+    settings.setValue("attachments/sendOnlyImages", SendOnlyImages);
+    emit sendOnlyImagesChanged(SendOnlyImages);
+}
+
+unsigned int Settings::getLimitCompression() const
+{
+    unsigned int save;
+
+    QSettings settings;
+    save = settings.value("attachments/limitCompression", 400000u).toUInt();
+
+    return save;
+}
+
+void Settings::setLimitCompression(unsigned int LimitCompression)
+{
+    QSettings settings;
+    settings.setValue("attachments/limitCompression", LimitCompression);
+    emit limitCompressionChanged(LimitCompression);
+}
