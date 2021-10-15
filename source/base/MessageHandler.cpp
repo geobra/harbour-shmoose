@@ -237,7 +237,7 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         msg->setType(messagesTyp);
         msg->setBody(message.toStdString());
 
-        if(type != "txt")   // XEP-0066
+        if(type.compare("txt", Qt::CaseInsensitive) != 0)   // XEP-0066
         {
             QString outOfBandElement("");
             outOfBandElement.append("<x xmlns=\"jabber:x:oob\">");
