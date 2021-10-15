@@ -4,6 +4,7 @@
 #include "RawRequestWithFromJid.h"
 #include "RawRequestBundle.h"
 #include "CToCxxProxy.h"
+#include "BundleDeviceListRequest.h"
 
 #include <QDir>
 #include <QDomDocument>
@@ -174,8 +175,8 @@ void LurchAdapter::sendAsPepStanza(char* stz)
 
     std::string pubsub = "<pubsub xmlns='http://jabber.org/protocol/pubsub'>" + std::string(stz) + "</pubsub>";
 
-    // set empty ("") receiver so that the pep gets distributed to all pubsubs
-    Swift::RawRequest::ref publishPep = Swift::RawRequest::create(Swift::IQ::Set, "", pubsub, client_->getIQRouter());
+    // no receiver! the pep gets distributed to all pubsubs
+    BundleDeviceListRequest::ref publishPep = BundleDeviceListRequest::create(Swift::IQ::Set, pubsub, client_->getIQRouter());
     if (publishNodeType.contains("bundle", Qt::CaseInsensitive))
     {
         publishPep->onResponse.connect(boost::bind(&LurchAdapter::publishedBundle, this, _1));
