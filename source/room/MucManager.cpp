@@ -4,9 +4,10 @@
 #include <QDebug>
 #include <iostream>
 
+#include "XmlProcessor.h"
 
 MucManager::MucManager(QObject *parent) :
-    QObject(parent), client_(nullptr), mucBookmarkManager_(nullptr), triggerNewMucSignal_(true)
+    QObject(parent), client_(nullptr), mucBookmarkManager_(nullptr), triggerNewMucSignal_(true), nickName_("")
 {
 }
 
@@ -30,6 +31,8 @@ void MucManager::setupWithClient(Swift::Client* client)
         client_->onMessageReceived.connect(boost::bind(&MucManager::handleMessageReceived, this, _1));
 
         client_->onConnected.connect(boost::bind(&MucManager::handleConnected, this));
+
+        client_->onDataRead.connect(boost::bind(&MucManager::handleDataReceived, this, _1));
     }
 }
 
@@ -44,6 +47,35 @@ void MucManager::handleConnected()
     triggerNewMucSignal_ = false;
     handleBookmarksReady();
     triggerNewMucSignal_ = true;
+}
+
+void MucManager::handleDataReceived(Swift::SafeByteArray data)
+{
+    std::string nodeData = Swift::safeByteArrayToString(data);
+    QString qData = QString::fromStdString(nodeData);
+
+    // Search from room name in disco#info
+
+    QString fromTag = XmlProcessor::getContentInTag("iq", "from", qData);
+
+    if(! fromTag.isEmpty())
+    {
+        QString query = XmlProcessor::getChildFromNode("query", qData);
+
+        if(! query.isEmpty())
+        {
+            QString catTag = XmlProcessor::getContentInTag("identity", "category", qData);
+            QString typeTag = XmlProcessor::getContentInTag("identity", "type", qData);
+
+            if ( catTag.contains("conference", Qt::CaseInsensitive) == true  &&
+                 typeTag.contains("text", Qt::CaseInsensitive) == true )
+            {
+                QString nameTag = XmlProcessor::getContentInTag("identity", "name", qData);
+
+                renameRoom(fromTag, nameTag);
+            }
+        }
+    }
 }
 
 void MucManager::handleMessageReceived(Swift::Message::ref message)
@@ -146,12 +178,19 @@ void MucManager::joinRoomIfConfigured(Swift::MUCBookmark const &bookmark)
 
 QString MucManager::getNickName()
 {
-    // FIXME get name from settings page
     QString nick = QString::fromStdString(client_->getJID().toBare().toString());
+
+    if(!nickName_.isEmpty())
+        nick = nickName_;
+
     nick.replace("@", "(at)");
-    //QString nick = QString::fromStdString(client_->getJID().getNode());
 
     return nick;
+}
+
+void MucManager::setNickName(QString const &NickName)
+{
+    nickName_ = NickName;
 }
 
 void MucManager::handleBookmarkRemoved(Swift::MUCBookmark bookmark)
@@ -189,6 +228,31 @@ void MucManager::addRoom(Swift::JID &roomJid, QString const &roomName)
 
     // try to join. onJoinComplete, add to bookmark
     muc->joinAs(nickName);
+}
+
+void MucManager::renameRoom(QString const &roomJid, QString const &roomName)
+{
+    std::vector<Swift::MUCBookmark> bookmarks = mucBookmarkManager_->getBookmarks();
+
+    for(std::vector<Swift::MUCBookmark>::iterator it = bookmarks.begin(); it != bookmarks.end(); ++it)
+    {
+        Swift::JID roomJidBm((*it).getRoom());
+
+        if (roomJid.compare(QString::fromStdString(roomJidBm.toBare().toString()), Qt::CaseInsensitive) == 0)
+        {
+            if(QString::fromStdString((*it).getName()).compare(roomName, Qt::CaseInsensitive) != 0 )
+            {
+                std::shared_ptr<Swift::MUCBookmark> mucBookmark(new Swift::MUCBookmark(Swift::JID(roomJid.toStdString()), roomName.toStdString()));
+                mucBookmark->setNick((*it).getNick());
+                mucBookmark->setPassword((*it).getPassword());
+                mucBookmark->setAutojoin((*it).getAutojoin());
+
+                mucBookmarkManager_->replaceBookmark((*it), (*mucBookmark));
+                // What needs to be done with mucCollection??
+            }
+            emit newGroupForContactsList(roomJid, roomName);
+        }
+    }
 }
 
 void MucManager::handleJoinComplete(const std::string &joinedName)

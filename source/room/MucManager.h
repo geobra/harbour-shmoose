@@ -19,6 +19,8 @@ public:
 
     void addRoom(Swift::JID &roomJid, QString const &roomName);
     void removeRoom(QString const &jroomJid);
+    void renameRoom(QString const &roomJid, QString const &roomName);
+    void setNickName(QString const &NickName);
 
 signals:
     void newGroupForContactsList(QString groupJid, QString groupName);
@@ -40,15 +42,16 @@ private:
     void handleUserLeft(Swift::MUC::LeavingType lt);
 
     void handleMessageReceived(Swift::Message::ref message);
+    void handleDataReceived(Swift::SafeByteArray data);
 
     void joinRoomIfConfigured(Swift::MUCBookmark const &bookmark);
     void sendUnavailableToRoom(Swift::MUCBookmark bookmark);
 
     bool isRoomAlreadyBookmarked(const QString& roomJid);
 
-
     QString getNickName();
     bool triggerNewMucSignal_;
+    QString nickName_;
 };
 
 #endif // MUCMANAGER_H

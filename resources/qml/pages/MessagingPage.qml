@@ -57,6 +57,14 @@ Page {
                 margins: Theme.paddingMedium;
                 verticalCenter: parent.verticalCenter;
             }
+            Image {
+                visible: isGroup
+                source: "image://theme/icon-s-group-chat"
+                anchors {
+                    left: parent.left;
+                    bottom: parent.bottom;
+                }
+            }
             Rectangle {
                 z: -1;
                 color: "black";

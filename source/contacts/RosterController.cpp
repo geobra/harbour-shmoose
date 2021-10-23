@@ -550,6 +550,7 @@ void RosterController::addGroupAsContact(QString groupJid, QString groupName)
     }
     else
     {
+        updateNameForJid(Swift::JID(groupJid.toStdString()), groupName.toStdString());
         //qDebug() << "############ group already in roster gui!" << groupJid;
     }
 

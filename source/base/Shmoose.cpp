@@ -94,6 +94,7 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
 
     connect(settings_, SIGNAL(compressImagesChanged(bool)), httpFileUploadManager_, SLOT(setCompressImages(bool)));
     connect(settings_, SIGNAL(limitCompressionChanged(unsigned int)), httpFileUploadManager_, SLOT(setLimitCompression(unsigned int)));
+    connect(settings_, SIGNAL(nickNameChanged(QString)), mucManager_, SLOT(setNickName(QString)));
 }
 
 Shmoose::~Shmoose()
@@ -179,6 +180,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 
     httpFileUploadManager_->setCompressImages(settings_->getCompressImages());
     httpFileUploadManager_->setLimitCompression(settings_->getLimitCompression());
+    mucManager_->setNickName(settings_->getNickName());
 }
 
 void Shmoose::mainDisconnect()

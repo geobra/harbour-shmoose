@@ -31,6 +31,26 @@ void Settings::setJid(QString Jid)
     emit jidChanged(Jid);
 }
 
+QString Settings::getNickName() const
+{
+    QString returnValue = "";
+
+    QSettings settings;
+    if(settings.value("nickName").toString() != "NOT_SET")
+    {
+        returnValue = settings.value("nickName").toString();
+    }
+
+    return returnValue;
+}
+
+void Settings::setNickName(QString const &NickName)
+{
+    QSettings settings;
+    settings.setValue("nickName", NickName);
+    emit nickNameChanged(NickName);
+}
+
 QString Settings::getPassword() const
 {
     QString returnValue = "";

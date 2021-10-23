@@ -10,6 +10,7 @@ class Settings : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString Jid READ getJid WRITE setJid NOTIFY jidChanged)
+    Q_PROPERTY(QString NickName READ getNickName WRITE setNickName NOTIFY nickNameChanged)
     Q_PROPERTY(QString Password READ getPassword WRITE setPassword NOTIFY passwordChanged)
     Q_PROPERTY(bool SaveCredentials READ getSaveCredentials WRITE setSaveCredentials NOTIFY saveCredentialsChanged)
     Q_PROPERTY(bool DisplayChatNotifications READ getDisplayChatNotifications WRITE setDisplayChatNotifications NOTIFY displayChatNotificationsChanged)
@@ -28,6 +29,7 @@ public:
     explicit Settings(QObject *parent = nullptr);
 
     QString getJid() const;
+    QString getNickName() const;
     QString getPassword() const;
     bool getSaveCredentials() const;
     bool getDisplayChatNotifications() const;
@@ -44,6 +46,7 @@ public:
 
 signals:
     void jidChanged(QString Jid);
+    void nickNameChanged(QString const &NickName);
     void passwordChanged(QString Password);
     void saveCredentialsChanged(bool SaveCredentials);
     void displayChatNotificationsChanged(bool DisplayChatNotifications);
@@ -59,6 +62,7 @@ signals:
 
 public slots:
     void setJid(QString Jid);
+    void setNickName(QString const &NickName);
     void setPassword(QString Password);
     void setSaveCredentials(bool SaveCredentials);
     void setDisplayChatNotifications(bool DisplayChatNotifications);

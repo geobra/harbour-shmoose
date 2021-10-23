@@ -8,8 +8,8 @@ Page {
 
     SilicaListView {
         id: view;
+        spacing: Theme.paddingMedium;
         header: Column {
-            spacing: Theme.paddingMedium;
             anchors {
                 left: parent.left;
                 right: parent.right;
@@ -27,6 +27,7 @@ Page {
         model: shmoose.persistence.sessionController
         delegate: ListItem {
             id: item;
+            property bool isGroup : shmoose.rosterController.isGroup(jid);
             contentHeight: Theme.itemSizeMedium;
 
             onClicked: {
@@ -43,6 +44,15 @@ Page {
                     top: parent.top;
                     left: parent.left;
                     bottom: parent.bottom;
+                }
+
+                Image {
+                    visible: isGroup
+                    source: "image://theme/icon-s-group-chat"
+                    anchors {
+                        left: parent.left;
+                        bottom: parent.bottom;
+                    }
                 }
 
                 Rectangle {

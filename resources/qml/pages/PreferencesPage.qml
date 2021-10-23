@@ -17,6 +17,15 @@ Page {
 
             PageHeader { title: qsTr("Settings") }
 
+            TextField {
+                text: shmoose.settings.NickName
+                label: qsTr("Nickname")
+                Component.onDestruction: {
+                    if(text.length > 0 && text != shmoose.settings.NickName)
+                        shmoose.settings.NickName = text;
+                }
+            }
+
             SectionHeader { text: qsTr("Notifications") }
 
             TextSwitch {

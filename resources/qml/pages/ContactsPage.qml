@@ -8,8 +8,8 @@ Page {
 
     SilicaListView {
         id: jidlist
+        spacing: Theme.paddingMedium;
         header: Column {
-            spacing: Theme.paddingMedium;
             anchors {
                 left: parent.left;
                 right: parent.right;
@@ -46,6 +46,14 @@ Page {
                     bottom: parent.bottom;
                 }
 
+                Image {
+                    visible: shmoose.rosterController.isGroup(jid)
+                    source: "image://theme/icon-s-group-chat"
+                    anchors {
+                        left: parent.left;
+                        bottom: parent.bottom;
+                    }
+                }
                 Rectangle {
                     z: -1;
                     color: (model.index % 2 ? "black" : "white");
@@ -95,9 +103,15 @@ Page {
                     id: contextMenu
                     ContextMenu {
                         MenuItem {
+                            text:  qsTr("Edit");
+                            onClicked: {
+                                pageStack.push(Qt.resolvedUrl("ContactSettingsPage.qml"),{ 'jid': jid })
+                            }
+                        }
+                        MenuItem {
                             text:  qsTr("Remove");
                             onClicked: {
-                                remorseAction(qsTr("Remove contact"),
+                                remorseAction(shmoose.rosterController.isGroup(jid) ? qsTr("Group Left") : qsTr("Contact removed"),
                                 function() {
                                     if (shmoose.rosterController.isGroup(jid)) {
                                         shmoose.removeRoom(jid)
