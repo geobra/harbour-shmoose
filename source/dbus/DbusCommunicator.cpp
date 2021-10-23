@@ -163,7 +163,7 @@ bool DbusCommunicator::removeContact(const QString& jid)
 bool DbusCommunicator::sendMsg(const QString& jid, const QString& msg)
 {
     qDebug() << "sendMsg";
-    shmoose_->sendMessage(jid, msg, "msg");
+    shmoose_->sendMessage(jid, msg, "txt");
 
     return true;
 }

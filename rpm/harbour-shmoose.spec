@@ -13,6 +13,8 @@ BuildRequires:	pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Core)
+BuildRequires:  libiphb-devel
+BuildRequires:  libxml2-devel
 BuildRequires:  openssl-devel
 
 %description
@@ -40,13 +42,13 @@ install -d %{buildroot}%{_datadir}/%{name}
 install -d %{buildroot}%{_datadir}/%{name}/qml
 install -d %{buildroot}%{_datadir}/%{name}/icons
 install -d %{buildroot}%{_datadir}/%{name}/translations
-cp -Ra ./resources/qml/* %{buildroot}%{_datadir}/%{name}/qml
-cp -Ra ./resources/icons/* %{buildroot}%{_datadir}/%{name}/icons
-cp -Ra ./resources/translations/*.qm %{buildroot}%{_datadir}/%{name}/translations
+cp -Ra %{_sourcedir}/../resources/qml/* %{buildroot}%{_datadir}/%{name}/qml
+cp -Ra %{_sourcedir}/../resources/icons/* %{buildroot}%{_datadir}/%{name}/icons
+cp -Ra %{_sourcedir}/../resources/translations/*.qm %{buildroot}%{_datadir}/%{name}/translations
 install -d %{buildroot}%{_datadir}/icons/hicolor/86x86/apps
-install -m 0444 -t %{buildroot}%{_datadir}/icons/hicolor/86x86/apps/ resources/icons/86x86/%{name}.png
-install -p %(pwd)/resources/harbour-shmoose.desktop %{buildroot}%{_datadir}/applications/%{name}.desktop
-install -p %(pwd)/resources/harbour-shmoose-message.conf %{buildroot}%{_datadir}/lipstick/notificationcategories/%{name}-message.conf
+install -m 0444 -t %{buildroot}%{_datadir}/icons/hicolor/86x86/apps/ %{_sourcedir}/../resources/icons/86x86/%{name}.png
+install -p %{_sourcedir}/../resources/harbour-shmoose.desktop %{buildroot}%{_datadir}/applications/%{name}.desktop
+install -p %{_sourcedir}/../resources/harbour-shmoose-message.conf %{buildroot}%{_datadir}/lipstick/notificationcategories/%{name}-message.conf
 
 strip %{buildroot}%{_bindir}/%{name}
 
