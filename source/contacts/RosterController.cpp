@@ -175,7 +175,7 @@ bool RosterController::updateAvailabilityForJid(const Swift::JID &jid, const Ros
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
-    appendToRosterIfNotAlreadyIn(localBareJid);
+    //appendToRosterIfNotAlreadyIn(localBareJid);
 
     for (auto item: rosterList_)
     {
@@ -581,8 +581,8 @@ void RosterController::removeGroupFromContacts(QString groupJid)
 
     if (somethingChanged)
     {
-        sortRosterList();
-        //emit rosterListChanged();
+        //sortRosterList();
+        emit rosterListChanged();
     }
 
     //qDebug() << "#####################removeGroupFromContacts: rL_.size: " << rosterList_.size();

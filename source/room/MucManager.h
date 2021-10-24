@@ -20,6 +20,8 @@ public:
     void addRoom(Swift::JID &roomJid, QString const &roomName);
     void removeRoom(QString const &jroomJid);
     void renameRoom(QString const &roomJid, QString const &roomName);
+
+public slots:
     void setNickName(QString const &NickName);
 
 signals:

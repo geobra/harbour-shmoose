@@ -31,6 +31,17 @@ Page {
             id: item;
             menu: contextMenu
             contentHeight: Theme.itemSizeMedium;
+
+            function removeContact() {
+                shmoose.persistence.removeConversation(jid);
+                if (shmoose.rosterController.isGroup(jid)) {
+                    shmoose.removeRoom(jid);
+                }
+                else {
+                    shmoose.rosterController.removeContact(jid);
+                }
+            }
+
             onClicked: {
                 shmoose.setCurrentChatPartner(jid)
                 pageStack.push (pageMessaging, { "conversationId" : jid });
@@ -111,16 +122,7 @@ Page {
                         MenuItem {
                             text:  qsTr("Remove");
                             onClicked: {
-                                remorseAction(shmoose.rosterController.isGroup(jid) ? qsTr("Group Left") : qsTr("Contact removed"),
-                                function() {
-                                    if (shmoose.rosterController.isGroup(jid)) {
-                                        shmoose.removeRoom(jid)
-                                    }
-                                    else {
-                                        shmoose.rosterController.removeContact(jid)
-                                    }
-                                })  
-                                
+                                remorseAction(shmoose.rosterController.isGroup(jid) ? qsTr("Group Left") : qsTr("Contact removed"), removeContact)
                             }
                         }
                     }
