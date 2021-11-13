@@ -68,5 +68,5 @@ void CToCxxProxyShowMessageToUser(void* proxy, char* title, char* msg)
 }
 void CToCxxProxy::showMessageToUser(char* title, char* msg)
 {
-    lurchAdapter_->showMessageToUser(title, msg);
+    //lurchAdapter_->showMessageToUser(title, msg);
 }

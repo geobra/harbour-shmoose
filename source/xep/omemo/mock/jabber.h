@@ -36,12 +36,27 @@ typedef enum {
 // an empty dummy
 static JabberStream jabberStream;
 
+
+typedef struct JabberChat_ JabberChat;
+struct JabberChat_ {
+    char *jid;
+    char *handle;
+    GHashTable* members;
+};
+
+typedef struct JabberChatMember_ JabberChatMember;
+struct JabberChatMember_ {
+    char *handle;
+    char* jid;
+};
+
 JabberIq* jabber_iq_new(JabberStream *js, JabberIqType type);
 void jabber_iq_set_id(JabberIq *jiq, char* id);
 void jabber_iq_set_callback(JabberIq* jiq, void* cb, gpointer q_msg);
 void jabber_iq_send(JabberIq* jiq_p);
 void jabber_pep_request_item(JabberStream* js, char* sender, char* bundle, void* foo, void* cb);
 char* jabber_get_bare_jid(const char* jid);
+JabberChat *jabber_chat_find_by_conv(JabberChat *jc);
 
 #ifdef __cplusplus
 }

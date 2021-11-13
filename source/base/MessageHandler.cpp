@@ -260,8 +260,8 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
 
         // exchange body by omemo stuff if applicable
         bool shouldSendMsgStanze{true};
-        if ( isGroup == false // for now, omemo is only supported on 1o1 messaging
-             && (lurchAdapter_->isOmemoUser(toJid) == true) // the receipient client can handle omemo encryption
+        if ( (isGroup == true
+             || (lurchAdapter_->isOmemoUser(toJid) == true)) // the receipient client can handle omemo encryption
              && (! settings_->getSendPlainText().contains(toJid)) // no force for plain text msg in settings
              )
         {

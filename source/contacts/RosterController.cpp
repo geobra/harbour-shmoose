@@ -99,7 +99,7 @@ bool RosterController::updateNameForJid(const Swift::JID &jid, const std::string
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
-    appendToRosterIfNotAlreadyIn(localBareJid);
+    // appendToRosterIfNotAlreadyIn(localBareJid);
 
     for (auto item: rosterList_)
     {
@@ -121,7 +121,8 @@ bool RosterController::updateSubscriptionForJid(const Swift::JID &jid, RosterIte
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
-    appendToRosterIfNotAlreadyIn(localBareJid);
+    // Don't add to rooster if not present
+    // appendToRosterIfNotAlreadyIn(localBareJid);
 
     for (auto item: rosterList_)
     {
@@ -148,7 +149,7 @@ bool RosterController::updateStatusForJid(const Swift::JID &jid, const QString& 
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
-    appendToRosterIfNotAlreadyIn(localBareJid);
+    // appendToRosterIfNotAlreadyIn(localBareJid);
 
     if (! status.isEmpty())
     {
@@ -493,6 +494,11 @@ void RosterController::removeContact(const QString& jid)
     payload->addItem(Swift::RosterItemPayload(Swift::JID(jid.toStdString()), "", Swift::RosterItemPayload::Remove));
     Swift::IQRouter *iqRouter = client_->getIQRouter();
     iqRouter->sendIQ(Swift::IQ::createRequest(Swift::IQ::Set, Swift::JID(), msgId, payload));
+}
+
+void RosterController::renameContact(const QString& jid, const QString& name)
+{
+    updateNameForJid(Swift::JID(jid.toStdString()), name.toStdString());
 }
 
 void RosterController::sendUnavailableAndUnsubscribeToJid(const QString& jid)

@@ -92,6 +92,8 @@ void LurchAdapter::setupWithClient(Swift::Client* client)
     // only for work on the updated pep device list, which comes in as a message
     client_->onMessageReceived.connect(boost::bind(&LurchAdapter::handleMessageReceived, this, _1));
 
+    // Catch nickname <-> realJid for omemo groups
+    client_->onPresenceReceived.connect(boost::bind(&LurchAdapter::handlePresenceReceived, this, _1));
     requestDeviceList(client_->getJID());
 }
 
@@ -248,6 +250,28 @@ std::string LurchAdapter::messageEncryptIm(const std::string msg)
 {
     xmlnode* node = xmlnode_from_str(msg.c_str(), -1);
     lurch_message_encrypt_im_wrap(nullptr, &node);
+
+    int len = 0;
+    char* cryptedNode = xmlnode_to_str(node, &len);
+    xmlnode_free(node);
+
+    if (len > 0)
+    {
+        std::string returnStr{cryptedNode};
+        free(cryptedNode);
+
+        return returnStr;
+    }
+    else
+    {
+        return "";
+    }
+}
+
+std::string LurchAdapter::messageEncryptGroupchat(const std::string msg)
+{
+    xmlnode* node = xmlnode_from_str(msg.c_str(), -1);
+    lurch_message_encrypt_groupchat_wrap(nullptr, &node);
 
     int len = 0;
     char* cryptedNode = xmlnode_to_str(node, &len);
@@ -452,7 +476,10 @@ bool LurchAdapter::exchangePlainBodyByOmemoStanzas(Swift::Message::ref msg)
     QString qMsg = getSerializedStringFromMessage(msg);
     if (qMsg.isEmpty() == false)
     {
-        std::string cryptMessage = messageEncryptIm(qMsg.toStdString());
+        std::string cryptMessage = msg->getType() == Swift::Message::Groupchat ?
+            messageEncryptGroupchat(qMsg.toStdString()) :
+            messageEncryptIm(qMsg.toStdString());
+
         if (cryptMessage.empty() == false) // no fatal error. Either msg is original, or omemo encrypted
         {
             QString encryptedPayload = XmlProcessor::getChildFromNode("encrypted", QString::fromStdString(cryptMessage));
@@ -573,6 +600,28 @@ void LurchAdapter::handleMessageReceived(Swift::Message::ref message)
                 emit signalReceivedDeviceListOfJid(QString::fromStdString(from));
 
                 xmlnode_free(xItems);
+            }
+        }
+    }
+}
+void LurchAdapter::handlePresenceReceived(Swift::Presence::ref presence)
+{
+    Swift::JID jid = presence->getFrom();
+
+    if (jid.toBare().toString().compare(client_->getJID().toBare().toString()) != 0 )
+    {
+        std::vector<std::shared_ptr<Swift::MUCUserPayload> > mucUserPayloads = presence->getPayloads<Swift::MUCUserPayload>();
+
+        for (std::vector<std::shared_ptr<Swift::MUCUserPayload>>::iterator it = mucUserPayloads.begin() ; it != mucUserPayloads.end(); ++it)
+        {
+            for (std::vector<Swift::MUCItem>::const_iterator itItems = (*it)->getItems().begin() ; itItems != (*it)->getItems().end(); ++itItems)
+            {
+                boost::optional<Swift::JID> realJID = (*itItems).realJID;
+
+                if(realJID)
+                {
+                    lurch_pep_muc_user_handler_wrap(&jabberStream, presence->getFrom().toString().c_str(), (*realJID).toBare().toString().c_str());
+                }
             }
         }
     }

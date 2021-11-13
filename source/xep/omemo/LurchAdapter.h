@@ -21,6 +21,7 @@ public:
     QString getFeature();
 
     std::string messageEncryptIm(const std::string msg);
+    std::string messageEncryptGroupchat(const std::string msg);
     bool exchangePlainBodyByOmemoStanzas(Swift::Message::ref msg);
     int decryptMessageIfEncrypted(Swift::Message::ref message);
 
@@ -54,6 +55,7 @@ private:
     void pepBundleForKeytransport(const std::string from, const std::string& items);
     QString getSerializedStringFromMessage(Swift::Message::ref msg);
     void handleMessageReceived(Swift::Message::ref message);
+    void handlePresenceReceived(Swift::Presence::ref presence);
 
     Swift::Client* client_{};
 

@@ -18,6 +18,8 @@ void lurch_pep_own_devicelist_request_handler_wrap(JabberStream * js_p, const ch
 
 void lurch_message_encrypt_im_wrap(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp);
 
+void lurch_message_encrypt_groupchat_wrap(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp);
+
 void lurch_message_decrypt_wrap(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp);
 
 PurpleCmdRet lurch_cmd_func_wrap(PurpleConversation * conv_p,
@@ -27,3 +29,4 @@ PurpleCmdRet lurch_cmd_func_wrap(PurpleConversation * conv_p,
                                    void * data_p);
 
 void lurch_pep_devicelist_event_handler_wrap(JabberStream * js_p, const char * from, xmlnode * items_p);
+void lurch_pep_muc_user_handler_wrap(JabberStream * js_p, const char * from, const char * real_jid);

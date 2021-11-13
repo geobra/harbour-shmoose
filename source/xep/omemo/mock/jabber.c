@@ -76,4 +76,9 @@ char* jabber_get_bare_jid(const char* jid)
     }
 }
 
+JabberChat *jabber_chat_find_by_conv(JabberChat *jc)
+{
+    return jc;
+}
+
 #pragma GCC diagnostic pop

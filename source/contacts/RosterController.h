@@ -28,6 +28,7 @@ public:
     Q_INVOKABLE void addContact(const QString& jid, const QString& name);
     Q_INVOKABLE void removeContact(const QString& jid);
     Q_INVOKABLE bool isGroup(QString const &jid);
+    Q_INVOKABLE void renameContact(const QString& jid, const QString& name);
 
     Q_INVOKABLE QString getAvatarImagePathForJid(QString const &jid);
     Q_INVOKABLE QString getNameForJid(QString const &jid);

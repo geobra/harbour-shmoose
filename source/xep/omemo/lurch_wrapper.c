@@ -41,6 +41,11 @@ void lurch_message_encrypt_im_wrap(PurpleConnection * gc_p, xmlnode ** msg_stanz
     lurch_message_encrypt_im(gc_p, msg_stanza_pp);
 }
 
+void lurch_message_encrypt_groupchat_wrap(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp)
+{
+    lurch_message_encrypt_groupchat(gc_p, msg_stanza_pp);
+}
+
 void lurch_message_decrypt_wrap(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp)
 {
     lurch_message_decrypt(gc_p, msg_stanza_pp);
@@ -58,6 +63,11 @@ PurpleCmdRet lurch_cmd_func_wrap(PurpleConversation * conv_p,
 void lurch_pep_devicelist_event_handler_wrap(JabberStream * js_p, const char * from, xmlnode * items_p)
 {
     lurch_pep_devicelist_event_handler(js_p, from, items_p);
+}
+
+void lurch_pep_muc_user_handler_wrap(JabberStream * js_p, const char * from, const char * real_jid)
+{
+    lurch_pep_muc_user_handler(js_p, from, real_jid);
 }
 
 #pragma GCC diagnostic pop

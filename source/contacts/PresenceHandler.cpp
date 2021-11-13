@@ -1,6 +1,9 @@
 #include "PresenceHandler.h"
 #include "RosterController.h"
 
+#include <QDebug>
+
+
 PresenceHandler::PresenceHandler(RosterController *rosterController) : QObject(rosterController),
     client_(NULL), rosterController_(rosterController)
 {

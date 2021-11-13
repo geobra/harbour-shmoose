@@ -16,6 +16,7 @@ typedef char PurpleAccount;
 typedef void PurpleConnection;
 typedef int PurpleCmdId;
 typedef void PurpleConversation;
+typedef void PurpleConvChat;
 
 enum PurpleCmdRet_
 {
@@ -32,6 +33,7 @@ enum PurpleConvTyp
 
 enum PurpleFlags
 {
+    PURPLE_MESSAGE_SEND,
     PURPLE_MESSAGE_SYSTEM,
     PURPLE_MESSAGE_NO_LOG
 };
@@ -40,6 +42,7 @@ enum PurpleFlags
 static char omemo_dir[MAX_LEN];
 static char fq_user_name[MAX_LEN];
 static char current_char_partner[MAX_LEN];
+static GList *purple_rooms_p = NULL;
 
 void purple_debug_info (const char *category, const char *format,...);
 
@@ -93,5 +96,13 @@ void purple_conversation_write(PurpleConversation * conv_p, char* id, char* msg,
 
 void lurch_topic_update_im(PurpleConversation * conv_p);
 void lurch_topic_update_chat(PurpleConversation * conv_p);
+
+void purple_conv_chat_write(PurpleConversation * chat_p, char * id, char *msg, enum PurpleFlags flags, time_t time);
+
+PurpleConversation *purple_find_conversation_with_account(enum PurpleConvTyp typ, char *to, PurpleAccount *);
+
+void *purple_conversation_get_chat_data(PurpleConversation *conv_p);
+
+PurpleConversation *purple_conversation_new(enum PurpleConvTyp typ, PurpleAccount *, char *to);
 
 #pragma GCC diagnostic pop

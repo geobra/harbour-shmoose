@@ -71,6 +71,7 @@ static void lurch_addr_list_destroy_func(gpointer data) {
   free(addr_p);
 }
 
+
 /**
  * Creates a queued msg.
  * Note that it just saves the pointers, so make sure they are not freed during
@@ -1512,8 +1513,6 @@ cleanup:
   free(tempxml);
 }
 
-#if 0
-
 static void lurch_message_encrypt_groupchat(PurpleConnection * gc_p, xmlnode ** msg_stanza_pp) {
   int ret_val = 0;
   char * err_msg_dbg = (void *) 0;
@@ -1636,7 +1635,6 @@ static void lurch_message_encrypt_groupchat(PurpleConnection * gc_p, xmlnode ** 
     err_msg_dbg = g_strdup_printf("failed to finalize msg");
     goto cleanup;
   }
-
   //TODO: properly handle this instead of removing the body completely, necessary for full EME support
   body_node_p = xmlnode_get_child(*msg_stanza_pp, "body");
   xmlnode_free(body_node_p);
@@ -1695,7 +1693,6 @@ static void lurch_xml_sent_cb(PurpleConnection * gc_p, xmlnode ** stanza_pp) {
     }
   }
 }
-#endif
 
 /**
  * Callback for the "receiving xmlnode" signal.
@@ -1726,9 +1723,9 @@ static void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza
   const char * buddy_nick = (void *) 0;
   xmlnode * plaintext_msg_node_p = (void *) 0;
   char * recipient_bare_jid = (void *) 0;
-  //PurpleConversation * conv_p = (void *) 0;
-  //JabberChat * muc_p = (void *) 0;
-  //JabberChatMember * muc_member_p = (void *) 0;
+  PurpleConversation * conv_p = (void *) 0;
+  JabberChat * muc_p = (void *) 0;
+  JabberChatMember * muc_member_p = (void *) 0;
 
   const char * type = xmlnode_get_attrib(*msg_stanza_pp, "type");
   const char * from = xmlnode_get_attrib(*msg_stanza_pp, "from");
@@ -1760,14 +1757,40 @@ static void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza
     }
   }
   else if (!g_strcmp0(type, "groupchat")) {
-    sender = jabber_get_bare_jid(from);
-  }
 
-#if 0
-  else if (!g_strcmp0(type, "groupchat")) {
     split = g_strsplit(from, "/", 2);
     room_name = split[0];
     buddy_nick = split[1];
+
+    /*
+    addresses_node_p = xmlnode_get_child(*msg_stanza_pp, "addresses");
+    if(!addresses_node_p)
+    {
+      err_msg_dbg = g_strdup_printf("could not find addresses tag");
+      goto cleanup;
+    }
+
+    address_node_p = xmlnode_get_child(addresses_node_p, "address");
+    if(!address_node_p)
+    {
+      err_msg_dbg = g_strdup_printf("could not find address tag");
+      goto cleanup;
+    }
+
+    addr_type = xmlnode_get_attrib(address_node_p, "type");
+    if(!addr_type)
+    {
+      err_msg_dbg = g_strdup_printf("could not find type attrib type in address tag");
+      goto cleanup;
+    }
+
+    addr_jid = xmlnode_get_attrib(address_node_p, "jid");
+    if(!addr_jid)
+    {
+      err_msg_dbg = g_strdup_printf("could not find type attrib jid in address tag");
+      goto cleanup;
+    }
+    */
 
     ret_val = omemo_storage_chatlist_exists(room_name, db_fn_omemo);
     if (ret_val < 0) {
@@ -1802,7 +1825,6 @@ static void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza
 
     sender = jabber_get_bare_jid(muc_member_p->jid);
   }
-#endif
   xml = xmlnode_to_str(*msg_stanza_pp, &len);
   ret_val = omemo_message_prepare_decryption(xml, &msg_p);
   if (ret_val) {
@@ -1916,7 +1938,7 @@ static void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza
 #endif
 cleanup:
   if (err_msg_dbg) {
-    purple_conv_present_error(sender, purple_connection_get_account(gc_p), LURCH_ERR_STRING_DECRYPT);
+    purple_conv_present_error(from, purple_connection_get_account(gc_p), LURCH_ERR_STRING_DECRYPT);
     purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
     g_free(err_msg_dbg);
   }
@@ -2678,3 +2700,68 @@ PURPLE_INIT_PLUGIN(lurch, lurch_plugin_init, info)
 
 #endif
 
+static void lurch_pep_muc_user_handler(JabberStream * js_p, const char * from, const char * real_jid)
+{
+  char ** split = (void *) 0;
+  const char * room_name = (void *) 0;
+  const char * buddy_nick = (void *) 0;
+  PurpleConversation * conv_p = (void *) 0;
+  JabberChat * muc_p = (void *) 0;
+  JabberChatMember * muc_member_p = (void *) 0;
+  int ret_val = 0;
+  char * err_msg_dbg = (void *) 0;
+  char * uname = (void *) 0;
+  char * db_fn_omemo = (void *) 0;
+
+  //TODO: Add status management
+
+  uname = lurch_util_uname_strip(purple_account_get_username(purple_connection_get_account(js_p->gc)));
+  db_fn_omemo = lurch_util_uname_get_db_fn(uname, LURCH_DB_NAME_OMEMO);
+
+  split = g_strsplit(from, "/", 2);
+  room_name = split[0];
+  buddy_nick = split[1];
+
+  ret_val = omemo_storage_chatlist_save(room_name, db_fn_omemo);
+  if (ret_val) {
+    err_msg_dbg = g_strdup_printf("Failed to look up %s in DB %s.", room_name, db_fn_omemo);
+    goto cleanup;
+  }
+
+  conv_p = purple_find_conversation_with_account(PURPLE_CONV_TYPE_CHAT, room_name, NULL);
+
+  if (!conv_p) {
+      conv_p = purple_conversation_new(PURPLE_CONV_TYPE_CHAT, purple_connection_get_account(js_p->gc), room_name);
+  }
+
+  muc_p = jabber_chat_find_by_conv(conv_p);
+  if (!muc_p) {
+    err_msg_dbg = g_strdup_printf("could not find muc struct for groupchat %s", room_name);
+    goto cleanup;
+  }
+
+  muc_member_p = g_hash_table_lookup(muc_p->members, buddy_nick);
+
+  if(!muc_member_p)
+  {
+    muc_member_p = g_malloc(sizeof(JabberChatMember));
+    muc_member_p->jid = g_strdup(real_jid);
+    muc_member_p->handle = "";
+    g_hash_table_insert(muc_p->members, g_strdup(buddy_nick), muc_member_p);
+  }
+  else
+  {
+    g_free(muc_member_p->jid);
+    muc_member_p->jid = g_strdup(real_jid);
+  }
+
+  cleanup:
+  if (err_msg_dbg) {
+    purple_conv_present_error(from, purple_connection_get_account(js_p->gc), LURCH_ERR_STRING_DECRYPT);
+    purple_debug_error("lurch", "%s: %s (%i)\n", __func__, err_msg_dbg, ret_val);
+    g_free(err_msg_dbg);
+  }
+  g_strfreev(split);
+  g_free(db_fn_omemo);
+  g_free(uname);
+}

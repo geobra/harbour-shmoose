@@ -86,7 +86,7 @@ gchar* purple_base16_encode_chunked(const guchar *data, gsize len)
 
 void* purple_connection_get_account(void* foo)
 {
-    return NULL;
+    return 0;
 }
 
 void set_fqn_name(const char* name)
@@ -277,5 +277,52 @@ void lurch_topic_update_im(PurpleConversation * conv_p)
 
 void lurch_topic_update_chat(PurpleConversation * conv_p)
 {}
+
+void purple_conv_chat_write(PurpleConversation * chat_p, char * id, char *msg, enum PurpleFlags flags, time_t time)
+{
+    fprintf(stderr, "%s: %s\n", id, msg);
+}
+
+PurpleConversation *purple_find_conversation_with_account(enum PurpleConvTyp typ, char *to, PurpleAccount *foo)
+{
+    char *room = jabber_get_bare_jid(to);
+    PurpleConversation *return_val = NULL;
+
+    if(purple_rooms_p)
+    {
+        for (GList *it=purple_rooms_p; it; it=it->next)
+        {
+            if(it && it->data)
+            {
+                JabberChat *jc = it->data;
+
+                if(jc && !g_strcmp0(jc->jid, room))
+                {
+                    return_val = it->data;
+                    break;
+                }
+            }
+        }
+    }
+
+    g_free(room);
+
+    return return_val;
+}
+
+void *purple_conversation_get_chat_data(PurpleConversation *conv_p)
+{
+    return NULL;
+}
+
+PurpleConversation *purple_conversation_new(enum PurpleConvTyp typ, PurpleAccount *foo, char *to)
+{
+    JabberChat *jc = g_malloc(sizeof(JabberChat));
+    jc->handle = "";
+    jc->jid = g_strdup(to);
+    jc->members = g_hash_table_new(g_str_hash, g_str_equal);
+    purple_rooms_p = g_list_append(purple_rooms_p, jc);
+    return (PurpleConversation *)jc;
+}
 
 #pragma GCC diagnostic pop

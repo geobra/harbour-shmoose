@@ -264,7 +264,8 @@ void Shmoose::sendMessage(QString const &message, QString const &type)
 
 void Shmoose::sendFile(QString const &toJid, QString const &file)
 {
-    bool shouldEncryptFile = lurchAdapter_->isOmemoUser(toJid) && (! settings_->getSendPlainText().contains(toJid));
+    bool isGroup = rosterController_->isGroup(toJid);
+    bool shouldEncryptFile = (isGroup || lurchAdapter_->isOmemoUser(toJid)) && (! settings_->getSendPlainText().contains(toJid));
     Swift::JID receiverJid(toJid.toStdString());
     Swift::IDGenerator idGenerator;
     notSentMsgId_ = QString::fromStdString(idGenerator.generateID());
