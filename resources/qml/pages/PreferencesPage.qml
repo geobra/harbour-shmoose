@@ -53,6 +53,18 @@ Page {
                 text: qsTr("Edit attachment search paths")
                 onClicked: pageStack.push(Qt.resolvedUrl("AttachmentPathsPage.qml"))
             }
+
+            SectionHeader { text: qsTr("Features") }
+
+            TextSwitch {
+                id: softwareFeatureOmemoSwitch
+                checked: shmoose.settings.EnableSoftwareFeatureOmemo
+                text: qsTr("Omemo Message Encryption - Experimental!")
+                onClicked: {
+                    shmoose.settings.EnableSoftwareFeatureOmemo = softwareFeatureOmemoSwitch.checked;
+                }
+            }
+
         }
     }
 }

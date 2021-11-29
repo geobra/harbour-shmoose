@@ -33,6 +33,7 @@
 #include "CryptoHelper.h"
 #include "StanzaId.h"
 #include "LurchAdapter.h"
+#include "Settings.h"
 
 
 #include "System.h"
@@ -160,11 +161,17 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     discoInfo.addFeature(Swift::DiscoInfo::MessageCarbonsFeature);
 
     // omemo
-    discoInfo.addFeature(lurchAdapter_->getFeature().toStdString());
-    discoInfo.addFeature(lurchAdapter_->getFeature().toStdString() + "+notify");
+    Settings settings;
+    if (settings.getSoftwareFeatureOmemoEnabled() == true)
+    {
+        discoInfo.addFeature(lurchAdapter_->getFeature().toStdString());
+        discoInfo.addFeature(lurchAdapter_->getFeature().toStdString() + "+notify");
+    }
 
+    // identify myself
     client_->getDiscoManager()->setCapsNode("https://github.com/geobra/harbour-shmoose");
 
+    // setup this disco info
     client_->getDiscoManager()->setDiscoInfo(discoInfo);
 
     // finaly try to connect
@@ -216,7 +223,10 @@ void Shmoose::intialSetupOnFirstConnection()
     mucManager_->setupWithClient(client_);
 
     // init and setup omemo stuff
-    lurchAdapter_->setupWithClient(client_);
+    if (settings_->getSoftwareFeatureOmemoEnabled() == true)
+    {
+        lurchAdapter_->setupWithClient(client_);
+    }
 
     // Save account data
     settings_->setJid(jid_);
@@ -262,7 +272,7 @@ void Shmoose::sendMessage(QString const &message, QString const &type)
 
 void Shmoose::sendFile(QString const &toJid, QString const &file)
 {
-    bool shouldEncryptFile = lurchAdapter_->isOmemoUser(toJid) && (! settings_->getSendPlainText().contains(toJid));
+    bool shouldEncryptFile = settings_->getSoftwareFeatureOmemoEnabled() && lurchAdapter_->isOmemoUser(toJid) && (! settings_->getSendPlainText().contains(toJid));
     Swift::JID receiverJid(toJid.toStdString());
     Swift::IDGenerator idGenerator;
     notSentMsgId_ = QString::fromStdString(idGenerator.generateID());
