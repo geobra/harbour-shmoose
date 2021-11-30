@@ -37,4 +37,4 @@ Technical requirements:
 
 Today only a few C libraries exist which match some of these requirements. As for now, the best choice appears to be https://github.com/gkdr/libomemo[libomeo]. The author develops this library as a base for the lurch plugin, which adds OMEMO support to libpurple.
 
-The integration of this library does not seem to be difficult, but for sure requires some time to get to know all the functions well in order to implement the OMEMO-XEPP in a correct way. Due to the lack of real alternatives, this library is chosen while hoping for sustained and active development and maintenance of it.
+The integration of this library does not seem to be difficult, but for sure requires some time to get to know all its functions well in order to implement XEP-0384 (OMEMO) in a correct way. Due to the lack of real alternatives, this library is chosen while hoping for sustained and active development and maintenance of it.
