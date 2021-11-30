@@ -59,7 +59,7 @@ Page {
             TextSwitch {
                 id: softwareFeatureOmemoSwitch
                 checked: shmoose.settings.EnableSoftwareFeatureOmemo
-                text: qsTr("Omemo Message Encryption - Experimental!")
+                text: qsTr("Omemo Message Encryption - Experimental! (Need app restart)")
                 onClicked: {
                     shmoose.settings.EnableSoftwareFeatureOmemo = softwareFeatureOmemoSwitch.checked;
                 }
