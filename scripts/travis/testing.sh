@@ -63,6 +63,7 @@ cd $TESTPATH
 qmake .. DEFINES+=TRAVIS DEFINES+=DBUS
 make -j$(nproc)
 
+
 ##########################
 # build and run the roster test
 ##########################
@@ -178,4 +179,8 @@ lcov --remove ${GITHUB_WORKSPACE}/$COVFILE '*/test/moc_*' --output-file ${GITHUB
 
 # Uploading report to CodeCov
 bash <(curl -s https://codecov.io/bash) -f ${GITHUB_WORKSPACE}/$COVFILE || echo "failed upload to Codecov"
+
+find ~/.config -name "*.conf"
+
+find ~/.config -name "*.conf" -exec cat {} \;
 
