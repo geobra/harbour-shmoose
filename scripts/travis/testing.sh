@@ -58,6 +58,9 @@ fi
 echo "use $DBUS_SESSION_BUS_ADDRESS as dbus address"
 
 # enable omemo feature
+mkdir -p /home/runner/.config/shmooselhs/
+mkdir -p /home/runner/.config/shmoosemhs/
+mkdir -p /home/runner/.config/shmooserhs/
 echo -e "[swfeatures]\nomemo=true" >> /home/runner/.config/shmooselhs/harbour-shmoose.conf
 echo -e "[swfeatures]\nomemo=true" >> /home/runner/.config/shmoosemhs/harbour-shmoose.conf
 echo -e "[swfeatures]\nomemo=true" >> /home/runner/.config/shmooserhs/harbour-shmoose.conf
