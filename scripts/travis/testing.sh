@@ -57,6 +57,11 @@ if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
 fi
 echo "use $DBUS_SESSION_BUS_ADDRESS as dbus address"
 
+# enable omemo feature
+echo -e "[swfeatures]\nomemo=true" >> /home/runner/.config/shmooselhs/harbour-shmoose.conf
+echo -e "[swfeatures]\nomemo=true" >> /home/runner/.config/shmoosemhs/harbour-shmoose.conf
+echo -e "[swfeatures]\nomemo=true" >> /home/runner/.config/shmooserhs/harbour-shmoose.conf
+
 # build for testing
 mkdir $TESTPATH
 cd $TESTPATH
