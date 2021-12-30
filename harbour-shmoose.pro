@@ -91,6 +91,7 @@ SOURCES += \
     source/base/XmlWriter.cpp \
     source/base/System.cpp \
     source/base/XmlProcessor.cpp \
+    source/base/Client.cpp \
     source/persistence/Database.cpp \
     source/persistence/MessageController.cpp \
     source/persistence/SessionController.cpp \
@@ -144,6 +145,7 @@ HEADERS += source/base/Shmoose.h \
     source/base/XmlWriter.h \
     source/base/System.h \
     source/base/XmlProcessor.h \
+    source/base/Client.h \
     source/persistence/Database.h \
     source/persistence/MessageController.h \
     source/persistence/SessionController.h \

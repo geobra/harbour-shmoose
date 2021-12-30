@@ -40,13 +40,16 @@ signals:
     void signalReceivedDeviceListOfJid(QString);
     void signalShowMessage(QString, QString);
 
+
+public:
+    std::string messageDecrypt(const std::string& message);
+
 #ifdef UNIT_TEST
 public:
 #else
 private:
 #endif
     void determineNamespace(const QString& nsDl);
-    std::string messageDecrypt(const std::string& message);
     void requestDeviceList(const Swift::JID& jid);
     void handleDeviceListResponse(const Swift::JID jid, const std::string &str);
     void publishedDeviceList(const std::string& str);

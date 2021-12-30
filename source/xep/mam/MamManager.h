@@ -4,10 +4,13 @@
 #include <QObject>
 #include <QStringList>
 
+
 #include <Swiften/Swiften.h>
+#include <Swiften/Elements/Forwarded.h>
 
 class Persistence;
 class DownloadManager;
+class LurchAdapter;
 
 // https://xmpp.org/extensions/xep-0313.html
 // requests the mam for the client jid as soon as mamNs is discovered with disco#info
@@ -17,7 +20,7 @@ class MamManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit MamManager(Persistence* persistence, QObject *parent = nullptr);
+    explicit MamManager(Persistence* persistence, LurchAdapter *lurchAdapter, QObject *parent = nullptr);
     void setupWithClient(Swift::Client* client);
 
     static const QString mamNs;
@@ -26,9 +29,9 @@ public:
 private:
 #endif
     void requestArchiveForJid(const QString& jid, const QString& last = "");
-    void handleDataReceived(Swift::SafeByteArray data);
+    void handleMessageReceived(Swift::Message::ref message);
 
-    void processMamMessage(const QString& qData);
+    void processMamMessage(std::shared_ptr<Swift::Forwarded> forwarded);
     void processFinIq(const QString& iq);
 
 
@@ -38,6 +41,7 @@ private:
     Persistence* persistence_;
     DownloadManager* downloadManager_;
     Swift::Client* client_;
+    LurchAdapter* lurchAdapter_;
 
 public slots:
     void receiveRoomWithName(QString jid, QString name);

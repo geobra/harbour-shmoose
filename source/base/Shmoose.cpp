@@ -33,6 +33,7 @@
 #include "CryptoHelper.h"
 #include "StanzaId.h"
 #include "LurchAdapter.h"
+#include "Client.h"
 
 
 #include "System.h"
@@ -48,7 +49,7 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     lurchAdapter_(new LurchAdapter(this)),
     messageHandler_(new MessageHandler(persistence_, settings_, rosterController_, lurchAdapter_, this)),
     httpFileUploadManager_(new HttpFileUploadManager(this)),
-    mamManager_(new MamManager(persistence_, this)),
+    mamManager_(new MamManager(persistence_, lurchAdapter_, this)),
     mucManager_(new MucManager(this)),
     discoInfoHandler_(new DiscoInfoHandler(httpFileUploadManager_, mamManager_, this)),
     jid_(""), password_(""),
@@ -131,15 +132,15 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 #endif
 
     // setup the xmpp client
-    client_ = new Swift::Client(Swift::JID(completeJid.toStdString()), pass.toStdString(), netFactories_);
+    client_ = new Client(Swift::JID(completeJid.toStdString()), pass.toStdString(), netFactories_);
     client_->setAlwaysTrustCertificates();
 
     stanzaId_->setupWithClient(client_);
     connectionHandler_->setupWithClient(client_);
     messageHandler_->setupWithClient(client_);
 
-    tracer_ = new Swift::ClientXMLTracer(client_);
-    //tracer_ = nullptr;
+    //tracer_ = new Swift::ClientXMLTracer(client_);
+    tracer_ = nullptr;
 
     // configure the xmpp client
     softwareVersionResponder_ = new Swift::SoftwareVersionResponder(client_->getIQRouter());
