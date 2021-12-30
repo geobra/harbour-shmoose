@@ -26,27 +26,42 @@ void purple_debug_info (const char *category, const char *format,...)
 
 void purple_debug_error(const char *category, const char *format,...)
 {
-    purple_debug_info(category, format);
+    (void) category;
+
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
 }
 
 void purple_debug_warning(const char *category, const char *format,...)
 {
-    purple_debug_info(category, format);
+    (void) category;
+
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
 }
 
 void purple_debug_misc(const char *category, const char *format,...)
 {
-    purple_debug_info(category, format);
+    (void) category;
+
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
 }
 
 int purple_prefs_get_bool(char* str)
 {
-    return 0;
+    return 1;
 }
 
 int purple_prefs_get_int(char* str)
 {
-    return 0;
+    return 4;
 }
 
 void set_omemo_dir(const char* dir)
