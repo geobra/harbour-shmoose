@@ -66,7 +66,7 @@ void MamManager::setServerHasFeatureMam(bool hasFeature)
 
 void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
 {
-    if (serverHasFeature_ && jid == "ronan35@jabber.fr")
+    if (serverHasFeature_)
     {
         qDebug() << "MamManager::requestArchiveForJid: " << jid << ", last: " << last << endl;
 
