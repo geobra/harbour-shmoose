@@ -57,14 +57,6 @@ if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
 fi
 echo "use $DBUS_SESSION_BUS_ADDRESS as dbus address"
 
-# enable omemo feature
-mkdir -p /home/runner/.config/shmooselhs/
-mkdir -p /home/runner/.config/shmoosemhs/
-mkdir -p /home/runner/.config/shmooserhs/
-echo -e "[swfeatures]\nomemo=true" >> /home/runner/.config/shmooselhs/harbour-shmoose.conf
-echo -e "[swfeatures]\nomemo=true" >> /home/runner/.config/shmoosemhs/harbour-shmoose.conf
-echo -e "[swfeatures]\nomemo=true" >> /home/runner/.config/shmooserhs/harbour-shmoose.conf
-
 # build for testing
 mkdir $TESTPATH
 cd $TESTPATH
@@ -92,6 +84,12 @@ collect_coverage_at_path_to_file "$RESULTSC2" "c2.cov"
 collect_coverage_at_path_to_file "$RESULTSC3" "c3.cov"
 
 merge_client_coverage_to_file roster.cov 
+
+echo "------- roster test ---------"
+cat /home/runner/.config/shmooselhs/harbour-shmoose.conf
+echo "----------------"
+cat /home/runner/.config/shmooserhs/harbour-shmoose.conf
+echo "----------------"
 
 ##########################
 # build and run the plain 1to1 msg test
@@ -138,6 +136,17 @@ merge_client_coverage_to_file room.cov
 # build and run a clean omemo msg test
 ##########################
 killall -9 harbour-shmoose
+
+echo "------omemo test----------"
+cat /home/runner/.config/shmooselhs/harbour-shmoose.conf
+echo "----------------"
+cat /home/runner/.config/shmooserhs/harbour-shmoose.conf
+echo "----------------"
+
+# enable omemo feature
+echo -e "[swfeatures]\nomemo=true" >> /home/runner/.config/shmooselhs/harbour-shmoose.conf
+echo -e "[swfeatures]\nomemo=true" >> /home/runner/.config/shmooserhs/harbour-shmoose.conf
+
 ${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
 GCOV_PREFIX=$RESULTSC1 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
 GCOV_PREFIX=$RESULTSC2 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose rhs &
@@ -188,7 +197,10 @@ lcov --remove ${GITHUB_WORKSPACE}/$COVFILE '*/test/moc_*' --output-file ${GITHUB
 # Uploading report to CodeCov
 bash <(curl -s https://codecov.io/bash) -f ${GITHUB_WORKSPACE}/$COVFILE || echo "failed upload to Codecov"
 
-find ~/.config -name "*.conf"
 
-find ~/.config -name "*.conf" -exec cat {} \;
+echo "------end test----------"
+cat /home/runner/.config/shmooselhs/harbour-shmoose.conf
+echo "----------------"
+cat /home/runner/.config/shmooserhs/harbour-shmoose.conf
+echo "----------------"
 
