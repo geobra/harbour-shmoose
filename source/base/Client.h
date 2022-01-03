@@ -10,6 +10,7 @@
 
 #include <Swiften/Parser/GenericPayloadParserFactory2.h>
 #include <Swiften/Parser/PayloadParsers/MAMResultParser.h>
+#include <Swiften/Parser/PayloadParsers/MAMFinParser.h>
 
 class  Client : public Swift::Client {
     public:
@@ -18,5 +19,6 @@ class  Client : public Swift::Client {
 
     private:
         Swift::GenericPayloadParserFactory2<Swift::MAMResultParser> mamResultParser;
+        Swift::GenericPayloadParserFactory<Swift::MAMFinParser> mamFinParser;
 };
 #endif

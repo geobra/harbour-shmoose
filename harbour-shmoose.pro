@@ -158,6 +158,7 @@ HEADERS += source/base/Shmoose.h \
     source/xep/httpFileUpload/ImageProcessing.h \
     source/xep/httpFileUpload/FileWithCypher.h \
     source/xep/mam/MamManager.h \
+    source/xep/mam/MamRequest.h \
     source/xep/omemo/BundleDeviceListRequest.h \
     source/xep/xmppPing/PingRequest.h \
     source/xep/xmppPing/XmppPingController.h \

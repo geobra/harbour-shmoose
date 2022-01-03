@@ -7,6 +7,8 @@
 
 #include <Swiften/Swiften.h>
 #include <Swiften/Elements/Forwarded.h>
+#include <Swiften/Elements/MAMFin.h>
+#include <Swiften/Elements/ErrorPayload.h>
 
 class Persistence;
 class DownloadManager;
@@ -32,7 +34,7 @@ private:
     void handleMessageReceived(Swift::Message::ref message);
 
     void processMamMessage(std::shared_ptr<Swift::Forwarded> forwarded);
-    void processFinIq(const QString& iq);
+    void processFinIq(const std::string& jid, std::shared_ptr<Swift::MAMFin> payload, Swift::ErrorPayload::ref error);
 
 
     bool serverHasFeature_;

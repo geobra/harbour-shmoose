@@ -4,6 +4,7 @@
 #include "ImageProcessing.h"
 #include "DownloadManager.h"
 #include "LurchAdapter.h"
+#include "MamRequest.h"
 
 #include <QDateTime>
 #include <QUrl>
@@ -13,8 +14,10 @@
 #include <typeinfo>
 
 #include <Swiften/Elements/MAMResult.h>
+#include <Swiften/Queries/IQHandler.h>
 
 const QString MamManager::mamNs = "urn:xmpp:mam:2";
+
 
 MamManager::MamManager(Persistence *persistence, LurchAdapter *lurchAdapter, QObject *parent) : QObject(parent),
     serverHasFeature_(false), queridJids_(), persistence_(persistence),
@@ -31,6 +34,8 @@ void MamManager::setupWithClient(Swift::Client* client)
 
     // watch the received messages and handle the Mam one's
     client_->onMessageReceived.connect(boost::bind(&MamManager::handleMessageReceived, this, _1));
+
+
 }
 
 void MamManager::handleConnected()
@@ -113,10 +118,9 @@ void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
         // Calling getXmlResult flushes content and subsequent calls are empty! 
         // qDebug() << xw.getXmlResult(); 
 
-        client_->getIQRouter()->sendIQ(Swift::IQ::createRequest(Swift::IQ::Set, sJid, msgId,
-                                                                std::make_shared<Swift::RawXMLPayload>(xw.getXmlResult().toStdString())
-                                                                ));
-
+        MamRequest::ref mamRequest = MamRequest::create(Swift::IQ::Set, sJid, xw.getXmlResult().toStdString(), client_->getIQRouter());
+        mamRequest->onResponse.connect(boost::bind(&MamManager::processFinIq, this, _1, _2, _3));
+        mamRequest->send();
     }
 }
 
@@ -130,23 +134,26 @@ void MamManager::handleMessageReceived(Swift::Message::ref message)
     }
 }
 
-void MamManager::processFinIq(const QString& iq)
+void MamManager::processFinIq(const std::string& jid, std::shared_ptr<Swift::MAMFin> mamFin, Swift::ErrorPayload::ref error)
 {
-    if (! iq.isEmpty() )
+    qDebug() << "MamManager::processFinIq" <<endl;
+
+    if (mamFin != nullptr )
     {
-        QString from = XmlProcessor::getContentInTag("iq", "from", iq);
+        QString from = QString::fromStdString(jid);
 
-        QString fin = XmlProcessor::getChildFromNode("fin", iq);
-        if (! fin.isEmpty() && ! from.isEmpty() )
+        if (! from.isEmpty() )
         {
-            QString complete = XmlProcessor::getContentInTag("fin", "complete", fin);
+            auto resultSet = mamFin->getResultSet();
 
-            if (complete.compare("false", Qt::CaseInsensitive) == 0)
+            if (! mamFin->isComplete() && resultSet != nullptr)
             {
-                QString last = XmlProcessor::getContentInTag("set", "last", fin);
-                qDebug() << "####### mam not complete! last id: " << last;
-
-                requestArchiveForJid(from, last);
+                if(resultSet->getLastID() != nullptr)
+                {
+                    QString last = QString::fromStdString(*resultSet->getLastID());
+                    qDebug() << "####### mam not complete! last id: " << last;
+                    requestArchiveForJid(from, last);
+                }
             }
             else
             {
@@ -221,7 +228,7 @@ void MamManager::processMamMessage(std::shared_ptr<Swift::Forwarded> forwarded)
         QString body = "";
 
         // process msg's with a body
-        if (message->getBody()) // process messages with a body text
+        if (message->getBody() && message->getBody()->size() > 0) // process messages with a body text
         {
             // get timestamp of orginal sending
             qint64 timestamp = 0;
@@ -255,7 +262,7 @@ void MamManager::processMamMessage(std::shared_ptr<Swift::Forwarded> forwarded)
             QString type = "txt";
 
             bool isLink = false;
-            if(success == 0)
+            if(security == 1)
             {
                 isLink = body.startsWith("aesgcm://");
 
