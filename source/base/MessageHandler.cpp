@@ -62,18 +62,6 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
     unsigned int security = 0;
 
-    auto success = lurchAdapter_->decryptMessageIfEncrypted(message);
-    if (success == 0) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
-    {
-        security = 1;
-    }
-    else if (success == 2)
-    {
-        qDebug() << "handleMessageReceived: error during decryption).";
-        QString cryptErrorMsg{tr("** Enrypted message could not be decrypted. Sorry. **")};
-        message->setBody(cryptErrorMsg.toStdString());
-    }
-
     std::string fromJid = message->getFrom().toBare().toString();
 
     // XEP 280
@@ -101,6 +89,19 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             sentCarbon = true;
         }
     }
+
+    auto success = lurchAdapter_->decryptMessageIfEncrypted(message);
+    if (success == 0) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
+    {
+        security = 1;
+    }
+    else if (success == 2)
+    {
+        qDebug() << "handleMessageReceived: error during decryption).";
+        QString cryptErrorMsg{tr("** Enrypted message could not be decrypted. Sorry. **")};
+        message->setBody(cryptErrorMsg.toStdString());
+    }
+
 
     boost::optional<std::string> fromBody = message->getBody();
 
