@@ -143,9 +143,9 @@ echo "----------------"
 cat /home/runner/.config/shmooserhs/harbour-shmoose.conf
 echo "----------------"
 
-# enable omemo feature
-echo -e "[swfeatures]\nomemo=true" >> /home/runner/.config/shmooselhs/harbour-shmoose.conf
-echo -e "[swfeatures]\nomemo=true" >> /home/runner/.config/shmooserhs/harbour-shmoose.conf
+# enable omemo feature, override everthing else.
+echo -e "[swfeatures]\nomemo=true" > /home/runner/.config/shmooselhs/harbour-shmoose.conf
+echo -e "[swfeatures]\nomemo=true" > /home/runner/.config/shmooserhs/harbour-shmoose.conf
 
 ${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
 GCOV_PREFIX=$RESULTSC1 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
