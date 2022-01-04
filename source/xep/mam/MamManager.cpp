@@ -76,7 +76,7 @@ void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
         qDebug() << "MamManager::requestArchiveForJid: " << jid << ", last: " << last << endl;
 
         // get the date of last week
-        QDateTime lastWeek = QDateTime::currentDateTimeUtc().addDays(-45);
+        QDateTime lastWeek = QDateTime::currentDateTimeUtc().addDays(-15);
         lastWeek.setTimeSpec(Qt::UTC);
 
         // construct the mam query for messages from within last two week
@@ -179,6 +179,7 @@ void MamManager::processMamMessage(std::shared_ptr<Swift::Forwarded> forwarded)
         auto clientBareJid = client_->getJID();
         QString id = QString::fromStdString(message->getID());
         resource = QString::fromStdString(Swift::JID(message->getFrom().toString()).getResource());
+        senderBareJid = QString::fromStdString(message->getFrom().toBare().toString());
 
         if(message->getType() == Swift::Message::Groupchat)
         {
