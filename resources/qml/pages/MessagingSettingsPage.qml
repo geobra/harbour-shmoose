@@ -65,7 +65,7 @@ Page {
             id: sendOmemoMsg
             enabled: ( shmoose.isOmemoUser(conversationId) === true || shmoose.rosterController.isGroup(conversationId) === true )
             checked: {
-                if ( shmoose.isOmemoUser(conversationId) === true && shmoose.rosterController.isGroup(conversationId) === false ) {
+                if ( shmoose.isOmemoUser(conversationId) === false && shmoose.rosterController.isGroup(conversationId) === false ) {
                     return false;
                 }
                 else if (shmoose.settings.SendPlainText.indexOf(conversationId) >= 0) {
