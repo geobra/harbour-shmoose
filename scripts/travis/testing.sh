@@ -85,12 +85,6 @@ collect_coverage_at_path_to_file "$RESULTSC3" "c3.cov"
 
 merge_client_coverage_to_file roster.cov 
 
-echo "------- roster test ---------"
-cat /home/runner/.config/shmooselhs/harbour-shmoose.conf
-echo "----------------"
-cat /home/runner/.config/shmooserhs/harbour-shmoose.conf
-echo "----------------"
-
 ##########################
 # build and run the plain 1to1 msg test
 ##########################
@@ -142,10 +136,10 @@ killall -9 harbour-shmoose
 echo -e "[swfeatures]\nomemo=true" > /home/runner/.config/shmooselhs/harbour-shmoose.conf
 echo -e "[swfeatures]\nomemo=true" > /home/runner/.config/shmooserhs/harbour-shmoose.conf
 
-cat /home/runner/.config/shmooselhs/harbour-shmoose.conf
-echo "----------------"
-cat /home/runner/.config/shmooserhs/harbour-shmoose.conf
-echo "----------------"
+#cat /home/runner/.config/shmooselhs/harbour-shmoose.conf
+#echo "----------------"
+#cat /home/runner/.config/shmooserhs/harbour-shmoose.conf
+#echo "----------------"
 
 ${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
 GCOV_PREFIX=$RESULTSC1 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
@@ -201,11 +195,4 @@ lcov --remove ${GITHUB_WORKSPACE}/$COVFILE '*/test/moc_*' --output-file ${GITHUB
 
 # Uploading report to CodeCov
 bash <(curl -s https://codecov.io/bash) -f ${GITHUB_WORKSPACE}/$COVFILE || echo "failed upload to Codecov"
-
-
-echo "------end test----------"
-cat /home/runner/.config/shmooselhs/harbour-shmoose.conf
-echo "----------------"
-cat /home/runner/.config/shmooserhs/harbour-shmoose.conf
-echo "----------------"
 
