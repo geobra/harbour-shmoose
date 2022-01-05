@@ -60,12 +60,32 @@
         <source>Remove</source>
         <translation>Fjern</translation>
     </message>
+    <message>
+        <source>Remove contact</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ConversationsPage</name>
     <message>
         <source>Conversations</source>
         <translation>Samtaler</translation>
+    </message>
+    <message>
+        <source>Empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select a contact to start a conversation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete conversation</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -125,7 +145,7 @@
     <name>ImagePickerPage</name>
     <message>
         <source>Select picture</source>
-        <translation>Velg bilde</translation>
+        <translation type="vanished">Velg bilde</translation>
     </message>
 </context>
 <context>
@@ -230,6 +250,50 @@
         <source>Enter message...</source>
         <translation type="unfinished">Skriv inn melding…</translation>
     </message>
+    <message>
+        <source>uploading</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File Upload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>uploading </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>send failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send again</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1 mn ago</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source></source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> mns ago</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MessagingSettingsPage</name>
@@ -251,6 +315,22 @@
     </message>
     <message>
         <source>Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send omemo encrypted messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Limit compression to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> KB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send images only</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -286,6 +366,14 @@
     </message>
     <message>
         <source>Display group chat notifications</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Features</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Omemo Message Encryption - Experimental! (Need app restart)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
