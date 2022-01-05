@@ -17,14 +17,14 @@ Technical requirements:
 
 There are a number of xmpp libraries available which are commonly used, such as:
 
-* libpurpel
+* libpurple
 * QXmpp
 * Swiften
 * ...
 
-After validating some of them, the Swiften library is chosen because it fulfills the most requirements. The only thing which is left over is modern E2E security (Omemo).
+After validating some of them, the Swiften library was chosen because it fulfills most requirements. The only thing missing is modern E2E security (OMEMO).
 
-Nevertheless, the risk of dropping maintenance of that library still exists. Even it is an open source library, there is no guaranty that the authors of that library or even someone else from the XMPP community will actively develop it in the future.
+Nevertheless, the risk of a dropped maintenance of this library exists. Even though it is an open source library, there is no guarantee that the authors of that library or someone else from the XMPP community will continue to actively develop it in the future.
 
 === E2E Security Library
 
@@ -35,7 +35,6 @@ Technical requirements:
 * High qualtity
 * Open Source
 
-Until today, there are just a few C library's out there which matches some of this requirements. As for now, the best choice would be to use https://github.com/gkdr/libomemo[libomeo]. The author actively develops this library as a base for the lurch plugin, which adds OMEMO support to libpurple.
+Today only a few C libraries exist which match some of these requirements. As for now, the best choice appears to be https://github.com/gkdr/libomemo[libomemo]. The author develops this library as a base for the lurch plugin, which adds OMEMO support to libpurple.
 
-The integration of this library seems not so difficult, but requires for sure an amount of time to get to know all the functions to implement the XEP in a correct way. As a lack of real alternatives, this library will be chosen in the hope of long and active development and maintenance.
-
+The integration of this library does not seem to be difficult, but for sure requires some time to get to know all its functions well in order to implement XEP-0384 (OMEMO) in a correct way. Due to the lack of real alternatives, this library was chosen while hoping for sustained and active development and maintenance of it.

@@ -63,6 +63,7 @@ cd $TESTPATH
 qmake .. DEFINES+=TRAVIS DEFINES+=DBUS
 make -j$(nproc)
 
+
 ##########################
 # build and run the roster test
 ##########################
@@ -128,7 +129,18 @@ merge_client_coverage_to_file room.cov
 ##########################
 # build and run a clean omemo msg test
 ##########################
+echo "------omemo test----------"
 killall -9 harbour-shmoose
+
+# enable omemo feature, override everthing else.
+echo -e "[swfeatures]\nomemo=true" > /home/runner/.config/shmooselhs/harbour-shmoose.conf
+echo -e "[swfeatures]\nomemo=true" > /home/runner/.config/shmooserhs/harbour-shmoose.conf
+
+#cat /home/runner/.config/shmooselhs/harbour-shmoose.conf
+#echo "----------------"
+#cat /home/runner/.config/shmooserhs/harbour-shmoose.conf
+#echo "----------------"
+
 ${GITHUB_WORKSPACE}/scripts/travis/reset_ejabberd.sh
 GCOV_PREFIX=$RESULTSC1 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
 GCOV_PREFIX=$RESULTSC2 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose rhs &
@@ -148,6 +160,11 @@ merge_client_coverage_to_file omemo1.cov
 # run omemo test with existing db
 ##########################
 killall -9 harbour-shmoose
+
+# enable omemo feature, override everthing else.
+echo -e "[swfeatures]\nomemo=true" > /home/runner/.config/shmooselhs/harbour-shmoose.conf
+echo -e "[swfeatures]\nomemo=true" > /home/runner/.config/shmooserhs/harbour-shmoose.conf
+
 GCOV_PREFIX=$RESULTSC1 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose lhs &
 GCOV_PREFIX=$RESULTSC2 ${GITHUB_WORKSPACE}/${TESTPATH}/harbour-shmoose rhs &
 

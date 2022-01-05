@@ -423,3 +423,20 @@ void Settings::setLimitCompression(unsigned int LimitCompression)
     settings.setValue("attachments/limitCompression", LimitCompression);
     emit limitCompressionChanged(LimitCompression);
 }
+
+bool Settings::getSoftwareFeatureOmemoEnabled() const
+{
+    bool enabled{false};
+
+    QSettings settings;
+    enabled = settings.value("swfeatures/omemo", false).toBool();
+
+    return enabled;
+}
+
+void Settings::setSoftwareFeatureOmemoEnabled(bool enableSoftwareFeatureOmemo)
+{
+    QSettings settings;
+    settings.setValue("swfeatures/omemo", enableSoftwareFeatureOmemo);
+    emit softwareFeatureOmemoEnabledChanged(enableSoftwareFeatureOmemo);
+}

@@ -22,6 +22,7 @@ class Settings : public QObject
     Q_PROPERTY(bool CompressImages READ getCompressImages WRITE setCompressImages NOTIFY compressImagesChanged)
     Q_PROPERTY(bool SendOnlyImages READ getSendOnlyImages WRITE setSendOnlyImages NOTIFY sendOnlyImagesChanged)
     Q_PROPERTY(int LimitCompression READ getLimitCompression WRITE setLimitCompression NOTIFY limitCompressionChanged)
+    Q_PROPERTY(bool EnableSoftwareFeatureOmemo READ getSoftwareFeatureOmemoEnabled WRITE setSoftwareFeatureOmemoEnabled NOTIFY softwareFeatureOmemoEnabledChanged);
 
 
 public:
@@ -41,6 +42,7 @@ public:
     bool getCompressImages() const;
     bool getSendOnlyImages() const;
     unsigned int getLimitCompression() const;
+    bool getSoftwareFeatureOmemoEnabled() const;
 
 signals:
     void jidChanged(QString Jid);
@@ -56,6 +58,7 @@ signals:
     void compressImagesChanged(bool CompressImages);
     void sendOnlyImagesChanged(bool SendOnlyImages);
     void limitCompressionChanged(unsigned int LimitCompression);
+    void softwareFeatureOmemoEnabledChanged(bool enableSoftwareFeatureOmemo);
 
 public slots:
     void setJid(QString Jid);
@@ -73,7 +76,7 @@ public slots:
     void setImagePaths(QStringList const & ImagePaths);
     void removeImagePath(QString const & Path);
     void addImagePath(QUrl const & Path);
-    void setOmemoForSendingOff(bool isInitialized);
+    void setOmemoForSendingOff(bool omemoForSendingOff);
 
     void addForcePlainTextSending(const QString& jid);
     void removeForcePlainTextSending(const QString& jid);
@@ -81,6 +84,7 @@ public slots:
     void setCompressImages(bool AlwaysCompressImages);
     void setSendOnlyImages(bool SendOnlyImages);
     void setLimitCompression(unsigned int LimitCompression);
+    void setSoftwareFeatureOmemoEnabled(bool enableSoftwareFeatureOmemo);
 
 };
 
