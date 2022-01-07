@@ -57,7 +57,7 @@
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="100"/>
         <source>Remove contact</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort kontakt</translation>
     </message>
     <message>
         <location filename="../qml/pages/ContactsPage.qml" line="131"/>
@@ -80,22 +80,22 @@
     <message>
         <location filename="../qml/pages/ConversationsPage.qml" line="24"/>
         <source>Empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Tom</translation>
     </message>
     <message>
         <location filename="../qml/pages/ConversationsPage.qml" line="25"/>
         <source>Select a contact to start a conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj en kontakt för att starta en konversation</translation>
     </message>
     <message>
         <location filename="../qml/pages/ConversationsPage.qml" line="108"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
         <location filename="../qml/pages/ConversationsPage.qml" line="110"/>
         <source>Delete conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort konversation</translation>
     </message>
 </context>
 <context>
@@ -286,22 +286,22 @@
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="212"/>
         <source>uploading</source>
-        <translation type="unfinished"></translation>
+        <translation>Laddar upp</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="222"/>
         <source>File Upload</source>
-        <translation type="unfinished"></translation>
+        <translation>Filuppladdning</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="223"/>
         <source>uploading </source>
-        <translation type="unfinished"></translation>
+        <translation>Laddar upp </translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="228"/>
         <source>send failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunde inte skicka</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="290"/>
@@ -311,17 +311,17 @@
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="295"/>
         <source>Copy URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera URL</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="300"/>
         <source>Send again</source>
-        <translation type="unfinished"></translation>
+        <translation>Skicka igen</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="307"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="315"/>
@@ -336,22 +336,22 @@
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="560"/>
         <source>now</source>
-        <translation type="unfinished"></translation>
+        <translation>Nu</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="562"/>
         <source>1 mn ago</source>
-        <translation type="unfinished"></translation>
+        <translation>1 minut sedan</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="564"/>
         <source></source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingPage.qml" line="564"/>
         <source> mns ago</source>
-        <translation type="unfinished"></translation>
+        <translation> minuter sedan</translation>
     </message>
 </context>
 <context>
@@ -384,22 +384,22 @@
     <message>
         <location filename="../qml/pages/MessagingSettingsPage.qml" line="78"/>
         <source>Send omemo encrypted messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Skicka omemo-krypterade meddelanden</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingSettingsPage.qml" line="92"/>
         <source>Limit compression to</source>
-        <translation type="unfinished"></translation>
+        <translation>Begränsa komprimering till</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingSettingsPage.qml" line="107"/>
         <source> KB</source>
-        <translation type="unfinished"></translation>
+        <translation> KB</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingSettingsPage.qml" line="117"/>
         <source>Send images only</source>
-        <translation type="unfinished"></translation>
+        <translation>Skicka endast bilder</translation>
     </message>
 </context>
 <context>
@@ -447,12 +447,12 @@
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="57"/>
         <source>Features</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktioner</translation>
     </message>
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="62"/>
         <source>Omemo Message Encryption - Experimental! (Need app restart)</source>
-        <translation type="unfinished"></translation>
+        <translation>Omemo meddelandekryptering - Experimentell! (Kräver app-omstart)</translation>
     </message>
 </context>
 </TS>
