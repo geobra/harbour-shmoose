@@ -46,7 +46,7 @@
     <name>ChatPage</name>
     <message>
         <source>Enter message</source>
-        <translation type="vanished">Introducir mensaje</translation>
+        <translation>Introducir mensaje</translation>
     </message>
 </context>
 <context>
@@ -173,7 +173,7 @@
     <name>ImagePickerPage</name>
     <message>
         <source>Select picture</source>
-        <translation type="vanished">Elegir foto</translation>
+        <translation>Elegir foto</translation>
     </message>
 </context>
 <context>
