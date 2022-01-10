@@ -162,10 +162,6 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     // https://xmpp.org/extensions/xep-0280.html
     discoInfo.addFeature(Swift::DiscoInfo::MessageCarbonsFeature);
 
-    // omemo
-    discoInfo.addFeature(lurchAdapter_->getFeature().toStdString());
-    discoInfo.addFeature(lurchAdapter_->getFeature().toStdString() + "+notify");
-    
     Settings settings;
     if (settings.getSoftwareFeatureOmemoEnabled() == true)
     {
