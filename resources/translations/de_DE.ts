@@ -57,17 +57,22 @@
         <translation>Kontakte</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ContactsPage.qml" line="96"/>
+        <location filename="../qml/pages/ContactsPage.qml" line="98"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ContactsPage.qml" line="125"/>
+        <location filename="../qml/pages/ContactsPage.qml" line="100"/>
+        <source>Remove contact</source>
+        <translation>Kontakt entfernen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ContactsPage.qml" line="131"/>
         <source>Join room by address</source>
         <translation>Raum mittels Adresse beitreten</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ContactsPage.qml" line="132"/>
+        <location filename="../qml/pages/ContactsPage.qml" line="138"/>
         <source>Add contact</source>
         <translation>Kontakt hinzufügen</translation>
     </message>
@@ -78,6 +83,26 @@
         <location filename="../qml/pages/ConversationsPage.qml" line="19"/>
         <source>Conversations</source>
         <translation>Unterhaltungen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ConversationsPage.qml" line="24"/>
+        <source>Empty</source>
+        <translation>Leer</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ConversationsPage.qml" line="25"/>
+        <source>Select a contact to start a conversation</source>
+        <translation>Wähle einen Kontakt um eine Unterhaltung zu starten</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ConversationsPage.qml" line="108"/>
+        <source>Delete</source>
+        <translation>Löschen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ConversationsPage.qml" line="110"/>
+        <source>Delete conversation</source>
+        <translation>Unterhaltung löschen</translation>
     </message>
 </context>
 <context>
@@ -134,20 +159,19 @@
 <context>
     <name>ImagePage</name>
     <message>
-        <location filename="../qml/pages/ImagePage.qml" line="143"/>
+        <location filename="../qml/pages/ImagePage.qml" line="144"/>
         <source>Loading image...%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade Bild ...%1</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImagePage.qml" line="152"/>
+        <location filename="../qml/pages/ImagePage.qml" line="153"/>
         <source>Error loading image</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Laden des Bildes</translation>
     </message>
 </context>
 <context>
     <name>ImagePickerPage</name>
     <message>
-        <location filename="../qml/pages/ImagePickerPage.qml" line="42"/>
         <source>Select picture</source>
         <translation>Bild auswählen</translation>
     </message>
@@ -187,12 +211,12 @@
         <translation type="obsolete">Login</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="23"/>
+        <location filename="../qml/pages/LoginPage.qml" line="22"/>
         <source>Welcome to Shmoose</source>
         <translation>Willkommen zu Shmoose</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="30"/>
+        <location filename="../qml/pages/LoginPage.qml" line="29"/>
         <source>Login to Jabber Server</source>
         <translation>In Jabber Server einloggen</translation>
     </message>
@@ -222,13 +246,13 @@
         <translation>Zugangsdaten speichern (unverschlüsselt)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="82"/>
-        <location filename="../qml/pages/LoginPage.qml" line="104"/>
+        <location filename="../qml/pages/LoginPage.qml" line="83"/>
+        <location filename="../qml/pages/LoginPage.qml" line="105"/>
         <source>Connect</source>
         <translation>Verbinden</translation>
     </message>
     <message>
-        <location filename="../qml/pages/LoginPage.qml" line="87"/>
+        <location filename="../qml/pages/LoginPage.qml" line="88"/>
         <source>Connecting...</source>
         <translation>Verbinden …</translation>
     </message>
@@ -267,47 +291,122 @@
 <context>
     <name>MessagingPage</name>
     <message>
-        <location filename="../qml/pages/MessagingPage.qml" line="183"/>
+        <location filename="../qml/pages/MessagingPage.qml" line="212"/>
+        <source>uploading</source>
+        <translation>hochladen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingPage.qml" line="222"/>
+        <source>File Upload</source>
+        <translation>Bild hochladen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingPage.qml" line="223"/>
+        <source>uploading </source>
+        <translation>hochladen </translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingPage.qml" line="228"/>
+        <source>send failed</source>
+        <translation>Senden fehlgeschlagen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingPage.qml" line="290"/>
         <source>Copy</source>
         <translation>Kopieren</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagingPage.qml" line="188"/>
+        <location filename="../qml/pages/MessagingPage.qml" line="295"/>
+        <source>Copy URL</source>
+        <translation>URL kopieren</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingPage.qml" line="300"/>
+        <source>Send again</source>
+        <translation>Senden wiederholen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingPage.qml" line="307"/>
+        <source>Save</source>
+        <translation>Speichern</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingPage.qml" line="315"/>
         <source>Status</source>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagingPage.qml" line="245"/>
+        <location filename="../qml/pages/MessagingPage.qml" line="381"/>
         <source>Enter message...</source>
         <translation>Nachricht eingeben …</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingPage.qml" line="560"/>
+        <source>now</source>
+        <translation>jetzt</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingPage.qml" line="562"/>
+        <source>1 mn ago</source>
+        <translation>Vor einer Minute</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingPage.qml" line="564"/>
+        <source></source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingPage.qml" line="564"/>
+        <source> mns ago</source>
+        <translation> Minuten her</translation>
     </message>
 </context>
 <context>
     <name>MessagingSettingsPage</name>
     <message>
-        <location filename="../qml/pages/MessagingSettingsPage.qml" line="20"/>
+        <location filename="../qml/pages/MessagingSettingsPage.qml" line="28"/>
         <source> settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/MessagingSettingsPage.qml" line="23"/>
-        <source>Chat notifications</source>
-        <translation type="unfinished"></translation>
+        <translation> Einstellungen</translation>
     </message>
     <message>
         <location filename="../qml/pages/MessagingSettingsPage.qml" line="32"/>
+        <source>Chat notifications</source>
+        <translation>Chat Benachrichtigungen</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingSettingsPage.qml" line="41"/>
         <source>Default setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Standard Einstellung</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagingSettingsPage.qml" line="39"/>
+        <location filename="../qml/pages/MessagingSettingsPage.qml" line="48"/>
         <source>On</source>
-        <translation type="unfinished"></translation>
+        <translation>An</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagingSettingsPage.qml" line="46"/>
+        <location filename="../qml/pages/MessagingSettingsPage.qml" line="55"/>
         <source>Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Aus</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingSettingsPage.qml" line="78"/>
+        <source>Send omemo encrypted messages</source>
+        <translation>Verschicke Omemo verschlüsselte Nachricht</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingSettingsPage.qml" line="92"/>
+        <source>Limit compression to</source>
+        <translation>Begrenze Kompression auf</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingSettingsPage.qml" line="107"/>
+        <source> KB</source>
+        <translation> KB</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MessagingSettingsPage.qml" line="117"/>
+        <source>Send images only</source>
+        <translation>Nur Bilder verschicken</translation>
     </message>
 </context>
 <context>
@@ -320,17 +419,17 @@
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="20"/>
         <source>Notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Benachrichtigungen</translation>
     </message>
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="25"/>
         <source>Display chat notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige Chat Benachrichtigungen an</translation>
     </message>
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="33"/>
         <source>Display group chat notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige Gruppen Benachrichtigungen an</translation>
     </message>
     <message>
         <location filename="../qml/pages/PreferencesPage.qml" line="39"/>
@@ -351,6 +450,16 @@
         <location filename="../qml/pages/PreferencesPage.qml" line="53"/>
         <source>Edit attachment search paths</source>
         <translation>Suchpfade für Anhänge ändern</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/PreferencesPage.qml" line="57"/>
+        <source>Features</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/PreferencesPage.qml" line="62"/>
+        <source>Omemo Message Encryption - Experimental! (Need app restart)</source>
+        <translation>Omemo Nachrichten Verschlüsselung - Experimentell! (Benötigt einen App Neustart)</translation>
     </message>
 </context>
 </TS>

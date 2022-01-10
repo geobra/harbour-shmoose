@@ -459,4 +459,5 @@ void Settings::setSoftwareFeatureOmemoEnabled(bool enableSoftwareFeatureOmemo)
     QSettings settings;
     settings.setValue("swfeatures/omemo", enableSoftwareFeatureOmemo);
     emit softwareFeatureOmemoEnabledChanged(enableSoftwareFeatureOmemo);
+
 }

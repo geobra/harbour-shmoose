@@ -1,5 +1,5 @@
 Name: harbour-shmoose
-Version: 0.7.2
+Version: 0.8.0
 Release:	1%{?dist}
 Summary: Shmoose - XMPP Client for Sailfish OS
 
@@ -16,6 +16,9 @@ BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  libiphb-devel
 BuildRequires:  libxml2-devel
 BuildRequires:  openssl-devel
+BuildRequires:  libgpg-error-devel
+BuildRequires:  libgcrypt-devel
+BuildRequires:  sqlite-devel
 
 %description
 XMPP Client for Sailfish OS
