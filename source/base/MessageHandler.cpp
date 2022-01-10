@@ -263,7 +263,6 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         msg->addPayload(std::make_shared<Swift::RawXMLPayload>(ChatMarkers::getMarkableString().toStdString()));
 
         bool shouldSendMsgStanze{true};
-        // exchange body by omemo stuff if applicable
         if (settings_->getSoftwareFeatureOmemoEnabled() == true)
         {        
             if ( (isGroup == true
@@ -278,7 +277,7 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
                     // either some de/encryption stuff failed, or the bundel is requested in background
                     // don't send this msg, but put it in the database for chat markers to be set correct.
                     // informs the user about real sending, receiving, reading.
-                    shouldSendMsgStanze = true;
+                    shouldSendMsgStanze = false;
                 }
                 else
                 {

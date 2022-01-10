@@ -162,6 +162,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     // https://xmpp.org/extensions/xep-0280.html
     discoInfo.addFeature(Swift::DiscoInfo::MessageCarbonsFeature);
 
+    // omemo
     Settings settings;
     if (settings.getSoftwareFeatureOmemoEnabled() == true)
     {
@@ -271,7 +272,7 @@ void Shmoose::sendMessage(QString const &message, QString const &type)
 
 void Shmoose::sendFile(QString const &toJid, QString const &file)
 {
-    bool shouldEncryptFile = settings_->getSoftwareFeatureOmemoEnabled() && lurchAdapter_->isOmemoUser(toJid) && (! settings_->getSendPlainText().contains(toJid));    
+    bool shouldEncryptFile = settings_->getSoftwareFeatureOmemoEnabled() && lurchAdapter_->isOmemoUser(toJid) && (! settings_->getSendPlainText().contains(toJid));
     Swift::JID receiverJid(toJid.toStdString());
     Swift::IDGenerator idGenerator;
     notSentMsgId_ = QString::fromStdString(idGenerator.generateID());
