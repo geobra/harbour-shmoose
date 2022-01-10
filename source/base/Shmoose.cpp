@@ -34,10 +34,7 @@
 #include "StanzaId.h"
 #include "LurchAdapter.h"
 #include "Settings.h"
-<<<<<<< HEAD
 #include "Client.h"
-=======
->>>>>>> geobra/master
 
 
 #include "System.h"
