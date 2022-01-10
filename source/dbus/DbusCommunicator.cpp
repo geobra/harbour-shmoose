@@ -8,6 +8,7 @@
 #include "DownloadManager.h"
 #include "MucManager.h"
 #include "GcmController.h"
+//#include "Settings.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -36,6 +37,10 @@ DbusCommunicator::DbusCommunicator(const QString &path, const QString &name, QOb
                 qPrintable(QDBusConnection::sessionBus().lastError().message()));
         exit(1);
     }
+
+    // globally disable omemo implementation for testing.
+    //Settings settings;
+    //settings.setSoftwareFeatureOmemoEnabled(false);
 
     qDebug() << "QDbusConnection name: " << QDBusConnection::sessionBus().name() << ", env: " << qgetenv("DBUS_SESSION_BUS_ADDRESS");
 }

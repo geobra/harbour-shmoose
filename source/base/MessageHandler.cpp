@@ -90,16 +90,19 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         }
     }
 
-    auto success = lurchAdapter_->decryptMessageIfEncrypted(message);
-    if (success == 0) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
+    if (settings_->getSoftwareFeatureOmemoEnabled() == true)
     {
-        security = 1;
-    }
-    else if (success == 2)
-    {
-        qDebug() << "handleMessageReceived: error during decryption).";
-        QString cryptErrorMsg{tr("** Enrypted message could not be decrypted. Sorry. **")};
-        message->setBody(cryptErrorMsg.toStdString());
+        auto success = lurchAdapter_->decryptMessageIfEncrypted(message);
+        if (success == 0) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
+        {
+            security = 1;
+        }
+        else if (success == 2)
+        {
+            qDebug() << "handleMessageReceived: error during decryption).";
+            QString cryptErrorMsg{tr("** Enrypted message could not be decrypted. Sorry. **")};
+            message->setBody(cryptErrorMsg.toStdString());
+        }   
     }
 
 
@@ -205,7 +208,7 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
 {
     unsigned int security = 0;
 
-    if (message.startsWith("/lurch") == true)
+    if (settings_->getSoftwareFeatureOmemoEnabled() == true && message.startsWith("/lurch") == true)
     {
         std::vector<std::string> sl;
         for (auto string: message.split(" "))
@@ -259,25 +262,28 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         // add chatMarkers stanza
         msg->addPayload(std::make_shared<Swift::RawXMLPayload>(ChatMarkers::getMarkableString().toStdString()));
 
-        // exchange body by omemo stuff if applicable
         bool shouldSendMsgStanze{true};
-        if ( (isGroup == true
-             || (lurchAdapter_->isOmemoUser(toJid) == true)) // the receipient client can handle omemo encryption
-             && (! settings_->getSendPlainText().contains(toJid)) // no force for plain text msg in settings
-             )
-        {
-            bool success = lurchAdapter_->exchangePlainBodyByOmemoStanzas(msg);
-            if (success == false)
+        // exchange body by omemo stuff if applicable
+        if (settings_->getSoftwareFeatureOmemoEnabled() == true)
+        {        
+            if ( (isGroup == true
+                 || (lurchAdapter_->isOmemoUser(toJid) == true)) // the receipient client can handle omemo encryption
+                 && (! settings_->getSendPlainText().contains(toJid)) // no force for plain text msg in settings
+                 )
             {
-                // an exchange of the body stanza by an omemo stanza failed
-                // either some de/encryption stuff failed, or the bundel is requested in background
-                // don't send this msg, but put it in the database for chat markers to be set correct.
-                // informs the user about real sending, receiving, reading.
-                shouldSendMsgStanze = true;
-            }
-            else
-            {
-                security = 1;
+                bool success = lurchAdapter_->exchangePlainBodyByOmemoStanzas(msg);
+                if (success == false)
+                {
+                    // an exchange of the body stanza by an omemo stanza failed
+                    // either some de/encryption stuff failed, or the bundel is requested in background
+                    // don't send this msg, but put it in the database for chat markers to be set correct.
+                    // informs the user about real sending, receiving, reading.
+                    shouldSendMsgStanze = true;
+                }
+                else
+                {
+                    security = 1;
+                }
             }
         }
 
