@@ -13,7 +13,7 @@ Page {
     Column {
 
         PageHeader {
-            title: jid+qsTr(" settings")
+            title: jid+" "+qsTr("settings")
         }
 
         anchors {
@@ -46,7 +46,7 @@ Page {
         TextField {
             width: parent.width
             text:  jidName
-            label: "Contact name"
+            label: qsTr("Contact name")
             Component.onDestruction: {
                 if(text != jidName && text.length > 0)
                     shmoose.rosterController.updateNameForJid(text); 
