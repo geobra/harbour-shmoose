@@ -17,7 +17,7 @@ public:
     void setupWithClient(Swift::Client* client);
     void handleConnected();
 
-    void addRoom(Swift::JID &roomJid, QString const &roomName);
+    void addRoom(const Swift::JID &roomJid, QString const &roomName);
     void removeRoom(QString const &jroomJid);
     void renameRoom(QString const &roomJid, QString const &roomName);
 
@@ -42,6 +42,7 @@ private:
     void handleJoinFailed(Swift::ErrorPayload::ref error);
     void handleJoinComplete(const std::string &joinedName);
     void handleUserLeft(Swift::MUC::LeavingType lt);
+    void handleDiscoInfoResponse(const std::string& jid, std::shared_ptr<Swift::DiscoInfo> info, Swift::ErrorPayload::ref error);
 
     void handleMessageReceived(Swift::Message::ref message);
     void handleDataReceived(Swift::SafeByteArray data);
