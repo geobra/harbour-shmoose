@@ -56,11 +56,13 @@ void purple_debug_misc(const char *category, const char *format,...)
 
 int purple_prefs_get_bool(char* str)
 {
-    return 1;
+    // 1: display trace messages, 0: no message
+    return 0;
 }
 
 int purple_prefs_get_int(char* str)
 {
+    // level of trace messages: 4=debug
     return 4;
 }
 
