@@ -6,5 +6,7 @@
 | Term         | Definition
 | Jabber       | Old name for XMPP
 | XMPP         | Extensible Messaging and Presence Protocol
-| XEP          | XMPP Extension Protocols
+| XEP          | XMPP Extension Protocols / XMPP Extension Proposal
+
+Often appended with a specific XEP number by a hyphen, e.g., XEP-0384 for OMEMO.
 |===

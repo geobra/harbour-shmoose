@@ -10,6 +10,6 @@
 === Technical
 
 |===
-|Specific versions of libraries|The implemented client should be runnable on any Unix like system. But the main target OS would be Sailfish OS. Because of this the Qt Version is currently limited to v6.5 and the C{plus}{plus} standard to C{plus}{plus}11 with some parts of C{plus}{plus}14
+|Specific versions of libraries|The implemented client should be runnable on any Unix like system. But the main target OS would be Sailfish OS. Because of this the Qt Version is currently limited to v5.6 and the C{plus}{plus} standard to C{plus}{plus}11 with some parts of C{plus}{plus}14
 |===
 
