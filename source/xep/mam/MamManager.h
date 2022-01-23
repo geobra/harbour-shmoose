@@ -31,9 +31,7 @@ public:
 private:
 #endif
     void requestArchiveForJid(const QString& jid, const QString& last = "");
-    void handleMessageReceived(Swift::Message::ref message);
 
-    void processMamMessage(std::shared_ptr<Swift::Forwarded> forwarded);
     void processFinIq(const std::string& jid, std::shared_ptr<Swift::MAMFin> payload, Swift::ErrorPayload::ref error);
 
 
