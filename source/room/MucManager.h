@@ -45,7 +45,6 @@ private:
     void handleDiscoInfoResponse(const std::string& jid, std::shared_ptr<Swift::DiscoInfo> info, Swift::ErrorPayload::ref error);
 
     void handleMessageReceived(Swift::Message::ref message);
-    void handleDataReceived(Swift::SafeByteArray data);
 
     void joinRoomIfConfigured(Swift::MUCBookmark const &bookmark);
     void sendUnavailableToRoom(Swift::MUCBookmark bookmark);
