@@ -461,3 +461,26 @@ void Settings::setSoftwareFeatureOmemoEnabled(bool enableSoftwareFeatureOmemo)
     emit softwareFeatureOmemoEnabledChanged(enableSoftwareFeatureOmemo);
 
 }
+
+QDateTime Settings::getLatestMamSyncDate() const
+{
+    QDateTime returnValue = QDateTime::currentDateTimeUtc().addDays(-15);
+    QSettings settings;
+
+    returnValue.setTimeSpec(Qt::UTC); 
+
+    if(settings.value("mam/latestsyncdate").toDateTime().isValid())
+    {
+        returnValue = settings.value("mam/latestsyncdate").toDateTime();
+    }
+
+    return returnValue;
+}
+
+void Settings::setLatestMamSyncDate(QDateTime const &latestMamSyncDate)
+{
+    QSettings settings;
+
+    settings.setValue("mam/latestsyncdate", latestMamSyncDate);
+    emit latestMamSyncDateChanged(latestMamSyncDate);
+}

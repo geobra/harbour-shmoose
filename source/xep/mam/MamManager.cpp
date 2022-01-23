@@ -5,6 +5,7 @@
 #include "DownloadManager.h"
 #include "LurchAdapter.h"
 #include "MamRequest.h"
+#include "Settings.h"
 
 #include <QDateTime>
 #include <QUrl>
@@ -75,10 +76,6 @@ void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
     {
         qDebug() << "MamManager::requestArchiveForJid: " << jid << ", last: " << last << endl;
 
-        // get the date of last week
-        QDateTime lastWeek = QDateTime::currentDateTimeUtc().addDays(-15);
-        lastWeek.setTimeSpec(Qt::UTC);
-
         // construct the mam query for messages from within last two week
         XmlWriter xw;
         xw.writeOpenTag( "query", AttrMap("xmlns", MamManager::mamNs) );
@@ -96,7 +93,7 @@ void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
         xw.writeCloseTag( "field" );
 
         xw.writeOpenTag( "field", AttrMap("var", "start") );
-        xw.writeTaggedString( "value", lastWeek.toString(Qt::ISODate) );
+        xw.writeTaggedString( "value", Settings().getLatestMamSyncDate().toString(Qt::ISODate));
         xw.writeCloseTag( "field" );
 
         xw.writeCloseTag( "x" );
@@ -158,6 +155,9 @@ void MamManager::processFinIq(const std::string& jid, std::shared_ptr<Swift::MAM
             else
             {
                 qDebug() << "########## mam fin complete for jid: " << from;
+                QDateTime now = QDateTime::currentDateTimeUtc();
+                now.setTimeSpec(Qt::UTC);
+                Settings().setLatestMamSyncDate(now);
             }
         }
     }
@@ -231,6 +231,7 @@ void MamManager::processMamMessage(std::shared_ptr<Swift::Forwarded> forwarded)
         // process msg's with a body
         if (message->getBody() && message->getBody()->size() > 0) // process messages with a body text
         {
+            qint64 start = Settings().getLatestMamSyncDate().toTime_t();
             // get timestamp of orginal sending
             qint64 timestamp = 0;
 
@@ -293,7 +294,7 @@ void MamManager::processMamMessage(std::shared_ptr<Swift::Forwarded> forwarded)
                 }
             }
 
-            if ( (! id.isEmpty()) && (! senderBareJid.isEmpty()) && is1o1OrIsGroupWithResource )
+            if ( (! id.isEmpty()) && (! senderBareJid.isEmpty()) && is1o1OrIsGroupWithResource && (timestamp > start))
             {
                 persistence_->addMessage(id, senderBareJid, resource, body, type, direction, security, timestamp);
             }

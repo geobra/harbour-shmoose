@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QUrl>
 #include <QStringList>
+#include <QDateTime>
 
 class Settings : public QObject
 {
@@ -23,7 +24,8 @@ class Settings : public QObject
     Q_PROPERTY(bool CompressImages READ getCompressImages WRITE setCompressImages NOTIFY compressImagesChanged)
     Q_PROPERTY(bool SendOnlyImages READ getSendOnlyImages WRITE setSendOnlyImages NOTIFY sendOnlyImagesChanged)
     Q_PROPERTY(int LimitCompression READ getLimitCompression WRITE setLimitCompression NOTIFY limitCompressionChanged)
-    Q_PROPERTY(bool EnableSoftwareFeatureOmemo READ getSoftwareFeatureOmemoEnabled WRITE setSoftwareFeatureOmemoEnabled NOTIFY softwareFeatureOmemoEnabledChanged);
+    Q_PROPERTY(bool EnableSoftwareFeatureOmemo READ getSoftwareFeatureOmemoEnabled WRITE setSoftwareFeatureOmemoEnabled NOTIFY softwareFeatureOmemoEnabledChanged)
+    Q_PROPERTY(QDateTime latestMamSyncDate READ getLatestMamSyncDate WRITE setLatestMamSyncDate NOTIFY latestMamSyncDateChanged)
 
 
 public:
@@ -45,6 +47,7 @@ public:
     bool getSendOnlyImages() const;
     unsigned int getLimitCompression() const;
     bool getSoftwareFeatureOmemoEnabled() const;
+    QDateTime getLatestMamSyncDate() const;
 
 signals:
     void jidChanged(QString Jid);
@@ -62,6 +65,7 @@ signals:
     void sendOnlyImagesChanged(bool SendOnlyImages);
     void limitCompressionChanged(unsigned int LimitCompression);
     void softwareFeatureOmemoEnabledChanged(bool enableSoftwareFeatureOmemo);
+    void latestMamSyncDateChanged(QDateTime LatestMamSyncDate);
 
 public slots:
     void setJid(QString Jid);
@@ -89,6 +93,7 @@ public slots:
     void setSendOnlyImages(bool SendOnlyImages);
     void setLimitCompression(unsigned int LimitCompression);
     void setSoftwareFeatureOmemoEnabled(bool enableSoftwareFeatureOmemo);
+    void setLatestMamSyncDate(QDateTime const &LatestMamSyncDate);
 
 };
 
