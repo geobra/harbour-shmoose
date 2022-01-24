@@ -162,6 +162,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         if(message->getFrom().compare(clientBareJid, Swift::JID::WithoutResource) == 0)
         {
             qDebug() << "message from me" << endl;
+            direction = 0;
             partyJid = QString::fromStdString(message->getTo().toBare().toString());
             resource = QString::fromStdString(Swift::JID(message->getTo().toString()).getResource());
         }
