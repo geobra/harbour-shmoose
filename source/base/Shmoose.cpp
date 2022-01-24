@@ -140,8 +140,8 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     connectionHandler_->setupWithClient(client_);
     messageHandler_->setupWithClient(client_);
 
-    //tracer_ = new Swift::ClientXMLTracer(client_);
-    tracer_ = nullptr;
+    tracer_ = new Swift::ClientXMLTracer(client_);
+    //tracer_ = nullptr;
 
     // configure the xmpp client
     softwareVersionResponder_ = new Swift::SoftwareVersionResponder(client_->getIQRouter());
@@ -225,11 +225,7 @@ void Shmoose::intialSetupOnFirstConnection()
     // init and setup mucManager
     mucManager_->setupWithClient(client_);
 
-    // init and setup omemo stuff
-    if (settings_->getSoftwareFeatureOmemoEnabled() == true)
-    {
-        lurchAdapter_->setupWithClient(client_);
-    }
+    lurchAdapter_->setupWithClient(client_);
 
     // Save account data
     settings_->setJid(jid_);

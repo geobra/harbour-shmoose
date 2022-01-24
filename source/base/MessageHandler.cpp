@@ -167,23 +167,19 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         }
     }
 
-    if (settings_->getSoftwareFeatureOmemoEnabled() == true)
+    auto success = lurchAdapter_->decryptMessageIfEncrypted(message);
+    if (success == 0) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
     {
-        auto success = lurchAdapter_->decryptMessageIfEncrypted(message);
-        if (success == 0) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
-        {
-            security = 1;
-        }
-        else if (success == 2)
-        {
-            qDebug() << "handleMessageReceived: error during decryption).";
-            QString cryptErrorMsg{tr("** Enrypted message could not be decrypted. Sorry. **")};
-            message->setBody(cryptErrorMsg.toStdString());
-        }
+        security = 1;
+    }
+    else if (success == 2)
+    {
+        qDebug() << "handleMessageReceived: error during decryption).";
+        QString cryptErrorMsg{tr("** Enrypted message could not be decrypted. Sorry. **")};
+        message->setBody(cryptErrorMsg.toStdString());
     }
 
     boost::optional<std::string> fromBody = message->getBody();
-
 
     if (fromBody)
     {
