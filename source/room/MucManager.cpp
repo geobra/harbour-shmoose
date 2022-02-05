@@ -185,6 +185,16 @@ void MucManager::handleBookmarkRemoved(Swift::MUCBookmark bookmark)
 {
     std::cout << "handleBookmarkRemoved: " << bookmark.getRoom().toString() << std::endl;
 
+    //update mucCollection_
+    for(std::vector<std::shared_ptr<MucCollection>>::iterator it = mucCollection_.begin(); it != mucCollection_.end(); ++it)
+    {
+        if ((*it)->getBookmark()->getRoom() == bookmark.getRoom())
+        {
+            mucCollection_.erase(it);
+            break;
+        }
+    }
+
     // leave room
     sendUnavailableToRoom(bookmark);
 
@@ -254,7 +264,8 @@ void MucManager::handleJoinComplete(const std::string &joinedName)
         if ((*it)->getNickname().compare(joinedName) == 0)
         {
             std::shared_ptr<Swift::MUCBookmark> bookmark = (*it)->getBookmark();
-            if (bookmark)
+            // because the same nickname can be used for multiple rooms, check if the room is not already bookmarked
+            if (bookmark && isRoomAlreadyBookmarked(QString::fromStdString(bookmark->getRoom())) == false)
             {
                 mucBookmarkManager_->addBookmark(*bookmark);
                 break;
