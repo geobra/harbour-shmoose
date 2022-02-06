@@ -32,6 +32,8 @@ void MucManager::setupWithClient(Swift::Client* client)
         client_->onMessageReceived.connect(boost::bind(&MucManager::handleMessageReceived, this, _1));
 
         client_->onConnected.connect(boost::bind(&MucManager::handleConnected, this));
+
+//        client_->onDataRead.connect(boost::bind(&MucManager::handleDataReceived, this, _1));
     }
 }
 
@@ -48,12 +50,41 @@ void MucManager::handleConnected()
     triggerNewMucSignal_ = true;
 }
 
+void MucManager::handleDataReceived(Swift::SafeByteArray data)
+{
+    std::string nodeData = Swift::safeByteArrayToString(data);
+    QString qData = QString::fromStdString(nodeData);
+
+    // Search from room name in disco#info
+
+    QString fromTag = XmlProcessor::getContentInTag("iq", "from", qData);
+
+    if(! fromTag.isEmpty())
+    {
+        QString query = XmlProcessor::getChildFromNode("query", qData);
+
+        if(! query.isEmpty())
+        {
+            QString catTag = XmlProcessor::getContentInTag("identity", "category", qData);
+            QString typeTag = XmlProcessor::getContentInTag("identity", "type", qData);
+
+            if ( catTag.contains("conference", Qt::CaseInsensitive) == true  &&
+                 typeTag.contains("text", Qt::CaseInsensitive) == true )
+            {
+                QString nameTag = XmlProcessor::getContentInTag("identity", "name", qData);
+
+                renameRoom(fromTag, nameTag);
+            }
+        }
+    }
+}
+
 void MucManager::handleMessageReceived(Swift::Message::ref message)
 {
     // Examples/MUCListAndJoin/MUCListAndJoin.cpp
     if (message->getPayload<Swift::MUCInvitationPayload>())
     {
-        qDebug() << "its a muc inventation!!!";
+        //qDebug() << "its a muc inventation!!!";
         Swift::MUCInvitationPayload::ref mucInventation = message->getPayload<Swift::MUCInvitationPayload>();
 
         Swift::JID roomJid = mucInventation->getJID();
@@ -195,8 +226,6 @@ void MucManager::handleBookmarkRemoved(Swift::MUCBookmark bookmark)
 void MucManager::addRoom(const Swift::JID &roomJid, QString const &roomName)
 {
     std::string nickName = getNickName().toStdString();
-
-    qDebug() << "add room " << QString::fromStdString(roomJid.toString()) << ", " << roomName << endl;
 
     // create MUC
     std::shared_ptr<Swift::MUC> muc = client_->getMUCManager()->createMUC(roomJid);
