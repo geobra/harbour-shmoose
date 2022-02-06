@@ -5,7 +5,6 @@
 #include <iostream>
 
 #include "XmlProcessor.h"
-#include "MucRequest.h"
 
 MucManager::MucManager(QObject *parent) :
     QObject(parent), client_(nullptr), mucBookmarkManager_(nullptr), triggerNewMucSignal_(true), nickName_("")
@@ -33,7 +32,7 @@ void MucManager::setupWithClient(Swift::Client* client)
 
         client_->onConnected.connect(boost::bind(&MucManager::handleConnected, this));
 
-//        client_->onDataRead.connect(boost::bind(&MucManager::handleDataReceived, this, _1));
+        client_->onDataRead.connect(boost::bind(&MucManager::handleDataReceived, this, _1));
     }
 }
 
@@ -88,27 +87,9 @@ void MucManager::handleMessageReceived(Swift::Message::ref message)
         Swift::MUCInvitationPayload::ref mucInventation = message->getPayload<Swift::MUCInvitationPayload>();
 
         Swift::JID roomJid = mucInventation->getJID();
+        QString roomName = QString::fromStdString(message->getSubject());
 
-        // request room info to get room name
-        MucRequest::ref mucRequest = MucRequest::create(roomJid.toString(), client_->getIQRouter());
-        mucRequest->onResponse.connect(boost::bind(&MucManager::handleDiscoInfoResponse, this, _1, _2, _3));
-        mucRequest->send();
-    }
-}
-
-void MucManager::handleDiscoInfoResponse(const std::string& jid, std::shared_ptr<Swift::DiscoInfo> info, Swift::ErrorPayload::ref error)
-{
-    if (error == nullptr) {
-        for (auto&& extension : info->getExtensions())
-        {
-            auto field = extension->getField("muc#roomconfig_roomname");
-
-            if(field != nullptr)
-            {
-                addRoom(Swift::JID(jid), QString::fromStdString(field->getTextSingleValue()));
-                break;
-            }
-        }
+        this->addRoom(roomJid, roomName);
     }
 }
 
@@ -223,7 +204,7 @@ void MucManager::handleBookmarkRemoved(Swift::MUCBookmark bookmark)
     emit removeGroupFromContactsList( QString::fromStdString(bookmark.getRoom().toBare().toString()) );
 }
 
-void MucManager::addRoom(const Swift::JID &roomJid, QString const &roomName)
+void MucManager::addRoom(Swift::JID &roomJid, QString const &roomName)
 {
     std::string nickName = getNickName().toStdString();
 
@@ -233,7 +214,7 @@ void MucManager::addRoom(const Swift::JID &roomJid, QString const &roomName)
     muc->onJoinFailed.connect(boost::bind(&MucManager::handleJoinFailed, this, _1));
 
     // save as bookmark if not already in
-    if (isRoomAlreadyBookmarked(QString::fromStdString(roomJid.toString())) == false)
+    if (isRoomAlreadyBookmarked(QString::fromStdString(roomJid)) == false)
     {
         // create bookmark
         std::shared_ptr<Swift::MUCBookmark> mucBookmark(new Swift::MUCBookmark(roomJid, roomName.toStdString()));

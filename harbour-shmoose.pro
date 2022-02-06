@@ -182,7 +182,6 @@ HEADERS += source/base/Shmoose.h \
     source/xep/omemo/RawRequestBundle.h \
     source/xep/omemo/xmlnode.h \
     source/room/MucManager.h \
-    source/room/MucRequest.h \
     source/room/MucCollection.h \
     source/networkconnection/ConnectionHandler.h \
     source/networkconnection/IpHeartBeatWatcher.h \
