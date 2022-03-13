@@ -34,6 +34,7 @@
 #include "StanzaId.h"
 #include "LurchAdapter.h"
 #include "Settings.h"
+#include "Client.h"
 
 
 #include "System.h"
@@ -123,30 +124,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 {
     persistence_->openDatabaseForJid(jid);
 
-    QString resourceName;
-    QString resourceId;
-
-    //generate unique resource name
-    resourceId = settings_->getResourceId();
-    if(resourceId.isEmpty())
-    {
-       const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
-       const int randomStringLength = 4; 
-
-       QString randomString;
-       for(int i=0; i<randomStringLength; ++i)
-       {
-           int index = qrand() % possibleCharacters.length();
-           QChar nextChar = possibleCharacters.at(index);
-           randomString.append(nextChar);
-       }
-
-       resourceId = randomString;
-       settings_->setResourceId(resourceId);
-    }
-
-    resourceName = QString("shmoose.") + resourceId;
-    QString completeJid = jid + "/" + resourceName;
+    QString completeJid = jid + "/shmoose";
 
 #ifndef SFOS
     completeJid += "Desktop";
@@ -154,7 +132,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 #endif
 
     // setup the xmpp client
-    client_ = new Swift::Client(Swift::JID(completeJid.toStdString()), pass.toStdString(), netFactories_);
+    client_ = new Client(Swift::JID(completeJid.toStdString()), pass.toStdString(), netFactories_);
     client_->setAlwaysTrustCertificates();
 
     stanzaId_->setupWithClient(client_);
