@@ -440,3 +440,23 @@ void Settings::setSoftwareFeatureOmemoEnabled(bool enableSoftwareFeatureOmemo)
     settings.setValue("swfeatures/omemo", enableSoftwareFeatureOmemo);
     emit softwareFeatureOmemoEnabledChanged(enableSoftwareFeatureOmemo);
 }
+
+QString Settings::getResourceId() const
+{
+   QString returnValue = "";
+
+    QSettings settings;
+    if(settings.value("authentication/resourceId").toString() != "NOT_SET")
+    {
+        returnValue = settings.value("authentication/resourceId").toString();
+    }
+
+    return returnValue;
+}
+
+void Settings::setResourceId(QString resourceId)
+{
+    QSettings settings;
+    settings.setValue("authentication/resourceId", resourceId);
+    emit resourceIdChanged(resourceId);
+}
