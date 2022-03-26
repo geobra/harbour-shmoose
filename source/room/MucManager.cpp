@@ -61,6 +61,11 @@ void MucManager::handleMessageReceived(Swift::Message::ref message)
     }
 }
 
+// https://swift.im/swiften/api/
+// https://xmpp.org/extensions/xep-0045.html#modifymember
+// https://stackoverflow.com/questions/27393540/discovering-members-of-muc-room-as-occupant
+
+
 void MucManager::handleBookmarksReady()
 {
     std::cout << "##################### handleBookmarksReady ######################" << std::endl;
@@ -110,7 +115,7 @@ bool MucManager::isRoomAlreadyBookmarked(const QString& roomJid)
 void MucManager::handleBookmarkAdded(Swift::MUCBookmark bookmark)
 {
     Swift::JID roomJid(bookmark.getRoom());
-    //std::cout << "###################### handleBookmarkAdded: ############### " << roomJid.toBare().toString() << ", name: " << bookmark.getName() << std::endl;
+    std::cout << "###################### handleBookmarkAdded: ############### " << roomJid.toBare().toString() << ", name: " << bookmark.getName() << std::endl;
 
     // update contacts list
     if (roomJid.isValid())
@@ -127,6 +132,7 @@ void MucManager::joinRoomIfConfigured(Swift::MUCBookmark const &bookmark)
     // join room if autoJoin
     if (bookmark.getAutojoin())
     {
+
         Swift::MUC::ref muc = client_->getMUCManager()->createMUC(bookmark.getRoom());
 
         std::string nick = "";
@@ -140,8 +146,27 @@ void MucManager::joinRoomIfConfigured(Swift::MUCBookmark const &bookmark)
             nick = getNickName().toStdString();
         }
 
+        std::cout << "join room: " << bookmark.getName() << " as " << nick << std::endl;
+        //muc->onJoinComplete.connect(boost::bind(&MucManager::handleJoinAsComplete, this, _1));
+
+#if 0
+        // use this!
+        muc->onAffiliationListReceived.connect(boost::bind(&MucManager::handleAffiliationListReceived, this, _1, _2));
+        muc->requestAffiliationList(Swift::MUCOccupant::Member);
+#endif
         muc->joinAs(nick);
     }
+}
+
+void MucManager::handleAffiliationListReceived(Swift::MUCOccupant::Affiliation af, const std::vector<Swift::JID>& jid)
+{
+    std::cout << "handleAffiliationListReceived: " << af << std::endl;
+#if 0
+    for (auto id: jid)
+    {
+        std::cout << "jid: " << id.toString() << std::endl;
+    }
+#endif
 }
 
 QString MucManager::getNickName()
@@ -208,8 +233,27 @@ void MucManager::handleJoinComplete(const std::string &joinedName)
         }
     }
 
+#if 0
+    std::shared_ptr<Swift::MUC> muc = client_->getMUCManager()->createMUC(joinedName);
+    Swift::MUCOccupant::Affiliation af = Swift::MUCOccupant::Affiliation::Member;
+    muc->requestAffiliationList(af);
+    //muc->onAffiliationListReceived.connect(boost::bind(&MucManager::handleAffiliationListReceived, this, _1, _2));
+#endif
     emit roomJoinComplete(QString::fromStdString(joinedName));
 }
+
+void MucManager::handleJoinAsComplete(const std::string &joinedName)
+{
+    std::cout << "joinas complete: " << joinedName;
+
+#if 0
+    std::shared_ptr<Swift::MUC> muc = client_->getMUCManager()->createMUC(joinedName);
+    Swift::MUCOccupant::Affiliation af = Swift::MUCOccupant::Affiliation::Member;
+    muc->requestAffiliationList(af);
+    //muc->onAffiliationListReceived.connect(boost::bind(&MucManager::handleAffiliationListReceived, this, _1, _2));
+#endif
+}
+
 
 void MucManager::handleJoinFailed(Swift::ErrorPayload::ref error)
 {
