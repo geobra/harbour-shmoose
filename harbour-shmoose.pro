@@ -96,6 +96,7 @@ SOURCES += \
     source/persistence/SessionController.cpp \
     source/persistence/GcmController.cpp \
     source/persistence/Persistence.cpp \
+    source/room/MucAffiliations.cpp \
     source/xep/httpFileUpload/XmlHttpUploadContentHandler.cpp \
     source/xep/httpFileUpload/HttpFileuploader.cpp \
     source/xep/httpFileUpload/HttpFileUploadManager.cpp \
@@ -149,6 +150,7 @@ HEADERS += source/base/Shmoose.h \
     source/persistence/SessionController.h \
     source/persistence/GcmController.h \
     source/persistence/Persistence.h \
+    source/room/MucAffiliations.h \
     source/xep/httpFileUpload/XmlHttpUploadContentHandler.h \
     source/xep/httpFileUpload/HttpFileuploader.h \
     source/xep/httpFileUpload/HttpFileUploadManager.h \

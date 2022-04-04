@@ -41,7 +41,6 @@ private:
     void handleUserLeft(Swift::MUC::LeavingType lt);
 
     void handleMessageReceived(Swift::Message::ref message);
-    void handleAffiliationListReceived(Swift::MUCOccupant::Affiliation af, const std::vector<Swift::JID>& jid);
 
     void joinRoomIfConfigured(Swift::MUCBookmark const &bookmark);
     void sendUnavailableToRoom(Swift::MUCBookmark bookmark);

@@ -1,9 +1,9 @@
 #include "MucManager.h"
+#include "MucAffiliations.h"
 
 #include <QDateTime>
 #include <QDebug>
 #include <iostream>
-
 
 MucManager::MucManager(QObject *parent) :
     QObject(parent), client_(nullptr), mucBookmarkManager_(nullptr), triggerNewMucSignal_(true)
@@ -60,11 +60,6 @@ void MucManager::handleMessageReceived(Swift::Message::ref message)
         this->addRoom(roomJid, roomName);
     }
 }
-
-// https://swift.im/swiften/api/
-// https://xmpp.org/extensions/xep-0045.html#modifymember
-// https://stackoverflow.com/questions/27393540/discovering-members-of-muc-room-as-occupant
-
 
 void MucManager::handleBookmarksReady()
 {
@@ -149,24 +144,11 @@ void MucManager::joinRoomIfConfigured(Swift::MUCBookmark const &bookmark)
         std::cout << "join room: " << bookmark.getName() << " as " << nick << std::endl;
         //muc->onJoinComplete.connect(boost::bind(&MucManager::handleJoinAsComplete, this, _1));
 
-#if 0
-        // use this!
-        muc->onAffiliationListReceived.connect(boost::bind(&MucManager::handleAffiliationListReceived, this, _1, _2));
-        muc->requestAffiliationList(Swift::MUCOccupant::Member);
-#endif
+        // FIXME just for testing
+        new MucAffiliations(this, client_, QString::fromStdString(bookmark.getRoom().toString()));
+
         muc->joinAs(nick);
     }
-}
-
-void MucManager::handleAffiliationListReceived(Swift::MUCOccupant::Affiliation af, const std::vector<Swift::JID>& jid)
-{
-    std::cout << "handleAffiliationListReceived: " << af << std::endl;
-#if 0
-    for (auto id: jid)
-    {
-        std::cout << "jid: " << id.toString() << std::endl;
-    }
-#endif
 }
 
 QString MucManager::getNickName()
