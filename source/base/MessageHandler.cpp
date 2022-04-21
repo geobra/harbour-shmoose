@@ -240,20 +240,6 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         msg->setType(messagesTyp);
         msg->setBody(message.toStdString());
 
-        if(type.compare("txt", Qt::CaseInsensitive) != 0)   // XEP-0066
-        {
-            QString outOfBandElement("");
-            outOfBandElement.append("<x xmlns=\"jabber:x:oob\">");
-            outOfBandElement.append("<url>");
-            outOfBandElement.append(message);
-            outOfBandElement.append("</url>");
-            outOfBandElement.append("</x>");
-
-            std::shared_ptr<Swift::RawXMLPayload> outOfBand =
-                    std::make_shared<Swift::RawXMLPayload>(outOfBandElement.toStdString());
-            msg->addPayload(outOfBand);
-        }
-
 
         // add delivery request
         msg->addPayload(std::make_shared<Swift::DeliveryReceiptRequest>());
@@ -289,6 +275,20 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         if (shouldSendMsgStanze == true)
         {
             client_->sendMessage(msg);
+            
+            if(type.compare("txt", Qt::CaseInsensitive) != 0)   // XEP-0066
+            {
+                QString outOfBandElement("");
+                outOfBandElement.append("<x xmlns=\"jabber:x:oob\">");
+                outOfBandElement.append("<url>");
+                outOfBandElement.append(message);
+                outOfBandElement.append("</url>");
+                outOfBandElement.append("</x>");
+
+                std::shared_ptr<Swift::RawXMLPayload> outOfBand =
+                        std::make_shared<Swift::RawXMLPayload>(outOfBandElement.toStdString());
+                msg->addPayload(outOfBand);
+            }        
         }
 
         persistence_->addMessage( QString::fromStdString(msgId),
