@@ -13,6 +13,7 @@ public:
     Q_INVOKABLE static QString getAttachmentPath();
     Q_INVOKABLE static QString getAvatarPath();
     Q_INVOKABLE static QString getOmemoPath();
+    Q_INVOKABLE static QString getUniqueResourceId();
 };
 
 #endif // SYSTEM_H
