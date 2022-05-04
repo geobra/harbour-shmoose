@@ -12,7 +12,6 @@
 
 #include <QDebug>
 
-
 #include <Swiften/Elements/DiscoInfo.h>
 #include <Swiften/Elements/DiscoItems.h>
 #include <Swiften/Queries/Requests/EnableCarbonsRequest.h>
@@ -124,28 +123,8 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
     persistence_->openDatabaseForJid(jid);
 
     QString resourceName;
-    QString resourceId;
 
-    //generate unique resource name
-    resourceId = settings_->getResourceId();
-    if(resourceId.isEmpty())
-    {
-       const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
-       const int randomStringLength = 4; 
-
-       QString randomString;
-       for(int i=0; i<randomStringLength; ++i)
-       {
-           int index = qrand() % possibleCharacters.length();
-           QChar nextChar = possibleCharacters.at(index);
-           randomString.append(nextChar);
-       }
-
-       resourceId = randomString;
-       settings_->setResourceId(resourceId);
-    }
-
-    resourceName = QString("shmoose.") + resourceId;
+    resourceName = QString("shmoose.") + System::getUniqueResourceId();
     QString completeJid = jid + "/" + resourceName;
 
 #ifndef SFOS
