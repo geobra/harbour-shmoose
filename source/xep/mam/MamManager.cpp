@@ -9,8 +9,9 @@
 #include "XmlProcessor.h"
 #include <QDebug>
 #include <QMimeDatabase>
+#include <QTimer>
 
-
+// https://xmpp.org/extensions/xep-0313.html
 const QString MamManager::mamNs = "urn:xmpp:mam:2";
 
 MamManager::MamManager(Persistence *persistence, QObject *parent) : QObject(parent),
@@ -93,12 +94,13 @@ void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
 
         xw.writeCloseTag( "x" );
 
+        xw.writeOpenTag( "set", AttrMap("xmlns", "http://jabber.org/protocol/rsm") );
+        xw.writeTaggedString( "max", "5" );  // request only 5 mam messages at a time for performance reasons
         if (! last.isEmpty())
         {
-            xw.writeOpenTag( "set", AttrMap("xmlns", "http://jabber.org/protocol/rsm") );
-            xw.writeTaggedString( "after", last );
-            xw.writeCloseTag( "set" );
+            xw.writeTaggedString( "after", last ); // include the last msg time-stamp which was received
         }
+        xw.writeCloseTag( "set" );
 
         xw.writeCloseTag( "query" );
 
@@ -156,7 +158,8 @@ void MamManager::processFinIq(const QString& iq)
                 QString last = XmlProcessor::getContentInTag("set", "last", fin);
                 //qDebug() << "####### mam not complete! last id: " << last;
 
-                requestArchiveForJid(from, last);
+                QTimer::singleShot(3000, this, [this, from, last] () {requestArchiveForJid(from, last); }); // wait 3 seconds before fireing the next request for performance reasons
+                //requestArchiveForJid(from, last);
             }
             else
             {

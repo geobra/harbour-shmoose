@@ -25,7 +25,6 @@ public:
 #ifndef UNIT_TEST
 private:
 #endif
-    void requestArchiveForJid(const QString& jid, const QString& last = "");
     void handleDataReceived(Swift::SafeByteArray data);
 
     void processMamMessage(const QString& qData);
@@ -45,6 +44,7 @@ public slots:
     void setServerHasFeatureMam(bool hasFeature);
 
 private slots:
+    void requestArchiveForJid(const QString& jid, const QString& last = "");
     void handleConnected();
 
 };
