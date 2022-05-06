@@ -240,21 +240,6 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
         msg->setType(messagesTyp);
         msg->setBody(message.toStdString());
 
-        if(type.compare("txt", Qt::CaseInsensitive) != 0)   // XEP-0066
-        {
-            QString outOfBandElement("");
-            outOfBandElement.append("<x xmlns=\"jabber:x:oob\">");
-            outOfBandElement.append("<url>");
-            outOfBandElement.append(message);
-            outOfBandElement.append("</url>");
-            outOfBandElement.append("</x>");
-
-            std::shared_ptr<Swift::RawXMLPayload> outOfBand =
-                    std::make_shared<Swift::RawXMLPayload>(outOfBandElement.toStdString());
-            msg->addPayload(outOfBand);
-        }
-
-
         // add delivery request
         msg->addPayload(std::make_shared<Swift::DeliveryReceiptRequest>());
 
@@ -263,27 +248,40 @@ void MessageHandler::sendMessage(QString const &toJid, QString const &message, Q
 
         // exchange body by omemo stuff if applicable
         bool shouldSendMsgStanze{true};
-        if (settings_->getSoftwareFeatureOmemoEnabled() == true)
+        if ((settings_->getSoftwareFeatureOmemoEnabled() == true)
+            && isGroup == false // for now, omemo is only supported on 1o1 messaging
+            && (lurchAdapter_->isOmemoUser(toJid) == true) // the receipient client can handle omemo encryption
+            && (! settings_->getSendPlainText().contains(toJid))) // no force for plain text msg in settings
         {
-            if ( isGroup == false // for now, omemo is only supported on 1o1 messaging
-                 && (lurchAdapter_->isOmemoUser(toJid) == true) // the receipient client can handle omemo encryption
-                 && (! settings_->getSendPlainText().contains(toJid)) // no force for plain text msg in settings
-                 )
+            bool success = lurchAdapter_->exchangePlainBodyByOmemoStanzas(msg);
+            if (success == false)
             {
-                bool success = lurchAdapter_->exchangePlainBodyByOmemoStanzas(msg);
-                if (success == false)
-                {
-                    // an exchange of the body stanza by an omemo stanza failed
-                    // either some de/encryption stuff failed, or the bundel is requested in background
-                    // don't send this msg, but put it in the database for chat markers to be set correct.
-                    // informs the user about real sending, receiving, reading.
-                    shouldSendMsgStanze = false;
-                }
-                else
-                {
-                    security = 1;
-                }
+                // an exchange of the body stanza by an omemo stanza failed
+                // either some de/encryption stuff failed, or the bundel is requested in background
+                // don't send this msg, but put it in the database for chat markers to be set correct.
+                // informs the user about real sending, receiving, reading.
+                shouldSendMsgStanze = false;
             }
+            else
+            {
+                security = 1;
+            }
+        }
+        else // xep-0066. Only add the stanza on plain-text messages, as described in the xep-0454
+        {  
+            if(type.compare("txt", Qt::CaseInsensitive) != 0)   // XEP-0066
+            {
+                QString outOfBandElement("");
+                outOfBandElement.append("<x xmlns=\"jabber:x:oob\">");
+                outOfBandElement.append("<url>");
+                outOfBandElement.append(message);
+                outOfBandElement.append("</url>");
+                outOfBandElement.append("</x>");
+
+                std::shared_ptr<Swift::RawXMLPayload> outOfBand =
+                        std::make_shared<Swift::RawXMLPayload>(outOfBandElement.toStdString());
+                msg->addPayload(outOfBand);
+            }            
         }
 
         if (shouldSendMsgStanze == true)
