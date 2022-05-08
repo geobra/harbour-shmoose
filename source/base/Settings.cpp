@@ -439,24 +439,28 @@ void Settings::setSoftwareFeatureOmemoEnabled(bool enableSoftwareFeatureOmemo)
     QSettings settings;
     settings.setValue("swfeatures/omemo", enableSoftwareFeatureOmemo);
     emit softwareFeatureOmemoEnabledChanged(enableSoftwareFeatureOmemo);
+
 }
 
-QString Settings::getResourceId() const
+QDateTime Settings::getLatestMamSyncDate() const
 {
-   QString returnValue = "";
-
+    QDateTime returnValue = QDateTime::currentDateTimeUtc().addDays(-15);
     QSettings settings;
-    if(settings.value("authentication/resourceId").toString() != "NOT_SET")
+
+    returnValue.setTimeSpec(Qt::UTC); 
+
+    if(settings.value("mam/latestsyncdate").toDateTime().isValid())
     {
-        returnValue = settings.value("authentication/resourceId").toString();
+        returnValue = settings.value("mam/latestsyncdate").toDateTime();
     }
 
     return returnValue;
 }
 
-void Settings::setResourceId(QString resourceId)
+void Settings::setLatestMamSyncDate(QDateTime const &latestMamSyncDate)
 {
     QSettings settings;
-    settings.setValue("authentication/resourceId", resourceId);
-    emit resourceIdChanged(resourceId);
+
+    settings.setValue("mam/latestsyncdate", latestMamSyncDate);
+    emit latestMamSyncDateChanged(latestMamSyncDate);
 }

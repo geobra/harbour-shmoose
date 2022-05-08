@@ -33,6 +33,7 @@
 #include "StanzaId.h"
 #include "LurchAdapter.h"
 #include "Settings.h"
+#include "Client.h"
 
 
 #include "System.h"
@@ -122,6 +123,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 {
     persistence_->openDatabaseForJid(jid);
 
+
     QString resourceName;
 
     resourceName = QString("shmoose.") + System::getUniqueResourceId();
@@ -133,7 +135,7 @@ void Shmoose::mainConnect(const QString &jid, const QString &pass)
 #endif
 
     // setup the xmpp client
-    client_ = new Swift::Client(Swift::JID(completeJid.toStdString()), pass.toStdString(), netFactories_);
+    client_ = new Client(Swift::JID(completeJid.toStdString()), pass.toStdString(), netFactories_);
     client_->setAlwaysTrustCertificates();
 
     stanzaId_->setupWithClient(client_);
