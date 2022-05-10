@@ -142,7 +142,7 @@ Page {
                     Image {
                         id: msgImg
 
-                        source: isImage ? item.file : ""
+                        source: isImage && msgstate < 6 ? item.file : undefined
                         autoTransform: true
                         asynchronous: true
                         sourceSize.width: item.mediaWidth
@@ -163,7 +163,7 @@ Page {
                     Thumbnail {
                         id: thumb
 
-                        source: isVideo ? item.file : ""
+                        source: isVideo && msgstate < 6 ? item.file : undefined
                         mimeType: type
 
                         sourceSize.width: item.mediaWidth
@@ -173,7 +173,7 @@ Page {
                         height: item.mediaHeight
 
                         fillMode: Thumbnail.PreserveAspectFit;
-                        priority: Thumbnail.NormalPriority
+                        priority: Thumbnail.HighPriority
 
                         Icon {
                             source: "image://theme/icon-m-file-video"
@@ -192,7 +192,6 @@ Page {
                         source: iconFileSource
                     }
                 }
-
                 Label {
                     visible: isGroup;
                     color: Theme.secondaryColor;
@@ -215,14 +214,6 @@ Page {
                             family: Theme.fontFamilyHeading;
                             pixelSize: Theme.fontSizeTiny;
                         }
-
-                        Connections {
-                            target: shmoose
-                            onSignalShowStatus: {
-                                if(qsTr(headline) == qsTr("File Upload") && msgstate == 4)
-                                    upload.text = qsTr("uploading ")+body;
-                            }
-                        }
                     }
                     Label {
                         text: qsTr("send failed")
@@ -234,8 +225,26 @@ Page {
                         }
                     }
                     Label {
+                        text: qsTr("download failed")
+                        visible: msgstate == 7
+                        color: Theme.secondaryColor;
+                        font {
+                            family: Theme.fontFamilyHeading;
+                            pixelSize: Theme.fontSizeTiny;
+                        }
+                    }
+                    Label {
+                        text: qsTr("downloading")
+                        visible: msgstate == 6
+                        color: Theme.secondaryColor;
+                        font {
+                            family: Theme.fontFamilyHeading;
+                            pixelSize: Theme.fontSizeTiny;
+                        }
+                    }
+                    Label {
                         text: refreshDate, getDateDiffFormated(new Date (timestamp * 1000));
-                        visible: msgstate != 4
+                        visible: msgstate != 4 && msgstate != 6
                         color: Theme.secondaryColor;
                         font {
                             family: Theme.fontFamilyHeading;
@@ -266,6 +275,13 @@ Page {
                             }
                             return ""
                         }
+                    }
+                }
+                Connections {
+                    target: shmoose
+                    onSignalShowStatus: {
+                        if(qsTr(headline) == qsTr("File Upload") && msgstate == 4)
+                            upload.text = qsTr("uploading ")+body;
                     }
                 }
             }
@@ -428,81 +444,81 @@ Page {
             }
         }
     }
-        IconButton {
-            id: sendButton
-            enabled: {
-                if (shmoose.connectionState && mainWindow.hasInetConnection) {
-                    return true
-                }
-                else {
-                    return false
-                }
+    IconButton {
+        id: sendButton
+        enabled: {
+            if (shmoose.connectionState && mainWindow.hasInetConnection) {
+                return true
             }
-            icon.source: getSendButtonImage()
-            icon.width: Theme.iconSizeMedium + 2*Theme.paddingSmall                                
-            icon.height: width
+            else {
+                return false
+            }
+        }
+        icon.source: getSendButtonImage()
+        icon.width: Theme.iconSizeMedium + 2*Theme.paddingSmall                                
+        icon.height: width
 
-            anchors {                                                                              
-                // icon-m-send has own padding                                                     
-                right: parent.right; rightMargin: Theme.horizontalPageMargin-Theme.paddingMedium   
-                bottom: parent.bottom; bottomMargin: Theme.paddingMedium                           
-            } 
-            onClicked: {
-                if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0 && shmoose.canSendFile()) {
+        anchors {                                                                              
+            // icon-m-send has own padding                                                     
+            right: parent.right; rightMargin: Theme.horizontalPageMargin-Theme.paddingMedium   
+            bottom: parent.bottom; bottomMargin: Theme.paddingMedium                           
+        } 
+        onClicked: {
+            if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0 && shmoose.canSendFile()) {
+                sendmsgview.attachmentPath = ""
+                fileModel.searchPath = shmoose.settings.ImagePaths
+                pageStack.push(shmoose.settings.SendOnlyImages ? imagePickerPage: filePickerPage)
+            } else {
+                //console.log(sendmsgview.attachmentPath)
+                var msgToSend = editbox.text;
+
+                if (sendmsgview.attachmentPath.length > 0) {
+                    shmoose.sendFile(conversationId, sendmsgview.attachmentPath);
                     sendmsgview.attachmentPath = ""
-                    fileModel.searchPath = shmoose.settings.ImagePaths
-                    pageStack.push(shmoose.settings.SendOnlyImages ? imagePickerPage: filePickerPage)
-                } else {
-                    //console.log(sendmsgview.attachmentPath)
-                    var msgToSend = editbox.text;
-
-                    if (sendmsgview.attachmentPath.length > 0) {
-                        shmoose.sendFile(conversationId, sendmsgview.attachmentPath);
-                        sendmsgview.attachmentPath = ""
-                    }
-
-                    if (msgToSend.length > 0) {
-                        shmoose.sendMessage(conversationId, msgToSend, "txt");
-                        editbox.text = " ";
-                        editbox.text = "";
-                    }
-
-                    displaymsgviewlabel.text = "";
                 }
+
+                if (msgToSend.length > 0) {
+                    shmoose.sendMessage(conversationId, msgToSend, "txt");
+                    editbox.text = " ";
+                    editbox.text = "";
+                }
+
+                displaymsgviewlabel.text = "";
             }
         }
+    }
         
-        Component {
-            id: filePickerPage
-            ContentPickerPage {
-            onSelectedContentPropertiesChanged: {
-                sendmsgview.attachmentPath = selectedContentProperties.filePath
-                sendButton.icon.source = getSendButtonImage()
-                previewAttachment.source = sendmsgview.attachmentPath
-                previewAttachment.mimeType = selectedContentProperties.mimeType
-                }
+    Component {
+        id: filePickerPage
+        ContentPickerPage {
+        onSelectedContentPropertiesChanged: {
+            sendmsgview.attachmentPath = selectedContentProperties.filePath
+            sendButton.icon.source = getSendButtonImage()
+            previewAttachment.source = sendmsgview.attachmentPath
+            previewAttachment.mimeType = selectedContentProperties.mimeType
             }
         }
+    }
 
-        Component {
-            id: imagePickerPage
-            ImagePickerPage {
-            onSelectedContentPropertiesChanged: {
-                sendmsgview.attachmentPath = selectedContentProperties.filePath
-                sendButton.icon.source = getSendButtonImage()
-                previewAttachment.source = sendmsgview.attachmentPath
-                previewAttachment.mimeType = selectedContentProperties.mimeType
-                }
+    Component {
+        id: imagePickerPage
+        ImagePickerPage {
+        onSelectedContentPropertiesChanged: {
+            sendmsgview.attachmentPath = selectedContentProperties.filePath
+            sendButton.icon.source = getSendButtonImage()
+            previewAttachment.source = sendmsgview.attachmentPath
+            previewAttachment.mimeType = selectedContentProperties.mimeType
             }
         }
+    }
 
-        Connections {
-            target: shmoose
-            onSignalCanSendFile: {
-                //console.log("HTTP uploads enabled");
-                sendButton.icon.source = getSendButtonImage();
-            }
+    Connections {
+        target: shmoose
+        onSignalCanSendFile: {
+            //console.log("HTTP uploads enabled");
+            sendButton.icon.source = getSendButtonImage();
         }
+    }
 
     function getSendButtonImage() {
         if (editbox.text.length === 0 && sendmsgview.attachmentPath.length === 0) {

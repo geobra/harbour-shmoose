@@ -265,7 +265,7 @@ void MamManager::processMamMessage(const QString& qData)
                 if(url.scheme().length() > 0)
                 {
                     type = QMimeDatabase().mimeTypeForFile(url.fileName()).name();
-                    downloadManager_->doDownload(url);
+                    downloadManager_->doDownload(url, id);
                 }
             }
 

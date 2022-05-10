@@ -280,6 +280,16 @@ void MessageController::markMessageSendFailed(QString const &id)
     setMessageStateOfId(id, MESSAGE_STATE_SEND_FAILED);
 }
 
+void MessageController::markMessageDownloadingAttachment(QString const &id)
+{
+    setMessageStateOfId(id, MESSAGE_STATE_DOWNLOADING_ATTACHMENT);
+}
+
+void MessageController::markMessageDownloadFailed(QString const &id)
+{
+    setMessageStateOfId(id, MESSAGE_STATE_DOWNLOAD_FAILED);
+}
+
 /*
  * valid state changes:
  * DEFAULT (0) -> DISPLAYED_CONFIRMED (-1), UPLOADING_ATTACHMENT -> ANY STATE
@@ -291,6 +301,7 @@ void MessageController::setMessageStateOfId(QString const &id, int const state)
 
     if ( (currentState == MESSAGE_STATE_DEFAULT && state == MESSAGE_STATE_DISPLAYED_CONFIRMED) ||
          (currentState == MESSAGE_STATE_UPLOADING_ATTACHMENT ) ||
+         (currentState == MESSAGE_STATE_DOWNLOADING_ATTACHMENT ) ||
          (state > currentState)
          )
     {

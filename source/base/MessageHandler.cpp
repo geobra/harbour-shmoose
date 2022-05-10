@@ -25,6 +25,8 @@ MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, Ro
     appIsActive_(true), unAckedMessageIds_()
 {
     connect(lurchAdapter_, SIGNAL(rawMessageStanzaForSending(QString)), this, SLOT(sendRawMessageStanza(QString)));
+    connect(downloadManager_, SIGNAL(httpDownloadFinished(QString)), this, SLOT(downloadFinished(QString)));
+    connect(downloadManager_, SIGNAL(httpDownloadFailed(QString)), this, SLOT(downloadFailed(QString)));    
 }
 
 void MessageHandler::setupWithClient(Swift::Client* client)
@@ -136,7 +138,6 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             if(isLink)
             {
                 type = QMimeDatabase().mimeTypeForFile(bodyUrl.fileName()).name();
-                downloadManager_->doDownload(bodyUrl); // keep the fragment in the sent message
             }
       }
 
@@ -338,4 +339,14 @@ void MessageHandler::sendDisplayedForJid(const QString &jid)
 void MessageHandler::slotAppGetsActive(bool active)
 {
     appIsActive_ = active;
+}
+
+void MessageHandler::downloadFinished(QString msgId)
+{
+    persistence_->markMessageAsReceivedById(msgId);
+}
+
+void MessageHandler::downloadFailed(QString msgId)
+{
+    persistence_->markMessageAsDownloadFailed(msgId);    
 }

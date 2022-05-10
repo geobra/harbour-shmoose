@@ -29,6 +29,8 @@ signals:
 public slots:
     void slotAppGetsActive(bool active);
     void sendRawMessageStanza(QString str);
+    void downloadFinished(QString msgId);
+    void downloadFailed(QString msgId);
 
 private:
 #ifdef DBUS

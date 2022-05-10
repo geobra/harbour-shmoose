@@ -120,6 +120,22 @@ void Persistence::markMessageAsSendFailed(QString const &id)
     }
 }
 
+void Persistence::markMessageAsDownloadingAttachment(QString const &id)
+{
+    if (persistenceValid_)
+    {
+        messageController_->markMessageDownloadingAttachment(id);
+    }
+}
+
+void Persistence::markMessageAsDownloadFailed(QString const &id)
+{
+    if (persistenceValid_)
+    {
+        messageController_->markMessageDownloadFailed(id);
+    }
+}
+
 void Persistence::setCurrentChatPartner(QString const &jid)
 {
     currentChatPartner_ = jid;

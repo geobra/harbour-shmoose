@@ -26,6 +26,8 @@ public:
     void markMessageAsSentById(QString const &id);
     void markMessageAsUploadingAttachment(QString const &id);
     void markMessageAsSendFailed(QString const &id);
+    void markMessageAsDownloadingAttachment(QString const &id);
+    void markMessageAsDownloadFailed(QString const &id);
 
     QPair<QString, int> getNewestReceivedMessageIdAndStateOfJid(QString const &jid);
     QString getResourceForMsgId(const QString& msgId);
