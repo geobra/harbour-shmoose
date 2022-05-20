@@ -50,7 +50,6 @@
 #include "DownloadManager.h"
 #include "System.h"
 #include "CryptoHelper.h"
-#include "FileWithCypher.h"
 
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -85,7 +84,7 @@ void DownloadManager::doDownload(const QUrl &requestedUrl)
         QNetworkReply *reply = manager.get(request);
         FileWithCypher *file = new FileWithCypher(pathAndFile, this);
 
-        if (!file->open(QIODevice::WriteOnly))
+        if (!file->open(QIODevice::ReadWrite))
         {
             fprintf(stderr, "Could not open %s for writing: %s\n",
                     qPrintable(file->fileName()),
@@ -116,7 +115,7 @@ void DownloadManager::sslErrors(const QList<QSslError> &sslErrors)
 void DownloadManager::downloadFinished(QNetworkReply *reply)
 {
     QUrl url = reply->url();
-    QFile *file = downloadedFiles[reply];
+    FileWithCypher *file = downloadedFiles[reply];
 
     if (reply->error())
     {
@@ -126,6 +125,7 @@ void DownloadManager::downloadFinished(QNetworkReply *reply)
     }
     else
     {        
+        file->setExpectedSize(reply->header(QNetworkRequest::ContentLengthHeader).toLongLong());
         file->write(reply->readAll());
         file->close();
         emit httpDownloadFinished(file->fileName());
