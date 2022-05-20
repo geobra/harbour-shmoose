@@ -43,15 +43,7 @@ bool FileWithCypher::initEncryptionOnRead(bool encrypt)
 
     if(encrypt)
     {
-    
-        ret_val = gcry_cipher_open(&cipherHd_, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 0);
-
-        if(ret_val) {
-            qDebug() << "failed to initialize gcrypt";
-            goto cleanup;
-        }
-
-        ret_val = gcry_cipher_open(&cipherHd_, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 0);
+        ret_val = gcry_cipher_open(&cipherHd_, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_GCM, 0);
 
         if(ret_val) {
             qDebug() << "failed to initialize gcrypt";
@@ -62,8 +54,6 @@ bool FileWithCypher::initEncryptionOnRead(bool encrypt)
         gcry_create_nonce(key.data(), key.size());
 
         ivAndKey_ = iv.toHex() + key.toHex();
-        iv += QByteArray::fromHex("00000002");
-
 
         ret_val = gcry_cipher_setkey(cipherHd_, key.constData(), key.size());
         if (ret_val) {
@@ -71,7 +61,7 @@ bool FileWithCypher::initEncryptionOnRead(bool encrypt)
             goto cleanup;
         }
 
-        ret_val = gcry_cipher_setctr(cipherHd_, iv.constData(), iv.size());
+        ret_val = gcry_cipher_setiv(cipherHd_, iv.constData(), iv.size());
         if (ret_val) {
             qDebug() << "failed to set iv = " << iv.toHex();
             goto cleanup;
@@ -99,10 +89,10 @@ bool FileWithCypher::initDecryptionOnWrite(const QString &ivAndKey)
 
         ivAndKey_ = ivAndKey; 
 
-        iv = QByteArray::fromHex(ivAndKey.mid(0, 24).toLatin1()) + QByteArray::fromHex("00000002");
+        iv = QByteArray::fromHex(ivAndKey.mid(0, 24).toLatin1());
         key = QByteArray::fromHex(ivAndKey.mid(24, 64).toLatin1());
 
-        ret_val = gcry_cipher_open(&cipherHd_, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR, 0);
+        ret_val = gcry_cipher_open(&cipherHd_, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_GCM, 0);
 
         if(ret_val) {
             qDebug() << "failed to initialize gcrypt";
@@ -115,9 +105,9 @@ bool FileWithCypher::initDecryptionOnWrite(const QString &ivAndKey)
             goto cleanup;
         }
 
-        ret_val = gcry_cipher_setctr(cipherHd_, iv.constData(), iv.size());
+        ret_val = gcry_cipher_setiv(cipherHd_, iv.constData(), iv.size());
         if (ret_val) {
-            qDebug() << "failed to set ctr";
+            qDebug() << "failed to set iv";
             goto cleanup;
         } 
     }
@@ -142,14 +132,28 @@ qint64 FileWithCypher::readData(char *data, qint64 maxSize)
     qint64 readBytes = QFile::readData(data, maxSize);
 
 
-    if(cipherHd_)
+    if(cipherHd_ && !isWritable())
     {
         gcry_error_t ret_val = 0;
 
-        ret_val = gcry_cipher_encrypt(cipherHd_, data, readBytes, nullptr, 0);
 
-        if (ret_val) {
-            qDebug() << "failed to encrypt";
+        if(readBytes > 0)
+        {
+            ret_val = gcry_cipher_encrypt(cipherHd_, data, readBytes, nullptr, 0);
+
+            if (ret_val) {
+                qDebug() << "failed to encrypt";
+            }
+        }
+        else if((pos() + 16 ) == size())
+        {
+            readBytes = 16;
+
+            ret_val = gcry_cipher_gettag(cipherHd_, data, readBytes);
+
+            if(ret_val) {
+                qDebug() << "failed to get authentication tag"; 
+            }
         }
     }
 
@@ -163,11 +167,74 @@ qint64 FileWithCypher::writeData(const char *data, qint64 len)
 
     if(cipherHd_)
     {
-        if( gcry_cipher_decrypt(cipherHd_, out.data(), out.size(), nullptr, 0) ) {
-            qDebug() << "failed to decrypt";
+        qint64 bytesToDecrypt = len;
+
+        //don't decrypt the authentication tag
+        if(pos()+len > expectedSize_-16)
+        {
+            bytesToDecrypt = (expectedSize_-16) - pos();
+        }
+
+        if(bytesToDecrypt > 0)
+        {
+            if( gcry_cipher_decrypt(cipherHd_, out.data(), bytesToDecrypt, nullptr, 0) ) {
+                qDebug() << "failed to decrypt";
+            }
         }
     }
 
     return QFile::writeData(out.constData(), out.size());
 }
 
+
+void FileWithCypher::setExpectedSize(qint64 expectedSize)
+{
+    expectedSize_ = expectedSize;
+}
+
+
+qint64  FileWithCypher::size() const
+{
+    qint64 fileSize = QFile::size();
+
+    if(cipherHd_ && !isWritable())
+    {
+        // When reading a file to upload it, increase its size to send authentication tag
+        // this is requested by xep-0454
+
+       fileSize += 16;
+    }
+
+   return fileSize;
+}
+
+
+void  FileWithCypher::close()  
+{
+    // Before closing a file, if this is a download, remove authentication tag and check it
+    if(cipherHd_ && isWritable())
+    {
+        if(seek(size() - 16))
+        {
+            gcry_error_t ret_val = 0;
+
+            QByteArray authenticationTag = read(16);
+
+            ret_val = gcry_cipher_checktag (cipherHd_, authenticationTag.constData(), authenticationTag.size());
+            if(ret_val)
+            {
+                qDebug() << "invalid authentication Tag" << endl;
+                // data are kept in the file. May be the authentication tag is missing in the source 
+            }
+            else
+            {
+                // Valid Authentication tag => remove it
+                if(! resize(size() - 16)) {
+                    qDebug() << "resize failed" << endl;
+                }
+            }
+        }
+    }
+
+    QFile::close();
+}

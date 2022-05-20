@@ -50,9 +50,11 @@
 #ifndef DOWNLOADMANAGER_H
 #define DOWNLOADMANAGER_H
 
+
+#include "FileWithCypher.h"
+
 #include <QObject>
 #include <QNetworkAccessManager>
-#include <QFile>
 
 class DownloadManager : public QObject
 {
@@ -74,7 +76,7 @@ private:
 
     QNetworkAccessManager manager;
     QList<QNetworkReply *> currentDownloads;
-    QMap<QNetworkReply *, QFile *> downloadedFiles;
+    QMap<QNetworkReply *, FileWithCypher *> downloadedFiles;
 };
 
 #endif // DOWNLOADMANAGER_H
