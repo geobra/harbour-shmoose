@@ -61,52 +61,127 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     //std::cout << "handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
 
     unsigned int security = 0;
+    unsigned int direction = 1; // incoming
+    Swift::Forwarded::ref forwarded = nullptr;
+    Swift::Message::ref forwardedMessage = nullptr;
+    qint64 timestamp = 0;
+    QString partyJid = QString::fromStdString(message->getFrom().toBare().toString());
+    auto clientBareJid = client_->getJID();
+    qint64 start = Settings().getLatestMamSyncDate().toTime_t();
 
-    if (settings_->getSoftwareFeatureOmemoEnabled() == true)
+    if(message == nullptr)
+        return;
+
+    auto delay = message->getPayload<Swift::Delay>();
+    if(delay != nullptr)
     {
-        auto success = lurchAdapter_->decryptMessageIfEncrypted(message);
-        if (success == 0) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
+        using namespace boost::posix_time;
+        static ptime epoch(boost::gregorian::date(1970, 1, 1));
+        time_duration diff(delay->getStamp() - epoch);
+        timestamp = diff.ticks() / diff.ticks_per_second();
+    }
+
+    // XEP 313 MAM
+    bool isMamMsg = false;
+    auto mamResult = message->getPayload<Swift::MAMResult>();
+    if(mamResult != nullptr)
+    {
+        forwarded = mamResult->getPayload();
+        if(forwarded != nullptr)
         {
-            security = 1;
-        }
-        else if (success == 2)
-        {
-            qDebug() << "handleMessageReceived: error during decryption).";
-            QString cryptErrorMsg{tr("** Enrypted message could not be decrypted. Sorry. **")};
-            message->setBody(cryptErrorMsg.toStdString());
+            forwardedMessage = std::dynamic_pointer_cast<Swift::Message>(forwarded->getStanza());
+            if(forwardedMessage != nullptr)
+            {
+                qDebug() << "Mam message" << endl;
+                isMamMsg = true;
+                message = forwardedMessage;
+                partyJid = QString::fromStdString(message->getFrom().toBare().toString());
+
+                if(forwarded->getDelay())
+                {
+                    using namespace boost::posix_time;
+                    static ptime epoch(boost::gregorian::date(1970, 1, 1));
+                    time_duration diff(forwarded->getDelay()->getStamp() - epoch);
+                    timestamp = diff.ticks() / diff.ticks_per_second();
+                }
+            }
         }
     }
 
-    std::string fromJid = message->getFrom().toBare().toString();
-
-    // XEP 280
-    Swift::JID toJID;
-    bool sentCarbon = false;
-    // If this is a carbon message, we need to retrieve the actual content
-    if (settings_->getJid().compare(QString::fromStdString(fromJid)) == 0) {
+    // XEP 280 Carbon Messages
+    if ((isMamMsg == false) && (settings_->getJid().compare(partyJid) == 0)) {
         Swift::CarbonsReceived::ref carbonsReceived;
         Swift::CarbonsSent::ref carbonsSent;
-        Swift::Forwarded::ref forwarded;
-        Swift::Message::ref forwardedMessage;
         if ((carbonsReceived = message->getPayload<Swift::CarbonsReceived>()) &&
                 (forwarded = carbonsReceived->getForwarded()) &&
                 (forwardedMessage = std::dynamic_pointer_cast<Swift::Message>(forwarded->getStanza()))) {
             // It is the carbon of a message that we received
             message = forwardedMessage;
-            fromJid = message->getFrom().toBare().toString();
+            partyJid = QString::fromStdString(message->getFrom().toBare().toString());
+            qDebug() << "Carbon received" << endl;
         }
         else if ((carbonsSent = message->getPayload<Swift::CarbonsSent>()) &&
                  (forwarded = carbonsSent->getForwarded()) &&
                  (forwardedMessage = std::dynamic_pointer_cast<Swift::Message>(forwarded->getStanza()))) {
             // It is the carbon of a message that we sent
             message = forwardedMessage;
-            toJID = forwardedMessage->getTo();
-            sentCarbon = true;
+            partyJid = QString::fromStdString(forwardedMessage->getTo().toString());
+            qDebug() << "Carbon sent" << endl;
+        }
+        else
+        {
+            qDebug() << "Error Carbon" << endl;
         }
     }
 
-    boost::optional<std::string> fromBody = message->getBody();
+    QString resource = QString::fromStdString(message->getFrom().getResource());
 
+    // XEP 45 MUC messages
+    bool isGroupMessage = false;
+    if(message->getType() == Swift::Message::Groupchat)
+    {
+        qDebug() << "Group message" << endl;
+        isGroupMessage = true;
+        auto mucUser = message->getPayload<Swift::MUCUserPayload>();
+        if(mucUser)
+        {
+            auto items = mucUser->getItems();
+            if(items.size() > 0 && items[0].realJID)
+            {
+                auto msgOwnerJid = items[0].realJID;
+                direction = msgOwnerJid->compare(clientBareJid, Swift::JID::WithoutResource) == 0 ? 0 : 1;
+                partyJid = QString::fromStdString(msgOwnerJid->toBare().toString());
+            }
+        }
+    }
+    else
+    {
+        // 1o1 msg
+        // if msg jid is same as my jid, then the msg was from me.
+        qDebug() << "1o1 message" << endl;
+
+        if(message->getFrom().compare(clientBareJid, Swift::JID::WithoutResource) == 0)
+        {
+            qDebug() << "message from me" << endl;
+            direction = 0;
+            partyJid = QString::fromStdString(message->getTo().toBare().toString());
+            resource = QString::fromStdString(Swift::JID(message->getTo().toString()).getResource());
+        }
+    }
+
+    auto success = lurchAdapter_->decryptMessageIfEncrypted(message);
+    if (success == 0) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
+    {
+        security = 1;
+    }
+    else if (success == 2)
+    {
+        qDebug() << "handleMessageReceived: error during decryption).";
+        QString cryptErrorMsg{tr("** Enrypted message could not be decrypted. Sorry. **")};
+        message->setBody(cryptErrorMsg.toStdString());
+    }
+
+    boost::optional<std::string> fromBody = message->getBody();
 
     if (fromBody)
     {
@@ -138,12 +213,6 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
                 type = QMimeDatabase().mimeTypeForFile(bodyUrl.fileName()).name();
                 downloadManager_->doDownload(bodyUrl); // keep the fragment in the sent message
             }
-      }
-
-        bool isGroupMessage = false;
-        if (message->getType() == Swift::Message::Groupchat)
-        {
-            isGroupMessage = true;
         }
 
         QString messageId = QString::fromStdString(message->getID());
@@ -157,41 +226,69 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             }
 
             // still empty?
-            if (messageId.isEmpty() == true)
+            if (messageId.isEmpty() == true && (! isMamMsg))
             {
                 messageId = QString::number(QDateTime::currentMSecsSinceEpoch());
             }
         }
 
-        if (!sentCarbon)
+        bool is1o1OrIsGroupWithResource = false;
+        if (isGroupMessage == false)
         {
-            persistence_->addMessage(messageId,
-                                     QString::fromStdString(fromJid),
-                                     QString::fromStdString(message->getFrom().getResource()),
-                                     theBody, type, 1, security);
-        } else
+            is1o1OrIsGroupWithResource = true;
+        }
+        else if (! resource.isEmpty())
         {
-            persistence_->addMessage(messageId,
-                                     QString::fromStdString(toJID.toBare().toString()),
-                                     QString::fromStdString(toJID.getResource()),
-                                     theBody, type, 0, security);
+            is1o1OrIsGroupWithResource = true;
+        }
+
+        bool isMsgToDiscard = false;
+        if(timestamp > 0 && timestamp <= start)
+        {
+            qDebug() << "message to discard" << endl;
+            isMsgToDiscard = true;
+        }
+
+        qDebug() << "Msg to process: " << messageId << ", " << partyJid << ", " << resource << ", " << theBody << ", " << type << ", "
+                 << direction << ", " << security << ", " << timestamp << endl;
+
+        if ( (! messageId.isEmpty()) && (! partyJid.isEmpty()) && is1o1OrIsGroupWithResource && (! isMsgToDiscard))
+        {
+            persistence_->addMessage(messageId, partyJid, resource, theBody, type, direction, security, timestamp);
         }
 
         // xep 0333
         QString currentChatPartner = persistence_->getCurrentChatPartner();
-        qDebug() << "fromJid: " << QString::fromStdString(fromJid) << "current: " << currentChatPartner << ", isGroup: " << isGroupMessage << ", appActive? " << appIsActive_;
-        if ( (currentChatPartner.compare(QString::fromStdString(fromJid)) == 0) &&     // immediatelly send read notification if sender is current chat partner
-             (appIsActive_ == true)                                                     // but only if app is active
+        qDebug() << "fromJid: " << partyJid << "current: " << currentChatPartner << ", isGroup: " << isGroupMessage << ", appActive? " << appIsActive_;
+        if ( (currentChatPartner.compare(partyJid) == 0) &&     // immediatelly send read notification if sender is current chat partner
+             (appIsActive_ == true)                             // but only if app is active
              )
         {
             this->sendDisplayedForJid(currentChatPartner);
         }
     }
 
+    // process msg's with an 'received' tag
+    auto deliveryReceipt = message->getPayload<Swift::DeliveryReceipt>();
+
+    if (deliveryReceipt != nullptr)
+    {
+        QString msgId = QString::fromStdString(deliveryReceipt->getReceivedID());
+        qDebug() << "Delivery Receipt received. msgId: " << msgId << endl;
+
+        if (isGroupMessage == true)
+        {
+            persistence_->markGroupMessageReceivedByMember(msgId, resource);
+        }
+        else
+        {
+            persistence_->markMessageAsReceivedById(msgId);
+        }
+    }
+
     // XEP 0184
     if (message->getPayload<Swift::DeliveryReceiptRequest>())
     {
-        // send message receipt
         Swift::Message::ref receiptReply = std::make_shared<Swift::Message>();
         receiptReply->setFrom(message->getTo());
         receiptReply->setTo(message->getFrom());
@@ -201,6 +298,25 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         receiptReply->addPayload(receipt);
         client_->sendMessage(receiptReply);
     }
+
+
+    // FIXME: create custom payload for chat markers
+    // process msg's with an 'displayed' tag
+    /*
+    QString displayed = XmlProcessor::getChildFromNode("displayed", archivedMsg);
+    if (! displayed.isEmpty())
+    {
+        QString msgId = XmlProcessor::getContentInTag("displayed", "id", displayed);
+        //qDebug() << "msgId: " << msgId;
+        if (isGroupMessage == true)
+        {
+            persistence_->markGroupMessageDisplayedByMember(msgId, resource);
+        }
+        else
+        {
+            persistence_->markMessageAsDisplayedId(msgId);
+        }
+    }*/
 }
 
 void MessageHandler::sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup)
