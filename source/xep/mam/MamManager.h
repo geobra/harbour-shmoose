@@ -5,6 +5,9 @@
 #include <QStringList>
 
 #include <Swiften/Swiften.h>
+#include <Swiften/Elements/Forwarded.h>
+#include <Swiften/Elements/MAMFin.h>
+#include <Swiften/Elements/ErrorPayload.h>
 
 class Persistence;
 class DownloadManager;
@@ -26,10 +29,7 @@ public:
 private:
 #endif
     void requestArchiveForJid(const QString& jid, const QString& last = "");
-    void handleDataReceived(Swift::SafeByteArray data);
-
-    void processMamMessage(const QString& qData);
-    void processFinIq(const QString& iq);
+    void processFinIq(const std::string& jid, std::shared_ptr<Swift::MAMFin> payload, Swift::ErrorPayload::ref error);
 
 
     bool serverHasFeature_;
