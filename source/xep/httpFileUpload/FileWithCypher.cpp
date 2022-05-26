@@ -82,15 +82,15 @@ bool FileWithCypher::initDecryptionOnWrite(const QString &ivAndKey)
         cipherHd_ = nullptr;
     }
 
-    if(ivAndKey.count() == 88)
+    // Supports 2 modes (IV on 12 or 16 bytes) to be compatible with some versions of Conversations
+    if(ivAndKey.count() == 88 || ivAndKey.count() == 96)
     {
-        QByteArray iv(12, '\0');
-        QByteArray key(32, '\0');       
-
+        QByteArray iv;
+        QByteArray key;
         ivAndKey_ = ivAndKey; 
 
-        iv = QByteArray::fromHex(ivAndKey.mid(0, 24).toLatin1());
-        key = QByteArray::fromHex(ivAndKey.mid(24, 64).toLatin1());
+        iv = QByteArray::fromHex(ivAndKey.left(ivAndKey.count()-64).toLatin1());
+        key = QByteArray::fromHex(ivAndKey.right(64).toLatin1());
 
         ret_val = gcry_cipher_open(&cipherHd_, GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_GCM, 0);
 
