@@ -1,5 +1,5 @@
 Name: harbour-shmoose
-Version: 0.8.0
+Version: 0.8.1
 Release:	1%{?dist}
 Summary: Shmoose - XMPP Client for Sailfish OS
 

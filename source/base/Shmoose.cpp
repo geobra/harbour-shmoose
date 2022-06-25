@@ -52,7 +52,7 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
     mucManager_(new MucManager(this)),
     discoInfoHandler_(new DiscoInfoHandler(httpFileUploadManager_, mamManager_, this)),
     jid_(""), password_(""),
-    version_("0.8.0"),
+    version_("0.8.1"),
     notSentMsgId_("")
 {
     qApp->setApplicationVersion(version_);

@@ -95,7 +95,7 @@ void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
         xw.writeCloseTag( "x" );
 
         xw.writeOpenTag( "set", AttrMap("xmlns", "http://jabber.org/protocol/rsm") );
-        xw.writeTaggedString( "max", "5" );  // request only 5 mam messages at a time for performance reasons
+        xw.writeTaggedString( "max", "2" );  // request only 2 mam messages at a time for performance reasons
         if (! last.isEmpty())
         {
             xw.writeTaggedString( "after", last ); // include the last msg time-stamp which was received
