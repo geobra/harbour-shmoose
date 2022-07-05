@@ -31,7 +31,7 @@ public slots:
     void sendRawMessageStanza(QString str);
 
 private:
-#ifdef DBUS
+#if defined DBUS || defined UNIT_TEST
 public:
 #endif
     Swift::Client* client_;

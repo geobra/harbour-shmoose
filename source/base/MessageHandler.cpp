@@ -16,6 +16,7 @@
 #include <QUrl>
 #include <QDebug>
 #include <QMimeDatabase>
+#include <QDateTime>
 
 MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, RosterController* rosterController, LurchAdapter* lurchAdapter, QObject *parent) : QObject(parent),
     client_(nullptr), persistence_(persistence), lurchAdapter_(lurchAdapter), settings_(settings),
@@ -67,7 +68,9 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     qint64 timestamp = 0;
     QString partyJid = QString::fromStdString(message->getFrom().toBare().toString());
     auto clientBareJid = client_->getJID();
-    qint64 start = Settings().getLatestMamSyncDate().toTime_t();
+    bool isGroupMessage = false;
+    //qint64 start = Settings().getLatestMamSyncDate().toTime_t();
+    qint64 start = QDateTime::currentDateTimeUtc().addDays(-14).toTime_t();
 
     if(message == nullptr)
         return;
@@ -75,10 +78,14 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     auto delay = message->getPayload<Swift::Delay>();
     if(delay != nullptr)
     {
-        using namespace boost::posix_time;
-        static ptime epoch(boost::gregorian::date(1970, 1, 1));
-        time_duration diff(delay->getStamp() - epoch);
-        timestamp = diff.ticks() / diff.ticks_per_second();
+        //using namespace boost::posix_time;
+        //static ptime epoch(boost::gregorian::date(1970, 1, 1));
+        //time_duration diff(delay->getStamp() - epoch);
+        //timestamp = diff.ticks() / diff.ticks_per_second();
+
+        auto stamp = delay->getStamp();
+        std::tm time_tm = to_tm(stamp);
+        timestamp = mktime(&time_tm);
     }
 
     // XEP 313 MAM
@@ -95,14 +102,28 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
                 qDebug() << "Mam message" << endl;
                 isMamMsg = true;
                 message = forwardedMessage;
-                partyJid = QString::fromStdString(message->getFrom().toBare().toString());
+
+                std::cout << "from:" << message->getFrom() << " to: " << message->getTo() << " body: ";
+                boost::optional<std::string> fromBody = message->getBody();
+                if (fromBody)
+                {
+                    std::cout << *fromBody;
+                }
+                std::cout << std::endl;
+
+                //partyJid = QString::fromStdString(message->getFrom().toBare().toString());
 
                 if(forwarded->getDelay())
                 {
+#if 0
                     using namespace boost::posix_time;
                     static ptime epoch(boost::gregorian::date(1970, 1, 1));
                     time_duration diff(forwarded->getDelay()->getStamp() - epoch);
                     timestamp = diff.ticks() / diff.ticks_per_second();
+#endif
+                    auto stamp = forwarded->getDelay()->getStamp();
+                    std::tm time_tm = to_tm(stamp);
+                    timestamp = mktime(&time_tm);
                 }
             }
         }
@@ -136,6 +157,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
     QString resource = QString::fromStdString(message->getFrom().getResource());
 
+#if 0
     // XEP 45 MUC messages
     bool isGroupMessage = false;
     if(message->getType() == Swift::Message::Groupchat)
@@ -168,6 +190,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             resource = QString::fromStdString(Swift::JID(message->getTo().toString()).getResource());
         }
     }
+#endif
 
     auto success = lurchAdapter_->decryptMessageIfEncrypted(message);
     if (success == 0) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
@@ -215,6 +238,11 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             }
         }
 
+        if (message->getType() == Swift::Message::Groupchat)
+        {
+            isGroupMessage = true;
+        }
+
         QString messageId = QString::fromStdString(message->getID());
         if (messageId.length() == 0)
         {
@@ -243,6 +271,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         }
 
         bool isMsgToDiscard = false;
+        qDebug() << "ts:" << timestamp << ", start: " << start;
         if(timestamp > 0 && timestamp <= start)
         {
             qDebug() << "message to discard" << endl;

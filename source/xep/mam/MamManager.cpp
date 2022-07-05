@@ -19,7 +19,7 @@
 const QString MamManager::mamNs = "urn:xmpp:mam:2";
 
 MamManager::MamManager(Persistence *persistence, QObject *parent) : QObject(parent),
-    serverHasFeature_(false), queridJids_(), persistence_(persistence),
+    serverHasFeature_(true), queridJids_(), persistence_(persistence),
     downloadManager_(new DownloadManager(this)), client_(nullptr)
 {
     // https://xmpp.org/extensions/attic/xep-0313-0.5.html
@@ -58,15 +58,20 @@ void MamManager::addJidforArchiveQuery(QString jid)
 void MamManager::setServerHasFeatureMam(bool hasFeature)
 {
     //qDebug() << "MamManager::setServerHasFeatureMam: " << hasFeature;
-    serverHasFeature_ = hasFeature;
+
+    qDebug() << "FIXME test when this will be set! It seems this gets called multiple times...";
+    //serverHasFeature_ = hasFeature;
 
     requestArchiveForJid(QString::fromStdString(client_->getJID().toBare().toString()));
 }
 
 void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
 {
+    qDebug() << "requestArchiveForJid";
+
     if (serverHasFeature_)
     {
+        qDebug() << "requestArchiveForJid for " << jid;
         //qDebug() << "MamManager::requestArchiveForJid: " << jid << ", last: " << last;
 
         // get the date of last week
@@ -90,7 +95,7 @@ void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
         xw.writeCloseTag( "field" );
 
         xw.writeOpenTag( "field", AttrMap("var", "start") );
-        xw.writeTaggedString( "value", Settings().getLatestMamSyncDate().toString(Qt::ISODate));
+        xw.writeTaggedString( "value", lastWeek.toString(Qt::ISODate));
         xw.writeCloseTag( "field" );
 
         xw.writeCloseTag( "x" );
