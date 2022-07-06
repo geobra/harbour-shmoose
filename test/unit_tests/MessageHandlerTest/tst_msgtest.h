@@ -23,8 +23,9 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
 
-    void testSimple1to1Msg();
-
+    void testPlain1to1Msg();
+    void testPlainRoomMsg();
+    void testPlainRoomWithTimestampMsg();
 
 private:
     Persistence* persistence_;
@@ -34,7 +35,6 @@ private:
     MessageHandler* messageHandler_;
 
     Swift::Client* client_;
-
 };
 
 #endif
