@@ -89,11 +89,12 @@ Shmoose::Shmoose(Swift::NetworkFactories* networkFactories, QObject *parent) :
 
     // show status to user
     connect(httpFileUploadManager_, SIGNAL(showStatus(QString, QString)), this, SIGNAL(signalShowStatus(QString, QString)));
-
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(slotAboutToQuit()));
 
     connect(settings_, SIGNAL(compressImagesChanged(bool)), httpFileUploadManager_, SLOT(setCompressImages(bool)));
     connect(settings_, SIGNAL(limitCompressionChanged(unsigned int)), httpFileUploadManager_, SLOT(setLimitCompression(unsigned int)));
+
+    connect(messageHandler_, SIGNAL(httpDownloadFinished(QString)), this, SIGNAL(httpDownloadFinished(QString)));
 }
 
 Shmoose::~Shmoose()
@@ -351,8 +352,27 @@ QString Shmoose::getAttachmentPath()
 
 QString Shmoose::getLocalFileForUrl(const QString& str)
 {
-    return QFile::exists(str) ? str :
-        System::getAttachmentPath() + QDir::separator() + CryptoHelper::getHashOfString(QUrl(str).toString(), true);
+    QUrl url(str);
+
+    if(url.isRelative())
+    {
+        return str;
+    }
+    else
+    {
+        QString localFile;
+
+        localFile = System::getAttachmentPath() + QDir::separator() + CryptoHelper::getHashOfString(url.toString(), true);
+        if(QFile::exists(localFile) && QFileInfo(localFile).size() > 0)
+            return localFile;
+        else
+            return "";
+    }
+}
+
+void Shmoose::downloadFile(const QString& str, const QString& msgId)
+{
+    messageHandler_->downloadFile(str, msgId);
 }
 
 void Shmoose::setHasInetConnection(bool connected)

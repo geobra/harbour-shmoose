@@ -62,7 +62,7 @@ DownloadManager::DownloadManager(QObject *parent) : QObject(parent)
     connect(&manager, SIGNAL(finished(QNetworkReply*)), SLOT(downloadFinished(QNetworkReply*)));
 }
 
-void DownloadManager::doDownload(const QUrl &requestedUrl)
+void DownloadManager::doDownload(const QUrl &requestedUrl, const QString &msgId)
 {
     // check if file from that url is already local downloaded
     QUrl url(requestedUrl);
@@ -98,6 +98,7 @@ void DownloadManager::doDownload(const QUrl &requestedUrl)
 
             currentDownloads.append(reply);
             downloadedFiles[reply] = file;
+            relatedMsgIds[reply] = msgId;
         }
     }
 }
@@ -122,13 +123,14 @@ void DownloadManager::downloadFinished(QNetworkReply *reply)
         fprintf(stderr, "Download of %s failed: %s\n",
                 url.toEncoded().constData(),
                 qPrintable(reply->errorString()));
+        emit httpDownloadFailed(relatedMsgIds[reply]);
     }
     else
     {        
         file->setExpectedSize(reply->header(QNetworkRequest::ContentLengthHeader).toLongLong());
         file->write(reply->readAll());
         file->close();
-        emit httpDownloadFinished(file->fileName());
+        emit httpDownloadFinished(relatedMsgIds[reply]);
     }
 
     file->deleteLater();

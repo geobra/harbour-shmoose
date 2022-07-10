@@ -79,7 +79,7 @@ Page {
         delegate: ListItem {
             id: item;
 
-            readonly property string file : shmoose.getLocalFileForUrl(message)
+            property string file : shmoose.getLocalFileForUrl(message)
 
             contentHeight: shadow.height;
 
@@ -133,37 +133,17 @@ Page {
                     onLinkActivated: Qt.openUrlExternally(link)
                 }
 
-
                 BackgroundItem {
 
-                    width: msgImg.width
-                    height: msgImg.height
-                    visible: isImage
-                    Image {
-                        id: msgImg
-
-                        source: isImage ? item.file : ""
-                        autoTransform: true
-                        asynchronous: true
-                        sourceSize.width: item.mediaWidth
-                        sourceSize.height: item.mediaHeight
-
-                        width: implicitWidth > 0 ? implicitWidth : item.mediaWidth
-                        height: item.mediaHeight
-
-                        fillMode: Image.PreserveAspectFit
-                    }
-                }
-                BackgroundItem {
-
+                    id: bkgnd
                     width: thumb.width
-                    height: thumb.height
-                    visible: isVideo 
+                    height: isVideo || isImage ? thumb.height : iconFile.height 
+                    visible: type != "txt"
 
                     Thumbnail {
                         id: thumb
 
-                        source: isVideo ? item.file : ""
+                        source: isVideo || isImage ? item.file : ""
                         mimeType: type
 
                         sourceSize.width: item.mediaWidth
@@ -176,23 +156,72 @@ Page {
                         priority: Thumbnail.NormalPriority
 
                         Icon {
+                            visible: isVideo
                             source: "image://theme/icon-m-file-video"
                             anchors.centerIn : parent
                         }
                     }
-                }
-                BackgroundItem {
-
-                    width: iconFile.width
-                    height: iconFile.height
-                    visible: ((type !== "txt") && !isVideo && !isImage)
-
-                    Icon {
-                        id: iconFile
-                        source: iconFileSource
+                    Row {
+                        id: placeholder
+                        visible: thumb.status != Thumbnail.Ready
+                        Icon {
+                            id: iconFile
+                            source: iconFileSource
+                        }
+                        Button {
+                            visible: item.file == ""
+                            anchors.verticalCenter: iconFile.verticalCenter
+                            id: bnDownloadAttachment
+                            text: qsTr("Download")
+                            onClicked: {
+                                shmoose.downloadFile(message, id);
+                            }
+                        }
+                        Label {
+                            visible: thumb.status == Thumbnail.Error
+                            anchors.verticalCenter: iconFile.verticalCenter
+                            text: qsTr("Impossible to load")
+                            color: Theme.primaryColor;
+                            width: parent.width;
+                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere;
+                            font {
+                                family: Theme.fontFamilyHeading;
+                                pixelSize: Theme.fontSizeMedium;
+                            }
+                        }
                     }
                 }
-
+                Label {
+                    color: Theme.secondaryColor;
+                    visible: false; // type !== "txt"
+                    width: item.maxContentWidth;
+                    wrapMode: Text.WrapAnywhere;
+                    font {
+                        family: Theme.fontFamilyHeading;
+                        pixelSize: Theme.fontSizeTiny;
+                    }
+                    text: qsTr("Message: ")+message;
+                }
+                Label {
+                    color: Theme.secondaryColor;
+                    visible: false; // type !== "txt"
+                    width: item.maxContentWidth;
+                    wrapMode: Text.WrapAnywhere;
+                    font {
+                        family: Theme.fontFamilyHeading;
+                        pixelSize: Theme.fontSizeTiny;
+                    }
+                    text: qsTr("Local File: ")+item.file;
+                }
+                Label {
+                    visible: false;
+                    color: Theme.secondaryColor;
+                    font {
+                        family: Theme.fontFamilyHeading;
+                        pixelSize: Theme.fontSizeTiny;
+                    }
+                    text: qsTr("Id: ")+id;
+                }
                 Label {
                     visible: isGroup;
                     color: Theme.secondaryColor;
@@ -221,6 +250,12 @@ Page {
                             onSignalShowStatus: {
                                 if(qsTr(headline) == qsTr("File Upload") && msgstate == 4)
                                     upload.text = qsTr("uploading ")+body;
+                            }
+                            onHttpDownloadFinished: {
+                                if(attachmentMsgId == id)
+                                {
+                                    item.file =  shmoose.getLocalFileForUrl(message);
+                                }
                             }
                         }
                     }
@@ -271,6 +306,7 @@ Page {
             }
             MouseArea {
                 anchors.fill: parent
+                enabled: thumb.status != Thumbnail.Error && item.file != ""
 
                 onClicked: {
                     if (startsWith(type, "image"))
@@ -498,7 +534,7 @@ Page {
 
         Connections {
             target: shmoose
-            onSignalCanSendFile: {
+            onCanSendFile: {
                 //console.log("HTTP uploads enabled");
                 sendButton.icon.source = getSendButtonImage();
             }
@@ -541,10 +577,10 @@ Page {
         return trimmedStr;
     }
     function getFileIcon(type){
-        if(startsWith(type, "image")) return "image://theme/icon-m-file-image";
-        if(startsWith(type, "video")) return "image://theme/icon-m-file-video";
-        if(startsWith(type, "audio")) return "image://theme/icon-m-file-audio";
-        return "image://theme/icon-m-file-document-light";
+        if(startsWith(type, "image")) return "image://theme/icon-l-image";
+        if(startsWith(type, "video")) return "image://theme/icon-l-play";
+        if(startsWith(type, "audio")) return "image://theme/icon-l-music";
+        return "image://theme/icon-l-other";
     }
     function startsWith(s,start) {
         return (s.substring(0, start.length) == start); 

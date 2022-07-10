@@ -62,14 +62,15 @@ class DownloadManager : public QObject
 
 public:
     DownloadManager(QObject *parent = nullptr);
-    void doDownload(const QUrl &url);
+    void doDownload(const QUrl &url, QString const &msgId);
 
 public slots:
     void downloadFinished(QNetworkReply *reply);
     void sslErrors(const QList<QSslError> &errors);
 
 signals:
-    void httpDownloadFinished(QString);
+    void httpDownloadFinished(QString attachmentMsgId);
+    void httpDownloadFailed(QString attachmentMsgId);
 
 private:
     QString saveFileName(const QUrl &url);
@@ -77,6 +78,7 @@ private:
     QNetworkAccessManager manager;
     QList<QNetworkReply *> currentDownloads;
     QMap<QNetworkReply *, FileWithCypher *> downloadedFiles;
+    QMap<QNetworkReply *, QString> relatedMsgIds;
 };
 
 #endif // DOWNLOADMANAGER_H
