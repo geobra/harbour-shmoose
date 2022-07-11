@@ -48,6 +48,7 @@ SOURCES +=  tst_msgtest.cpp \
     $$_PRO_FILE_PWD_/../../../source/base/XmlProcessor.cpp \
     $$_PRO_FILE_PWD_/../../../source/contacts/PresenceHandler.cpp \
     $$_PRO_FILE_PWD_/../../../source/contacts/RosterItem.cpp \
+    FreeStanza.cpp \
     Persistence.cpp
 
 HEADERS += tst_msgtest.h \
@@ -67,5 +68,6 @@ HEADERS += tst_msgtest.h \
     $$_PRO_FILE_PWD_/../../../source/base/XmlProcessor.h \
     $$_PRO_FILE_PWD_/../../../source/contacts/PresenceHandler.h \
     $$_PRO_FILE_PWD_/../../../source/contacts/RosterItem.h \
+    FreeStanza.h \
     LurchAdapter.h \
     Persistence.h

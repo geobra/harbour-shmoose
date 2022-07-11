@@ -26,8 +26,11 @@ private slots:
     void testPlain1to1Msg();
     void testPlainRoomMsg();
     void testPlainRoomWithTimestampMsg();
+    void testPlainRoomMsgInsideMam();
 
 private:
+    QString getSerializedStringFromMessage(Swift::Message::ref msg);
+
     Persistence* persistence_;
     Settings* settings_;
     RosterController* rosterController_;
