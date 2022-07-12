@@ -1799,6 +1799,11 @@ static void lurch_message_decrypt(PurpleConnection * gc_p, xmlnode ** msg_stanza
     sender = jabber_get_bare_jid(muc_member_p->jid);
   }
 #endif
+  else 
+  {
+    err_msg_dbg = g_strdup_printf("msg type not supported for decryption");
+    goto cleanup;
+  }
   xml = xmlnode_to_str(*msg_stanza_pp, &len);
   ret_val = omemo_message_prepare_decryption(xml, &msg_p);
   if (ret_val) {
