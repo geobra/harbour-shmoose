@@ -47,6 +47,8 @@ public:
     bool appIsActive_;
     QStringList unAckedMessageIds_;
 
+    bool isGroupMessage_{false};
+
     void handleMessageReceived(Swift::Message::ref message);
     void handleStanzaAcked(Swift::Stanza::ref stanza);
     void handleDataReceived(Swift::SafeByteArray data);

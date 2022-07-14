@@ -68,7 +68,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     qint64 timestamp = 0;
     QString partyJid = QString::fromStdString(message->getFrom().toBare().toString());
     auto clientBareJid = client_->getJID();
-    bool isGroupMessage = false;
+    isGroupMessage_ = false;
     //qint64 start = Settings().getLatestMamSyncDate().toTime_t();
     qint64 start = QDateTime::currentDateTimeUtc().addDays(-14).toTime_t();
 
@@ -240,7 +240,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
         if (message->getType() == Swift::Message::Groupchat)
         {
-            isGroupMessage = true;
+            isGroupMessage_ = true;
         }
 
         QString messageId = QString::fromStdString(message->getID());
@@ -254,14 +254,14 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             }
 
             // still empty?
-            if (messageId.isEmpty() == true && (! isMamMsg))
+            if (messageId.isEmpty() == true)
             {
                 messageId = QString::number(QDateTime::currentMSecsSinceEpoch());
             }
         }
 
         bool is1o1OrIsGroupWithResource = false;
-        if (isGroupMessage == false)
+        if (isGroupMessage_ == false)
         {
             is1o1OrIsGroupWithResource = true;
         }
@@ -288,7 +288,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
         // xep 0333
         QString currentChatPartner = persistence_->getCurrentChatPartner();
-        qDebug() << "fromJid: " << partyJid << "current: " << currentChatPartner << ", isGroup: " << isGroupMessage << ", appActive? " << appIsActive_;
+        qDebug() << "fromJid: " << partyJid << "current: " << currentChatPartner << ", isGroup: " << isGroupMessage_ << ", appActive? " << appIsActive_;
         if ( (currentChatPartner.compare(partyJid) == 0) &&     // immediatelly send read notification if sender is current chat partner
              (appIsActive_ == true)                             // but only if app is active
              )
@@ -305,7 +305,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         QString msgId = QString::fromStdString(deliveryReceipt->getReceivedID());
         qDebug() << "Delivery Receipt received. msgId: " << msgId << endl;
 
-        if (isGroupMessage == true)
+        if (isGroupMessage_ == true)
         {
             persistence_->markGroupMessageReceivedByMember(msgId, resource);
         }
