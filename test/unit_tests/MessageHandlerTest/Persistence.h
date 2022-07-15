@@ -49,6 +49,9 @@ public:
     unsigned int security_;
     qint64 timestamp_;
 
+    QString idDisplayed_{};
+    QString resourceDisplayed_;
+
 };
 
 #endif // PERSISTENCE_H

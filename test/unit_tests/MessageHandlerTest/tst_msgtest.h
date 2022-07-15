@@ -8,6 +8,7 @@
 #include "RosterController.h"
 #include "LurchAdapter.h"
 #include "MessageHandler.h"
+#include "ChatMarkers.h"
 
 #include <Swiften/Swiften.h>
 
@@ -28,6 +29,7 @@ private slots:
     void testPlainRoomWithTimestampMsg();
     void testPlainRoomMsgInsideMam();
     void testPlainRoomMsgWithoutIdInsideMam();
+    void testDsiplayedMsgInsideMam();
 
 private:
     QString getSerializedStringFromMessage(Swift::Message::ref msg);
@@ -37,6 +39,7 @@ private:
     RosterController* rosterController_;
     LurchAdapter* lurchAdapter_;
     MessageHandler* messageHandler_;
+    ChatMarkers* chatMarkers_;
 
     Swift::Client* client_;
 };

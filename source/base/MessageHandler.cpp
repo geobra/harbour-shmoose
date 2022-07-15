@@ -78,11 +78,6 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     auto delay = message->getPayload<Swift::Delay>();
     if(delay != nullptr)
     {
-        //using namespace boost::posix_time;
-        //static ptime epoch(boost::gregorian::date(1970, 1, 1));
-        //time_duration diff(delay->getStamp() - epoch);
-        //timestamp = diff.ticks() / diff.ticks_per_second();
-
         auto stamp = delay->getStamp();
         std::tm time_tm = to_tm(stamp);
         timestamp = mktime(&time_tm);
@@ -115,12 +110,6 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
                 if(forwarded->getDelay())
                 {
-#if 0
-                    using namespace boost::posix_time;
-                    static ptime epoch(boost::gregorian::date(1970, 1, 1));
-                    time_duration diff(forwarded->getDelay()->getStamp() - epoch);
-                    timestamp = diff.ticks() / diff.ticks_per_second();
-#endif
                     auto stamp = forwarded->getDelay()->getStamp();
                     std::tm time_tm = to_tm(stamp);
                     timestamp = mktime(&time_tm);
@@ -292,25 +281,6 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         receiptReply->addPayload(receipt);
         client_->sendMessage(receiptReply);
     }
-
-
-    // FIXME: create custom payload for chat markers
-    // process msg's with an 'displayed' tag
-    /*
-    QString displayed = XmlProcessor::getChildFromNode("displayed", archivedMsg);
-    if (! displayed.isEmpty())
-    {
-        QString msgId = XmlProcessor::getContentInTag("displayed", "id", displayed);
-        //qDebug() << "msgId: " << msgId;
-        if (isGroupMessage == true)
-        {
-            persistence_->markGroupMessageDisplayedByMember(msgId, resource);
-        }
-        else
-        {
-            persistence_->markMessageAsDisplayedId(msgId);
-        }
-    }*/
 }
 
 void MessageHandler::sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup)

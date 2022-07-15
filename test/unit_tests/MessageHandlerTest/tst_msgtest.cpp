@@ -21,6 +21,7 @@ void MsgTest::initTestCase()
     rosterController_ = new RosterController();
     lurchAdapter_ = new LurchAdapter();
     messageHandler_ = new MessageHandler(persistence_, settings_, rosterController_, lurchAdapter_);
+    chatMarkers_  = new ChatMarkers(persistence_, rosterController_);
 
     Swift::QtEventLoop eventLoop;
     Swift::BoostNetworkFactories networkFactories(&eventLoop);
@@ -120,6 +121,7 @@ void MsgTest::testPlainRoomWithTimestampMsg()
     QCOMPARE(persistence_->timestamp_, 253402297199);
 }
 
+
 /*
         <message xmlns="jabber:client" to="sos@jabber-germany.de/shmoose.BRjADesktop" from="room@conference.jabber-germany.de">
          <result xmlns="urn:xmpp:mam:2" id="XnFo0EDjYBHhDL5GqxOOtAsP">
@@ -134,9 +136,6 @@ void MsgTest::testPlainRoomWithTimestampMsg()
          </result>
         </message>
 */
-
-// also test  without id inside mam msg. must be skipped!
-
 void MsgTest::testPlainRoomMsgInsideMam()
 {
     persistence_->clear();
@@ -185,8 +184,8 @@ void MsgTest::testPlainRoomMsgInsideMam()
     QCOMPARE(messageHandler_->isGroupMessage_, true);
 }
 
-// this msg must be skipped.
-// there is _NO_ ID inside the mam msg. Shmoose needs it as a primary key
+// this mam msg must not be pushed into the db.
+// there is _NO_ ID inside the mam msg. Shmoose needs it as a primary key.
 // If this won't be skipped, we end up with endless messages on every mam request.
 void MsgTest::testPlainRoomMsgWithoutIdInsideMam()
 {
@@ -231,17 +230,65 @@ void MsgTest::testPlainRoomMsgWithoutIdInsideMam()
 
 // FIXME write a test for a displayed mam!
 /*
-<message xmlns="jabber:client" to="user@jabber.foo/shmoose.A">
-        <result xmlns="urn:xmpp:mam:2" id="2022-07-13-cdccd86d5cd6422c">
-        <forwarded xmlns="urn:xmpp:forward:0">
-        <delay xmlns="urn:xmpp:delay" stamp="2022-07-13T04:13:16Z"></delay>
-        <message xmlns="jabber:client" to="user@jabber.foo" from="someone@jabber.foo/shmoose.QSwh" id="ea3a7d56-0e58-45d5-ab63-e1c91a3e5817" lang="en">
-        <displayed xmlns="urn:xmpp:chat-markers:0" id="1657685469988"></displayed>
-        </message>
-        </forwarded>
-        </result>
-        </message>
+ <message xmlns="jabber:client" to="sos@jabber-germany.de/shmoose.BRjADesktop" from="room@conference.jabber-germany.de">
+  <result xmlns="urn:xmpp:mam:2" id="qVsnHaEJM9cia3H5JjXEYCn0">
+   <forwarded xmlns="urn:xmpp:forward:0">
+    <delay xmlns="urn:xmpp:delay" stamp="2022-07-15T19:15:58Z"></delay>
+    <message xmlns="jabber:client" type="groupchat" lang="en" from="room@conference.jabber-germany.de/mosos(at)jabber.de" id="253a435d-2783-43c6-9cc9-61a01e635bfd">
+     <displayed xmlns="urn:xmpp:chat-markers:0" id="aac5cd6e-23b7-4eda-900a-ff838a1b3ade" sender="room@conference.jabber-germany.de/sosccc"></displayed>
+    </message>
+   </forwarded>
+  </result>
+ </message>
 */
+
+void MsgTest::testDsiplayedMsgInsideMam()
+{
+    persistence_->clear();
+
+    // generate delay payload
+    std::shared_ptr<Swift::Delay> delay(new Swift::Delay());
+    boost::posix_time::ptime t1(boost::posix_time::max_date_time);
+    delay->setStamp(t1);
+
+    // generate a Forwardd stanza with that delay
+    std::shared_ptr<Swift::Forwarded> fwd(new Swift::Forwarded());
+    fwd->setDelay(delay);
+
+    // generate a displayed stanza
+    std::shared_ptr<Swift::RawXMLPayload> displayed(new Swift::RawXMLPayload());
+    displayed->setRawXML("<displayed xmlns=\"urn:xmpp:chat-markers:0\" id=\"aac5cd6e-23b7-4eda-900a-ff838a1b3ade\" sender=\"room@conference.jabber-germany.de/sosccc\"></displayed>");
+
+    // generate a stanza for the msg inside the mam and fwd container
+    std::shared_ptr<Swift::Message> msgStz(new Swift::Message());
+    msgStz->setFrom("room@conference.jabber-germany.de/mosos(at)jabber.de");
+    msgStz->setID("253a435d-2783-43c6-9cc9-61a01e635bfd");
+    msgStz->setType(Swift::Message::Groupchat);
+    msgStz->addPayload(displayed);
+    fwd->setStanza(msgStz);
+
+
+    // add the forwarded stanza to mam
+    std::shared_ptr<Swift::MAMResult> mam(new Swift::MAMResult());
+    mam->setPayload(fwd);
+
+    // finally, make the outer message
+    std::shared_ptr<Swift::Message> message(new Swift::Message());
+    message->setTo(Swift::JID("sos@jabber-germany.de/shmoose.BRjADesktop"));
+    message->setFrom("room@conference.jabber-germany.de");
+
+    message->addPayload(mam);
+
+    qDebug() << getSerializedStringFromMessage(message);
+    //messageHandler_->handleMessageReceived(message);
+
+    chatMarkers_->handleMessageReceived(message);
+
+    // FIXME this fails as mam handling is only implemented in MessageHandler. Not in ChatMarkers...
+    //QCOMPARE(persistence_->idDisplayed_, "aac5cd6e-23b7-4eda-900a-ff838a1b3ade");
+    //QCOMPARE(persistence_->resourceDisplayed_, "sosccc");
+}
+
 
 QString MsgTest::getSerializedStringFromMessage(Swift::Message::ref msg)
 {

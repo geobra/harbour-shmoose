@@ -27,6 +27,9 @@ signals:
 public slots:
 
 private:
+#if defined DBUS || defined UNIT_TEST
+public:
+#endif
     void handleMessageReceived(Swift::Message::ref message);
     QString getIdFromRawXml(QString rawXml);
 

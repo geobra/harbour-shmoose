@@ -26,8 +26,8 @@ void Persistence::markGroupMessageReceivedByMember(const QString &msgId, const Q
 
 void Persistence::markGroupMessageDisplayedByMember(const QString &msgId, const QString &resource)
 {
-    id_ = msgId;
-    resource_ = resource;
+    idDisplayed_ = msgId;
+    resourceDisplayed_ = resource;
 }
 
 void Persistence::markMessageAsReceivedById(const QString &msgId)
@@ -49,5 +49,8 @@ void Persistence::clear()
     type_ = "";
     direction_ = 255;
     timestamp_ = 0;
+
+    idDisplayed_ = "";
+    resourceDisplayed_ = "";
 }
 
