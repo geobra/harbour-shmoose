@@ -99,7 +99,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             forwardedMessage = std::dynamic_pointer_cast<Swift::Message>(forwarded->getStanza());
             if(forwardedMessage != nullptr)
             {
-                qDebug() << "Mam message" << endl;
+                qDebug() << "Mam message";
                 isMamMsg = true;
                 message = forwardedMessage;
 
@@ -111,7 +111,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
                 }
                 std::cout << std::endl;
 
-                //partyJid = QString::fromStdString(message->getFrom().toBare().toString());
+                partyJid = QString::fromStdString(message->getFrom().toBare().toString());
 
                 if(forwarded->getDelay())
                 {
@@ -139,7 +139,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             // It is the carbon of a message that we received
             message = forwardedMessage;
             partyJid = QString::fromStdString(message->getFrom().toBare().toString());
-            qDebug() << "Carbon received" << endl;
+            qDebug() << "Carbon received";
         }
         else if ((carbonsSent = message->getPayload<Swift::CarbonsSent>()) &&
                  (forwarded = carbonsSent->getForwarded()) &&
@@ -147,50 +147,15 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             // It is the carbon of a message that we sent
             message = forwardedMessage;
             partyJid = QString::fromStdString(forwardedMessage->getTo().toString());
-            qDebug() << "Carbon sent" << endl;
+            qDebug() << "Carbon sent";
         }
         else
         {
-            qDebug() << "Error Carbon" << endl;
+            qDebug() << "Error Carbon";
         }
     }
 
     QString resource = QString::fromStdString(message->getFrom().getResource());
-
-#if 0
-    // XEP 45 MUC messages
-    bool isGroupMessage = false;
-    if(message->getType() == Swift::Message::Groupchat)
-    {
-        qDebug() << "Group message" << endl;
-        isGroupMessage = true;
-        auto mucUser = message->getPayload<Swift::MUCUserPayload>();
-        if(mucUser)
-        {
-            auto items = mucUser->getItems();
-            if(items.size() > 0 && items[0].realJID)
-            {
-                auto msgOwnerJid = items[0].realJID;
-                direction = msgOwnerJid->compare(clientBareJid, Swift::JID::WithoutResource) == 0 ? 0 : 1;
-                partyJid = QString::fromStdString(msgOwnerJid->toBare().toString());
-            }
-        }
-    }
-    else
-    {
-        // 1o1 msg
-        // if msg jid is same as my jid, then the msg was from me.
-        qDebug() << "1o1 message" << endl;
-
-        if(message->getFrom().compare(clientBareJid, Swift::JID::WithoutResource) == 0)
-        {
-            qDebug() << "message from me" << endl;
-            direction = 0;
-            partyJid = QString::fromStdString(message->getTo().toBare().toString());
-            resource = QString::fromStdString(Swift::JID(message->getTo().toString()).getResource());
-        }
-    }
-#endif
 
     auto success = lurchAdapter_->decryptMessageIfEncrypted(message);
     if (success == 0) // 0: success on decryption, 1: was not encrypted, 2: error during decryption.
@@ -254,7 +219,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             }
 
             // still empty?
-            if (messageId.isEmpty() == true)
+            if (messageId.isEmpty() == true && (! isMamMsg)) // if the mam has no msg id, shmoose cant decide if this msg was already received. skip!
             {
                 messageId = QString::number(QDateTime::currentMSecsSinceEpoch());
             }
@@ -274,12 +239,12 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         qDebug() << "ts:" << timestamp << ", start: " << start;
         if(timestamp > 0 && timestamp <= start)
         {
-            qDebug() << "message to discard" << endl;
+            qDebug() << "message to discard";
             isMsgToDiscard = true;
         }
 
         qDebug() << "Msg to process: " << messageId << ", " << partyJid << ", " << resource << ", " << theBody << ", " << type << ", "
-                 << direction << ", " << security << ", " << timestamp << endl;
+                 << direction << ", " << security << ", " << timestamp;
 
         if ( (! messageId.isEmpty()) && (! partyJid.isEmpty()) && is1o1OrIsGroupWithResource && (! isMsgToDiscard))
         {
@@ -303,7 +268,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     if (deliveryReceipt != nullptr)
     {
         QString msgId = QString::fromStdString(deliveryReceipt->getReceivedID());
-        qDebug() << "Delivery Receipt received. msgId: " << msgId << endl;
+        qDebug() << "Delivery Receipt received. msgId: " << msgId;
 
         if (isGroupMessage_ == true)
         {

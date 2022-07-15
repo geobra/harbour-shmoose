@@ -27,6 +27,7 @@ private slots:
     void testPlainRoomMsg();
     void testPlainRoomWithTimestampMsg();
     void testPlainRoomMsgInsideMam();
+    void testPlainRoomMsgWithoutIdInsideMam();
 
 private:
     QString getSerializedStringFromMessage(Swift::Message::ref msg);

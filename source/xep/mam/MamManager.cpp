@@ -125,7 +125,7 @@ void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
 
 void MamManager::processFinIq(const std::string& jid, std::shared_ptr<Swift::MAMFin> mamFin, Swift::ErrorPayload::ref error)
 {
-    qDebug() << "MamManager::processFinIq" <<endl;
+    qDebug() << "MamManager::processFinIq";
 
     if (mamFin != nullptr )
     {
