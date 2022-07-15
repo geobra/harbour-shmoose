@@ -59,8 +59,7 @@ void MamManager::setServerHasFeatureMam(bool hasFeature)
 {
     //qDebug() << "MamManager::setServerHasFeatureMam: " << hasFeature;
 
-    qDebug() << "FIXME test when this will be set! It seems this gets called multiple times...";
-    //serverHasFeature_ = hasFeature;
+    serverHasFeature_ = hasFeature;
 
     requestArchiveForJid(QString::fromStdString(client_->getJID().toBare().toString()));
 }
@@ -94,18 +93,29 @@ void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
         xw.writeTaggedString( "value", MamManager::mamNs );
         xw.writeCloseTag( "field" );
 
-        xw.writeOpenTag( "field", AttrMap("var", "start") );
-        xw.writeTaggedString( "value", lastWeek.toString(Qt::ISODate));
-        xw.writeCloseTag( "field" );
+        if (last.isEmpty())
+        {
+            xw.writeOpenTag( "field", AttrMap("var", "start") );
+            xw.writeTaggedString( "value", lastWeek.toString(Qt::ISODate));
+            xw.writeCloseTag( "field" );
+        }
+        else
+        {
+            xw.writeOpenTag( "field", AttrMap("var", "after-id") );
+            xw.writeTaggedString( "value", last);
+            xw.writeCloseTag( "field" );
+        }
 
         xw.writeCloseTag( "x" );
 
+#if 0
         if (! last.isEmpty())
         {
             xw.writeOpenTag( "set", AttrMap("xmlns", "http://jabber.org/protocol/rsm") );
             xw.writeTaggedString( "after", last );
             xw.writeCloseTag( "set" );
         }
+#endif
 
         xw.writeCloseTag( "query" );
 
