@@ -462,28 +462,15 @@ void Settings::setResourceId(QString resourceId)
     emit resourceIdChanged(resourceId);
 }
 
-QDateTime Settings::getLatestMamSyncDate() const
+QString Settings::getMamLastMsgId(QString mamJid) const
 {
-    QDateTime returnValue = QDateTime::currentDateTimeUtc().addDays(-15);
     QSettings settings;
-    QString jid=getJid();
-
-    returnValue.setTimeSpec(Qt::UTC);
-
-    if(settings.value("mam/latestsyncdate/"+jid).toDateTime().isValid())
-    {
-        returnValue = settings.value("mam/latestsyncdate/"+jid).toDateTime();
-    }
-
-    return returnValue;
+    return settings.value("mam/lastmsgid/"+mamJid).toString();
 }
 
-void Settings::setLatestMamSyncDate(QDateTime const &latestMamSyncDate)
+void Settings::setMamLastMsgId(QString mamJid, QString lastMsgId)
 {
     QSettings settings;
 
-    QString jid=getJid();
-
-    settings.setValue("mam/latestsyncdate/"+jid, latestMamSyncDate);
-    emit latestMamSyncDateChanged(latestMamSyncDate);
+    settings.setValue("mam/lastmsgid/"+mamJid, lastMsgId);
 }

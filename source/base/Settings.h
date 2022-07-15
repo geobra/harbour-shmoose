@@ -25,7 +25,6 @@ class Settings : public QObject
     Q_PROPERTY(int LimitCompression READ getLimitCompression WRITE setLimitCompression NOTIFY limitCompressionChanged)
     Q_PROPERTY(bool EnableSoftwareFeatureOmemo READ getSoftwareFeatureOmemoEnabled WRITE setSoftwareFeatureOmemoEnabled NOTIFY softwareFeatureOmemoEnabledChanged);
     Q_PROPERTY(QString ResourceId READ getResourceId WRITE setResourceId NOTIFY resourceIdChanged);
-    Q_PROPERTY(QDateTime latestMamSyncDate READ getLatestMamSyncDate WRITE setLatestMamSyncDate NOTIFY latestMamSyncDateChanged)
 
 
 public:
@@ -47,7 +46,8 @@ public:
     unsigned int getLimitCompression() const;
     bool getSoftwareFeatureOmemoEnabled() const;
     QString getResourceId() const;
-    QDateTime getLatestMamSyncDate() const;
+    void setMamLastMsgId(QString mamJid, QString last);
+    QString getMamLastMsgId(QString mamJid) const;
 
 signals:
     void jidChanged(QString Jid);
@@ -65,7 +65,6 @@ signals:
     void limitCompressionChanged(unsigned int LimitCompression);
     void softwareFeatureOmemoEnabledChanged(bool enableSoftwareFeatureOmemo);
     void resourceIdChanged(QString ResourceId);
-    void latestMamSyncDateChanged(QDateTime LatestMamSyncDate);
 
 public slots:
     void setJid(QString Jid);
@@ -93,8 +92,6 @@ public slots:
     void setLimitCompression(unsigned int LimitCompression);
     void setSoftwareFeatureOmemoEnabled(bool enableSoftwareFeatureOmemo);
     void setResourceId(QString ResourceId);
-    void setLatestMamSyncDate(QDateTime const &LatestMamSyncDate);
-
 };
 
 #endif // SETTINGS_H

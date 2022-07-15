@@ -51,17 +51,21 @@ void MamManager::addJidforArchiveQuery(QString jid)
     if (! queridJids_.contains(jid))
     {
         queridJids_.append(jid);
-        requestArchiveForJid(jid);
+        requestArchiveForJid(jid, Settings().getMamLastMsgId(jid));
     }
 }
 
 void MamManager::setServerHasFeatureMam(bool hasFeature)
 {
+    QString jid;
+
     //qDebug() << "MamManager::setServerHasFeatureMam: " << hasFeature;
 
     serverHasFeature_ = hasFeature;
 
-    requestArchiveForJid(QString::fromStdString(client_->getJID().toBare().toString()));
+    jid = QString::fromStdString(client_->getJID().toBare().toString());
+
+    requestArchiveForJid(jid, Settings().getMamLastMsgId(jid));
 }
 
 void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
@@ -99,23 +103,15 @@ void MamManager::requestArchiveForJid(const QString& jid, const QString &last)
             xw.writeTaggedString( "value", lastWeek.toString(Qt::ISODate));
             xw.writeCloseTag( "field" );
         }
-        else
-        {
-            xw.writeOpenTag( "field", AttrMap("var", "after-id") );
-            xw.writeTaggedString( "value", last);
-            xw.writeCloseTag( "field" );
-        }
 
         xw.writeCloseTag( "x" );
 
-#if 0
         if (! last.isEmpty())
         {
             xw.writeOpenTag( "set", AttrMap("xmlns", "http://jabber.org/protocol/rsm") );
             xw.writeTaggedString( "after", last );
             xw.writeCloseTag( "set" );
         }
-#endif
 
         xw.writeCloseTag( "query" );
 
@@ -157,9 +153,11 @@ void MamManager::processFinIq(const std::string& jid, std::shared_ptr<Swift::MAM
             else
             {
                 qDebug() << "########## mam fin complete for jid: " << from;
-                QDateTime now = QDateTime::currentDateTimeUtc();
-                now.setTimeSpec(Qt::UTC);
-                Settings().setLatestMamSyncDate(now);
+                if(resultSet->getLastID() != nullptr)
+                {
+                    QString last = QString::fromStdString(*resultSet->getLastID());
+                    Settings().setMamLastMsgId(from, last);
+                }
             }
         }
     }
