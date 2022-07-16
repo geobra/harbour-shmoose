@@ -159,7 +159,6 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
 #if 0
     // XEP 45 MUC messages
-    bool isGroupMessage = false;
     if(message->getType() == Swift::Message::Groupchat)
     {
         qDebug() << "Group message" << endl;
@@ -316,7 +315,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     }
 
     // XEP 0184
-    if (message->getPayload<Swift::DeliveryReceiptRequest>())
+    if (message->getPayload<Swift::DeliveryReceiptRequest>() && (isMamMsg == false))
     {
         Swift::Message::ref receiptReply = std::make_shared<Swift::Message>();
         receiptReply->setFrom(message->getTo());
