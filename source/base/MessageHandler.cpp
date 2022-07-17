@@ -78,14 +78,14 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     auto delay = message->getPayload<Swift::Delay>();
     if(delay != nullptr)
     {
-        //using namespace boost::posix_time;
-        //static ptime epoch(boost::gregorian::date(1970, 1, 1));
-        //time_duration diff(delay->getStamp() - epoch);
-        //timestamp = diff.ticks() / diff.ticks_per_second();
+        using namespace boost::posix_time;
+        static ptime epoch(boost::gregorian::date(1970, 1, 1));
+        time_duration diff(delay->getStamp() - epoch);
+        timestamp = diff.ticks() / diff.ticks_per_second();
 
-        auto stamp = delay->getStamp();
-        std::tm time_tm = to_tm(stamp);
-        timestamp = mktime(&time_tm);
+        //auto stamp = delay->getStamp();
+        //std::tm time_tm = to_tm(stamp);
+        //timestamp = mktime(&time_tm);
     }
 
     // XEP 313 MAM
@@ -115,15 +115,16 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
                 if(forwarded->getDelay())
                 {
-#if 0
+#if 1
                     using namespace boost::posix_time;
                     static ptime epoch(boost::gregorian::date(1970, 1, 1));
                     time_duration diff(forwarded->getDelay()->getStamp() - epoch);
                     timestamp = diff.ticks() / diff.ticks_per_second();
-#endif
+#else
                     auto stamp = forwarded->getDelay()->getStamp();
                     std::tm time_tm = to_tm(stamp);
                     timestamp = mktime(&time_tm);
+#endif
                 }
             }
         }
