@@ -52,4 +52,6 @@ public:
     void handleMessageReceived(Swift::Message::ref message);
     void handleStanzaAcked(Swift::Stanza::ref stanza);
     void handleDataReceived(Swift::SafeByteArray data);
+
+    qint64 getTimeStampFromDelay(const boost::posix_time::ptime& delay);
 };

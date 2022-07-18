@@ -78,9 +78,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     auto delay = message->getPayload<Swift::Delay>();
     if(delay != nullptr)
     {
-        auto stamp = delay->getStamp();
-        std::tm time_tm = to_tm(stamp);
-        timestamp = mktime(&time_tm);
+        timestamp = getTimeStampFromDelay(delay->getStamp());
     }
 
     // XEP 313 MAM
@@ -110,9 +108,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 
                 if(forwarded->getDelay())
                 {
-                    auto stamp = forwarded->getDelay()->getStamp();
-                    std::tm time_tm = to_tm(stamp);
-                    timestamp = mktime(&time_tm);
+                    timestamp = getTimeStampFromDelay(forwarded->getDelay()->getStamp());
                 }
             }
         }
@@ -418,4 +414,11 @@ void MessageHandler::sendDisplayedForJid(const QString &jid)
 void MessageHandler::slotAppGetsActive(bool active)
 {
     appIsActive_ = active;
+}
+
+qint64 MessageHandler::getTimeStampFromDelay(const boost::posix_time::ptime& delay)
+{
+    static boost::posix_time::ptime epoch(boost::gregorian::date(1970, 1, 1));
+    boost::posix_time::time_duration diff(delay - epoch);
+    return diff.ticks() / diff.ticks_per_second();
 }
