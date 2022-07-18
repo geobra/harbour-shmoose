@@ -66,7 +66,9 @@ private:
 
     void handleVCardChanged(const Swift::JID &jid, const Swift::VCard::ref &vCard);
 
-    void handleMessageReceived(Swift::Message::ref message);
+    //void handleMessageReceived(Swift::Message::ref message);
+    void handleCapsChanged(const Swift::JID &jid);
+    QString getRoomNameFromCaps(QString groupJid);
 
     void bindJidUpdateMethodes();
 
