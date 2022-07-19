@@ -33,9 +33,8 @@ void RosterController::setupWithClient(Swift::Client *client)
         Swift::XMPPRoster *xmppRoster = client_->getRoster();
         xmppRoster->onInitialRosterPopulated.connect(boost::bind(&RosterController::bindJidUpdateMethodes, this));
 
-//      client_->onMessageReceived.connect(boost::bind(&RosterController::handleMessageReceived, this, _1));
+        client_->onMessageReceived.connect(boost::bind(&RosterController::handleMessageReceived, this, _1));
 
-        client_->getEntityCapsProvider()->onCapsChanged.connect(boost::bind(&RosterController::handleCapsChanged, this, _1));
         presenceHandler_->setupWithClient(client_);
     }
 }
@@ -100,7 +99,7 @@ bool RosterController::updateNameForJid(const Swift::JID &jid, const std::string
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
-    appendToRosterIfNotAlreadyIn(localBareJid);
+    // appendToRosterIfNotAlreadyIn(localBareJid);
 
     for (auto item: rosterList_)
     {
@@ -122,7 +121,7 @@ bool RosterController::updateSubscriptionForJid(const Swift::JID &jid, RosterIte
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
-    appendToRosterIfNotAlreadyIn(localBareJid);
+    // appendToRosterIfNotAlreadyIn(localBareJid);
 
     for (auto item: rosterList_)
     {
@@ -149,7 +148,7 @@ bool RosterController::updateStatusForJid(const Swift::JID &jid, const QString& 
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
-    appendToRosterIfNotAlreadyIn(localBareJid);
+    //appendToRosterIfNotAlreadyIn(localBareJid);
 
     if (! status.isEmpty())
     {
@@ -176,7 +175,7 @@ bool RosterController::updateAvailabilityForJid(const Swift::JID &jid, const Ros
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
-    appendToRosterIfNotAlreadyIn(localBareJid);
+    //appendToRosterIfNotAlreadyIn(localBareJid);
 
     for (auto item: rosterList_)
     {
@@ -245,7 +244,6 @@ void RosterController::handleJidRemoved(const Swift::JID &jid)
     //qDebug() << "#####################handleJidRemoved: rL_.size: " << rosterList_.size();
 }
 
-#if 0
 void RosterController::handleMessageReceived(Swift::Message::ref message)
 {
     if (message->getType() == Swift::Message::Groupchat)
@@ -258,54 +256,6 @@ void RosterController::handleMessageReceived(Swift::Message::ref message)
             this->updateNameForJid(message->getFrom().toBare(), roomName);
         }
     }
-}
-#endif
-
-void RosterController::handleCapsChanged(const Swift::JID &jid)
-{
-    QString groupJid = QString::fromStdString(jid.toString());
-//    qDebug() << "handleCapsChanged:" << groupJid << endl;
-
-    QString roomName = getRoomNameFromCaps(groupJid);
-
-    if (roomName.isEmpty() == false)
-    {
-        if(isJidInRoster(groupJid))
-        {
-            updateNameForJid(jid, roomName.toStdString());
-        }
-        else
-        {
-            addGroupAsContact(groupJid, roomName);
-        }
-   }
-}
-
-QString RosterController::getRoomNameFromCaps(QString groupJid)
-{
-    Swift::JID jid(groupJid.toStdString());
-
-    auto discoInfo = client_->getEntityCapsProvider()->getCaps(jid);
-
-    if(discoInfo != nullptr)
-    {
-        for(auto form : discoInfo->getExtensions())
-        {
-            auto field = form->getField("muc#roomconfig_roomname");
-
-            if(field != nullptr)
-            {
-                auto values = field->getValues();
-
-                if(values.empty() == false)
-                {
-                    return QString::fromStdString(values[0]);
-                }
-            }
-        }
-    }
-
-    return "";
 }
 
 void RosterController::requestRoster()
@@ -601,6 +551,7 @@ void RosterController::addGroupAsContact(QString groupJid, QString groupName)
     else
     {
         //qDebug() << "############ group already in roster gui!" << groupJid;
+        updateNameForJid(Swift::JID(groupJid.toStdString()), groupName.toStdString());    
     }
 
     //qDebug() << "#####################addGroupAsContact: rL_.size: " << rosterList_.size();

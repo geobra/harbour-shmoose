@@ -21,3 +21,8 @@ std::shared_ptr<Swift::MUCBookmark> MucCollection::getBookmark() const
 {
     return bookmark_;
 }
+
+void MucCollection::setBookmark(std::shared_ptr<Swift::MUCBookmark> bookmark)
+{
+    bookmark_ = bookmark;
+}
