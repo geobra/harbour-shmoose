@@ -22,13 +22,16 @@ public:
 
     void sendMessage(QString const &toJid, QString const &message, QString const &type, bool isGroup);
     void sendDisplayedForJid(const QString &jid);
+    void downloadFile(const QString &str, const QString &msgId);
 
 signals:
     void messageSent(QString msgId);
+    void httpDownloadFinished(QString attachmentMsgId);
 
 public slots:
     void slotAppGetsActive(bool active);
     void sendRawMessageStanza(QString str);
+    void setAskBeforeDownloading(bool AskBeforeDownloading);
 
 private:
 #ifdef DBUS
@@ -45,6 +48,7 @@ public:
     XMPPMessageParserClient* xmppMessageParserClient_;
 
     bool appIsActive_;
+    bool askBeforeDownloading_;
     QStringList unAckedMessageIds_;
 
     void handleMessageReceived(Swift::Message::ref message);

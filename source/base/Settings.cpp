@@ -460,3 +460,20 @@ void Settings::setResourceId(QString resourceId)
     settings.setValue("authentication/resourceId", resourceId);
     emit resourceIdChanged(resourceId);
 }
+
+bool Settings::getAskBeforeDownloading() const
+{
+    bool enabled{false};
+
+    QSettings settings;
+    enabled = settings.value("attachments/askBeforeDownloading", false).toBool();
+
+    return enabled;
+}
+
+void Settings::setAskBeforeDownloading(bool askBeforeDownloading)
+{
+    QSettings settings;
+    settings.setValue("attachments/askBeforeDownloading", askBeforeDownloading);
+    emit askBeforeDownloadingChanged(askBeforeDownloading);
+}
