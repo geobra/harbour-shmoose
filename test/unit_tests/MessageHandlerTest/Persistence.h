@@ -10,7 +10,7 @@ public:
     Persistence();
 
     void addMessage(const QString &id, QString const &jid, QString const &resource, QString const &message,
-                    const QString &type, unsigned int direction, unsigned int security, qint64 timestamp = 0);
+                    const QString &type, unsigned int direction, unsigned int security, quint64 timestamp = 0);
     void markGroupMessageReceivedByMember(const QString &msgId, const QString &resource);
     void markMessageAsReceivedById(const QString &msgId);
 
@@ -47,7 +47,7 @@ public:
     QString type_;
     unsigned int direction_;
     unsigned int security_;
-    qint64 timestamp_;
+    quint64 timestamp_;
 
     QString idDisplayed_{};
     QString resourceDisplayed_;

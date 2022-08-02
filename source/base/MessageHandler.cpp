@@ -65,7 +65,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     unsigned int direction = 1; // incoming
     Swift::Forwarded::ref forwarded = nullptr;
     Swift::Message::ref forwardedMessage = nullptr;
-    qint64 timestamp = 0;
+    quint64 timestamp = 0;
     QString partyJid = QString::fromStdString(message->getFrom().toBare().toString());
     auto clientBareJid = client_->getJID();
     isGroupMessage_ = false;

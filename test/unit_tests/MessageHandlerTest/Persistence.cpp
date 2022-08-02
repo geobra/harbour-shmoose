@@ -6,7 +6,7 @@ Persistence::Persistence()
 }
 
 void Persistence::addMessage(const QString &id, QString const &jid, QString const &resource, QString const &message,
-                const QString &type, unsigned int direction, unsigned int security, qint64 timestamp)
+                const QString &type, unsigned int direction, unsigned int security, quint64 timestamp)
 {
     id_ = id;
     jid_ = jid;

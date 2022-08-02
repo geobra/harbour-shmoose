@@ -103,7 +103,7 @@ void MsgTest::testPlainRoomWithTimestampMsg()
 
     // generate delay payload
     std::shared_ptr<Swift::Delay> delay(new Swift::Delay());
-    boost::posix_time::ptime t1(boost::posix_time::max_date_time);
+    boost::posix_time::ptime t1(boost::posix_time::time_from_string("1970-01-01 00:00:00.000"));
     delay->setStamp(t1);
 
     message->addPayload(delay);
@@ -118,7 +118,7 @@ void MsgTest::testPlainRoomWithTimestampMsg()
     QCOMPARE(persistence_->type_, "txt");
     QCOMPARE(persistence_->direction_, 1);
     QCOMPARE(persistence_->security_, 0);
-    QCOMPARE(persistence_->timestamp_, 253402297199);
+    QCOMPARE(persistence_->timestamp_, 0);
 }
 
 
@@ -142,7 +142,7 @@ void MsgTest::testPlainRoomMsgInsideMam()
 
     // generate delay payload
     std::shared_ptr<Swift::Delay> delay(new Swift::Delay());
-    boost::posix_time::ptime t1(boost::posix_time::max_date_time);
+    boost::posix_time::ptime t1(boost::posix_time::time_from_string("1970-01-01 00:00:00.000"));
     delay->setStamp(t1);
 
     // generate a Forwardd stanza with that delay
@@ -180,7 +180,7 @@ void MsgTest::testPlainRoomMsgInsideMam()
     QCOMPARE(persistence_->type_, "txt");
     QCOMPARE(persistence_->direction_, 1);
     QCOMPARE(persistence_->security_, 0);
-    QCOMPARE(persistence_->timestamp_, 253402297199);
+    QCOMPARE(persistence_->timestamp_, 0);
     QCOMPARE(messageHandler_->isGroupMessage_, true);
 }
 
@@ -284,9 +284,9 @@ void MsgTest::testDsiplayedMsgInsideMam()
 
     chatMarkers_->handleMessageReceived(message);
 
-    // FIXME this fails as mam handling is only implemented in MessageHandler. Not in ChatMarkers...
-    //QCOMPARE(persistence_->idDisplayed_, "aac5cd6e-23b7-4eda-900a-ff838a1b3ade");
-    //QCOMPARE(persistence_->resourceDisplayed_, "sosccc");
+    // FIXME this fails. Follow sendReadNotification and debug...
+    QCOMPARE(persistence_->idDisplayed_, "aac5cd6e-23b7-4eda-900a-ff838a1b3ade");
+    QCOMPARE(persistence_->resourceDisplayed_, "sosccc");
 }
 
 
