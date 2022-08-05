@@ -20,6 +20,8 @@ public:
     void sendDisplayedForJidAndMessageId(QString jid, QString messageId);
     void sendDisplayedForJid(const QString &jid);
 
+    void handleMessageReceived(Swift::Message::ref message);
+
     static const QString chatMarkersIdentifier;
 
 signals:
@@ -30,7 +32,6 @@ private:
 #if defined DBUS || defined UNIT_TEST
 public:
 #endif
-    void handleMessageReceived(Swift::Message::ref message);
     QString getIdFromRawXml(QString rawXml);
 
     Swift::Client* client_;

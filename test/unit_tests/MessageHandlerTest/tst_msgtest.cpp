@@ -280,13 +280,10 @@ void MsgTest::testDsiplayedMsgInsideMam()
     message->addPayload(mam);
 
     qDebug() << getSerializedStringFromMessage(message);
-    //messageHandler_->handleMessageReceived(message);
+    messageHandler_->handleMessageReceived(message);
 
-    chatMarkers_->handleMessageReceived(message);
-
-    // FIXME this fails. Follow sendReadNotification and debug...
     QCOMPARE(persistence_->idDisplayed_, "aac5cd6e-23b7-4eda-900a-ff838a1b3ade");
-    QCOMPARE(persistence_->resourceDisplayed_, "sosccc");
+    QCOMPARE(persistence_->resourceDisplayed_, "mosos(at)jabber.de");
 }
 
 

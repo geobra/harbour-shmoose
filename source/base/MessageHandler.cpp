@@ -265,6 +265,12 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         }
     }
 
+    // check if there was a received or displayed stanza included in the mam message and process it.
+    if (isMamMsg)
+    {
+        chatMarkers_->handleMessageReceived(message);
+    }
+
     // XEP 0184
     if (message->getPayload<Swift::DeliveryReceiptRequest>())
     {
