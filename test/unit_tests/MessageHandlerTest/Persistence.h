@@ -52,6 +52,8 @@ public:
     QString idDisplayed_{};
     QString resourceDisplayed_;
 
+    QString receivedId_;
+
 };
 
 #endif // PERSISTENCE_H

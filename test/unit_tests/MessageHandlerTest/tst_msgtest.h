@@ -25,11 +25,14 @@ private slots:
     void cleanupTestCase();
 
     void testPlain1to1Msg();
+    void testPlain1to1ReceivedMsg();
+    void testPlain1to1DisplayedMsg();
+
     void testPlainRoomMsg();
     void testPlainRoomWithTimestampMsg();
     void testPlainRoomMsgInsideMam();
     void testPlainRoomMsgWithoutIdInsideMam();
-    void testDsiplayedMsgInsideMam();
+    void testDisplayedRoomMsgInsideMam();
 
 private:
     QString getSerializedStringFromMessage(Swift::Message::ref msg);

@@ -32,12 +32,12 @@ void Persistence::markGroupMessageDisplayedByMember(const QString &msgId, const 
 
 void Persistence::markMessageAsReceivedById(const QString &msgId)
 {
-    id_ = msgId;
+    receivedId_ = msgId;
 }
 
 void Persistence::markMessageAsDisplayedId(const QString &msgId)
 {
-    id_ = msgId;
+    idDisplayed_ = msgId;
 }
 
 void Persistence::clear()

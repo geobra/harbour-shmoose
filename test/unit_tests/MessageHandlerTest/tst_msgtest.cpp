@@ -61,6 +61,79 @@ void MsgTest::testPlain1to1Msg()
     QCOMPARE(persistence_->timestamp_, 0);
 }
 
+/*
+<message to="sos@jabber-germany.de/shmoose.BRjADesktop" type="chat" lang="en" from="mosos@jabber.de/shmoose.QSwh">
+ <received xmlns="urn:xmpp:receipts" id="6907688f-3306-4910-8251-0854ce188f70"></received>
+</message>
+ */
+
+// test 1o1 received stanza
+void MsgTest::testPlain1to1ReceivedMsg()
+{
+    persistence_->clear();
+
+    std::shared_ptr<Swift::Message> message(new Swift::Message());
+    message->setFrom(Swift::JID("from@me.org/fromRes"));
+    message->setTo(Swift::JID("to@you.org/toRes"));
+    const std::string id{"abcdef-ghijk-lmn"};
+    message->setID(id);
+
+    // received stanza
+    std::shared_ptr<Swift::DeliveryReceipt> rcpt(new Swift::DeliveryReceipt());
+    rcpt->setReceivedID("id-received-id");
+
+    message->addPayload(rcpt);
+
+    qDebug() << getSerializedStringFromMessage(message);
+
+    messageHandler_->handleMessageReceived(message);
+
+    QCOMPARE(persistence_->message_, "");
+    QCOMPARE(persistence_->security_, 0);
+    QCOMPARE(persistence_->timestamp_, 0);
+    QCOMPARE(persistence_->receivedId_, "id-received-id");
+}
+
+
+/*
+<message id="5dcb8d6e-56c6-48f4-8627-6c6899b7b99e" to="sos@jabber-germany.de" lang="en" from="mosos@jabber.de/shmoose.QSwh">
+ <displayed xmlns="urn:xmpp:chat-markers:0" id="a8c23e15-d71f-4029-abdc-638eb1b62683"></displayed>
+</message>
+ */
+// test 1o1 displayed stanza
+void MsgTest::testPlain1to1DisplayedMsg()
+{
+    persistence_->clear();
+
+    std::shared_ptr<Swift::Message> message(new Swift::Message());
+    message->setFrom(Swift::JID("from@me.org/fromRes"));
+    message->setTo(Swift::JID("to@you.org/toRes"));
+    const std::string id{"abcdef-ghijk-lmn"};
+    message->setID(id);
+
+    // generate a displayed stanza
+    std::shared_ptr<Swift::RawXMLPayload> displayed(new Swift::RawXMLPayload());
+    displayed->setRawXML("<displayed xmlns=\"urn:xmpp:chat-markers:0\" id=\"id-displayed-id\" sender=\"sos@jabber-germany.de/sosccc\"></displayed>");
+
+    message->addPayload(displayed);
+
+    qDebug() << getSerializedStringFromMessage(message);
+
+    chatMarkers_->handleMessageReceived(message);
+
+    QCOMPARE(persistence_->message_, "");
+    QCOMPARE(persistence_->security_, 0);
+    QCOMPARE(persistence_->timestamp_, 0);
+    QCOMPARE(persistence_->idDisplayed_, "id-displayed-id");
+}
+
+
+
+// FIXME test 1o1 msg inside mam
+// FIXME test 1o1 received stanza inside mam
+// FIXME test 1o1 displayed stanza inside mam
+
+
 void MsgTest::testPlainRoomMsg()
 {
     persistence_->clear();
@@ -228,7 +301,6 @@ void MsgTest::testPlainRoomMsgWithoutIdInsideMam()
     QCOMPARE(messageHandler_->isGroupMessage_, true);
 }
 
-// FIXME write a test for a displayed mam!
 /*
  <message xmlns="jabber:client" to="sos@jabber-germany.de/shmoose.BRjADesktop" from="room@conference.jabber-germany.de">
   <result xmlns="urn:xmpp:mam:2" id="qVsnHaEJM9cia3H5JjXEYCn0">
@@ -242,7 +314,7 @@ void MsgTest::testPlainRoomMsgWithoutIdInsideMam()
  </message>
 */
 
-void MsgTest::testDsiplayedMsgInsideMam()
+void MsgTest::testDisplayedRoomMsgInsideMam()
 {
     persistence_->clear();
 
@@ -286,6 +358,10 @@ void MsgTest::testDsiplayedMsgInsideMam()
     QCOMPARE(persistence_->resourceDisplayed_, "mosos(at)jabber.de");
 }
 
+// FIXME test room received stanza inside mam
+
+
+// FIXME test all of this again with omemo encryption
 
 QString MsgTest::getSerializedStringFromMessage(Swift::Message::ref msg)
 {
