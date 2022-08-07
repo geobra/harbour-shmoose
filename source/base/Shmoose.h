@@ -48,6 +48,7 @@ public:
     Q_INVOKABLE void removeRoom(QString const &roomJid);
 
     Q_INVOKABLE QString getLocalFileForUrl(const QString& str);
+    Q_INVOKABLE void downloadFile(const QString& str, const QString& msgId);
 
     Q_INVOKABLE bool canSendFile();
     Q_INVOKABLE QString getVersion();
@@ -87,6 +88,8 @@ signals:
 
     void signalHasInetConnection(bool connected);
     void signalAppGetsActive(bool active);
+
+    void httpDownloadFinished(QString attachmentMsgId);
 
 private:
 #ifdef DBUS

@@ -26,6 +26,8 @@ MessageHandler::MessageHandler(Persistence *persistence, Settings * settings, Ro
     appIsActive_(true), unAckedMessageIds_()
 {
     connect(lurchAdapter_, SIGNAL(rawMessageStanzaForSending(QString)), this, SLOT(sendRawMessageStanza(QString)));
+    connect(settings_, SIGNAL(askBeforeDownloadingChanged(bool)), this, SLOT(setAskBeforeDownloading(bool)));
+    connect(downloadManager_, SIGNAL(httpDownloadFinished(QString)), this, SIGNAL(httpDownloadFinished(QString)));
 }
 
 void MessageHandler::setupWithClient(Swift::Client* client)
@@ -40,6 +42,8 @@ void MessageHandler::setupWithClient(Swift::Client* client)
         client_->onStanzaAcked.connect(boost::bind(&MessageHandler::handleStanzaAcked, this, _1));
 
         chatMarkers_->setupWithClient(client_);
+
+        setAskBeforeDownloading(settings_->getAskBeforeDownloading());
     }
 }
 
@@ -214,6 +218,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
         bool isLink = false;
 
         QString type = "txt";
+        QString messageId = QString::fromStdString(message->getID());
 
         if (bodyUrl.isValid() && bodyUrl.scheme().length()>0 ) // it's an url
         {
@@ -234,7 +239,9 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             if(isLink)
             {
                 type = QMimeDatabase().mimeTypeForFile(bodyUrl.fileName()).name();
-                downloadManager_->doDownload(bodyUrl); // keep the fragment in the sent message
+
+                if(! askBeforeDownloading_)
+                    downloadManager_->doDownload(bodyUrl, messageId); // keep the fragment in the sent message
             }
         }
 
@@ -243,7 +250,6 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
             isGroupMessage = true;
         }
 
-        QString messageId = QString::fromStdString(message->getID());
         if (messageId.length() == 0)
         {
             // No message id, try xep 0359
@@ -480,7 +486,17 @@ void MessageHandler::sendDisplayedForJid(const QString &jid)
     }
 }
 
+void MessageHandler::downloadFile(const QString &str, const QString &msgId)
+{
+    downloadManager_->doDownload(QUrl(str), msgId);
+}
+
 void MessageHandler::slotAppGetsActive(bool active)
 {
     appIsActive_ = active;
+}
+
+void MessageHandler::setAskBeforeDownloading(bool AskBeforeDownloading)
+{
+    askBeforeDownloading_ = AskBeforeDownloading;
 }

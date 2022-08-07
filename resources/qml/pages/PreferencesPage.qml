@@ -49,9 +49,13 @@ Page {
 
             SectionHeader { text: qsTr("Attachments") }
 
-            Button {
-                text: qsTr("Edit attachment search paths")
-                onClicked: pageStack.push(Qt.resolvedUrl("AttachmentPathsPage.qml"))
+            TextSwitch {
+                id: askBeforeDownloadingSwitch
+                checked: shmoose.settings.AskBeforeDownloading
+                text: qsTr("Ask before downloading attachments")
+                onClicked: {
+                    shmoose.settings.AskBeforeDownloading = askBeforeDownloadingSwitch.checked;
+                }
             }
 
             SectionHeader { text: qsTr("Features") }

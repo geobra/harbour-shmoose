@@ -474,3 +474,20 @@ void Settings::setMamLastMsgId(QString mamJid, QString lastMsgId)
 
     settings.setValue("mam/lastmsgid/"+mamJid, lastMsgId);
 }
+
+bool Settings::getAskBeforeDownloading() const
+{
+    bool enabled{false};
+
+    QSettings settings;
+    enabled = settings.value("attachments/askBeforeDownloading", false).toBool();
+
+    return enabled;
+}
+
+void Settings::setAskBeforeDownloading(bool askBeforeDownloading)
+{
+    QSettings settings;
+    settings.setValue("attachments/askBeforeDownloading", askBeforeDownloading);
+    emit askBeforeDownloadingChanged(askBeforeDownloading);
+}
