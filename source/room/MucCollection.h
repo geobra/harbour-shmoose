@@ -12,6 +12,8 @@ public:
     std::shared_ptr<Swift::MUC> getMuc() const;
     std::shared_ptr<Swift::MUCBookmark> getBookmark() const;
 
+    void setBookmark(std::shared_ptr<Swift::MUCBookmark> bookmark);
+
 private:
     MucCollection();
 

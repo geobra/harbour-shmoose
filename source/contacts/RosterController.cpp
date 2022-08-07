@@ -99,7 +99,7 @@ bool RosterController::updateNameForJid(const Swift::JID &jid, const std::string
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
-    appendToRosterIfNotAlreadyIn(localBareJid);
+    // appendToRosterIfNotAlreadyIn(localBareJid);
 
     for (auto item: rosterList_)
     {
@@ -121,7 +121,7 @@ bool RosterController::updateSubscriptionForJid(const Swift::JID &jid, RosterIte
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
-    appendToRosterIfNotAlreadyIn(localBareJid);
+    // appendToRosterIfNotAlreadyIn(localBareJid);
 
     for (auto item: rosterList_)
     {
@@ -148,7 +148,7 @@ bool RosterController::updateStatusForJid(const Swift::JID &jid, const QString& 
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
-    appendToRosterIfNotAlreadyIn(localBareJid);
+    //appendToRosterIfNotAlreadyIn(localBareJid);
 
     if (! status.isEmpty())
     {
@@ -175,7 +175,7 @@ bool RosterController::updateAvailabilityForJid(const Swift::JID &jid, const Ros
     bool somethingChanged = false;
 
     QString localBareJid = QString::fromStdString(jid.toBare().toString());
-    appendToRosterIfNotAlreadyIn(localBareJid);
+    //appendToRosterIfNotAlreadyIn(localBareJid);
 
     for (auto item: rosterList_)
     {
@@ -551,6 +551,7 @@ void RosterController::addGroupAsContact(QString groupJid, QString groupName)
     else
     {
         //qDebug() << "############ group already in roster gui!" << groupJid;
+        updateNameForJid(Swift::JID(groupJid.toStdString()), groupName.toStdString());    
     }
 
     //qDebug() << "#####################addGroupAsContact: rL_.size: " << rosterList_.size();

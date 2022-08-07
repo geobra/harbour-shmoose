@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QUrl>
 #include <QStringList>
+#include <QDateTime>
 
 class Settings : public QObject
 {
@@ -46,6 +47,8 @@ public:
     unsigned int getLimitCompression() const;
     bool getSoftwareFeatureOmemoEnabled() const;
     QString getResourceId() const;
+    void setMamLastMsgId(QString mamJid, QString last);
+    QString getMamLastMsgId(QString mamJid) const;
     bool getAskBeforeDownloading() const;
 
 signals:

@@ -4,7 +4,6 @@
 #include <QDebug>
 #include <iostream>
 
-
 MucManager::MucManager(QObject *parent) :
     QObject(parent), client_(nullptr), mucBookmarkManager_(nullptr), triggerNewMucSignal_(true)
 {
@@ -12,8 +11,8 @@ MucManager::MucManager(QObject *parent) :
 
 MucManager::~MucManager()
 {
-    mucCollection_.clear();
-    delete mucBookmarkManager_;
+//    mucCollection_.clear();
+//    delete mucBookmarkManager_;
 }
 
 void MucManager::setupWithClient(Swift::Client* client)
@@ -30,6 +29,38 @@ void MucManager::setupWithClient(Swift::Client* client)
         client_->onMessageReceived.connect(boost::bind(&MucManager::handleMessageReceived, this, _1));
 
         client_->onConnected.connect(boost::bind(&MucManager::handleConnected, this));
+
+        client_->getEntityCapsProvider()->onCapsChanged.connect(boost::bind(&MucManager::handleCapsChanged, this, _1));
+    }
+}
+
+void MucManager::handleCapsChanged(const Swift::JID &jid)
+{
+    QString groupJid = QString::fromStdString(jid.toBare().toString());
+    QString roomName = getRoomNameFromCaps(jid.toBare());
+
+//    qDebug() << "handleCapsChanged:" << groupJid << "roomName:" << roomName << endl;
+
+    if (roomName.isEmpty() == false)
+    {
+        for(auto bookmark : mucBookmarkManager_->getBookmarks())
+        {
+            if ((bookmark.getRoom().compare(jid, Swift::JID::WithoutResource) == 0) &&
+                QString::fromStdString(bookmark.getName()) != roomName)
+            {
+//                qDebug() << "replace bookmark:" << groupJid << "room Name:" << QString::fromStdString(bookmark.getName()) << endl;
+
+                std::shared_ptr<Swift::MUCBookmark> newBookmark(new Swift::MUCBookmark(jid.toBare(), roomName.toStdString()));
+                newBookmark->setNick(bookmark.getNick());
+                newBookmark->setAutojoin(bookmark.getAutojoin());
+
+                mucBookmarkManager_->replaceBookmark(bookmark, *newBookmark);
+
+                // the group is already in the roster, it will just update its name
+                emit newGroupForContactsList(groupJid, roomName);
+                break;
+            }
+        }
     }
 }
 
@@ -110,7 +141,7 @@ bool MucManager::isRoomAlreadyBookmarked(const QString& roomJid)
 void MucManager::handleBookmarkAdded(Swift::MUCBookmark bookmark)
 {
     Swift::JID roomJid(bookmark.getRoom());
-    //std::cout << "###################### handleBookmarkAdded: ############### " << roomJid.toBare().toString() << ", name: " << bookmark.getName() << std::endl;
+    std::cout << "###################### handleBookmarkAdded: ############### " << roomJid.toBare().toString() << ", name: " << bookmark.getName() << std::endl;
 
     // update contacts list
     if (roomJid.isValid())
@@ -122,12 +153,39 @@ void MucManager::handleBookmarkAdded(Swift::MUCBookmark bookmark)
     }
 }
 
+QString MucManager::getRoomNameFromCaps(const Swift::JID &jid)
+{
+    auto discoInfo = client_->getEntityCapsProvider()->getCaps(jid.toBare());
+
+    if(discoInfo != nullptr)
+    {
+        for(auto form : discoInfo->getExtensions())
+        {
+            auto field = form->getField("muc#roomconfig_roomname");
+
+            if(field != nullptr)
+            {
+                auto values = field->getValues();
+
+                if(values.empty() == false)
+                {
+                    return QString::fromStdString(values[0]);
+                }
+            }
+        }
+    }
+
+    return "";
+}
+
 void MucManager::joinRoomIfConfigured(Swift::MUCBookmark const &bookmark)
 {
     // join room if autoJoin
     if (bookmark.getAutojoin())
     {
         Swift::MUC::ref muc = client_->getMUCManager()->createMUC(bookmark.getRoom());
+        muc->onJoinComplete.connect(boost::bind(&MucManager::handleJoinComplete, this, _1));
+        muc->onJoinFailed.connect(boost::bind(&MucManager::handleJoinFailed, this, _1));
 
         std::string nick = "";
         boost::optional<std::string> optionalNick = bookmark.getNick();
@@ -170,10 +228,9 @@ void MucManager::addRoom(Swift::JID &roomJid, QString const &roomName)
     std::string nickName = getNickName().toStdString();
 
     // create MUC
-    std::shared_ptr<Swift::MUC> muc = client_->getMUCManager()->createMUC(roomJid);
-    muc->onJoinComplete.connect(boost::bind(&MucManager::handleJoinComplete, this, _1));
-    muc->onJoinFailed.connect(boost::bind(&MucManager::handleJoinFailed, this, _1));
-
+//    std::shared_ptr<Swift::MUC> muc = client_->getMUCManager()->createMUC(roomJid);
+//    muc->onJoinComplete.connect(boost::bind(&MucManager::handleJoinComplete, this, _1));
+//    muc->onJoinFailed.connect(boost::bind(&MucManager::handleJoinFailed, this, _1));
     // save as bookmark if not already in
     if (isRoomAlreadyBookmarked(QString::fromStdString(roomJid)) == false)
     {
@@ -181,32 +238,20 @@ void MucManager::addRoom(Swift::JID &roomJid, QString const &roomName)
         std::shared_ptr<Swift::MUCBookmark> mucBookmark(new Swift::MUCBookmark(roomJid, roomName.toStdString()));
         mucBookmark->setNick(nickName);
         mucBookmark->setAutojoin(true);
+        mucBookmarkManager_->addBookmark(*mucBookmark);
 
         // save MucCollection
-        std::shared_ptr<MucCollection> mucCollection(new MucCollection(muc, mucBookmark, nickName));
-        mucCollection_.push_back(mucCollection);
+//        std::shared_ptr<MucCollection> mucCollection(new MucCollection(muc, mucBookmark, nickName));
+//        mucCollection_.push_back(mucCollection);
     }
 
     // try to join. onJoinComplete, add to bookmark
-    muc->joinAs(nickName);
+//  muc->joinAs(nickName);
 }
 
 void MucManager::handleJoinComplete(const std::string &joinedName)
 {
     std::cout << "join complete: " << joinedName;
-
-    for(std::vector<std::shared_ptr<MucCollection>>::iterator it = mucCollection_.begin(); it != mucCollection_.end(); ++it)
-    {
-        if ((*it)->getNickname().compare(joinedName) == 0)
-        {
-            std::shared_ptr<Swift::MUCBookmark> bookmark = (*it)->getBookmark();
-            if (bookmark)
-            {
-                mucBookmarkManager_->addBookmark(*bookmark);
-                break;
-            }
-        }
-    }
 
     emit roomJoinComplete(QString::fromStdString(joinedName));
 }

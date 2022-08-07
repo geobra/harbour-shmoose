@@ -439,6 +439,7 @@ void Settings::setSoftwareFeatureOmemoEnabled(bool enableSoftwareFeatureOmemo)
     QSettings settings;
     settings.setValue("swfeatures/omemo", enableSoftwareFeatureOmemo);
     emit softwareFeatureOmemoEnabledChanged(enableSoftwareFeatureOmemo);
+
 }
 
 QString Settings::getResourceId() const
@@ -459,6 +460,19 @@ void Settings::setResourceId(QString resourceId)
     QSettings settings;
     settings.setValue("authentication/resourceId", resourceId);
     emit resourceIdChanged(resourceId);
+}
+
+QString Settings::getMamLastMsgId(QString mamJid) const
+{
+    QSettings settings;
+    return settings.value("mam/lastmsgid/"+mamJid).toString();
+}
+
+void Settings::setMamLastMsgId(QString mamJid, QString lastMsgId)
+{
+    QSettings settings;
+
+    settings.setValue("mam/lastmsgid/"+mamJid, lastMsgId);
 }
 
 bool Settings::getAskBeforeDownloading() const

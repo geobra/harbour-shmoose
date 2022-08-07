@@ -34,7 +34,7 @@ public slots:
     void setAskBeforeDownloading(bool AskBeforeDownloading);
 
 private:
-#ifdef DBUS
+#if defined DBUS || defined UNIT_TEST
 public:
 #endif
     Swift::Client* client_;

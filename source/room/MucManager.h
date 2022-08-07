@@ -29,12 +29,14 @@ signals:
 private:
     Swift::Client* client_;
     Swift::MUCBookmarkManager *mucBookmarkManager_;
-    std::vector<std::shared_ptr<MucCollection>> mucCollection_;
+//    std::vector<std::shared_ptr<MucCollection>> mucCollection_;
 
     void handleBookmarksReady();
     void handleBookmarkAdded(Swift::MUCBookmark bookmark);
     void handleBookmarkRemoved(Swift::MUCBookmark bookmark);
 
+    QString getRoomNameFromCaps(const Swift::JID &jid);
+    void handleCapsChanged(const Swift::JID &jid);
     void handleJoinFailed(Swift::ErrorPayload::ref error);
     void handleJoinComplete(const std::string &joinedName);
     void handleUserLeft(Swift::MUC::LeavingType lt);

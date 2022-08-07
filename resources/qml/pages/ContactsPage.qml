@@ -29,7 +29,24 @@ Page {
         model: shmoose.rosterController.rosterList
         delegate: ListItem {
             id: item;
-            menu: contextMenu
+            menu: ContextMenu {
+                MenuItem {
+                    text:  qsTr("Remove");
+                    onClicked: {
+                        remorseAction(qsTr("Remove contact"),
+                        function() {
+                            if (shmoose.rosterController.isGroup(jid)) {
+                                shmoose.removeRoom(jid)
+                            }
+                            else {
+                                shmoose.rosterController.removeContact(jid)
+                            }
+                        })  
+                        
+                    }
+                }
+            }
+                
             contentHeight: Theme.itemSizeMedium;
             onClicked: {
                 shmoose.setCurrentChatPartner(jid)
@@ -90,26 +107,6 @@ Page {
                     text: status;
                     color: Theme.secondaryColor;
                     font.pixelSize: Theme.fontSizeTiny;
-                }
-                Component {
-                    id: contextMenu
-                    ContextMenu {
-                        MenuItem {
-                            text:  qsTr("Remove");
-                            onClicked: {
-                                remorseAction(qsTr("Remove contact"),
-                                function() {
-                                    if (shmoose.rosterController.isGroup(jid)) {
-                                        shmoose.removeRoom(jid)
-                                    }
-                                    else {
-                                        shmoose.rosterController.removeContact(jid)
-                                    }
-                                })  
-                                
-                            }
-                        }
-                    }
                 }
             }
         }

@@ -46,6 +46,7 @@ contains(DEFINES, QMLLIVE_SOURCE) {
 }
 
 contains(DEFINES, SFOS) {
+    QMAKE_CXXFLAGS += -Wno-deprecated-declarations -Wno-placement-new -Wno-parentheses -Wno-unused-but-set-parameter
     LIBS += -liphb
 }
 
@@ -91,6 +92,7 @@ SOURCES += \
     source/base/XmlWriter.cpp \
     source/base/System.cpp \
     source/base/XmlProcessor.cpp \
+    source/base/Client.cpp \
     source/persistence/Database.cpp \
     source/persistence/MessageController.cpp \
     source/persistence/SessionController.cpp \
@@ -144,6 +146,7 @@ HEADERS += source/base/Shmoose.h \
     source/base/XmlWriter.h \
     source/base/System.h \
     source/base/XmlProcessor.h \
+    source/base/Client.h \
     source/persistence/Database.h \
     source/persistence/MessageController.h \
     source/persistence/SessionController.h \
@@ -156,6 +159,7 @@ HEADERS += source/base/Shmoose.h \
     source/xep/httpFileUpload/ImageProcessing.h \
     source/xep/httpFileUpload/FileWithCypher.h \
     source/xep/mam/MamManager.h \
+    source/xep/mam/MamRequest.h \
     source/xep/omemo/BundleDeviceListRequest.h \
     source/xep/xmppPing/PingRequest.h \
     source/xep/xmppPing/XmppPingController.h \
