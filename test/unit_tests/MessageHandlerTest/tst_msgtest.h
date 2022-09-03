@@ -31,6 +31,7 @@ private slots:
     void test1o1MsgInsideMam();
 
     void testPlainRoomMsg();
+    void testPlainRoomReceivedMsg();
     void testPlainRoomWithTimestampMsg();
     void testPlainRoomMsgInsideMam();
     void testPlainRoomMsgWithoutIdInsideMam();

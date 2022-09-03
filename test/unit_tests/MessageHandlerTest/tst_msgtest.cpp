@@ -199,6 +199,50 @@ void MsgTest::testPlainRoomMsg()
     QCOMPARE(persistence_->timestamp_, 0);
 }
 
+// test room received msg
+/*
+ * sent from client1 in the room:
+ *<message xmlns="jabber:client" to="sos@jabber.ccc.de/shmoose.BRjADesktop" from="foobar@conference.jabber.ccc.de/ms<at>jabber.de" type="groupchat" id="d5ae426d-4969-4644-afce-8694d88bb1ec">
+  <archived xmlns="urn:xmpp:mam:tmp" by="foobar@conference.jabber.ccc.de" id="1662236013451965"></archived>
+  <stanza-id xmlns="urn:xmpp:sid:0" by="foobar@conference.jabber.ccc.de" id="1662236013451965"></stanza-id>
+  <request xmlns="urn:xmpp:receipts"></request>
+  <markable xmlns="urn:xmpp:chat-markers:0"></markable>
+  <body>test</body>
+ </message>
+ *
+ * answerd with 'received' from client2 in the room:
+ *<message xmlns="jabber:client" from="sos@jabber.ccc.de/shmoose.BRjADesktop" to="foobar@conference.jabber.ccc.de/ms<at>jabber.de" type="chat">
+  <received xmlns="urn:xmpp:receipts" id="d5ae426d-4969-4644-afce-8694d88bb1ec"></received>
+ </message>
+*/
+void MsgTest::testPlainRoomReceivedMsg()
+{
+    persistence_->clear();
+
+    std::shared_ptr<Swift::Message> message(new Swift::Message());
+    message->setFrom(Swift::JID("sos@jabber.ccc.de/shmoose.BRjADesktop"));
+    message->setTo(Swift::JID("foobar@conference.jabber.ccc.de/ms<at>jabber.de"));
+    const std::string id{"abcdef-ghijk-lmn"};
+    message->setID(id);
+
+    // received stanza
+    std::shared_ptr<Swift::DeliveryReceipt> rcpt(new Swift::DeliveryReceipt());
+    rcpt->setReceivedID("id-received-id");
+
+    message->addPayload(rcpt);
+
+    qDebug() << getSerializedStringFromMessage(message);
+
+    chatMarkers_->handleMessageReceived(message);
+
+    QCOMPARE(persistence_->message_, "");
+    QCOMPARE(persistence_->security_, 0);
+    QCOMPARE(persistence_->timestamp_, 0);
+    QCOMPARE(persistence_->resource_, "shmoose.BRjADesktop");
+    QCOMPARE(persistence_->receivedId_, "id-received-id");
+}
+
+
 void MsgTest::testPlainRoomWithTimestampMsg()
 {
     persistence_->clear();
