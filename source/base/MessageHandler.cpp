@@ -59,6 +59,9 @@ void MessageHandler::handleStanzaAcked(Swift::Stanza::ref stanza)
 
 void MessageHandler::handleMessageReceived(Swift::Message::ref message)
 {
+    if(message == nullptr)
+        return;
+
     //std::cout << "handleMessageReceived: jid: " << message->getFrom() << ", bare: " << message->getFrom().toBare().toString() << ", resource: " << message->getFrom().getResource() << std::endl;
 
     unsigned int security = 0;
@@ -71,9 +74,6 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     isGroupMessage_ = false;
     //qint64 start = Settings().getLatestMamSyncDate().toTime_t();
     qint64 start = QDateTime::currentDateTimeUtc().addDays(-14).toTime_t();
-
-    if(message == nullptr)
-        return;
 
     auto delay = message->getPayload<Swift::Delay>();
     if(delay != nullptr)
@@ -96,7 +96,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
                 isMamMsg = true;
                 message = forwardedMessage;
 
-                std::cout << "from:" << message->getFrom() << " to: " << message->getTo() << " body: ";
+                std::cout << "MAM from:" << message->getFrom() << " to: " << message->getTo() << " body: ";
                 boost::optional<std::string> fromBody = message->getBody();
                 if (fromBody)
                 {
@@ -149,7 +149,7 @@ void MessageHandler::handleMessageReceived(Swift::Message::ref message)
     }
     else if (success == 2)
     {
-        qDebug() << "handleMessageReceived: error during decryption).";
+        qDebug() << "handleMessageReceived: error during decryption.";
         QString cryptErrorMsg{tr("** Enrypted message could not be decrypted. Sorry. **")};
         message->setBody(cryptErrorMsg.toStdString());
     }

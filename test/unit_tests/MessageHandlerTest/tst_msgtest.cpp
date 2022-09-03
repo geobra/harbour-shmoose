@@ -127,9 +127,47 @@ void MsgTest::testPlain1to1DisplayedMsg()
     QCOMPARE(persistence_->idDisplayed_, "id-displayed-id");
 }
 
+void MsgTest::test1o1MsgInsideMam()
+{
+    persistence_->clear();
 
+    // generate a Forwardd stanza with that delay
+    std::shared_ptr<Swift::Forwarded> fwd(new Swift::Forwarded());
 
-// FIXME test 1o1 msg inside mam
+    // generate a stanza for the msg inside the mam and fwd container
+    std::shared_ptr<Swift::Message> msgStz(new Swift::Message());
+    msgStz->setFrom("sos@jabber.ccc.de/sosccc");
+    msgStz->setID("aac5cd6e-23b7-4eda-900a-ff838a1b3ade");
+    msgStz->setType(Swift::Message::Chat);
+    msgStz->setBody("An other mam");
+    fwd->setStanza(msgStz);
+
+    // add the forwarded stanza to mam
+    std::shared_ptr<Swift::MAMResult> mam(new Swift::MAMResult());
+    mam->setID("2022-07-13-88497cbc5a054b5f");
+    mam->setPayload(fwd);
+
+    // finally, make the outer message
+    std::shared_ptr<Swift::Message> message(new Swift::Message());
+    message->setTo(Swift::JID("sos@jabber-germany.de/shmoose.BRjADesktop"));
+    message->setFrom("server@jabber.ccc.de");
+
+    message->addPayload(mam);
+
+    qDebug() << getSerializedStringFromMessage(message);
+    messageHandler_->handleMessageReceived(message);
+
+    QCOMPARE(persistence_->id_, "aac5cd6e-23b7-4eda-900a-ff838a1b3ade");
+    QCOMPARE(persistence_->jid_, "sos@jabber.ccc.de");
+    QCOMPARE(persistence_->resource_, "sosccc");
+    QCOMPARE(persistence_->message_, "An other mam");
+    QCOMPARE(persistence_->type_, "txt");
+    QCOMPARE(persistence_->direction_, 1);
+    QCOMPARE(persistence_->security_, 0);
+    QCOMPARE(persistence_->timestamp_, 0);
+    QCOMPARE(messageHandler_->isGroupMessage_, false);
+}
+
 // FIXME test 1o1 received stanza inside mam
 // FIXME test 1o1 displayed stanza inside mam
 
