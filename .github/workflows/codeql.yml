@@ -1,0 +1,68 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  schedule:
+    - cron: "51 22 * * 3"
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ cpp ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes qt5-default libqt5sql5-sqlite qtdeclarative5-dev qml-module-qtquick2 qml-module-qtquick-controls libssl-dev
+
+      - name: Configure
+        run: |
+          pwd
+          git clone https://github.com/gkdr/libomemo
+          cd libomemo && git checkout tags/v0.7.0 && make && cd ..
+          git clone https://github.com/gkdr/axc
+          cd axc && git checkout tags/v0.3.3 && git submodule update --init && make
+          cd lib/libsignal-protocol-c/ && mkdir build && cd build && cmake .. && make && cd ../../../..
+          mkdir _lgtm_build_dir
+          cd _lgtm_build_dir
+          qmake .. DEFINES+=TRAVIS
+
+      - name: After Prepare
+        run: |
+          pwd
+          wget https://swift.im/downloads/releases/swift-4.0.2/swift-4.0.2.tar.gz
+          tar -xf swift-4.0.2.tar.gz
+          cd swift-4.0.2
+          sed -i -E "s/(env\[\"BOOST_BUNDLED\"\] = True)/\1\n\1/" BuildTools/SCons/SConstruct
+          sed -i -E "s/(env\[\"EXPAT_BUNDLED\"\] = True)/\1\n\1/" BuildTools/SCons/SConstruct
+          ./scons Swiften
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          queries: +security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{ matrix.language }}"
